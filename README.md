@@ -28,6 +28,7 @@ TBD
 
 do the following so we can modify
 
+```
 mkdir linux
 mkdir boot
 cp  ../*.img 00.img
@@ -36,7 +37,7 @@ brew install ext4fuse
 hdiutil mount 00.img 
 ext4fuse /dev/disk2s2 linux
 less linux/etc/hosts
-
+```
 
 # Links
 
