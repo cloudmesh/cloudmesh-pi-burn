@@ -5,12 +5,15 @@ cm-burn —name  red[5,7] -key ~/.ssh/id_rsa.pub —ip 192.168.1.[5,7] —image 
 
 # Install
 
-git clone ...
-cd cm-burn
-pip install .
+  git clone https://github.com/cloudmesh-community/cm-burn.git
+  cd cm-burn
+  pip install .
 
 or
 
+  pip install git+https://github.com/cloudmesh-community/cm-burn
+
+ALL UNTESTED!
 
 # mount idea
 
