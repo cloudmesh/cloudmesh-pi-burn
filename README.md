@@ -5,15 +5,24 @@ cm-burn —name  red[5,7] -key ~/.ssh/id_rsa.pub —ip 192.168.1.[5,7] —image 
 
 # Install
 
+```
   git clone https://github.com/cloudmesh-community/cm-burn.git
   cd cm-burn
   pip install .
-
+```
 or
 
+```
   pip install git+https://github.com/cloudmesh-community/cm-burn
+```
 
 ALL UNTESTED!
+
+# Instalation via docker
+
+The following instructions will install cm-burn via docker on your platform
+
+TBD
 
 # mount idea
 
@@ -27,6 +36,7 @@ brew install ext4fuse
 hdiutil mount 00.img 
 ext4fuse /dev/disk2s2 linux
 less linux/etc/hosts
+
 
 # Links
 
