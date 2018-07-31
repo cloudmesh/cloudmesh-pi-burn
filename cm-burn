@@ -1,0 +1,178 @@
+#! /usr/bin/env python
+
+"""Cloudmesh Raspberry Pi Mass Image Burner.
+
+Usage:
+  cm-burn create --group GROUP --names HOSTS [--key KEY] --image IMAGE --ip IPS 
+  cm-burn ls
+  cm-burn rm IMAGE
+  cm-burn get [URL]
+  cm-burn update
+
+  cm-burn (-h | --help)
+  cm-burn --version
+
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+
+Files:
+  This is not fully thought through and needs to be documented
+  ~/.cloudmesh/images
+  ~/.cloudmesh/inventory
+  Location where the images will be stored for reuse
+
+Description:
+
+  cm-burn create --names HOSTS [--key KEY] --image IMAGE
+
+  cm-burn update
+        updates the downloaded images if new once are available
+        
+  cm-burn ls
+        lists the downloaded images
+
+  cm-burn rm IMAGE
+        remove the image
+
+  cm-burn get URL
+        downloads the image at the given URL
+
+  cm-burn get jessie
+        abbreviation to download a specific version of an image.
+        Identify what woudl be useful.
+
+Example:
+  cm-burn create --names red[000-010] --key idrsa.pub --image rasbian_latest
+"""
+
+from docopt import docopt
+import os
+import hostlist
+from prompter import yesno
+import platform
+
+VERSION = "0.1"
+debug = True
+
+# if "ubuntu" not in platform.platform().lower():
+#     print("At thi stime only ubuntu is supported")
+
+# Could we not run this on a pi instead?
+
+
+columns, lines = os.get_terminal_size()
+
+IMAGE_DIR=os.path.expanduser("~/.cloudmesh/images")
+
+def print_function_name(func):
+    def echo_func(*func_args, **func_kwargs):
+        print('')
+        print(columns * '-')
+        print('Executing {}'.format(func.__name__))
+        print(columns * '-')
+        return func(*func_args, **func_kwargs)
+
+    return echo_func
+
+
+def execute(commands):
+    lines = commands.split("\n")
+    for line in lines:
+        os.system(line)
+
+
+@print_function_name
+def get(image):
+    print(image)
+    # if image_dir does not exists
+    #    mkdir IMAGE_DIR
+    if image is None:
+        image = "https://downloads.raspberrypi.org/raspbian_latest"
+    script = """
+    cd {dir}; wget {image}
+    """.format(dir=IMAGE_DIR, image=image)
+    execute(script)
+
+
+@print_function_name
+def rm(image):
+    print(image)
+
+@print_function_name
+def ls():
+    script = """
+    ls  -1 {dir}
+    """.format(dir=IMAGE_DIR)
+    execute(script)
+
+class burn (object):
+
+	def __init__ (self):
+		pass
+
+	def image(self, imagepath):
+		# set the image
+		pass
+
+	def device(self, devicename):
+		# set the device
+        pass
+
+	def burn(self):
+		# burn image on device
+        pass
+
+	def hostname(self, name):
+		# set the hostname
+        pass
+
+	def key(self, keypath):
+		# set the keypath
+        pass
+
+	def ip(self, ipaddress):
+		# set ip
+        pass
+
+@print_function_name
+def create(names, key):
+    hosts = hostlist.expand_hostlist(names)
+    print(hosts, key)
+    for host in hosts:
+        print(columns * '-')
+        print ("Burning", host)
+        print(columns * '-')
+        yesno('Please insert the card for ' + host + "(y)?")
+
+        print("wait till its recognized")
+        print("onec in conformation proceed")
+        print("burn")
+        print("Please remove the card for host", host)
+        yesno("Press y once the card is removed")
+
+        print("take the card out")
+
+
+
+
+
+def analyse():
+    if arguments["rm"]:
+        rm(arguments["IMAGE"])
+    elif arguments["get"]:
+        get(arguments["URL"])
+    elif arguments["ls"]:
+        ls()
+    elif arguments["rm"]:
+        rm(arguments["IMAGE"])
+    elif arguments["create"]:
+        create(arguments["HOSTS"], arguments["KEY"])
+
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__, version=VERSION)
+    if debug:
+        print(arguments) # just for debugging
+
+    analyse()
