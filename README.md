@@ -3,6 +3,17 @@
 
 cm-burn —name  red[5,7] -key ~/.ssh/id_rsa.pub —ip 192.168.1.[5,7] —image ~/Downloads/rasbian…..
 
+# Prerequisits
+
+## OSX 
+
+On OSX you will need brew and install osxfuse and ext4fuse
+
+```
+brew cask install osxfuse
+brew install ext4fuse
+```
+
 # Install
 
 ```
