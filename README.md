@@ -7,6 +7,8 @@ cm-burn —name  red[5,7] -key ~/.ssh/id_rsa.pub —ip 192.168.1.[5,7] —image 
 
 ## OSX 
 
+As you will need to access some file systems, yo uneed to make sure that the script is run as sudo.
+
 On OSX you will need brew and install osxfuse and ext4fuse
 
 ```
