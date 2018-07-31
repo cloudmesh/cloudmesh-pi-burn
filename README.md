@@ -33,6 +33,8 @@ ALL UNTESTED!
 
 # Check install
 
+!! NOT IMPLEMENTED YET
+
 The command
 
 ```cm-burn check install```
