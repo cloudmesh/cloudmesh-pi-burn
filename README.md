@@ -31,6 +31,15 @@ pip install git+https://github.com/cloudmesh-community/cm-burn
 
 ALL UNTESTED!
 
+# Check install
+
+The command
+
+```cm-burn check install```
+
+will check if you have installed all prerequisits and are able to run the command as on some OSes you must be in the sudo list to runi it and access the SDcard burner as well as mounting some file systems.
+
+
 # Instalation via docker
 
 The following instructions will install cm-burn via docker on your platform
