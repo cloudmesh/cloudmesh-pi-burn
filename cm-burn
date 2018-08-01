@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-
 """Cloudmesh Raspberry Pi Mass Image Burner.
 
 Usage:
@@ -8,49 +7,38 @@ Usage:
   cm-burn rm IMAGE
   cm-burn get [URL]
   cm-burn update
-
   cm-burn (-h | --help)
   cm-burn --version
-
 Options:
   -h --help     Show this screen.
   --version     Show version.
-
 Files:
   This is not fully thought through and needs to be documented
   ~/.cloudmesh/images
   ~/.cloudmesh/inventory
   Location where the images will be stored for reuse
-
 Description:
-
   cm-burn create --names HOSTS [--key KEY] --image IMAGE
-
   cm-burn update
         updates the downloaded images if new once are available
-        
   cm-burn ls
         lists the downloaded images
-
   cm-burn rm IMAGE
         remove the image
-
   cm-burn get URL
         downloads the image at the given URL
-
   cm-burn get jessie
         abbreviation to download a specific version of an image.
         Identify what woudl be useful.
-
 Example:
   cm-burn create --names red[000-010] --key idrsa.pub --image rasbian_latest
 """
-
-from docopt import docopt
 import os
+from docopt import docopt
 import hostlist
 from prompter import yesno
 import platform
+import wget
 
 VERSION = "0.1"
 debug = True
@@ -63,7 +51,7 @@ debug = True
 
 columns, lines = os.get_terminal_size()
 
-IMAGE_DIR=os.path.expanduser("~/.cloudmesh/images")
+IMAGE_DIR=os.path.expanduser("images")
 
 def print_function_name(func):
     def echo_func(*func_args, **func_kwargs):
@@ -75,24 +63,24 @@ def print_function_name(func):
 
     return echo_func
 
-
 def execute(commands):
     lines = commands.split("\n")
     for line in lines:
         os.system(line)
 
-
 @print_function_name
 def get(image):
     print(image)
-    # if image_dir does not exists
-    #    mkdir IMAGE_DIR
+    if not os.path.exists(IMAGE_DIR):
+        os.makedirs(IMAGE_DIR)
     if image is None:
         image = "https://downloads.raspberrypi.org/raspbian_latest"
-    script = """
-    cd {dir}; wget {image}
-    """.format(dir=IMAGE_DIR, image=image)
-    execute(script)
+   # script = """
+    #cd {dir}
+    #""".format(dir=os.getcwd() + '\\' + IMAGE_DIR)
+    #print(script)
+    os.chdir(IMAGE_DIR)
+    wget.download(image)
 
 
 @print_function_name
@@ -117,41 +105,43 @@ class burn (object):
 
 	def device(self, devicename):
 		# set the device
-        pass
+		pass
 
 	def burn(self):
-		# burn image on device
-        pass
+		# burn image opython device
+		pass
 
 	def hostname(self, name):
 		# set the hostname
-        pass
+		pass
 
 	def key(self, keypath):
 		# set the keypath
-        pass
+		pass
 
 	def ip(self, ipaddress):
 		# set ip
-        pass
+		pass
+
 
 @print_function_name
 def create(names, key):
+    get("https://downloads.raspberrypi.org/raspbian_latest")
     hosts = hostlist.expand_hostlist(names)
     print(hosts, key)
-    for host in hosts:
-        print(columns * '-')
-        print ("Burning", host)
-        print(columns * '-')
-        yesno('Please insert the card for ' + host + "(y)?")
+    #for host in hosts:
+     #   print(columns * '-')
+     #   print ("Burning", host)
+     #   print(columns * '-')
+     #   yesno('Please insert the card for ' + host + "(y)?")
 
-        print("wait till its recognized")
-        print("onec in conformation proceed")
-        print("burn")
-        print("Please remove the card for host", host)
-        yesno("Press y once the card is removed")
+     #   print("wait till its recognized")
+    #  print("onec in conformation proceed")
+     #   print("burn")
+     #   print("Please remove the card for host", host)
+     #   yesno("Press y once the card is removed")
 
-        print("take the card out")
+      #  print("take the card out")
 
 
 
@@ -168,11 +158,11 @@ def analyse():
         rm(arguments["IMAGE"])
     elif arguments["create"]:
         create(arguments["HOSTS"], arguments["KEY"])
-
-
 if __name__ == '__main__':
     arguments = docopt(__doc__, version=VERSION)
+    print('test')
     if debug:
-        print(arguments) # just for debugging
-
+       print(arguments) # just for debugging
     analyse()
+
+
