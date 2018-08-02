@@ -80,7 +80,8 @@ def get(image):
     #""".format(dir=os.getcwd() + '\\' + IMAGE_DIR)
     #print(script)
     os.chdir(IMAGE_DIR)
-    wget.download(image)
+    print(image[0])
+    wget.download(image[0])
 
 
 @print_function_name
@@ -125,32 +126,33 @@ class burn (object):
 
 
 @print_function_name
-def create(names, key):
-    get("https://downloads.raspberrypi.org/raspbian_latest")
+def create(names, key):   
     hosts = hostlist.expand_hostlist(names)
     print(hosts, key)
-    #for host in hosts:
-     #   print(columns * '-')
-     #   print ("Burning", host)
-     #   print(columns * '-')
-     #   yesno('Please insert the card for ' + host + "(y)?")
+    for host in hosts:
+        print(columns * '-')
+        print ("Burning", host)
+        print(columns * '-')
+        #yesno('Please insert the card for ' + host + "(y)?")
 
-     #   print("wait till its recognized")
-    #  print("onec in conformation proceed")
-     #   print("burn")
-     #   print("Please remove the card for host", host)
-     #   yesno("Press y once the card is removed")
+        print("wait till its recognized")
+        print("onec in conformation proceed")
+        print("burn")
+        print("Please remove the card for host", host)
+        #yesno("Press y once the card is removed")
 
-      #  print("take the card out")
+        print("take the card out")
 
 
 
 
 
 def analyse():
+    print(arguments["create"])
     if arguments["rm"]:
-        rm(arguments["IMAGE"])
+        rm(arguments["image"])
     elif arguments["get"]:
+        print(arguments["URL"])
         get(arguments["URL"])
     elif arguments["ls"]:
         ls()
@@ -164,5 +166,3 @@ if __name__ == '__main__':
     if debug:
        print(arguments) # just for debugging
     analyse()
-
-
