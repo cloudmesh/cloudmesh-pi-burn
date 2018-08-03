@@ -54,6 +54,8 @@ change /etc/hostname
 
 # Activate Network
 
+see <https://www.raspberrypi.org/learning/networking-lessons/rpi-static-ip-address/>
+
 # Change default password
 
 From the net (wrong method):
