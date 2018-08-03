@@ -65,3 +65,5 @@ You probably then want to create a new password by using the passwd command afte
 The right thing to do is to create a new hash and store it in place of x.
 not yet sure how that can be done a previous student from the class may have been aboe to do that 
 Bertholt is firstname.
+
+could this wokr? <https://unix.stackexchange.com/questions/81240/manually-generate-password-for-etc-shadow>
