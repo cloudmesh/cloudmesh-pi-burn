@@ -1,6 +1,7 @@
 # Links
 
 * <https://github.com/cloudmesh-community/hid-sp18-419/blob/master/cluster/headless_setup.md>
+* <https://medium.com/@viveks3th/how-to-bootstrap-a-headless-raspberry-pi-with-a-mac-6eba3be20b26>
 
 # Instructions for ext3/4 File Mounting in Windows
 
