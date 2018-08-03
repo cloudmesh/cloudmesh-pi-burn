@@ -1,0 +1,18 @@
+Instructions for ext3/4 File Mounting in Windows
+
+Download the Open source ext3/4 file system driver for Windows installer from
+http://www.ext2fsd.com/
+
+Download CommandLineDiskImager from the following url
+https://github.com/davidferguson/CommandLineDiskImager
+Burn the raspbian image to the SD card with the executable
+ex: CommandLineDiskImager.exe C:\Users\John\Downloads\raspbian.img G
+
+Open Ext2fsd exe
+The SD card will 2 partition
+FAT32 partition will be assigned with the Drive letter
+Assign Drive Letter for EXT4 (Right click on the EXT4, Assign letter. The drive letter will be used while running cm-burn)
+Setting Automount of this EXT4
+F3 or Tools->Ext2 Volume Managemnt
+Check-> Automatically mount via Ext2Mgr
+
