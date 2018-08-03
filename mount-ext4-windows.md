@@ -40,7 +40,7 @@ copy the content of the file ~/.ssh/id_rsa.pub into ???/.ssh/authorized_keys
 
 enable ssh on the other partition while creating the fike to activate ssh
 
-# #Activate Network
+# Activate Network
 
 # Change default password
 
