@@ -35,6 +35,8 @@ Burn the raspbian image to the SD card with the executable
 
 # Activate SSH
 
+see method 3 in <https://www.raspberrypi.org/documentation/remote-access/ssh/>
+
 Draft:
 
 Set up ssh key on windows (use and document the ubbuntu on windows thing)
