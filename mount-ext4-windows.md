@@ -56,7 +56,8 @@ From the net (wrong method):
 
 Mount the SD card, go into the file system, and edit /etc/passwd. Find the line starting with "pi" that begins like this:
 
-pi:x:1000:1000...
+```pi:x:1000:1000...```
+
 Get rid of the x; leave the colons on either side. This will eliminate the need for a password.
 
 You probably then want to create a new password by using the passwd command after you log in.
