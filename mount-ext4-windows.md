@@ -2,6 +2,7 @@
 
 * <https://github.com/cloudmesh-community/hid-sp18-419/blob/master/cluster/headless_setup.md>
 * <https://medium.com/@viveks3th/how-to-bootstrap-a-headless-raspberry-pi-with-a-mac-6eba3be20b26>
+  * network setup is not good as it requires additional step, we want to preconfigure on sd card and plug in multiple pis at once not a single one.
 
 # Instructions for ext3/4 File Mounting in Windows
 
