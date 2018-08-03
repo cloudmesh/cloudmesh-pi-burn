@@ -67,3 +67,5 @@ not yet sure how that can be done a previous student from the class may have bee
 Bertholt is firstname.
 
 could this wokr? <https://unix.stackexchange.com/questions/81240/manually-generate-password-for-etc-shadow>
+
+```python3 -c "from getpass import getpass; from crypt import *; p=getpass(); print('\n'+crypt(p, METHOD_SHA512)) if p==getpass('Please repeat: ') else print('\nFailed repeating.')"```
