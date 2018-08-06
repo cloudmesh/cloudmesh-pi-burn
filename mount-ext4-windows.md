@@ -33,6 +33,11 @@ Burn the raspbian image to the SD card with the executable
 
 * Check-> Automatically mount via Ext2Mgr
 
+# Elevate permissions Python.exe in Windows
+* Create a shortcut for python.exe
+* Change the shortcut target into something like C:\xxx\...\python.exe your_script.py
+* Click "advance..." in the property panel of the shortcut, and click the option "run as administrator"
+
 # Activate SSH
 
 see method 3 in <https://www.raspberrypi.org/documentation/remote-access/ssh/>
