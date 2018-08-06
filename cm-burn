@@ -104,6 +104,14 @@ class piburner (object):
 	self.windows_pi_drive = "I"
         pass
 
+    def set_drive_abc(self, abc)
+	# not sure what this drive is so replace abc with somethingmeaningfull
+	self.windows_drive = abc
+
+    def set_drive_def(self, def)
+	# not sure what this drive is so replace def with somethingmeaningfull
+	self.windows_drive = def
+	
     def image(self, imagepath):
         # set the image
         pass
