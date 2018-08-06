@@ -1,3 +1,4 @@
 hostlist
 docopt
 prompter
+wget
