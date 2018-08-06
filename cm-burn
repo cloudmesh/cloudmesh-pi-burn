@@ -40,6 +40,7 @@ import hostlist
 from prompter import yesno
 import platform
 import wget
+import pathlib
 
 
 VERSION = "0.1"
@@ -128,6 +129,10 @@ class piburner (object):
        # os.makedirs(IMAGE_DIR)
        script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}
        """.format(dir=os.getcwd(), drive=self.windows_drive)
+       # also dir needs to be done in pathlib
+       #diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
+       #script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
+       #""".format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
        print(script)
        execute(script)
        
@@ -135,7 +140,7 @@ class piburner (object):
     def hostname(self, host):
         # set the hostname 
         self.host = host
-        wr = open(r'I:\\etc\\hostname', 'w')
+        wr = open(r'{drive}:\\etc\\hostname'.format(drive=self.windows_pi_drive, 'w')
         wr.write(host)
         print(self.host)
         
