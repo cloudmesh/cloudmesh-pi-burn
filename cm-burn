@@ -149,13 +149,14 @@ class piburner (object):
         wifi = """
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev update_config=1 country=US
 network={{
-        {network}="NETGEAR08"
-        {pwd}="hot+coffee"
+        ssid=\"{network}\"
+        psk=\"{pwd}\"
         key_mgmt=WPA-PSK
 }}""".format(network=ssid,pwd=psk)
         print(wifi)
         wr = open(r'I:\\etc\\wpa_supplicant\wpa_supplicant.conf', 'w')
         wr.write(wifi)
+    
     def ip(self, ipaddress):
         # set ip
         pass
@@ -175,13 +176,17 @@ def create(names, key):
         print(columns * '-')
         yesno('Please insert the card for ' + host + "(y)?")
         print("wait till its recognized")
-        print("onec in conformation proceed")
+        print("once in conformation proceed")
+        
         burner.burn()
         print("burn")        
+        
         burner.hostname(host)
         print("Updating host")  
+        
         burner.wifi("Testwifi","TestPassword")
         print("Updating wifi")  
+        
         burner.key(key)
         print("Updating ssh")  
         print("Please remove the card for host", host)
