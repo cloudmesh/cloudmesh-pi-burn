@@ -100,6 +100,8 @@ def ls():
 class piburner (object):
 
     def __init__ (self):
+	self.windows_drive = "G"
+	self.windows_pi_drive = "I"
         pass
 
     def image(self, imagepath):
@@ -114,8 +116,8 @@ class piburner (object):
        # burn image opython device
        #if not os.path.exists(IMAGE_DIR):
        # os.makedirs(IMAGE_DIR)
-       script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img G
-       """.format(dir=os.getcwd())
+       script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}
+       """.format(dir=os.getcwd(), drive=self.windows_drive)
        print(script)
        execute(script)
        
@@ -133,15 +135,15 @@ class piburner (object):
         self.keypath = keypath
         print(self.keypath)   
         #enable ssh by creating a ssh file in the boot folder
-        f= open("G:\\ssh","w+") 
+        f= open("{drive}:\\ssh".format(drive=self.windows_drive),"w+") 
         #Create directory .ssh
-        script = "mkdir I:\\home\\pi\\.ssh"    
+        script = "mkdir {drive}:\\home\\pi\\.ssh".format(drive=self.windows_pi_drive)    
         execute(script)
         #Read contents of the ssh rsa file 
         with open(keypath, 'r') as content_file:
             content = content_file.read()
         #Write the content of the ssh rsa to the authorized_keys file
-        wr = open(r'I:\\home\\pi\\.ssh\\authorized_keys', 'w')
+        wr = open(r'{drive}:\\home\\pi\\.ssh\\authorized_keys'.format(drive=self.windows_pi_drive, 'w')
         wr.write(content)
         
     def wifi(self,ssid,psk):
@@ -154,7 +156,7 @@ network={{
         key_mgmt=WPA-PSK
 }}""".format(network=ssid,pwd=psk)
         print(wifi)
-        wr = open(r'I:\\etc\\wpa_supplicant\wpa_supplicant.conf', 'w')
+        wr = open(r'{drive}:\\etc\\wpa_supplicant\wpa_supplicant.conf'.format(drive=self.windows_pi_drive, 'w')
         wr.write(wifi)
     
     def ip(self, ipaddress):
