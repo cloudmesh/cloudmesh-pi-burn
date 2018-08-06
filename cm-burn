@@ -103,21 +103,21 @@ class piburner (object):
 
     @print_function_name
     def __init__ (self):
-	# store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
-	# defaults from tehre if the file exist
-	self.windows_drive = "G"
-	self.windows_pi_drive = "I"
-	self.home = pathlib.Path(path.expanduser("~"))
-	self.cloudmesh_pi = pathlib.Path(self.home / ".cloudmesh" / "pi")
+        # store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
+        # defaults from tehre if the file exist
+        self.windows_drive = "G"
+        self.windows_pi_drive = "I"
+        self.home = pathlib.Path(path.expanduser("~"))
+        self.cloudmesh_pi = pathlib.Path(self.home / ".cloudmesh" / "pi")
         pass
 
     def set_drive_abc(self, abc)
-	# not sure what this drive is so replace abc with somethingmeaningfull
-	self.windows_drive = abc
+        # not sure what this drive is so replace abc with somethingmeaningfull
+        self.windows_drive = abc
 
     def set_drive_def(self, def)
-	# not sure what this drive is so replace def with somethingmeaningfull
-	self.windows_drive = def
+        # not sure what this drive is so replace def with somethingmeaningfull
+        self.windows_drive = def
 	
     def image(self, imagepath):
         # set the image
@@ -128,17 +128,17 @@ class piburner (object):
         pass
 
     def burn(self):
-       # burn image opython device
-       #if not os.path.exists(IMAGE_DIR):
-       # os.makedirs(IMAGE_DIR)
-       script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}
-       """.format(dir=os.getcwd(), drive=self.windows_drive)
-       # also dir needs to be done in pathlib
-       #diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
-       #script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
-       #""".format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
-       print(script)
-       execute(script)
+        # burn image opython device
+        #if not os.path.exists(IMAGE_DIR):
+        # os.makedirs(IMAGE_DIR)
+        script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}
+        """.format(dir=os.getcwd(), drive=self.windows_drive)
+        # also dir needs to be done in pathlib
+        #diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
+        #script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
+        #""".format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
+        print(script)
+        execute(script)
        
  
     def hostname(self, host):
