@@ -101,6 +101,7 @@ def ls():
 
 class piburner (object):
 
+    @print_function_name
     def __init__ (self):
 	# store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
 	# defaults from tehre if the file exist
