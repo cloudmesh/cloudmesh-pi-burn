@@ -123,15 +123,39 @@ class piburner (object):
     def hostname(self, host):
         # set the hostname 
         self.host = host
+        wr = open(r'I:\\etc\\hostname', 'w')
+        wr.write(host)
         print(self.host)
         
 	
     def key(self, keypath):
         # set the keypath
         self.keypath = keypath
-        print(self.keypath)
+        print(self.keypath)   
+        #enable ssh by creating a ssh file in the boot folder
+        f= open("G:\\ssh","w+") 
+        #Create directory .ssh
+        script = "mkdir I:\\home\\pi\\.ssh"    
+        execute(script)
+        #Read contents of the ssh rsa file 
+        with open(keypath, 'r') as content_file:
+            content = content_file.read()
+        #Write the content of the ssh rsa to the authorized_keys file
+        wr = open(r'I:\\home\\pi\\.ssh\\authorized_keys', 'w')
+        wr.write(content)
         
-
+    def wifi(self,ssid,psk):
+        #set wifi
+        wifi = """
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev update_config=1 country=US
+network={{
+        {network}="NETGEAR08"
+        {pwd}="hot+coffee"
+        key_mgmt=WPA-PSK
+}}""".format(network=ssid,pwd=psk)
+        print(wifi)
+        wr = open(r'I:\\etc\\wpa_supplicant\wpa_supplicant.conf', 'w')
+        wr.write(wifi)
     def ip(self, ipaddress):
         # set ip
         pass
@@ -142,21 +166,26 @@ def create(names, key):
     hosts = hostlist.expand_hostlist(names)
     #print(hosts, key)
     burner = piburner()
-    burner.key(key)
+    #burner.key(key)
     
     for host in hosts:
         print(columns * '-')
         print ("Burning", host)
         #break
         print(columns * '-')
-        #yesno('Please insert the card for ' + host + "(y)?")
-
+        yesno('Please insert the card for ' + host + "(y)?")
         print("wait till its recognized")
         print("onec in conformation proceed")
         burner.burn()
-        print("burn")
+        print("burn")        
+        burner.hostname(host)
+        print("Updating host")  
+        burner.wifi("Testwifi","TestPassword")
+        print("Updating wifi")  
+        burner.key(key)
+        print("Updating ssh")  
         print("Please remove the card for host", host)
-        #yesno("Press y once the card is removed")
+        yesno("Press y once the card is removed")
 
         print("take the card out")
         break
