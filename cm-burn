@@ -111,13 +111,13 @@ class piburner (object):
         self.cloudmesh_pi = pathlib.Path(self.home / ".cloudmesh" / "pi")
         pass
 
-    def set_drive_abc(self, abc)
+    def set_drive_abc(self, abc):
         # not sure what this drive is so replace abc with somethingmeaningfull
         self.windows_drive = abc
 
-    def set_drive_def(self, def)
-        # not sure what this drive is so replace def with somethingmeaningfull
-        self.windows_drive = def
+    def set_drive_def(self, efg):
+        # not sure what this drive is so replace efg with somethingmeaningfull
+        self.windows_drive = efg
 	
     def image(self, imagepath):
         # set the image
