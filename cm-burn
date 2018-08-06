@@ -41,6 +41,7 @@ from prompter import yesno
 import platform
 import wget
 import pathlib
+from os import path
 
 
 VERSION = "0.1"
@@ -105,6 +106,8 @@ class piburner (object):
 	# defaults from tehre if the file exist
 	self.windows_drive = "G"
 	self.windows_pi_drive = "I"
+	self.home = pathlib.Path(path.expanduser("~"))
+	self.cloudmesh_pi = pathlib.Path(self.home / ".cloudmesh" / "pi")
         pass
 
     def set_drive_abc(self, abc)
