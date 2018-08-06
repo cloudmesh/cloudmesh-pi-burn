@@ -100,6 +100,8 @@ def ls():
 class piburner (object):
 
     def __init__ (self):
+	# store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
+	# defaults from tehre if the file exist
 	self.windows_drive = "G"
 	self.windows_pi_drive = "I"
         pass
