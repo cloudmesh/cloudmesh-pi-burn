@@ -2,7 +2,8 @@
 """Cloudmesh Raspberry Pi Mass Image Burner.
 
 Usage:
-  cm-burn create --group GROUP --names HOSTS --image IMAGE [--key KEY]  [--ip IPS]
+  cm-burn create --group GROUP --names HOSTS --image IMAGE [--key=KEY]  [--ips=IPS]
+  cm-burn gregor --group GROUP --names HOSTS --image IMAGE [--key=KEY]  [--ips=IPS]
   cm-burn ls
   cm-burn rm IMAGE
   cm-burn get [URL]
@@ -13,6 +14,8 @@ Usage:
 Options:
   -h --help     Show this screen.
   --version     Show version.
+  --key=KEY     the path of the public key [default: ~/.ssh/id_rsa.pub].
+  --ips=IPS     th ips in hostlist format
 
 Files:
   This is not fully thought through and needs to be documented
@@ -35,7 +38,8 @@ Description:
         Identify what would be useful.
 
 Example:
-  cm-burn create --names red[000-010] --key idrsa.pub --image rasbian_latest
+  cm-burn create --names red[000-010] ips --image rasbian_latest
+
 """
 import os
 import subprocess
@@ -51,6 +55,7 @@ import glob
 import shutil
 import progressbar
 import requests
+import zipfile
 
 VERSION = "0.1"
 debug = True
@@ -310,6 +315,30 @@ network={{
         # set ip
         pass
 
+    def create_burn_image(self, name):
+        tmp = pathlib.Path(self.cloudmesh_images) / "tmp"
+        if not os.path.exists(tmp):
+            # TODO: check if this works if path is ~/.cloudmesh/images
+            os.makedirs(tmp)
+        os.chdir(tmp)
+        source = "2018-06-27-raspbian-stretch.zip" # hardcoded for now for testing
+        image_zip = pathlib.Path(self.cloudmesh_images  / source)
+        print ("copy image", image_zip)
+        shutil.copy(image_zip, source)
+        print("unzip image", image_zip)
+        zipfile.ZipFile(source).extractall()
+        img_name = source.replace("zip", "img")
+        shutil.copy(img_name, name + ".img")
+
+
+    def gregor(self, names, key, ssid=None, psk=None):
+        global columns
+        for name in hostlist.expand_hostlist(names):
+            print(columns * "-")
+            print (name)
+            print(columns * "-")
+
+            self.create_burn_image(name)
 
     def create(self, names, key, ssid=None, psk=None):
         """
@@ -373,6 +402,9 @@ network={{
 
 
 def analyse():
+    if debug:
+        print (arguments)
+
     if arguments["rm"]:
         rm(arguments["image"])
     elif arguments["get"]:
@@ -392,10 +424,19 @@ def analyse():
     elif arguments["rm"]:
         rm(arguments["IMAGE"])
     elif arguments["create"]:
-        create(arguments["HOSTS"],
+        burner = piburner()
+        burner.create(arguments["HOSTS"],
                arguments["KEY"],
                arguments["SSID"],
                arguments["PSK"])
+    elif arguments["gregor"]:
+
+        burner = piburner()
+
+        burner.gregor(
+            arguments["HOSTS"],
+            arguments["--key"]
+        )
 
 
 if __name__ == '__main__':
