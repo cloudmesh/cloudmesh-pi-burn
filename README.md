@@ -50,6 +50,8 @@ TBD
 
 # mount idea
 
+must be run as sudo 
+
 do the following so we can modify
 
 ```
@@ -77,8 +79,12 @@ ls /Volumes/boot/
 However to access the LInux partition we need to mount it with fuse
 
 ```
+sudo mkdir /Volumes/Linux
+sudo ext4fuse /dev/disk2s2 /Volumes/Linux -o allow_other
 ext4fuse /dev/disk2s2 linux
 less linux/etc/hosts
+sudo umount /Volumes/Linux 
+
 ```
 
 
