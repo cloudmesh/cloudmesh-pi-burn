@@ -56,6 +56,8 @@ import shutil
 import progressbar
 import requests
 import zipfile
+import sys
+from pprint import pprint
 
 VERSION = "0.1"
 debug = True
@@ -83,6 +85,8 @@ def print_function_name(func):
 
     return echo_func
 
+def run(command):
+    return subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8')
 
 def execute(commands):
     """
@@ -330,9 +334,48 @@ network={{
         img_name = source.replace("zip", "img")
         shutil.copy(img_name, name + ".img")
 
+    def find_linux_device(self, devices):
+        # find linux mount point
+        for device in devices:
+            if device["scheme"] == "Linux":
+                return device
+        return None
+
     def mount_burn_image(self, name):
-        print("not yet implemented")
-        pass
+        if sys.platform == "darwin":
+            tmp = pathlib.Path(self.cloudmesh_images) / "tmp"
+            if not os.path.exists(tmp):
+                # TODO: check if this works if path is ~/.cloudmesh/images
+                os.makedirs(tmp)
+            os.chdir(tmp)
+            print ("TMP:",  tmp)
+            print ("NAME:", name)
+
+            output = run(["hdiutil", "mount", name]).strip()
+            print (output)
+            # parse hdutil
+            devices = []
+            for line in output.split("\n"):
+                info = {
+                    "dev": None,
+                    "scheme": None,
+                    "mountpoint": None
+                }
+                result = line.split()
+                info["dev"] = result[0]
+                info["scheme"] = result [1]
+                if len(result) > 2:
+                    info["mountpoint"] = result[2]
+                devices.append(info)
+            pprint(devices)
+            linux = self.find_linux_device(devices)
+            pprint (linux)
+            output = run(["ext4fuse", linux["dev"], "linux"])
+            print(output)
+
+
+        else:
+            print("not implemented")
 
     def gregor(self, names, key, ssid=None, psk=None):
         global columns
@@ -342,7 +385,7 @@ network={{
             print(columns * "-")
 
             #self.create_burn_image(name)
-            self.mount_burn_image(name)
+            self.mount_burn_image(name + ".img")
 
     def create(self, names, key, ssid=None, psk=None):
         """
