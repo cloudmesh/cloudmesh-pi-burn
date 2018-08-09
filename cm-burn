@@ -115,29 +115,34 @@ class piburner (object):
         self.windows_drive = "G"
         self.windows_pi_drive = "I"
         self.home = pathlib.Path(path.expanduser("~"))
+        # BUG: is this not the image directory?
+        # should that not also be declaerd globally with pathlib
         self.cloudmesh_pi = pathlib.Path(self.home / ".cloudmesh" / "pi")
         pass
 
     def set_root_drive(self, abc):
-        # not sure what this drive is so replace abc with somethingmeaningfull
+        # BUG: not sure what this drive is so replace abc with somethingmeaningfull
         self.root_drive = abc
 
     def set_boot_drive(self, efg):
-        # not sure what this drive is so replace efg with somethingmeaningfull
+        # BUG: not sure what this drive is so replace efg with somethingmeaningfull
         self.boot_drive = efg
 	
     def image(self, imagepath):
         # set the image
+        BUG: not implemented
         pass
  
     def device(self, devicename):
         # set the device
+        BUG: not implemented
         pass
 
     def burn(self):
         # burn image opython device
         #if not os.path.exists(IMAGE_DIR):
         # os.makedirs(IMAGE_DIR)
+        # BUG: if condition is not implemented 
         script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}
         """.format(dir=os.getcwd(), drive=self.windows_drive)
         # also dir needs to be done in pathlib
@@ -148,13 +153,14 @@ class piburner (object):
         execute(script)
        
     def unmountdrive(self):
-        #Remove drive in windows
+        # Remove drive in windows
         script = """RemoveDrive {drive}:""".format(drive = self.root_drive)
         execute(script)
 
     def hostname(self, host):
         # set the hostname 
-        self.host = host        
+        self.host = host
+        # does this work?
         Path("{rootdrive}:/etc/hostname".format(rootdrive = self.root_drive)).write_text(host)
         print(self.host)
         
@@ -162,7 +168,8 @@ class piburner (object):
     def key(self, keypath):
         # set the keypath
         self.keypath = keypath
-        print(self.keypath)   
+        print(self.keypath)
+        # BUG: if condition needs to be used as boot drive not properly defined for linux/osx
         #enable ssh by creating a ssh file in the boot folder        
         open(Path("{bootdrive}:/".format(bootdrive = self.boot_drive)) / "ssh", 'w+')
         #Create directory .ssh
@@ -177,7 +184,9 @@ class piburner (object):
         
     def wifi(self,ssid,psk):
         #set wifi
-        wifi = """ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
+        # BUG: use textdedent so its easier to read and script can be indented. 
+        wifi = """\
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
 update_config=1 
 country=US
 
@@ -186,10 +195,11 @@ network={{
         psk=\"{pwd}\"
         key_mgmt=WPA-PSK
 }}""".format(network=ssid,pwd=psk)
-        print(wifi)        
+        print(wifi)
         Path("{rootdrive}:/etc/wpa_supplicant/wpa_supplicant.conf".format(rootdrive = self.root_drive)).write_text(wifi)        
     
     def ip(self, ipaddress):
+        # Bug: not implemented
         # set ip
         pass
 
@@ -197,7 +207,11 @@ network={{
 @print_function_name
 def create(names, key, bootdrive, rootdrive, ssid, psk):   
     hosts = hostlist.expand_hostlist(names)    
-    burner = piburner()   
+    burner = piburner()
+    # BUG: can we not discover the boot and rootdrive. Why do we have to set it to I and G, can we not get the next free drive letter?
+    # bootdrive = find_next_free_drive_letter()
+    # rootdrive = find_next_free_drive_letter()
+    # BUG: are the drives released after use?
     burner.set_boot_drive(bootdrive)
     burner.set_root_drive(rootdrive)
     for host in hosts:
