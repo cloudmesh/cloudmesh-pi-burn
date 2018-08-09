@@ -2,7 +2,7 @@
 """Cloudmesh Raspberry Pi Mass Image Burner.
 
 Usage:
-  cm-burn create --group GROUP --names HOSTS [--key KEY] --image IMAGE --ip IPS 
+  cm-burn create --group GROUP --names HOSTS [--key KEY] --image IMAGE --ip IPS --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE
   cm-burn ls
   cm-burn rm IMAGE
   cm-burn get [URL]
@@ -18,7 +18,7 @@ Files:
   ~/.cloudmesh/inventory
   Location where the images will be stored for reuse
 Description:
-  cm-burn create --names HOSTS [--key KEY] --image IMAGE
+  cm-burn create --names HOSTS [--key KEY] --image IMAGE --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE --ssid SSID --psk PSK
   cm-burn update
         updates the downloaded images if new once are available
   cm-burn ls
@@ -40,7 +40,7 @@ import hostlist
 from prompter import yesno
 import platform
 import wget
-
+from pathlib import Path
 
 VERSION = "0.1"
 debug = True
@@ -114,48 +114,60 @@ class piburner (object):
        # burn image opython device
        #if not os.path.exists(IMAGE_DIR):
        # os.makedirs(IMAGE_DIR)
-       script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img G
+       script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\images\\2018-06-27-raspbian-stretch.img E
        """.format(dir=os.getcwd())
        print(script)
        execute(script)
        
- 
-    def hostname(self, host):
+    def unmountdrive(self, rootdrive):
+        #Remove drive in windows
+        script = """RemoveDrive {drive}:""".format(drive = rootdrive)
+        execute(script)
+
+    def hostname(self, host, rootdrive):
         # set the hostname 
         self.host = host
-        wr = open(r'I:\\etc\\hostname', 'w')
-        wr.write(host)
+        #wr = open(Path("I:/etc/") / "hostname", 'w+')
+        #wr.write(host)
+        Path(rootdrive + ":/etc/hostname").write_text(host)
         print(self.host)
         
 	
-    def key(self, keypath):
+    def key(self, keypath, rootdrive, bootdrive):
         # set the keypath
         self.keypath = keypath
         print(self.keypath)   
         #enable ssh by creating a ssh file in the boot folder
-        f= open("G:\\ssh","w+") 
+        #f= open("G:\\ssh","w+") 
+        open(Path(bootdrive + ":/") / "ssh", 'w+')
         #Create directory .ssh
-        script = "mkdir I:\\home\\pi\\.ssh"    
-        execute(script)
+        Path(rootdrive + ":/home/pi/.ssh").mkdir(parents=True, exist_ok=True)
+        #execute(script)
         #Read contents of the ssh rsa file 
-        with open(keypath, 'r') as content_file:
-            content = content_file.read()
+        content =  Path(keypath).read_text()
+        #with open(keypath, 'r') as content_file:
+        #    content = content_file.read()
         #Write the content of the ssh rsa to the authorized_keys file
-        wr = open(r'I:\\home\\pi\\.ssh\\authorized_keys', 'w')
-        wr.write(content)
+        Path(rootdrive + ":/home/pi/.ssh/authorized_keys").write_text(content)
+        #wr = open(Path("I:/home/pi/.ssh") / "authorized_keys", 'w+')
+        #wr.write(content)
         
-    def wifi(self,ssid,psk):
+    def wifi(self,ssid,psk, rootdrive):
         #set wifi
-        wifi = """
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev update_config=1 country=US
+        wifi = """ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
+update_config=1 
+country=US
+
 network={{
         ssid=\"{network}\"
         psk=\"{pwd}\"
         key_mgmt=WPA-PSK
 }}""".format(network=ssid,pwd=psk)
         print(wifi)
-        wr = open(r'I:\\etc\\wpa_supplicant\wpa_supplicant.conf', 'w')
-        wr.write(wifi)
+        
+        Path(rootdrive + ":/etc/wpa_supplicant/wpa_supplicant.conf").write_text(wifi)
+        #wr = open(Path("I:/etc/wpa_supplicant/") / "wpa_supplicant.conf", 'w+')
+        #wr.write(wifi)
     
     def ip(self, ipaddress):
         # set ip
@@ -163,7 +175,7 @@ network={{
 
 
 @print_function_name
-def create(names, key):   
+def create(names, key, bootdrive, rootdrive, ssid, psk):   
     hosts = hostlist.expand_hostlist(names)
     #print(hosts, key)
     burner = piburner()
@@ -178,17 +190,22 @@ def create(names, key):
         print("wait till its recognized")
         print("once in conformation proceed")
         
-        burner.burn()
+        #burner.burn()
         print("burn")        
         
-        burner.hostname(host)
+        burner.hostname(host, rootdrive)
         print("Updating host")  
         
-        burner.wifi("Testwifi","TestPassword")
+        print("ssid - {id}".format(id=ssid))
+        print("psk - {pwd}".format(pwd=psk))
+        burner.wifi(ssid, psk, rootdrive)
         print("Updating wifi")  
         
-        burner.key(key)
-        print("Updating ssh")  
+        burner.key(key, rootdrive, bootdrive)
+        print("Updating ssh")
+        
+        burner.unmountdrive(rootdrive)
+        print("Removed drive")
         print("Please remove the card for host", host)
         yesno("Press y once the card is removed")
 
@@ -209,7 +226,7 @@ def analyse():
     elif arguments["rm"]:
         rm(arguments["IMAGE"])
     elif arguments["create"]:
-        create(arguments["HOSTS"], arguments["KEY"])
+        create(arguments["HOSTS"], arguments["KEY"], arguments["BOOTDRIVE"],arguments["ROOTDRIVE"], arguments["SSID"], arguments["PSK"])
 if __name__ == '__main__':
     arguments = docopt(__doc__, version=VERSION)
     print('test')
