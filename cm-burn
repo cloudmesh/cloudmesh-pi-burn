@@ -60,7 +60,7 @@ def print_function_name(func):
         print('Executing {}'.format(func.__name__))
         print(columns * '-')
         return func(*func_args, **func_kwargs)
-
+npm install -g reveal-md
     return echo_func
 
 def execute(commands):
@@ -77,14 +77,18 @@ def execute(commands):
 def get(image):
     print(image)
     if not os.path.exists(IMAGE_DIR):
+        # BUG: check if this works if path is ~/.cloudmesh/images
         os.makedirs(IMAGE_DIR)
     if image is None:
         image = "https://downloads.raspberrypi.org/raspbian_latest"
-   # script = """
-    #cd {dir}
+    # script = """
+    # cd {dir}
     #""".format(dir=os.getcwd() + '\\' + IMAGE_DIR)
     #print(script)
     os.chdir(IMAGE_DIR)
+    # BUG: if image is None, it does not have image[0] its not an
+    # array its just a string, you need to settle on one data
+    # structure
     print(image[0])
     wget.download(image[0])
 
