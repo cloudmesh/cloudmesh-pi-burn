@@ -1,4 +1,4 @@
 hostlist
 docopt
 prompter
-wget
+requests
