@@ -330,6 +330,9 @@ network={{
         img_name = source.replace("zip", "img")
         shutil.copy(img_name, name + ".img")
 
+    def mount_burn_image(self, name):
+        print("not yet implemented")
+        pass
 
     def gregor(self, names, key, ssid=None, psk=None):
         global columns
@@ -338,7 +341,8 @@ network={{
             print (name)
             print(columns * "-")
 
-            self.create_burn_image(name)
+            #self.create_burn_image(name)
+            self.mount_burn_image(name)
 
     def create(self, names, key, ssid=None, psk=None):
         """
