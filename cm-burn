@@ -41,6 +41,9 @@ from prompter import yesno
 import platform
 import wget
 from pathlib import Path
+import pathlib
+from os import path
+
 
 VERSION = "0.1"
 debug = True
@@ -99,9 +102,24 @@ def ls():
 
 class piburner (object):
 
+    @print_function_name
     def __init__ (self):
+        # store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
+        # defaults from tehre if the file exist
+        self.windows_drive = "G"
+        self.windows_pi_drive = "I"
+        self.home = pathlib.Path(path.expanduser("~"))
+        self.cloudmesh_pi = pathlib.Path(self.home / ".cloudmesh" / "pi")
         pass
 
+    def set_root_drive(self, abc):
+        # not sure what this drive is so replace abc with somethingmeaningfull
+        self.root_drive = abc
+
+    def set_boot_drive(self, efg):
+        # not sure what this drive is so replace efg with somethingmeaningfull
+        self.boot_drive = efg
+	
     def image(self, imagepath):
         # set the image
         pass
@@ -111,48 +129,47 @@ class piburner (object):
         pass
 
     def burn(self):
-       # burn image opython device
-       #if not os.path.exists(IMAGE_DIR):
-       # os.makedirs(IMAGE_DIR)
-       script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\images\\2018-06-27-raspbian-stretch.img E
-       """.format(dir=os.getcwd())
-       print(script)
-       execute(script)
+        # burn image opython device
+        #if not os.path.exists(IMAGE_DIR):
+        # os.makedirs(IMAGE_DIR)
+        script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}
+        """.format(dir=os.getcwd(), drive=self.windows_drive)
+        # also dir needs to be done in pathlib
+        #diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
+        #script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
+        #""".format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
+        print(script)
+        execute(script)
        
-    def unmountdrive(self, rootdrive):
+    def unmountdrive(self):
         #Remove drive in windows
-        script = """RemoveDrive {drive}:""".format(drive = rootdrive)
+        script = """RemoveDrive {drive}:""".format(drive = self.root_drive)
         execute(script)
 
-    def hostname(self, host, rootdrive):
+    def hostname(self, host):
         # set the hostname 
-        self.host = host
-        #wr = open(Path("I:/etc/") / "hostname", 'w+')
-        #wr.write(host)
-        Path(rootdrive + ":/etc/hostname").write_text(host)
+        self.host = host        
+        Path("{rootdrive}:/etc/hostname".format(rootdrive = self.root_drive)).write_text(host)
         print(self.host)
         
 	
-    def key(self, keypath, rootdrive, bootdrive):
+    def key(self, keypath):
         # set the keypath
         self.keypath = keypath
         print(self.keypath)   
-        #enable ssh by creating a ssh file in the boot folder
-        #f= open("G:\\ssh","w+") 
-        open(Path(bootdrive + ":/") / "ssh", 'w+')
+        #enable ssh by creating a ssh file in the boot folder        
+        open(Path("{bootdrive}:/".format(bootdrive = self.boot_drive)) / "ssh", 'w+')
         #Create directory .ssh
-        Path(rootdrive + ":/home/pi/.ssh").mkdir(parents=True, exist_ok=True)
+        Path("{rootdrive}:/home/pi/.ssh".format(rootdrive = self.root_drive)).mkdir(parents=True, exist_ok=True)
         #execute(script)
         #Read contents of the ssh rsa file 
         content =  Path(keypath).read_text()
-        #with open(keypath, 'r') as content_file:
-        #    content = content_file.read()
-        #Write the content of the ssh rsa to the authorized_keys file
-        Path(rootdrive + ":/home/pi/.ssh/authorized_keys").write_text(content)
-        #wr = open(Path("I:/home/pi/.ssh") / "authorized_keys", 'w+')
-        #wr.write(content)
         
-    def wifi(self,ssid,psk, rootdrive):
+        #Write the content of the ssh rsa to the authorized_keys file
+        Path("{rootdrive}:/home/pi/.ssh/authorized_keys".format(rootdrive = self.root_drive)).write_text(content)
+        
+        
+    def wifi(self,ssid,psk):
         #set wifi
         wifi = """ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
 update_config=1 
@@ -163,11 +180,8 @@ network={{
         psk=\"{pwd}\"
         key_mgmt=WPA-PSK
 }}""".format(network=ssid,pwd=psk)
-        print(wifi)
-        
-        Path(rootdrive + ":/etc/wpa_supplicant/wpa_supplicant.conf").write_text(wifi)
-        #wr = open(Path("I:/etc/wpa_supplicant/") / "wpa_supplicant.conf", 'w+')
-        #wr.write(wifi)
+        print(wifi)        
+        Path("{rootdrive}:/etc/wpa_supplicant/wpa_supplicant.conf".format(rootdrive = self.root_drive)).write_text(wifi)        
     
     def ip(self, ipaddress):
         # set ip
@@ -176,11 +190,10 @@ network={{
 
 @print_function_name
 def create(names, key, bootdrive, rootdrive, ssid, psk):   
-    hosts = hostlist.expand_hostlist(names)
-    #print(hosts, key)
-    burner = piburner()
-    #burner.key(key)
-    
+    hosts = hostlist.expand_hostlist(names)    
+    burner = piburner()   
+    burner.set_boot_drive(bootdrive)
+    burner.set_root_drive(rootdrive)
     for host in hosts:
         print(columns * '-')
         print ("Burning", host)
@@ -190,21 +203,21 @@ def create(names, key, bootdrive, rootdrive, ssid, psk):
         print("wait till its recognized")
         print("once in conformation proceed")
         
-        #burner.burn()
+        burner.burn()
         print("burn")        
         
-        burner.hostname(host, rootdrive)
+        burner.hostname(host)
         print("Updating host")  
         
         print("ssid - {id}".format(id=ssid))
         print("psk - {pwd}".format(pwd=psk))
-        burner.wifi(ssid, psk, rootdrive)
+        burner.wifi(ssid, psk)
         print("Updating wifi")  
         
-        burner.key(key, rootdrive, bootdrive)
+        burner.key(key)
         print("Updating ssh")
         
-        burner.unmountdrive(rootdrive)
+        burner.unmountdrive()
         print("Removed drive")
         print("Please remove the card for host", host)
         yesno("Press y once the card is removed")
