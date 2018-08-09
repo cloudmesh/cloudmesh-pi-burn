@@ -95,10 +95,12 @@ def get(image):
 
 @print_function_name
 def rm(image):
+    # BUG: Not implemented
     print(image)
 
 @print_function_name
 def ls():
+    # BUG: do this the pythonic way with glob.glob
     script = """
     ls  -1 {dir}
     """.format(dir=IMAGE_DIR)
