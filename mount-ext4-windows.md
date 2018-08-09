@@ -80,3 +80,8 @@ Bertholt is firstname.
 could this wokr? <https://unix.stackexchange.com/questions/81240/manually-generate-password-for-etc-shadow>
 
 ```python3 -c "from getpass import getpass; from crypt import *; p=getpass(); print('\n'+crypt(p, METHOD_SHA512)) if p==getpass('Please repeat: ') else print('\nFailed repeating.')"```
+
+# Unmount Drive
+RemoveDrive.exe need to be downloaded to c:\Tools from the following path and to have the Administrator rights (Right Click on the exe -> Properties -> Compatibility Tab -> Run this program as an Administrator
+
+https://www.uwe-sieber.de/drivetools_e.html
