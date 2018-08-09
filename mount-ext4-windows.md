@@ -19,26 +19,21 @@ Burn the raspbian image to the SD card with the executable
 ```CommandLineDiskImager.exe C:\Users\John\Downloads\raspbian.img G```
 
 * Open Ext2fsd exe
-
 * The SD card will 2 partition
-
 * FAT32 partition will be assigned with the Drive letter
-
-* Assign Drive Letter for EXT4 (Right click on the EXT4, Assign letter. 
+* Assign Drive Letter for EXT4 (Right click on the EXT4, 
+  Assign letter. 
   The drive letter will be used while running cm-burn)
-
 * Setting Automount of this EXT4
-
 * F3 or Tools->Ext2 Volume Managemnt
-
 * Check-> Automatically mount via Ext2Mgr
 
-# Elevate permissions Python.exe in Windows
+## Elevate permissions Python.exe in Windows
 * Create a shortcut for python.exe
 * Change the shortcut target into something like C:\xxx\...\python.exe your_script.py
 * Click "advance..." in the property panel of the shortcut, and click the option "run as administrator"
 
-# Activate SSH
+## Activate SSH
 
 see method 3 in <https://www.raspberrypi.org/documentation/remote-access/ssh/>
 
@@ -53,15 +48,15 @@ copy the content of the file ~/.ssh/id_rsa.pub into ???/.ssh/authorized_keys
 
 enable ssh on the other partition while creating the fike to activate ssh
 
-# Hostname
+## Hostname
 
 change /etc/hostname
 
-# Activate Network
+## Activate Network
 
 see <https://www.raspberrypi.org/learning/networking-lessons/rpi-static-ip-address/>
 
-# Change default password
+## Change default password
 
 From the net (wrong method):
 
@@ -81,7 +76,7 @@ could this wokr? <https://unix.stackexchange.com/questions/81240/manually-genera
 
 ```python3 -c "from getpass import getpass; from crypt import *; p=getpass(); print('\n'+crypt(p, METHOD_SHA512)) if p==getpass('Please repeat: ') else print('\nFailed repeating.')"```
 
-# Unmount Drive
+## Unmount Drive
 RemoveDrive.exe need to be downloaded to c:\Tools from the following path and to have the Administrator rights (Right Click on the exe -> Properties -> Compatibility Tab -> Run this program as an Administrator
 
 https://www.uwe-sieber.de/drivetools_e.html
