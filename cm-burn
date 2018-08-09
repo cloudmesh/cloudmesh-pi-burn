@@ -44,6 +44,9 @@ from pathlib import Path
 import pathlib
 from os import path
 import glob
+import shutil
+import progressbar
+import requests
 
 VERSION = "0.1"
 debug = True
@@ -88,8 +91,6 @@ def execute(commands):
         # self.commandResult = proc.wait() #catch return code
 
 
-
-
 class piburner(object):
 
     def __init__(self):
@@ -122,8 +123,9 @@ class piburner(object):
         :param image: The image url
         :return:
         """
+        latest = "https://downloads.raspberrypi.org/raspbian_latest"
         if image is None:
-            image = "https://downloads.raspberrypi.org/raspbian_latest"
+            image = latest
 
         if debug:
             print("Image:", image)
@@ -133,22 +135,31 @@ class piburner(object):
             os.makedirs(self.cloudmesh_images)
         if debug:
             print(image)
-        # script = """
-        # cd {dir}
-        # """.format(dir=os.getcwd() + '\\' + IMAGE_DIR)
-        # print(script)
         os.chdir(self.cloudmesh_images)
-        # TODO: if image is None, it does not have image[0] its not an
-        # array its just a string, you need to settle on one data
-        # structure
+        # find redirectionlink
+        source = requests.head(image, allow_redirects=True).url
+        size = requests.get(image, stream=True).headers['Content-length']
+        print (source)
+        print (size)
+        destination = os.path.basename(source)
+        if debug:
+            print(image)
+            print(destination)
+        download = True
+        if os.path.exists(destination):
+            print("ERROR: file already downloded")
+            if os.path.getsize(path) == size:
+                download = False
+        if download:
+            wget.download(image)
+            if image == latest:
+                shutil.move('rasbian_latest', destination)
 
-        # import requests
-        # url = "http://download.thinkbroadband.com/10MB.zip"
-        # r = requests.get(url)
-        # print (len(r.content))
 
-        # print(image[0])
-        # wget.download(image[0])
+
+
+
+
 
     def ls(self):
         """
@@ -378,7 +389,11 @@ def analyse():
     elif arguments["rm"]:
         rm(arguments["IMAGE"])
     elif arguments["create"]:
-        create(arguments["HOSTS"], arguments["KEY"], arguments["BOOTDRIVE"], arguments["ROOTDRIVE"], arguments["SSID"],
+        create(arguments["HOSTS"],
+               arguments["KEY"],
+               arguments["BOOTDRIVE"],
+               arguments["ROOTDRIVE"],
+               arguments["SSID"],
                arguments["PSK"])
 
 
