@@ -52,6 +52,9 @@ columns, lines = os.get_terminal_size()
 IMAGE_DIR=os.path.expanduser("images")
 BOOT_DIR =''
 
+
+    
+
 def print_function_name(func):
     def echo_func(*func_args, **func_kwargs):
         print('')
@@ -131,12 +134,15 @@ class piburner (object):
         # burn image opython device
         #if not os.path.exists(IMAGE_DIR):
         # os.makedirs(IMAGE_DIR)
-        script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}
-        """.format(dir=os.getcwd(), drive=self.windows_drive)
-        # also dir needs to be done in pathlib
-        #diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
-        #script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
-        #""".format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
+        if platform.system() == 'Windows':
+            script = """{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}
+            """.format(dir=os.getcwd(), drive=self.windows_drive)
+            # also dir needs to be done in pathlib
+            #diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
+            #script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
+            #""".format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
+        elif platform.system() in ['Linux', 'Darwin']:
+            print("not yet implemented")
         print(script)
         execute(script)
        
@@ -144,7 +150,10 @@ class piburner (object):
     def hostname(self, host):
         # set the hostname 
         self.host = host
-        wr = open(r'{drive}:\\etc\\hostname'.format(drive=self.windows_pi_drive), 'w')
+        if platform.system() == 'Windows':        
+            wr = open(r'{drive}:\\etc\\hostname'.format(drive=self.windows_pi_drive), 'w')
+        elif platform.system() in ['Linux', 'Darwin']:
+            print("not yet implemented")            
         wr.write(host)
         print(self.host)
         
@@ -152,17 +161,25 @@ class piburner (object):
     def key(self, keypath):
         # set the keypath
         self.keypath = keypath
-        print(self.keypath)   
-        #enable ssh by creating a ssh file in the boot folder
-        f= open("{drive}:\\ssh".format(drive=self.windows_drive),"w+") 
-        #Create directory .ssh
-        script = "mkdir {drive}:\\home\\pi\\.ssh".format(drive=self.windows_pi_drive)    
+        print(self.keypath)
+        if platform.system() == 'Windows':                
+            #enable ssh by creating a ssh file in the boot folder
+            f= open("{drive}:\\ssh".format(drive=self.windows_drive),"w+") 
+            #Create directory .ssh
+            script = "mkdir {drive}:\\home\\pi\\.ssh".format(drive=self.windows_pi_drive)    
+        elif platform.system() in ['Linux', 'Darwin']:
+            print("not yet implemented")            
+
         execute(script)
         #Read contents of the ssh rsa file 
         with open(keypath, 'r') as content_file:
             content = content_file.read()
         #Write the content of the ssh rsa to the authorized_keys file
-        wr = open(r'{drive}:\\home\\pi\\.ssh\\authorized_keys'.format(drive=self.windows_pi_drive), 'w')
+        if platform.system() == 'Windows':                
+            wr = open(r'{drive}:\\home\\pi\\.ssh\\authorized_keys'.format(drive=self.windows_pi_drive), 'w')
+        elif platform.system() in ['Linux', 'Darwin']:
+            print("not yet implemented")            
+
         wr.write(content)
         
     def wifi(self,ssid,psk):
