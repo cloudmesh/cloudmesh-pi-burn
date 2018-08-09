@@ -88,29 +88,6 @@ def execute(commands):
         # self.commandResult = proc.wait() #catch return code
 
 
-def get(image):
-    """
-    downloads the image and stores it in ~/.cloudmesh/images
-    TODO: finalize the directory, create it if image already exists  doe not  not download
-    :param image: The image url
-    :return:
-    """
-    print(image)
-    if not os.path.exists(IMAGE_DIR):
-        # TODO: check if this works if path is ~/.cloudmesh/images
-        os.makedirs(IMAGE_DIR)
-    if image is None:
-        image = "https://downloads.raspberrypi.org/raspbian_latest"
-    # script = """
-    # cd {dir}
-    # """.format(dir=os.getcwd() + '\\' + IMAGE_DIR)
-    # print(script)
-    os.chdir(IMAGE_DIR)
-    # TODO: if image is None, it does not have image[0] its not an
-    # array its just a string, you need to settle on one data
-    # structure
-    print(image[0])
-    wget.download(image[0])
 
 
 class piburner(object):
@@ -137,6 +114,41 @@ class piburner(object):
             print("KEY:", self.keypath)
             print("IMAGES DIR", self.cloudmesh_images)
         pass
+
+    def get(self, image):
+        """
+        downloads the image and stores it in ~/.cloudmesh/images
+        TODO: finalize the directory, create it if image already exists  doe not  not download
+        :param image: The image url
+        :return:
+        """
+        if image is None:
+            image = "https://downloads.raspberrypi.org/raspbian_latest"
+
+        if debug:
+            print("Image:", image)
+            print ("Images dir:", self.cloudmesh_images)
+        if not os.path.exists(self.cloudmesh_images):
+            # TODO: check if this works if path is ~/.cloudmesh/images
+            os.makedirs(self.cloudmesh_images)
+        if debug:
+            print(image)
+        # script = """
+        # cd {dir}
+        # """.format(dir=os.getcwd() + '\\' + IMAGE_DIR)
+        # print(script)
+        os.chdir(self.cloudmesh_images)
+        # TODO: if image is None, it does not have image[0] its not an
+        # array its just a string, you need to settle on one data
+        # structure
+
+        # import requests
+        # url = "http://download.thinkbroadband.com/10MB.zip"
+        # r = requests.get(url)
+        # print (len(r.content))
+
+        # print(image[0])
+        # wget.download(image[0])
 
     def ls(self):
         """
@@ -350,8 +362,16 @@ def analyse():
     if arguments["rm"]:
         rm(arguments["image"])
     elif arguments["get"]:
-        print(arguments["URL"])
-        get(arguments["URL"])
+        url = arguments["URL"]
+        if url == []:
+            url = None
+        else:
+            url = url[0]
+        print(url)
+
+        burner = piburner()
+        burner.get(url)
+
     elif arguments["ls"]:
         burner = piburner()
         burner.ls()
