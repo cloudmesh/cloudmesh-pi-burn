@@ -43,6 +43,7 @@ import wget
 from pathlib import Path
 import pathlib
 from os import path
+import glob
 
 VERSION = "0.1"
 debug = True
@@ -87,7 +88,6 @@ def execute(commands):
         # self.commandResult = proc.wait() #catch return code
 
 
-@print_function_name
 def get(image):
     """
     downloads the image and stores it in ~/.cloudmesh/images
@@ -113,34 +113,8 @@ def get(image):
     wget.download(image[0])
 
 
-@print_function_name
-def rm(image):
-    """
-    remove the image form the image directory
-    :param image: the image name
-    :return: TRUE if it has been deleted, FALSE if there was an error
-    """
-    # TODO: Not implemented
-    print(image)
-    return False  # not implemented yet
-
-
-@print_function_name
-def ls():
-    """
-    List all images in the image directory
-    :return:
-    """
-    # TODO: do this the pythonic way with glob.glob
-    script = """
-    ls  -1 {dir}
-    """.format(dir=IMAGE_DIR)
-    execute(script)
-
-
 class piburner(object):
 
-    @print_function_name
     def __init__(self):
         """
         initialize the pi burner
@@ -153,12 +127,32 @@ class piburner(object):
         self.root_drive = None
         self.boot_drive = None
         self.host = None
-        self.keypath = pathlib.Path(path.expanduser("~") / ".ssh" / "id_rsa.pub")
         self.home = pathlib.Path(path.expanduser("~"))
+        self.keypath = pathlib.Path(self.home / ".ssh" / "id_rsa.pub")
         # BUG: is this not the image directory?
         # should that not also be declared globally with pathlib
-        self.cloudmesh_pi = pathlib.Path(self.home / ".cloudmesh" / "pi")
+        self.cloudmesh_images = pathlib.Path(self.home / ".cloudmesh" / "images")
+        if debug:
+            print("HOME:", self.home)
+            print("KEY:", self.keypath)
+            print("IMAGES DIR", self.cloudmesh_images)
         pass
+
+    def ls(self):
+        """
+        List all images in the image directory
+        :return:
+        """
+        # TODO: do this the pythonic way with glob.glob
+        images_search = pathlib.Path(self.cloudmesh_images / "*")
+        if debug:
+            print ("images search", images_search)
+        images = glob.glob(str(images_search))
+        print ()
+        print ('Available images')
+        print (columns * '=')
+        print ('\n'.join(images))
+        print ()
 
     def set_root_drive(self, abc):
         """
@@ -296,7 +290,6 @@ network={{
         pass
 
 
-@print_function_name
 def create(names, key, bootdrive, rootdrive, ssid=None, psk=None):
     """
     creates a repeated burn on all names specified,
@@ -360,7 +353,8 @@ def analyse():
         print(arguments["URL"])
         get(arguments["URL"])
     elif arguments["ls"]:
-        ls()
+        burner = piburner()
+        burner.ls()
     elif arguments["rm"]:
         rm(arguments["IMAGE"])
     elif arguments["create"]:
