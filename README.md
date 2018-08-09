@@ -59,9 +59,30 @@ cp  ../*.img 00.img
 brew cask install osxfuse
 brew install ext4fuse
 hdiutil mount 00.img 
+```
+
+This will return 
+```
+/dev/disk3          	FDisk_partition_scheme         	
+/dev/disk3s1        	Windows_FAT_32                 	/Volumes/boot
+/dev/disk3s2        	Linux          
+```
+
+we can now access the boot partition with 
+
+```
+ls /Volumes/boot/
+```
+
+However to access the LInux partition we need to mount it with fuse
+
+```
 ext4fuse /dev/disk2s2 linux
 less linux/etc/hosts
 ```
+
+
+
 
 # Links
 
