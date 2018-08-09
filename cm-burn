@@ -2,21 +2,24 @@
 """Cloudmesh Raspberry Pi Mass Image Burner.
 
 Usage:
-  cm-burn create --group GROUP --names HOSTS [--key KEY] --image IMAGE --ip IPS --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE
+  cm-burn create --group GROUP --names HOSTS --image IMAGE [--key KEY]  [--ip IPS]
   cm-burn ls
   cm-burn rm IMAGE
   cm-burn get [URL]
   cm-burn update
   cm-burn (-h | --help)
   cm-burn --version
+
 Options:
   -h --help     Show this screen.
   --version     Show version.
+
 Files:
   This is not fully thought through and needs to be documented
   ~/.cloudmesh/images
   ~/.cloudmesh/inventory
   Location where the images will be stored for reuse
+
 Description:
   cm-burn create --names HOSTS [--key KEY] --image IMAGE --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE --ssid SSID --psk PSK
   cm-burn update
@@ -30,6 +33,7 @@ Description:
   cm-burn get jessie
         abbreviation to download a specific version of an image.
         Identify what would be useful.
+
 Example:
   cm-burn create --names red[000-010] --key idrsa.pub --image rasbian_latest
 """
@@ -100,8 +104,8 @@ class piburner(object):
         """
         # store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
         # defaults from tehre if the file exist
-        self.windows_drive = "G"
-        self.windows_pi_drive = "I"
+        self.windows_drive = "K"
+        self.windows_pi_drive = "L"
         self.root_drive = None
         self.boot_drive = None
         self.host = None
@@ -171,23 +175,23 @@ class piburner(object):
         print ('\n'.join(images))
         print ()
 
-    def set_root_drive(self, abc):
+    def set_root_drive(self, drive):
         """
         TODO: provide explanation
-        :param abc: TODO: not a good name
+        :param drive: the drive name for windows
         :return:
         """
         # BUG: not sure what this drive is so replace abc with something meaningfull
-        self.root_drive = abc
+        self.root_drive = drive
 
-    def set_boot_drive(self, efg):
+    def set_boot_drive(self, drive):
         """
         TODO: provide information
-        :param efg: TODO: not a good name
+        :param drive: the drive name for windows
         :return:
         """
         # BUG: not sure what this drive is so replace efg with something meaningfull
-        self.boot_drive = efg
+        self.boot_drive = drive
 
     def image(self, imagepath):
         """
@@ -307,60 +311,65 @@ network={{
         pass
 
 
-def create(names, key, bootdrive, rootdrive, ssid=None, psk=None):
-    """
-    creates a repeated burn on all names specified,
-    TODO: whay is sthi not part of the previous class?
+    def create(self, names, key, ssid=None, psk=None):
+        """
+        creates a repeated burn on all names specified,
+        TODO: whay is sthi not part of the previous class?
 
-    :param names: the hostnames of in hostlist format to be burned
-    :param key: the public key location # TODO: should be defaulted to ~/.ssh/id_rsa.pub
-    :param bootdrive: the boot drive # TODO: on linux we do not have a boot drive, so this should not be a parameter and needs to be autodiscovered
-    :param rootdrive: #TODO: on linux we do not have a boot drive, so this should not be a parameter and needs to be autodiscovered
-    :param ssid: # TODO: should be set to None and if its none we do not do it we actually do not need wifi, should be handled differently
-    :param psk: # TODO: should be set to None and if its none we do not do it we actually do not need wifi, should be handled differently
-    :return:
-    """
+        :param names: the hostnames of in hostlist format to be burned
+        :param key: the public key location # TODO: should be defaulted to ~/.ssh/id_rsa.pub
+        :param bootdrive: the boot drive # TODO: on linux we do not have a boot drive, so this should not be a parameter and needs to be autodiscovered
+        :param rootdrive: #TODO: on linux we do not have a boot drive, so this should not be a parameter and needs to be autodiscovered
+        :param ssid: # TODO: should be set to None and if its none we do not do it we actually do not need wifi, should be handled differently
+        :param psk: # TODO: should be set to None and if its none we do not do it we actually do not need wifi, should be handled differently
+        :return:
+        """
 
-    hosts = hostlist.expand_hostlist(names)
-    burner = piburner()
-    # BUG: can we not discover the boot and rootdrive. Why do we have to set
-    # it to I and G, can we not get the next free drive letter?
-    # bootdrive = find_next_free_drive_letter()
-    # rootdrive = find_next_free_drive_letter()
-    # BUG: are the drives released after use?
-    burner.set_boot_drive(bootdrive)
-    burner.set_root_drive(rootdrive)
-    for host in hosts:
-        print(columns * '-')
-        print("Burning", host)
-        # break
-        print(columns * '-')
-        yesno('Please insert the card for ' + host + "(y)?")
-        print("wait till its recognized")
-        print("once in conformation proceed")
+        if os.platform() == 'Windows':
+            # TODO: this is not needed as should be in the init method
+            self.set_boot_drive("K") #"K" # TODO: this needs to be find_next_drive()
+            self.set_root_drive("L") # "L" # TODO: this needs to be find_next_drive()
 
-        burner.burn()
-        print("burn")
 
-        burner.hostname(host)
-        print("Updating host")
+        hosts = hostlist.expand_hostlist(names)
+        # BUG: can we not discover the boot and rootdrive. Why do we have to set
+        # it to I and G, can we not get the next free drive letter?
+        # bootdrive = find_next_free_drive_letter()
+        # rootdrive = find_next_free_drive_letter()
+        # BUG: are the drives released after use?
+        for host in hosts:
+            print(columns * '-')
+            print("Burning", host)
+            # break
+            print(columns * '-')
+            yesno('Please insert the card for ' + host + "(y)?")
+            print("wait till its recognized")
+            print("once in conformation proceed")
 
-        print("ssid - {id}".format(id=ssid))
-        print("psk - {pwd}".format(pwd=psk))
-        if ssid:
-            burner.wifi(ssid, psk)
-        print("Updating wifi")
+            self.burn()
+            print("burn")
 
-        burner.key(key)
-        print("Updating ssh")
+            self.hostname(host)
+            print("Updating host")
 
-        burner.unmountdrive()
-        print("Removed drive")
-        print("Please remove the card for host", host)
-        yesno("Press y once the card is removed")
+            print("ssid - {id}".format(id=ssid))
+            print("psk - {pwd}".format(pwd=psk))
+            if ssid:
+                self.wifi(ssid, psk)
+            print("Updating wifi")
 
-        print("take the card out")
-        break
+            self.key(key)
+            print("Updating ssh")
+
+            if os.platform() == 'Windows':
+                self.unmountdrive()
+                print("Removed drive")
+
+            print("Please remove the card for host", host)
+            yesno("Press y once the card is removed")
+
+            print("take the card out")
+            break
 
 
 def analyse():
@@ -385,8 +394,6 @@ def analyse():
     elif arguments["create"]:
         create(arguments["HOSTS"],
                arguments["KEY"],
-               arguments["BOOTDRIVE"],
-               arguments["ROOTDRIVE"],
                arguments["SSID"],
                arguments["PSK"])
 
