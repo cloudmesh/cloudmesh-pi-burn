@@ -9,6 +9,7 @@ Usage:
   cm-burn get [URL]
   cm-burn update
   cm-burn check install
+  cm-burn hostname [HOSTNAME]
   cm-burn (-h | --help)
   cm-burn --version
 
@@ -37,6 +38,10 @@ Description:
   cm-burn get jessie
         abbreviation to download a specific version of an image.
         Identify what would be useful.
+  cm-burn hostname HOSTNAME
+        writes the HOSTNAME as hostname on the currently inserted SD Card
+  cm-burn hostname
+        reads the hostname form the curredn SD card
 
 Example:
   cm-burn create --names red[000-010] ips --image rasbian_latest
@@ -109,6 +114,87 @@ def execute(commands):
 
 class piburner(object):
 
+    def disable_password(self):
+        """
+        disables and replaces the password with a random string so that by accident the pi can not be logged into.
+        The only way to login is via the ssh key
+        :return:
+        """
+        raise NotImplementedError()
+
+    def activate_ssh_service(self):
+        """
+        activates the ssh service
+
+        :return:
+        """
+        raise NotImplementedError()
+
+    def add_public_key(self):
+        """
+        adds the public key to the authorized host name
+        :return:
+        """
+
+    def WindowsPath(self, drive, path):
+        """
+        returns a Windows path with drive letter
+        :param drive:
+        :param path:
+        :return:
+        """
+        return drive + ":" + path
+
+    def unmount(self, path):
+        """
+        unmounts the filesystem regardles of OS using the given path
+        :param path:
+        :return:
+        """
+        raise NotImplementedError()
+
+    def mount(self, device, path):
+        """
+        mounts the device to the filesystem regardles of OS using the given path
+        :param path:
+        :return:
+        """
+        raise NotImplementedError()
+
+    def write_hostname(self, host):
+        """
+        set the hostname
+
+        :param host: the hostname
+        :return:
+        """
+        self.host = host
+        path = "/etc/hostname"
+
+        if sys.platform == "Windows":
+            Path("{rootdrive}:{path}".format(rootdrive=self.root_drive),path=path).write_text(host)
+        elif sys.platform == "darwin":
+            Path("/Volumes/rootfs/{path}".format( path=path)).write_text(host)
+        print(self.host)
+
+    def read_hostname(self):
+        """
+        set the hostname
+
+        :param host: the hostname
+        :return:
+        """
+        host = None
+        if sys.platform == "Windows":
+            raise NotImplementedError()
+        elif sys.platform == "darwin":
+            path = "/Volumes/rootfs/etc/hostname"
+
+        with open(path, 'r') as file:
+            self.host = file.read()
+        return self.host
+
+
     def __init__(self):
         """
         initialize the pi burner
@@ -116,10 +202,14 @@ class piburner(object):
         """
         # store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
         # defaults from tehre if the file exist
-        self.windows_drive = "K"
-        self.windows_pi_drive = "L"
-        self.root_drive = None
-        self.boot_drive = None
+        if sys.platform == "Windows":
+            self.windows_drive = "K"
+            self.windows_pi_drive = "L"
+            self.root_drive = None
+            self.boot_drive = None
+        elif sys.platform == "darwin":
+            self.rootfs = "/Volume/rootfs"
+            self.bootfs = "/Volume/boot"
         self.host = None
         self.home = pathlib.Path(path.expanduser("~"))
         self.keypath = pathlib.Path(self.home / ".ssh" / "id_rsa.pub")
@@ -259,17 +349,7 @@ class piburner(object):
         execute(script)
         # if test successful: return True else: False
 
-    def hostname(self, host):
-        """
-        set the hostname
 
-        :param host: the hostname
-        :return:
-        """
-        self.host = host
-        # does this work?
-        Path("{rootdrive}:/etc/hostname".format(rootdrive=self.root_drive)).write_text(host)
-        print(self.host)
 
     def key(self, public_key):
         """
@@ -425,7 +505,7 @@ network={{
             self.burn()
             print("burn")
 
-            self.hostname(host)
+            self.write_hostname(host)
             print("Updating host")
 
             print("ssid - {id}".format(id=ssid))
@@ -486,7 +566,15 @@ def analyse():
         )
     elif arguments["check"] and arguments["install"]:
         print("ERROR: not yet implemented")
+    elif arguments["hostname"]:
+        host = arguments["HOSTNAME"]
+        print("set host to", host)
+        burner = piburner()
 
+        if host != None:
+            burner.write_hostname(host)
+        else:
+            print(burner.read_hostname())
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version=VERSION)
