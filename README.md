@@ -69,6 +69,10 @@ TODO: PYTHON3 use pyenv
 
 TODO: This section has to be written by *Anand*. The following description is incomplete and not yet accurate.
 
+you will need a terminal with elevated permissions. See:
+
+* <https://www.tenforums.com/tutorials/2790-open-elevated-command-prompt-windows-10-a.html> 
+
 First you need to elevate permissions Python.exe in Windows
 
 * Create a shortcut for python.exe
@@ -281,6 +285,12 @@ RemoveDrive.exe needs to be downloaded to c:\Tools from the following path and t
 See also 
 
 * <https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/remove-psdrive?view=powershell-6>
+
+Gregor thinks that unmounting is much easier in an aelevated command prompt using 
+
+```
+mountvol <Drive Letter>: /d
+```
 
 # Links
 
