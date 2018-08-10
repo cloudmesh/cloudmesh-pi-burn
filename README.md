@@ -2,72 +2,139 @@
 
 :warning: this page is a draft and under development cm-burn is not yet working
 
-`cm-burn` is a program to burn many SD cards for the preparation of building clusters with Raspbberry Pi's. The program is developed in Python and is portable on Linux, Windows, and OSX. It allows users to create readily bootable SD cards that have the 
-network configured, contain a public ssh key from your machine that you used to configure the cards. The unique feature is that you can bburn multiple cards in a row.
+`cm-burn` is a program to burn many SD cards for the preparation of
+building clusters with Raspberry Pi's.  The program is developed in
+Python and is portable on Linux, Windows, and OSX. It allows users to
+create readily bootable SD cards that have the network configured,
+contain a public ssh key from your machine that you used to configure
+the cards.  The unique feature is that you can burn multiple cards in
+a row.
 
 A sample command invocation looks like:
 
 ```
-cm-burn —name  red[5,7] \
-        -key ~/.ssh/id_rsa.pub \
-        —ips 192.168.1.[5,7] \
-        —image 2018-06-27-raspbian-stretch
-        -password
+cm-burn —-name  red[5-7] \
+        --key ~/.ssh/id_rsa.pub \
+        —-ips 192.168.1.[5-7] \
+        —-image 2018-06-27-raspbian-stretch
 ```
-This command creates 3 SD cards where the hostnames red5, red,6, red 7 with the network addresses 192.168.1.5, 192.168.1.6, and 192.168.1.7. The public key is added to the authorized_keys file of the pi user. Via the password flag, a password is interacively asked and set on all cards.
+        
+This command creates 3 SD cards where the hostnames `red5`, `red6`, `red 7`
+with the network addresses `192.168.1.5`, `192.168.1.6`,
+and `192.168.1.7`. The public key is added to the authorized_keys file
+of the pi user.  The password login is automatically disabled and only
+the ssh key authentication is enabled.
 
 ## Process
 
 The process of the burn is as follows.
 
-1. start the programm with the appropriate parameters
-   the program will ask you to place an SD Card in the SD Card writer. Place it in
+1. start the programm with the appropriate parameters the program will
+   ask you to place an SD Card in the SD Card writer. Place it in
 2. the specified image will be burned on the SD Card
-3. next the SD Card will be mounted by the program and the appropriate 
+3. next the SD Card will be mounted by the program and the appropriate
    modifications will bbe conducted.
 4. after the modifications the SD Card will be unmounted
 5. you will be asked to remove the card
 6. if additional cards need to be burned, you will go to step 2.
 
-In case a SD Card of a PI in the cluster goes bad, you can simply reburn it by providing the appropriate parameters, and just print the subset that are broken.
+In case a SD Card of a PI in the cluster goes bad, you can simply burn
+it again by providing the appropriate parameters, and just print the
+subset that are broken.
+
+## Networking
+
+`cm-burn` will setup a simple network on all cluster nodes
+configured. There are different models for networking configuration we
+could use.  However we have decided for one that allows you to
+interface with your local Laptop to the cluster via Wifi.  The setup
+is illustrated in Figure Networking.
+
+
+![](images/network.png)
+
+Figure: Networking
+
+We assume that you have used cm-burn to create all SD cards for the
+Pi's. One of the Pi's is specially configured with the command
+
+```
+cm-burn --master red01
+```
+
+The SD Card in the SD Card writer will be configured as a `master`. If
+the name does not match it will be configured as a worker.  Only the
+`master` is connected with the Wifi network. All other nodes rout the
+internet connection through the master node.  As the `master` node is
+on the same Wifi network as the laptop you can login to the 'master'
+node and from there log into the workers.  To simplify access you
+could even setup ssh tunneled connections from the Laptop via the
+master. But this is left up to you if you wish.
+
+As a result you will be able to login on each of the machines and
+execute commands such as
+
+```
+sudo apt-get update
+```
+
 
 ## Prerequisits
 
 ### Raspberry Pi
 
-We assume that you have set up a raspberry pi with the newest rasbian OS. We assume that you have changed the default password and can log into the pi.
+We assume that you have set up a raspberry pi with the newest raspbian
+OS. We assume that you have changed the default password and can log
+into the pi.
 
 We assume you have not done anything else to the OS.
 
-The easiest way to duplicate the SD card is simply to clone it with the buidl in SD Card copier. This program can be found in the menu under Accessories.
+The easiest way to duplicate the SD card is simply to clone it with
+the build in SD Card copier. This program can be found in the menu
+under Accessories.
 
 ![SD Card Copier](images/sdcc.png) 
 
 Figure: SD Card Copier
 
-This program will copy the contents of the card plugged into the PI onto another one. The only thing you need is an USB SD Card writer. You cn accept the devaults when the cards are plugged in whic allow you to copy the Internal SD Card onto the other one. Just be carefull that you do not overwrite your internal one. This feature can also be used to create backups of images that you have worked on and want to preserve.
+This program will copy the contents of the card plugged into the PI
+onto another one. The only thing you need is an USB SD Card
+writer. You cn accept the defaults when the cards are plugged in which
+allow you to copy the Internal SD Card onto the other one. Just be
+carefull that you do not overwrite your internal one. This feature can
+also be used to create backups of images that you have worked on and
+want to preserve.
 
-Thus as you can see there is not much you need to do to prepare a PI to be used for burning the SD Card.
+Thus as you can see there is not much you need to do to prepare a PI
+to be used for burning the SD Card.
 
 TODO: Python3
 
 ### OSX 
 
-Unfortunatly, the free versions of writing the ext file system are no longer supported on OSX. This means tah as of writing of this document the best solution we found is to purcahse and install extFS on the MacOS computer you use for burning the SD Cards. If you find an alternative, please let us know. (We tested ext4fuse, which unfortunately only supports read access, see Appendix)
+Unfortunately, the free versions of writing the ext file system are no
+longer supported on OSX. This means that as of writing of this document
+the best solution we found is to purchase and install extFS on the
+MacOS computer you use for burning the SD Cards. If you find an
+alternative, please let us know. (We tested ext4fuse, which
+unfortunately only supports read access, see Appendix)
 
-To easily read and write ext file systems, please install extFS which can be downloaded from 
+To easily read and write ext file systems, please install extFS which
+can be downloaded from
 
 * <https://www.paragon-software.com/home/extfs-mac/>
 
 The purchase price of the software is $39.95.
 
-If you like to not spend any money we recommend that you conduct the burning on a raspberry pi.
+If you like to not spend any money we recommend that you conduct the
+burning on a raspberry pi.
 
 TODO: PYTHON3 use pyenv
 
 ## Windows
 
-TODO: This section has to be written by *Anand*. The following description is incomplete and not yet accurate.
+TODO: This section has to be written by *Anand*. The following
+description is incomplete and not yet accurate.
 
 you will need a terminal with elevated permissions. See:
 
@@ -76,8 +143,10 @@ you will need a terminal with elevated permissions. See:
 First you need to elevate permissions Python.exe in Windows
 
 * Create a shortcut for python.exe
-* Change the shortcut target into something like C:\xxx\...\python.exe your_script.py
-* Click "advance..." in the property panel of the shortcut, and click the option "run as administrator"
+* Change the shortcut target into something like C:\xxx\...\python.exe
+  your_script.py
+* Click "advance..." in the property panel of the shortcut, and click
+  the option "run as administrator"
 
 Download the Open source ext3/4 file system driver for Windows installer from
 
@@ -98,15 +167,18 @@ Burn the raspbian image to the SD card with the executable
   Assign letter. 
   The drive letter will be used while running cm-burn)
 * Setting Automount of this EXT4
-* F3 or Tools->Ext2 Volume Managemnt
+* F3 or Tools->Ext2 Volume Management
 * Check-> Automatically mount via Ext2Mgr
 
 
-## Instalation 
+## Installation 
 
 ### Install on your OS
 
-Once you have decided which Computer system (MacOS, Linux, or Windows) you like to use for using the cm-burn program you need to install it. The program is written in python3 which we assume you have installed and is your default python in your terminal.
+Once you have decided which Computer system (MacOS, Linux, or Windows)
+you like to use for using the cm-burn program you need to install
+it. The program is written in python3 which we assume you have
+installed and is your default python in your terminal.
 
 To install cm-burn, please execute 
 ```
@@ -115,7 +187,8 @@ cd cm-burn
 pip install .
 ```
 
-In future it will also be hosted on pypi and you will be able to install it with 
+In future it will also be hosted on pypi and you will be able to
+install it with
 
 ```
 pip install git+https://github.com/cloudmesh-community/cm-burn
@@ -124,14 +197,20 @@ To check if the program works please issue the command
 
 ```cm-burn check install```
 
-It will check if you have installed all prerequisits and are able to run the command as on some OSes you must be in the sudo list to runi it and access the SDcard burner as well as mounting some file systems.
+It will check if you have installed all prerequisites and are able to
+run the command as on some OSes you must be in the sudo list to runi
+it and access the SD card burner as well as mounting some file systems.
 
 
 ### Instalation on Windows via docker
 
 The following instructions will install cm-burn via docker on your platform
 
-TODO: *Anand* will provide the instructions for Windows. It will use the Linux backend and access the devices from within the docker image in order to execute the program. as such it is very similar to the version provided for the Raspberry PI or a Linux OS based system, but the code runs in a container.
+TODO: *Anand* will provide the instructions for Windows. It will use
+the Linux backend and access the devices from within the docker image
+in order to execute the program. as such it is very similar to the
+version provided for the Raspberry PI or a Linux OS based system, but
+the code runs in a container. 
 
 ### Usage
 
@@ -188,7 +267,9 @@ Example:
 
 ### OSX ext4fuse
 
-Unfortunately ext4fuse only supports read access. To install it please use the following steps. HOwever it will not allow you to use the cm-burn program. iT may bbe usefule for inspection of SD Cards
+Unfortunately ext4fuse only supports read access. To install it please
+use the following steps. However it will not allow you to use the
+cm-burn program. It may be useful for inspection of SD Cards
 
 On OSX you will need brew and install osxfuse and ext4fuse
 
@@ -239,7 +320,7 @@ see method 3 in <https://www.raspberrypi.org/documentation/remote-access/ssh/>
 
 Draft:
 
-Set up ssh key on windows (use and document the ubbuntu on windows thing)
+Set up ssh key on windows (use and document the ubuntu on windows thing)
 
 you will have ~/.ssh/id_rsa.pub and ~/.ssh/id_rsa
 
@@ -272,7 +353,7 @@ The right thing to do is to create a new hash and store it in place of x.
 not yet sure how that can be done a previous student from the class may have been aboe to do that 
 Bertholt is firstname.
 
-could this wokr? <https://unix.stackexchange.com/questions/81240/manually-generate-password-for-etc-shadow>
+could this work? <https://unix.stackexchange.com/questions/81240/manually-generate-password-for-etc-shadow>
 
 ```python3 -c "from getpass import getpass; from crypt import *; p=getpass(); print('\n'+crypt(p, METHOD_SHA512)) if p==getpass('Please repeat: ') else print('\nFailed repeating.')"```
 
