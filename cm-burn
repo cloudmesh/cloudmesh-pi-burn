@@ -85,8 +85,10 @@ def print_function_name(func):
 
     return echo_func
 
+
 def run(command):
     return subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8')
+
 
 def execute(commands):
     """
@@ -142,7 +144,7 @@ class piburner(object):
 
         if debug:
             print("Image:", image)
-            print ("Images dir:", self.cloudmesh_images)
+            print("Images dir:", self.cloudmesh_images)
         if not os.path.exists(self.cloudmesh_images):
             # TODO: check if this works if path is ~/.cloudmesh/images
             os.makedirs(self.cloudmesh_images)
@@ -152,22 +154,21 @@ class piburner(object):
         # find redirectionlink
         source = requests.head(image, allow_redirects=True).url
         size = requests.get(image, stream=True).headers['Content-length']
-        print (source)
-        print (size)
+        print(source)
+        print(size)
         destination = os.path.basename(source)
         if debug:
             print(image)
             print(destination)
         download = True
         if os.path.exists(destination):
-            print (os.path.getsize(destination))
+            print(os.path.getsize(destination))
             print(size)
             if int(os.path.getsize(destination)) == int(size):
                 print("ERROR: file already downloded")
                 download = False
         if download:
             wget.download(image)
-
 
     def ls(self):
         """
@@ -176,13 +177,13 @@ class piburner(object):
         """
         images_search = pathlib.Path(self.cloudmesh_images / "*")
         if debug:
-            print ("images search", images_search)
+            print("images search", images_search)
         images = glob.glob(str(images_search))
-        print ()
-        print ('Available images')
-        print (columns * '=')
-        print ('\n'.join(images))
-        print ()
+        print()
+        print('Available images')
+        print(columns * '=')
+        print('\n'.join(images))
+        print()
 
     def set_root_drive(self, drive):
         """
@@ -325,9 +326,9 @@ network={{
             # TODO: check if this works if path is ~/.cloudmesh/images
             os.makedirs(tmp)
         os.chdir(tmp)
-        source = "2018-06-27-raspbian-stretch.zip" # hardcoded for now for testing
-        image_zip = pathlib.Path(self.cloudmesh_images  / source)
-        print ("copy image", image_zip)
+        source = "2018-06-27-raspbian-stretch.zip"  # hardcoded for now for testing
+        image_zip = pathlib.Path(self.cloudmesh_images / source)
+        print("copy image", image_zip)
         shutil.copy(image_zip, source)
         print("unzip image", image_zip)
         zipfile.ZipFile(source).extractall()
@@ -348,11 +349,11 @@ network={{
                 # TODO: check if this works if path is ~/.cloudmesh/images
                 os.makedirs(tmp)
             os.chdir(tmp)
-            print ("TMP:",  tmp)
-            print ("NAME:", name)
+            print("TMP:", tmp)
+            print("NAME:", name)
 
             output = run(["hdiutil", "mount", name]).strip()
-            print (output)
+            print(output)
             # parse hdutil
             devices = []
             for line in output.split("\n"):
@@ -363,16 +364,15 @@ network={{
                 }
                 result = line.split()
                 info["dev"] = result[0]
-                info["scheme"] = result [1]
+                info["scheme"] = result[1]
                 if len(result) > 2:
                     info["mountpoint"] = result[2]
                 devices.append(info)
             pprint(devices)
             linux = self.find_linux_device(devices)
-            pprint (linux)
+            pprint(linux)
             output = run(["ext4fuse", linux["dev"], "linux"])
             print(output)
-
 
         else:
             print("not implemented")
@@ -381,10 +381,10 @@ network={{
         global columns
         for name in hostlist.expand_hostlist(names):
             print(columns * "-")
-            print (name)
+            print(name)
             print(columns * "-")
 
-            #self.create_burn_image(name)
+            # self.create_burn_image(name)
             self.mount_burn_image(name + ".img")
 
     def create(self, names, key, ssid=None, psk=None):
@@ -403,9 +403,8 @@ network={{
 
         if os.platform() == 'Windows':
             # TODO: this is not needed as should be in the init method
-            self.set_boot_drive("K") #"K" # TODO: this needs to be find_next_drive()
-            self.set_root_drive("L") # "L" # TODO: this needs to be find_next_drive()
-
+            self.set_boot_drive("K")  # "K" # TODO: this needs to be find_next_drive()
+            self.set_root_drive("L")  # "L" # TODO: this needs to be find_next_drive()
 
         hosts = hostlist.expand_hostlist(names)
         # BUG: can we not discover the boot and rootdrive. Why do we have to set
@@ -450,7 +449,7 @@ network={{
 
 def analyse():
     if debug:
-        print (arguments)
+        print(arguments)
 
     if arguments["rm"]:
         rm(arguments["image"])
@@ -473,9 +472,9 @@ def analyse():
     elif arguments["create"]:
         burner = piburner()
         burner.create(arguments["HOSTS"],
-               arguments["KEY"],
-               arguments["SSID"],
-               arguments["PSK"])
+                      arguments["KEY"],
+                      arguments["SSID"],
+                      arguments["PSK"])
     elif arguments["gregor"]:
 
         burner = piburner()
