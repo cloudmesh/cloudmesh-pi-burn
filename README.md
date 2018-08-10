@@ -78,6 +78,9 @@ execute commands such as
 sudo apt-get update
 ```
 
+Certainly you can even have a much simpler setup by just attaching a keyboard, mouse and monitor/TV to your `master`. 
+This will allow you to directly work on the master node, not needing any additional hardware.
+
 
 ## Prerequisits
 
