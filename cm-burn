@@ -8,6 +8,7 @@ Usage:
   cm-burn rm IMAGE
   cm-burn get [URL]
   cm-burn update
+  cm-burn check install
   cm-burn (-h | --help)
   cm-burn --version
 
@@ -483,6 +484,8 @@ def analyse():
             arguments["HOSTS"],
             arguments["--key"]
         )
+    elif arguments["check"] and arguments["install"]:
+        print("ERROR: not yet implemented")
 
 
 if __name__ == '__main__':
