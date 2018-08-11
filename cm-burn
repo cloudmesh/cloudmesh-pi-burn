@@ -10,6 +10,8 @@ Usage:
   cm-burn update
   cm-burn check install
   cm-burn hostname [HOSTNAME]
+  cm-burn ssh [PUBLICKEY]
+  cm-burn info
   cm-burn (-h | --help)
   cm-burn --version
 
@@ -64,6 +66,7 @@ import requests
 import zipfile
 import sys
 from pprint import pprint
+import yaml
 
 VERSION = "0.1"
 debug = True
@@ -95,6 +98,10 @@ def print_function_name(func):
 def run(command):
     return subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8')
 
+def cat(path):
+    with open(path, 'r') as file:
+        content = file.read()
+    return content
 
 def execute(commands):
     """
@@ -161,6 +168,57 @@ class piburner(object):
         """
         raise NotImplementedError()
 
+
+    def activate_ssh(self, public_key):
+        """
+        sets the public key path and copies the it to the SD card
+        :param public_key: the public key location
+        :return: True if successful
+        """
+
+        # set the keypath
+        self.keypath = public_key
+        if debug:
+            print(self.keypath)
+        if not os.path.isfile(self.keypath):
+            print("ERROR: key does not exist", self.keypath)
+            sys.exit()
+
+        if sys.platform == "Windows":
+            # BUG: if condition needs to be used as boot drive not properly defined for linux/osx
+            # enable ssh by creating a ssh file in the boot folder
+            open(Path("{bootdrive}:/".format(bootdrive=self.boot_drive)) / "ssh", 'w+')
+            # Create directory .ssh
+            Path("{rootdrive}:/home/pi/.ssh".format(rootdrive=self.root_drive)).mkdir(parents=True, exist_ok=True)
+            # execute(script)
+            # Read contents of the ssh rsa file
+            content = Path(public_key).read_text()
+            # Write the content of the ssh rsa to the authorized_keys file
+            Path("{rootdrive}:/home/pi/.ssh/authorized_keys".format(rootdrive=self.root_drive)).write_text(content)
+            # if test successful: return True else: False
+        elif sys.platform == 'darwin':
+            # activate ssh by creating an empty ssh file in the boot drive
+            Path("/Volumes/boot/ssh").touch()
+            # Write the content of the ssh rsa to the authorized_keys file
+            key = Path(public_key).read_text()
+            os.makedirs("/Volumes/rootfs/home/pi/.ssh")
+            Path("/Volumes/rootfs/home/pi/.ssh/authorized_keys").write_text(key)
+            pass
+
+    def info(self):
+        if sys.platform == 'darwin':
+            information = {
+                "os": sys.platform,
+                "ssh": os.path.exists(Path("/Volumes/boot/ssh")),
+                "key": cat("/Volumes/rootfs/home/pi/.ssh/authorized_keys"),
+                "hostname": cat("/Volumes/rootfs/etc/hostname")
+            }
+
+            # print(yaml.dump(information, default_flow_style=False))
+            pprint(information)
+
+
+    # ok osx
     def write_hostname(self, host):
         """
         set the hostname
@@ -177,6 +235,7 @@ class piburner(object):
             Path("/Volumes/rootfs/{path}".format( path=path)).write_text(host)
         print(self.host)
 
+    # ok osx
     def read_hostname(self):
         """
         set the hostname
@@ -575,6 +634,19 @@ def analyse():
             burner.write_hostname(host)
         else:
             print(burner.read_hostname())
+
+    elif arguments["ssh"]:
+        key = arguments["PUBLICKEY"]
+        if key is None:
+            key = os.path.expanduser("~") + "/.ssh/id_rsa.pub"
+        print("set host to", key)
+        burner = piburner()
+        burner.activate_ssh(key)
+
+    elif arguments["info"]:
+        burner = piburner()
+        burner.info()
+
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version=VERSION)
