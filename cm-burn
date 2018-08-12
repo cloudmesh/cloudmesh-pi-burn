@@ -168,7 +168,7 @@ class piburner(object):
         """
         raise NotImplementedError()
 
-
+    # ok osx
     def activate_ssh(self, public_key):
         """
         sets the public key path and copies the it to the SD card
@@ -205,6 +205,7 @@ class piburner(object):
             Path("/Volumes/rootfs/home/pi/.ssh/authorized_keys").write_text(key)
             pass
 
+    # ok osx
     def info(self):
         if sys.platform == 'darwin':
             information = {
@@ -235,6 +236,22 @@ class piburner(object):
             Path("/Volumes/rootfs/{path}".format( path=path)).write_text(host)
         print(self.host)
 
+    def filename(self, filesystem, path):
+
+        if filesystem == "root" and sys.platform == "darwin":
+            volume = "/Volumes/rootfs"
+
+        if filesystem == "boot" and sys.platform == "darwin":
+            volume = "/Volumes/boot"
+
+        if filesystem == "root" and sys.platform == "Windows":
+            volume = "TBD"
+
+        if filesystem == "boot" and sys.platform == "Windows":
+            volume = "TBD"
+
+        path = Path("{volume}/{path}".format(volume=volume, path=path))
+        retun path
     # ok osx
     def read_hostname(self):
         """

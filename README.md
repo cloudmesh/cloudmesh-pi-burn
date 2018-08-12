@@ -134,6 +134,9 @@ burning on a raspberry pi.
 
 TODO: PYTHON3 use pyenv
 
+Tip: An alternative would be using virtualbox and using a virtual machine 
+to avoid purchasing extFS.
+
 ## Windows
 
 TODO: This section has to be written by *Anand*. The following
