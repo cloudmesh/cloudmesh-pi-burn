@@ -70,7 +70,7 @@ import yaml
 import textwrap
 
 VERSION = "0.1"
-debug = True
+debug = False
 
 columns, lines = os.get_terminal_size()
 
@@ -173,7 +173,10 @@ class piburner(object):
         Path(self.filename("/ssh")).touch()
         # Write the content of the ssh rsa to the authorized_keys file
         key = Path(public_key).read_text()
-        os.makedirs(self.filename("/home/pi/.ssh"))
+        ssh_dir = self.filename("/home/pi/.ssh")
+        print (ssh_dir)
+        if not os.path.isdir(ssh_dir):
+            os.makedirs(ssh_dir)
         Path(self.filename("/home/pi/.ssh/authorized_keys")).write_text(key)
 
     # ok osx
@@ -245,7 +248,7 @@ class piburner(object):
         :return:
         """
         host = cat(self.filename("/etc/hostname"))
-        return self.host
+        return host
 
 
     def __init__(self):
@@ -409,6 +412,7 @@ class piburner(object):
         img_name = source.replace("zip", "img")
         shutil.copy(img_name, name + ".img")
 
+    '''
     def gregor(self, names, key, ssid=None, psk=None):
         global columns
         for name in hostlist.expand_hostlist(names):
@@ -418,7 +422,7 @@ class piburner(object):
 
             # self.create_burn_image(name)
             self.mount_burn_image(name + ".img")
-
+    '''
 
 
     def burn(self):
@@ -510,6 +514,7 @@ def analyse():
 
     if arguments["rm"]:
         rm(arguments["image"])
+
     elif arguments["get"]:
         url = arguments["URL"]
         if url == []:
@@ -524,30 +529,26 @@ def analyse():
     elif arguments["ls"]:
         burner = piburner()
         burner.ls()
+
     elif arguments["rm"]:
         rm(arguments["IMAGE"])
+
     elif arguments["create"]:
         burner = piburner()
         burner.create(arguments["HOSTS"],
                       arguments["KEY"],
                       arguments["SSID"],
                       arguments["PSK"])
-    elif arguments["gregor"]:
 
-        burner = piburner()
-
-        burner.gregor(
-            arguments["HOSTS"],
-            arguments["--key"]
-        )
     elif arguments["check"] and arguments["install"]:
         print("ERROR: not yet implemented")
+
     elif arguments["hostname"]:
         host = arguments["HOSTNAME"]
-        print("set host to", host)
         burner = piburner()
 
         if host != None:
+            print("Set host to:", host)
             burner.write_hostname(host)
         else:
             print(burner.read_hostname())
@@ -556,7 +557,7 @@ def analyse():
         key = arguments["PUBLICKEY"]
         if key is None:
             key = os.path.expanduser("~") + "/.ssh/id_rsa.pub"
-        print("set host to", key)
+        print("Use ssh key:", key)
         burner = piburner()
         burner.activate_ssh(key)
 
@@ -567,7 +568,6 @@ def analyse():
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version=VERSION)
-    print('test')
     # if debug:
     #   print(arguments) # just for debugging
     analyse()
