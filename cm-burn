@@ -11,6 +11,7 @@ Usage:
   cm-burn check install
   cm-burn hostname [HOSTNAME]
   cm-burn ssh [PUBLICKEY]
+  cm-burn wifi SSID [PASSWD]
   cm-burn info
   cm-burn (-h | --help)
   cm-burn --version
@@ -68,6 +69,7 @@ import sys
 from pprint import pprint
 import yaml
 import textwrap
+import getpass
 
 VERSION = "0.1"
 debug = False
@@ -371,7 +373,7 @@ class piburner(object):
         # if test successful: return True else: False
 
 
-    def wifi(self, ssid, psk):
+    def configure_wifi(self, ssid, psk):
         """
         sets the wifi. ONly works for psk based wifi
         :param ssid: the ssid
@@ -390,7 +392,7 @@ class piburner(object):
                         key_mgmt=WPA-PSK
                 }}""".format(network=ssid, pwd=psk))
         print(wifi)
-        Path(self.filename("/etc/wpa_supplicant/wpa_supplicant.conf").format(rootdrive=self.root_drive)).write_text(wifi)
+        Path(self.filename("/etc/wpa_supplicant/wpa_supplicant.conf")).write_text(wifi)
 
     def ip(self, ipaddress):
         # Bug: not implemented
@@ -552,6 +554,16 @@ def analyse():
             burner.write_hostname(host)
         else:
             print(burner.read_hostname())
+
+    elif arguments["wifi"]:
+        ssid = arguments["SSID"]
+        passwd = arguments["PASSWD"]
+        if passwd is None:
+            passwd = getpass.getpass()
+        print (ssid)
+        print (passwd)
+        burner = piburner()
+        burner.configure_wifi(ssid, passwd)
 
     elif arguments["ssh"]:
         key = arguments["PUBLICKEY"]
