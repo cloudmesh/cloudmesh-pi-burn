@@ -67,6 +67,7 @@ import zipfile
 import sys
 from pprint import pprint
 import yaml
+import textwrap
 
 VERSION = "0.1"
 debug = True
@@ -129,28 +130,11 @@ class piburner(object):
         """
         raise NotImplementedError()
 
-    def activate_ssh_service(self):
-        """
-        activates the ssh service
-
-        :return:
-        """
-        raise NotImplementedError()
-
     def add_public_key(self):
         """
         adds the public key to the authorized host name
         :return:
         """
-
-    def WindowsPath(self, drive, path):
-        """
-        returns a Windows path with drive letter
-        :param drive:
-        :param path:
-        :return:
-        """
-        return drive + ":" + path
 
     def unmount(self, path):
         """
@@ -184,35 +168,22 @@ class piburner(object):
             print("ERROR: key does not exist", self.keypath)
             sys.exit()
 
-        if sys.platform == "Windows":
-            # BUG: if condition needs to be used as boot drive not properly defined for linux/osx
-            # enable ssh by creating a ssh file in the boot folder
-            open(Path("{bootdrive}:/".format(bootdrive=self.boot_drive)) / "ssh", 'w+')
-            # Create directory .ssh
-            Path("{rootdrive}:/home/pi/.ssh".format(rootdrive=self.root_drive)).mkdir(parents=True, exist_ok=True)
-            # execute(script)
-            # Read contents of the ssh rsa file
-            content = Path(public_key).read_text()
-            # Write the content of the ssh rsa to the authorized_keys file
-            Path("{rootdrive}:/home/pi/.ssh/authorized_keys".format(rootdrive=self.root_drive)).write_text(content)
-            # if test successful: return True else: False
-        elif sys.platform == 'darwin':
-            # activate ssh by creating an empty ssh file in the boot drive
-            Path("/Volumes/boot/ssh").touch()
-            # Write the content of the ssh rsa to the authorized_keys file
-            key = Path(public_key).read_text()
-            os.makedirs("/Volumes/rootfs/home/pi/.ssh")
-            Path("/Volumes/rootfs/home/pi/.ssh/authorized_keys").write_text(key)
-            pass
+
+        # activate ssh by creating an empty ssh file in the boot drive
+        Path(self.filename("/ssh")).touch()
+        # Write the content of the ssh rsa to the authorized_keys file
+        key = Path(public_key).read_text()
+        os.makedirs(self.filename("/home/pi/.ssh"))
+        Path(self.filename("/home/pi/.ssh/authorized_keys")).write_text(key)
 
     # ok osx
     def info(self):
         if sys.platform == 'darwin':
             information = {
                 "os": sys.platform,
-                "ssh": os.path.exists(Path("/Volumes/boot/ssh")),
-                "key": cat("/Volumes/rootfs/home/pi/.ssh/authorized_keys"),
-                "hostname": cat("/Volumes/rootfs/etc/hostname")
+                "ssh": os.path.exists(self.filename("/ssh")),
+                "key": cat(self.filename("/home/pi/.ssh/authorized_keys")),
+                "hostname": cat(self.filename("/etc/hostname"))
             }
 
             # print(yaml.dump(information, default_flow_style=False))
@@ -228,30 +199,43 @@ class piburner(object):
         :return:
         """
         self.host = host
-        path = "/etc/hostname"
+        path = self.filename("/etc/hostname")
+        if debug:
+            print(self.host)
+        Path(path).write_text(host)
 
-        if sys.platform == "Windows":
-            Path("{rootdrive}:{path}".format(rootdrive=self.root_drive),path=path).write_text(host)
-        elif sys.platform == "darwin":
-            Path("/Volumes/rootfs/{path}".format( path=path)).write_text(host)
-        print(self.host)
+    def filename(self, path):
+        """
+        creates the proper path for the file bby using the proper file stsyem prefix. This method is
+        supposed to universilly work, so that we simply can use the filesystem name without worying
+        about the location of the root file system.
 
-    def filename(self, filesystem, path):
+        :param path:
+        :return:
+        """
 
-        if filesystem == "root" and sys.platform == "darwin":
-            volume = "/Volumes/rootfs"
+        if sys.platform == "darwin":
+            if path in ["/etc/hostname",
+                        "/home/pi/.ssh/authorized_keys",
+                        "/home/pi/.ssh",
+                        "/etc/wpa_supplicant/wpa_supplicant.conf"]:
+                volume = "/Volumes/rootfs"
+            elif path in ["/ssh"]:
+                volume = "/Volumes/boot"
+            else:
+                print("ERROR: path not defined in cm-burn", path)
+            location = Path("{volume}/{path}".format(volume=volume, path=path))
+        elif sys.platform == "Windows":
+            if path in ["etc/hostname"]:
+                volume = "TBD"
+                raise NotImplementedError()
+            if path in ["ssh"]:
+                volume = "TBD"
+                raise NotImplementedError()
+            location = Path("{volume}:{path}".format(volume=volume, path=path))
 
-        if filesystem == "boot" and sys.platform == "darwin":
-            volume = "/Volumes/boot"
+        return location
 
-        if filesystem == "root" and sys.platform == "Windows":
-            volume = "TBD"
-
-        if filesystem == "boot" and sys.platform == "Windows":
-            volume = "TBD"
-
-        path = Path("{volume}/{path}".format(volume=volume, path=path))
-        retun path
     # ok osx
     def read_hostname(self):
         """
@@ -260,14 +244,7 @@ class piburner(object):
         :param host: the hostname
         :return:
         """
-        host = None
-        if sys.platform == "Windows":
-            raise NotImplementedError()
-        elif sys.platform == "darwin":
-            path = "/Volumes/rootfs/etc/hostname"
-
-        with open(path, 'r') as file:
-            self.host = file.read()
+        host = cat(self.filename("/etc/hostname"))
         return self.host
 
 
@@ -283,9 +260,7 @@ class piburner(object):
             self.windows_pi_drive = "L"
             self.root_drive = None
             self.boot_drive = None
-        elif sys.platform == "darwin":
-            self.rootfs = "/Volume/rootfs"
-            self.bootfs = "/Volume/boot"
+
         self.host = None
         self.home = pathlib.Path(path.expanduser("~"))
         self.keypath = pathlib.Path(self.home / ".ssh" / "id_rsa.pub")
@@ -380,40 +355,7 @@ class piburner(object):
         BUG: not implemented
         pass
 
-    def device(self, devicename):
-        """
-        The default device name for ???
-        :param devicename: the device name
-        :return:
-        """
-        # set the device
-        BUG: not implemented
-        pass
 
-    def burn(self):
-        """
-        burn the image onto the SD card
-        :return: True if succesfull and test passed, false otherwise
-        """
-        # burn image opython device
-        # if not os.path.exists(IMAGE_DIR):
-        # os.makedirs(IMAGE_DIR)
-        # BUG: if condition is not implemented
-        script = ""
-        if platform.system() == 'Windows':
-            # BUG: does not use pathlib
-            script = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}".format(
-                dir=os.getcwd(), drive=self.windows_drive)
-        # also dir needs to be done in pathlib
-        # diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
-        # script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
-        # """.format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
-        elif platform.system() in ['Linux', 'Darwin']:
-            print("not yet implemented")
-        print(script)
-        execute(script)
-        # TODO: execute test
-        # if test successful: return True else: False
 
     def unmountdrive(self):
         """
@@ -426,30 +368,6 @@ class piburner(object):
         # if test successful: return True else: False
 
 
-
-    def key(self, public_key):
-        """
-        sets the public key path and copies the it to the SD card
-        :param public_key: the public key location
-        :return: True if successful
-        """
-
-        # set the keypath
-        self.keypath = public_key
-        print(self.keypath)
-        # BUG: if condition needs to be used as boot drive not properly defined for linux/osx
-        # enable ssh by creating a ssh file in the boot folder
-        open(Path("{bootdrive}:/".format(bootdrive=self.boot_drive)) / "ssh", 'w+')
-        # Create directory .ssh
-        Path("{rootdrive}:/home/pi/.ssh".format(rootdrive=self.root_drive)).mkdir(parents=True, exist_ok=True)
-        # execute(script)
-        # Read contents of the ssh rsa file
-        content = Path(public_key).read_text()
-
-        # Write the content of the ssh rsa to the authorized_keys file
-        Path("{rootdrive}:/home/pi/.ssh/authorized_keys".format(rootdrive=self.root_drive)).write_text(content)
-        # if test successful: return True else: False
-
     def wifi(self, ssid, psk):
         """
         sets the wifi. ONly works for psk based wifi
@@ -458,19 +376,18 @@ class piburner(object):
         :return:
         """
 
-        # TODO: use textdedent so its easier to read and script can be indented.
-        wifi = """\
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
-update_config=1 
-country=US
-
-network={{
-        ssid=\"{network}\"
-        psk=\"{pwd}\"
-        key_mgmt=WPA-PSK
-}}""".format(network=ssid, pwd=psk)
+        wifi = textwrap.dedent("""\
+                ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
+                update_config=1 
+                country=US
+                
+                network={{
+                        ssid=\"{network}\"
+                        psk=\"{pwd}\"
+                        key_mgmt=WPA-PSK
+                }}""".format(network=ssid, pwd=psk))
         print(wifi)
-        Path("{rootdrive}:/etc/wpa_supplicant/wpa_supplicant.conf".format(rootdrive=self.root_drive)).write_text(wifi)
+        Path(self.filename("/etc/wpa_supplicant/wpa_supplicant.conf").format(rootdrive=self.root_drive)).write_text(wifi)
 
     def ip(self, ipaddress):
         # Bug: not implemented
@@ -492,48 +409,6 @@ network={{
         img_name = source.replace("zip", "img")
         shutil.copy(img_name, name + ".img")
 
-    def find_linux_device(self, devices):
-        # find linux mount point
-        for device in devices:
-            if device["scheme"] == "Linux":
-                return device
-        return None
-
-    def mount_burn_image(self, name):
-        if sys.platform == "darwin":
-            tmp = pathlib.Path(self.cloudmesh_images) / "tmp"
-            if not os.path.exists(tmp):
-                # TODO: check if this works if path is ~/.cloudmesh/images
-                os.makedirs(tmp)
-            os.chdir(tmp)
-            print("TMP:", tmp)
-            print("NAME:", name)
-
-            output = run(["hdiutil", "mount", name]).strip()
-            print(output)
-            # parse hdutil
-            devices = []
-            for line in output.split("\n"):
-                info = {
-                    "dev": None,
-                    "scheme": None,
-                    "mountpoint": None
-                }
-                result = line.split()
-                info["dev"] = result[0]
-                info["scheme"] = result[1]
-                if len(result) > 2:
-                    info["mountpoint"] = result[2]
-                devices.append(info)
-            pprint(devices)
-            linux = self.find_linux_device(devices)
-            pprint(linux)
-            output = run(["ext4fuse", linux["dev"], "linux"])
-            print(output)
-
-        else:
-            print("not implemented")
-
     def gregor(self, names, key, ssid=None, psk=None):
         global columns
         for name in hostlist.expand_hostlist(names):
@@ -544,6 +419,36 @@ network={{
             # self.create_burn_image(name)
             self.mount_burn_image(name + ".img")
 
+
+
+    def burn(self):
+        """
+        burn the image onto the SD card
+        :return: True if succesfull and test passed, false otherwise
+        """
+        # burn image opython device
+        # if not os.path.exists(IMAGE_DIR):
+        # os.makedirs(IMAGE_DIR)
+        # BUG: if condition is not implemented
+        script = ""
+        if platform.system() == 'Windows':
+            # BUG: does not use pathlib
+            # BUG: command not in path, shoudl be in ~/.cloudmesh/bin so it can easier be found,
+            # BUG: shoudl it not be installed from original
+            script = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}".format(
+                dir=os.getcwd(), drive=self.windows_drive)
+            # also dir needs to be done in pathlib
+            # diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
+            # script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
+            # """.format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
+        elif platform.system() in ['Linux', 'Darwin']:
+            print("not yet implemented")
+        print(script)
+        execute(script)
+        # TODO: execute test
+        # if test successful: return True else: False
+
+    # replace with sefl.filname logic
     def create(self, names, key, ssid=None, psk=None):
         """
         creates a repeated burn on all names specified,
@@ -557,11 +462,6 @@ network={{
         :param psk: # TODO: should be set to None and if its none we do not do it we actually do not need wifi, should be handled differently
         :return:
         """
-
-        if os.platform() == 'Windows':
-            # TODO: this is not needed as should be in the init method
-            self.set_boot_drive("K")  # "K" # TODO: this needs to be find_next_drive()
-            self.set_root_drive("L")  # "L" # TODO: this needs to be find_next_drive()
 
         hosts = hostlist.expand_hostlist(names)
         # BUG: can we not discover the boot and rootdrive. Why do we have to set
