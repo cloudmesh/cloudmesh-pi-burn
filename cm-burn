@@ -144,7 +144,7 @@ class piburner(object):
         else:
             raise NotImplementedError()
 
-    def mount(self, device, path=None):
+    def mount(self, device=None, path=None):
         """
         mounts the device to the filesystem regardless of OS using the given path
         :param path:
@@ -158,14 +158,28 @@ class piburner(object):
             # volume = ...
             # remember to escape \ in volume
             # script = "mount {drive} {volume}:".format(drive=self.root_drive, volume=volume)
-            script = "RemoveDrive {drive}:".format(drive = self.root_drive)
-            execute(script)
+            # why remove, should we not mount?
+            #script = "RemoveDrive {drive}:".format(drive = self.root_drive)
+            #execute(script)
+            raise NotImplementedError()
         elif platform.system() == 'darwin':
+            # extFS does outomount so we just check i f they are mounted
+            # TODO: check if they exist
+            pass
             if drive is None:
-                for drive in ['/Volume/boot', 'Volume/rootfs']:
-                    execute("sudo mount {drive}".format(drive=drive))
+                drives = ['/Volume/boot', 'Volume/rootfs']
             else:
-                execute("sudo mount {drive}".format(drive=drive))
+                drives = [drive]
+            for drive in drives:
+                if not os.path.isdir(drive):
+                    ERROR('drive is not mounted:', drive)
+
+            #
+            # if drive is None:
+            #    for drive in ['/Volume/boot', 'Volume/rootfs']:
+            #        execute("sudo mount {drive}".format(drive=drive))
+            # else:
+            #    execute("sudo mount {drive}".format(drive=drive))
         else:
             raise NotImplementedError()
 
@@ -441,20 +455,20 @@ class piburner(object):
             self.mount_burn_image(name + ".img")
     '''
 
-    def staticip(self):
+    def configure_static_ip(self):
 
         #set staticip
-        staticip = """eth0
-static ip_address={ip}/24
-static routers=192.168.0.1
-static domain_name_servers=192.168.0.1
+        staticip = textwrap.dedent("""eth0
+            static ip_address={ip}/24
+            static routers=192.168.0.1
+            static domain_name_servers=192.168.0.1
 
-interface wlan0
+            interface wlan0
 
-static ip_address={ip}/24
-static routers=10.0.0.1
-static domain_name_servers=10.0.0.1
-""".format(ip=self.ip)
+            static ip_address={ip}/24
+            static routers=10.0.0.1
+            static domain_name_servers=10.0.0.1
+        """.format(ip=self.ip))
         print(staticip)        
         p = pathlib.Path(self.filename("/etc/dhcpcd.conf"))
         
@@ -551,7 +565,7 @@ static domain_name_servers=10.0.0.1
             self.activate_ssh(key)
             print("Updating ssh")
 
-            self.staticip()
+            self.configure_static_ip()
             print("Updating Network - Static IP")  
 
             self.unmount()
