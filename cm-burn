@@ -59,7 +59,6 @@ import hostlist
 from prompter import yesno
 import platform
 import wget
-from pathlib import Path
 import pathlib
 from os import path
 import glob
@@ -183,12 +182,12 @@ class piburner(object):
         # activate ssh by creating an empty ssh file in the boot drive
         Path(self.filename("/ssh")).touch()
         # Write the content of the ssh rsa to the authorized_keys file
-        key = Path(public_key).read_text()
+        key = pathlib.Path(public_key).read_text()
         ssh_dir = self.filename("/home/pi/.ssh")
         print (ssh_dir)
         if not os.path.isdir(ssh_dir):
             os.makedirs(ssh_dir)
-        Path(self.filename("/home/pi/.ssh/authorized_keys")).write_text(key)
+        pathlib.Path(self.filename("/home/pi/.ssh/authorized_keys")).write_text(key)
 
     # ok osx
     def info(self):
@@ -216,7 +215,7 @@ class piburner(object):
         path = self.filename("/etc/hostname")
         if debug:
             print(self.host)
-        Path(path).write_text(host)
+        pathlib.Path(path).write_text(host)
 
     def filename(self, path):
         """
@@ -239,7 +238,7 @@ class piburner(object):
                 volume = "/Volumes/boot"
             else:
                 print("ERROR: path not defined in cm-burn", path)
-            location = Path("{volume}/{path}".format(volume=volume, path=path))
+            location = pathlib.Path("{volume}/{path}".format(volume=volume, path=path))
         elif platform.system() == "Windows":
             if path in ["/etc/hostname",
                         "/home/pi/.ssh/authorized_keys",
@@ -251,7 +250,7 @@ class piburner(object):
                 volume = self.boot_drive
             else:
                 print("ERROR: path not defined in cm-burn", path)                
-            location = Path("{volume}:{path}".format(volume=volume, path=path))
+            location = pathlib.Path("{volume}:{path}".format(volume=volume, path=path))
 
         return location
 
@@ -450,7 +449,7 @@ static routers=10.0.0.1
 static domain_name_servers=10.0.0.1
 """.format(ip=self.ip)
         print(staticip)        
-        p = Path(self.filename("/etc/dhcpcd.conf"))
+        p = pathlib.Path(self.filename("/etc/dhcpcd.conf"))
         
         with open(p, 'a', encoding='utf-8') as file:
             file.write(staticip)
