@@ -168,14 +168,14 @@ Burn the raspbian image to the SD card with the executable
 
 * Open Ext2fsd exe
 * The SD card will have 2 partition
-* FAT32 partition will be assigned with the Drive letter
+* FAT32 partition will be assigned with the Drive letter - Boot Drive
 * Assign Drive Letter for EXT4 (Right click on the EXT4, 
-  Assign letter. 
-  The drive letter will be used while running cm-burn)
+  Assign letter.  
+  The drive letter will be used while running cm-burn) - Root Drive
 * Setting Automount of this EXT4
 * F3 or Tools->Ext2 Volume Management
 * Check-> Automatically mount via Ext2Mgr
-
+* The above steps needed for the Ext2fsd to reserve the Drive Letters and any raspbian image burned to SD will be auto mounted to that reserved drive letters. The drive letters need to be specified while using cm-burn
 
 ## Installation 
 
