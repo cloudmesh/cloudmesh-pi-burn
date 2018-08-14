@@ -52,6 +52,8 @@ Description:
 Example:
   cm-burn create --names red[000-010] --key idrsa.pub --image rasbian_latest
 """
+from __future__ import print_function
+
 import os
 import subprocess
 from docopt import docopt
@@ -83,6 +85,11 @@ columns, lines = os.get_terminal_size()
 # and linux if it does not exist
 IMAGE_DIR=os.path.expanduser("~/.cloudmesh/images")
 BOOT_DIR =''
+
+
+def ERROR(*args, **kwargs):
+    print("ERROR:", *args, file=sys.stderr, **kwargs)
+
 
 def print_function_name(func):
     """
@@ -168,7 +175,7 @@ class piburner(object):
         if debug:
             print(self.keypath)
         if not os.path.isfile(self.keypath):
-            print("ERROR: key does not exist", self.keypath)
+            ERROR("key does not exist", self.keypath)
             sys.exit()
 
 
@@ -230,7 +237,7 @@ class piburner(object):
             elif path in ["/ssh"]:
                 volume = "/Volumes/boot"
             else:
-                print("ERROR: path not defined in cm-burn", path)
+                ERROR("path not defined in cm-burn", path)
             location = pathlib.Path("{volume}/{path}".format(volume=volume, path=path))
         elif platform.system() == "Windows":
             if path in ["/etc/hostname",
@@ -242,7 +249,7 @@ class piburner(object):
             elif path in ["/ssh"]:
                 volume = self.boot_drive
             else:
-                print("ERROR: path not defined in cm-burn", path)                
+                ERROR("path not defined in cm-burn", path)
             location = pathlib.Path("{volume}:{path}".format(volume=volume, path=path))
 
         return location
@@ -318,7 +325,7 @@ class piburner(object):
             print(os.path.getsize(destination))
             print(size)
             if int(os.path.getsize(destination)) == int(size):
-                print("ERROR: file already downloded")
+                ERROR("file already downloded")
                 download = False
         if download:
             wget.download(image)
@@ -573,7 +580,7 @@ def analyse():
                       arguments["ROOTDRIVE"])
 
     elif arguments["check"] and arguments["install"]:
-        print("ERROR: not yet implemented")
+        ERROR("not yet implemented")
 
     elif arguments["hostname"]:
         host = arguments["HOSTNAME"]
