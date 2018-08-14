@@ -312,7 +312,7 @@ class piburner(object):
             print("IMAGES DIR", self.cloudmesh_images)
         pass
 
-    def get(self, image):
+    def get(self, image=None):
         """
         downloads the image and stores it in ~/.cloudmesh/images
         TODO: finalize the directory, create it if image already exists  doe not  not download
@@ -605,7 +605,9 @@ def analyse():
     if arguments["ls"]:
         burner = piburner()
         burner.ls()
-
+    elif arguments["get"]:
+        burner = piburner()
+        burner.get()
     elif arguments["create"]:
         burner = piburner()
         burner.create(arguments["HOSTS"],
