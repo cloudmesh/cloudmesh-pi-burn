@@ -1,4 +1,4 @@
-hostlist
+python-hostlist
 docopt
 prompter
 requests
