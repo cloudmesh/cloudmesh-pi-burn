@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """Cloudmesh Raspberry Pi Mass Image Burner.
 Usage:
-  cm-burn create --group GROUP --names HOSTS [--key KEY] --image IMAGE --ip IPS --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE
+  cm-burn create --group GROUP --names HOSTS [--key KEY] --image IMAGE --ip IPS [--bootdrive BOOTDRIVE] [--rootdrive ROOTDRIVE]
   cm-burn gregor --group GROUP --names HOSTS --image IMAGE [--key=KEY]  [--ips=IPS]
   cm-burn ls
   cm-burn rm IMAGE
@@ -14,16 +14,22 @@ Usage:
   cm-burn info
   cm-burn (-h | --help)
   cm-burn --version
+
 Options:
   -h --help     Show this screen.
   --version     Show version.
   --key=KEY     the path of the public key [default: ~/.ssh/id_rsa.pub].
   --ips=IPS     th ips in hostlist format
+
 Files:
   This is not fully thought through and needs to be documented
   ~/.cloudmesh/images
   ~/.cloudmesh/inventory
   Location where the images will be stored for reuse
+
+BUG:
+  bootdrive and rootdrive will be removed in a future release as they are self discoverable
+
 Description:
   cm-burn create --names HOSTS [--key KEY] --image IMAGE --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE --ssid SSID --psk PSK --ips IPS
   cm-burn update
@@ -58,7 +64,6 @@ import pathlib
 from os import path
 import glob
 import shutil
-#import progressbar
 import requests
 import zipfile
 import sys
@@ -74,7 +79,10 @@ debug = False
 
 columns, lines = os.get_terminal_size()
 
-IMAGE_DIR=os.path.expanduser("images")
+# TODO: the dirs are only needed for windows as they are implemented now in self.filename for OSX
+# we shoudl remove them and make sure that cloudmesh images gets created on osx
+# and linux if it does not exist
+IMAGE_DIR=os.path.expanduser("~/.cloudmesh/images")
 BOOT_DIR =''
 
 def print_function_name(func):
@@ -103,6 +111,11 @@ def cat(path):
     return content
 
 def execute(commands):
+    """
+       execute the commands that are included in the \n separated string line by line
+       :param commands: the commands
+       :return:
+    """
     lines = commands.split("\n")
     for line in lines:
         #os.system(line)
@@ -476,7 +489,7 @@ static domain_name_servers=10.0.0.1
         # TODO: execute test
         # if test successful: return True else: False
 
-    # replace with sefl.filname logic
+    # TODO: remove bootdrives from parameters as they should be selfdicoverable
     def create(self, names, key, ips, ssid=None, psk=None, bootdrive=None, rootdrive=None):
         """
         creates a repeated burn on all names specified,
