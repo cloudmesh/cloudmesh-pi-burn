@@ -115,6 +115,17 @@ TODO: Python3
 
 ### OSX 
 
+#### Card Burning
+
+On OSX a good program is to use etcher for burning the images on disk:
+
+* <https://etcher.io/>
+
+To access it form the 
+
+* <https://etcher.io/cli/>
+
+#### File System Management
 Unfortunately, the free versions of writing the ext file system are no
 longer supported on OSX. This means that as of writing of this document
 the best solution we found is to purchase and install extFS on the
