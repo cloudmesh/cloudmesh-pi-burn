@@ -458,28 +458,44 @@ class piburner(object):
     def configure_static_ip(self):
 
         #set staticip
-        staticip = textwrap.dedent("""eth0
+        data = {
+            "domain": "192.168.0.1",
+            "ip": self.ip
+        }
+        # TODO: why are eth0 and wlan0 differnt? should they not be the same as eth0?
+        # OLD:
+        #    interface wlan0
+        #    static ip_address={ip}/24
+        #    static routers=10.0.0.1
+        #    static domain_name_servers=10.0.0.1
+        dhcp_conf = textwrap.dedent("""
+            interface eth0
+            
             static ip_address={ip}/24
-            static routers=192.168.0.1
-            static domain_name_servers=192.168.0.1
+            static routers={domain}
+            static domain_name_servers={domain}
 
             interface wlan0
 
             static ip_address={ip}/24
-            static routers=10.0.0.1
-            static domain_name_servers=10.0.0.1
-        """.format(ip=self.ip))
-        print(staticip)        
-        p = pathlib.Path(self.filename("/etc/dhcpcd.conf"))
+            static routers={domain}
+            static domain_name_servers={domain}
+        """.format(**data))
+
+        if debug:
+            print(dhcp_conf)
+        #
+        # TODO: this seems not coorect, shoudl be in etc/network/interfaces?
+        path = pathlib.Path(self.filename("/etc/dhcpcd.conf"))
         
-        with open(p, 'a', encoding='utf-8') as file:
-            file.write(staticip)
-        
-        if platform.system() == 'Windows':
-            fileContents = open(p,"r").read()
-            f = open(p,"w", newline="\n")
-            f.write(fileContents)
-            f.close()
+        with open(path, 'a', encoding='utf-8', newline="\n") as file:
+            file.write(dhcp_conf)
+
+        # why is this needed?
+        # if platform.system() == 'Windows':
+        #    fileContents = open(path,"r").read()
+        #    with open(path,"w", newline="\n") as file:
+        #        file.write(fileContents)
 
     def burn(self):
         """
