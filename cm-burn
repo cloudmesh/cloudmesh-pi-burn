@@ -123,26 +123,51 @@ class piburner(object):
         """
         raise NotImplementedError()
 
-    def unmount(self):
+    def unmount(self, drive=None):
         """
         unmounts the filesystem regardless of OS using the given path
         :param path:
         :return:
         """
         if platform.system() == 'Windows':
-            #Remove drive in windows
-            script = """RemoveDrive {drive}:""".format(drive = self.root_drive)
+            #TODO: Remove drive in windows, why can you not use the mount function build into windows?
+            #TODO: Why do you need RemoveDrive?
+            # script =  "mountvol {drive} /p".format(drive = self.root_drive)
+            script = "RemoveDrive {drive}:".format(drive = self.root_drive)
             execute(script)
-        else :            
+        elif platform.system() == 'darwin':
+            if drive is None:
+                for drive in ['/Volume/boot', 'Volume/rootfs']:
+                    execute("sudo umount {drive}".format(drive=drive))
+            else:
+                execute("sudo umount {drive}".format(drive=drive))
+        else:
             raise NotImplementedError()
 
-    def mount(self, device, path):
+    def mount(self, device, path=None):
         """
         mounts the device to the filesystem regardless of OS using the given path
         :param path:
         :return:
         """
-        raise NotImplementedError()
+        if platform.system() == 'Windows':
+            #TODO: Remove drive in windows, why can you not use the mount function build into windows?
+            #TODO: Why do you need RemoveDrive?
+            # mountvol %drive% /p
+            # create volume mount pount as volume
+            # volume = ...
+            # remember to escape \ in volume
+            # script = "mount {drive} {volume}:".format(drive=self.root_drive, volume=volume)
+            script = "RemoveDrive {drive}:".format(drive = self.root_drive)
+            execute(script)
+        elif platform.system() == 'darwin':
+            if drive is None:
+                for drive in ['/Volume/boot', 'Volume/rootfs']:
+                    execute("sudo mount {drive}".format(drive=drive))
+            else:
+                execute("sudo mount {drive}".format(drive=drive))
+        else:
+            raise NotImplementedError()
 
     # ok osx
     def activate_ssh(self, public_key):
