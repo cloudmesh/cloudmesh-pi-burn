@@ -46,11 +46,11 @@ Description:
   cm-burn hostname HOSTNAME
         writes the HOSTNAME as hostname on the currently inserted SD Card
   cm-burn hostname
-        reads the hostname form the curredn SD card
+        reads the hostname form the current SD card
 
-        Identify what woudl be useful.
+        Identify what would be useful.
 Example:
-  cm-burn create --names red[000-010] --key idrsa.pub --image rasbian_latest
+  cm-burn create --names red[000-010] --key idrsa.pub --image raspbian_latest
 """
 from __future__ import print_function
 
@@ -81,7 +81,7 @@ debug = False
 columns, lines = os.get_terminal_size()
 
 # TODO: the dirs are only needed for windows as they are implemented now in self.filename for OSX
-# we shoudl remove them and make sure that cloudmesh images gets created on osx
+# we should remove them and make sure that cloudmesh images gets created on osx
 # and linux if it does not exist
 IMAGE_DIR=os.path.expanduser("~/.cloudmesh/images")
 BOOT_DIR =''
@@ -143,7 +143,7 @@ class piburner(object):
 
     def unmount(self):
         """
-        unmounts the filesystem regardles of OS using the given path
+        unmounts the filesystem regardless of OS using the given path
         :param path:
         :return:
         """
@@ -156,7 +156,7 @@ class piburner(object):
 
     def mount(self, device, path):
         """
-        mounts the device to the filesystem regardles of OS using the given path
+        mounts the device to the filesystem regardless of OS using the given path
         :param path:
         :return:
         """
@@ -219,8 +219,8 @@ class piburner(object):
 
     def filename(self, path):
         """
-        creates the proper path for the file bby using the proper file stsyem prefix. This method is
-        supposed to universilly work, so that we simply can use the filesystem name without worying
+        creates the proper path for the file bby using the proper file systyem prefix. This method is
+        supposed to universally work, so that we simply can use the filesystem name without worrying
         about the location of the root file system.
 
         :param path:
@@ -272,7 +272,7 @@ class piburner(object):
         TODO: provide more information
         """
         # store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
-        # defaults from tehre if the file exist
+        # defaults from there if the file exist
         #if sys.platform == "Windows":
         #    self.windows_drive = "K"
         #    self.windows_pi_drive = "L"
@@ -325,7 +325,7 @@ class piburner(object):
             print(os.path.getsize(destination))
             print(size)
             if int(os.path.getsize(destination)) == int(size):
-                ERROR("file already downloded")
+                ERROR("file already downloaded")
                 download = False
         if download:
             wget.download(image)
@@ -360,7 +360,7 @@ class piburner(object):
         :param drive: the drive name for windows
         :return:
         """
-        # BUG: not sure what this drive is so replace abc with something meaningfull
+        # BUG: not sure what this drive is so replace abc with something meaningful
         self.root_drive = drive
 
     def set_boot_drive(self, drive):
@@ -369,7 +369,7 @@ class piburner(object):
         :param drive: the drive name for windows
         :return:
         """
-        # BUG: not sure what this drive is so replace efg with something meaningfull
+        # BUG: not sure what this drive is so replace efg with something meaningful
         self.boot_drive = drive
 
     def image(self, imagepath):
@@ -465,7 +465,7 @@ static domain_name_servers=10.0.0.1
         burn the image onto the SD card
         :return: True if succesfull and test passed, false otherwise
         """
-        # burn image opython device
+        # burn image on python device
         # if not os.path.exists(IMAGE_DIR):
         # os.makedirs(IMAGE_DIR)
         # BUG: if condition is not implemented
@@ -473,8 +473,8 @@ static domain_name_servers=10.0.0.1
         script = ""
         if platform.system() == 'Windows':
             # BUG: does not use pathlib
-            # BUG: command not in path, shoudl be in ~/.cloudmesh/bin so it can easier be found,
-            # BUG: shoudl it not be installed from original
+            # BUG: command not in path, should be in ~/.cloudmesh/bin so it can easier be found,
+            # BUG: should it not be installed from original
             script = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\images\\2018-06-27-raspbian-stretch.img {drive}".format(
                 dir=os.getcwd(), drive=self.boot_drive)            
             # also dir needs to be done in pathlib
@@ -492,7 +492,7 @@ static domain_name_servers=10.0.0.1
     def create(self, names, key, ips, ssid=None, psk=None, bootdrive=None, rootdrive=None):
         """
         creates a repeated burn on all names specified,
-        TODO: whay is sthi not part of the previous class?
+        TODO: why is this not part of the previous class?
 
         :param names: the hostnames of in hostlist format to be burned
         :param key: the public key location # TODO: should be defaulted to ~/.ssh/id_rsa.pub
