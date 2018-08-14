@@ -90,24 +90,6 @@ BOOT_DIR =''
 def ERROR(*args, **kwargs):
     print("ERROR:", *args, file=sys.stderr, **kwargs)
 
-
-def print_function_name(func):
-    """
-    decorator for printing the name of the function
-
-    :param func: the function name
-    :return: the function
-    """
-    def echo_func(*func_args, **func_kwargs):
-        print('')
-        print(columns * '-')
-        print('Executing {}'.format(func.__name__))
-        print(columns * '-')
-        return func(*func_args, **func_kwargs)
-
-    return echo_func
-
-
 def run(command):
     return subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8')
 
