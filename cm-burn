@@ -117,7 +117,6 @@ def execute(commands):
     """
     lines = commands.split("\n")
     for line in lines:
-        #os.system(line)
         print(line)
         proc = subprocess.Popen(line, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         while proc.poll() is None:
@@ -134,12 +133,6 @@ class piburner(object):
         :return:
         """
         raise NotImplementedError()
-
-    def add_public_key(self):
-        """
-        adds the public key to the authorized host name
-        :return:
-        """
 
     def unmount(self):
         """
