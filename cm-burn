@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 """Cloudmesh Raspberry Pi Mass Image Burner.
-
 Usage:
-  cm-burn create --group GROUP --names HOSTS --image IMAGE [--key=KEY]  [--ips=IPS]
+  cm-burn create --group GROUP --names HOSTS [--key KEY] --image IMAGE --ip IPS --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE
   cm-burn gregor --group GROUP --names HOSTS --image IMAGE [--key=KEY]  [--ips=IPS]
   cm-burn ls
   cm-burn rm IMAGE
@@ -15,21 +14,18 @@ Usage:
   cm-burn info
   cm-burn (-h | --help)
   cm-burn --version
-
 Options:
   -h --help     Show this screen.
   --version     Show version.
   --key=KEY     the path of the public key [default: ~/.ssh/id_rsa.pub].
   --ips=IPS     th ips in hostlist format
-
 Files:
   This is not fully thought through and needs to be documented
   ~/.cloudmesh/images
   ~/.cloudmesh/inventory
   Location where the images will be stored for reuse
-
 Description:
-  cm-burn create --names HOSTS [--key KEY] --image IMAGE --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE --ssid SSID --psk PSK
+  cm-burn create --names HOSTS [--key KEY] --image IMAGE --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE --ssid SSID --psk PSK --ips IPS
   cm-burn update
         updates the downloaded images if new once are available
   cm-burn ls
@@ -46,9 +42,9 @@ Description:
   cm-burn hostname
         reads the hostname form the curredn SD card
 
+        Identify what woudl be useful.
 Example:
-  cm-burn create --names red[000-010] ips --image rasbian_latest
-
+  cm-burn create --names red[000-010] --key idrsa.pub --image rasbian_latest
 """
 import os
 import subprocess
@@ -62,7 +58,7 @@ import pathlib
 from os import path
 import glob
 import shutil
-import progressbar
+#import progressbar
 import requests
 import zipfile
 import sys
@@ -70,15 +66,16 @@ from pprint import pprint
 import yaml
 import textwrap
 import getpass
+import time
+import datetime
 
 VERSION = "0.1"
 debug = False
 
 columns, lines = os.get_terminal_size()
 
-IMAGE_DIR = os.path.expanduser("images")
-BOOT_DIR = ''
-
+IMAGE_DIR=os.path.expanduser("images")
+BOOT_DIR =''
 
 def print_function_name(func):
     """
@@ -87,7 +84,6 @@ def print_function_name(func):
     :param func: the function name
     :return: the function
     """
-
     def echo_func(*func_args, **func_kwargs):
         print('')
         print(columns * '-')
@@ -107,14 +103,9 @@ def cat(path):
     return content
 
 def execute(commands):
-    """
-    execute the commands that are included in the \n separated string line by line
-    :param commands: the commands
-    :return:
-    """
-    commandlines = commands.split("\n")
-    for line in commandlines:
-        # os.system(line)
+    lines = commands.split("\n")
+    for line in lines:
+        #os.system(line)
         print(line)
         proc = subprocess.Popen(line, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         while proc.poll() is None:
@@ -138,13 +129,18 @@ class piburner(object):
         :return:
         """
 
-    def unmount(self, path):
+    def unmount(self):
         """
         unmounts the filesystem regardles of OS using the given path
         :param path:
         :return:
         """
-        raise NotImplementedError()
+        if platform.system() == 'Windows':
+            #Remove drive in windows
+            script = """RemoveDrive {drive}:""".format(drive = self.root_drive)
+            execute(script)
+        else :            
+            raise NotImplementedError()
 
     def mount(self, device, path):
         """
@@ -217,26 +213,31 @@ class piburner(object):
 
         :param path:
         :return:
-        """
-
-        if sys.platform == "darwin":
+        """        
+        print(path)
+        if platform.system() == "darwin":
             if path in ["/etc/hostname",
                         "/home/pi/.ssh/authorized_keys",
                         "/home/pi/.ssh",
-                        "/etc/wpa_supplicant/wpa_supplicant.conf"]:
+                        "/etc/wpa_supplicant/wpa_supplicant.conf",
+                        "/etc/dhcpcd.conf"]:
                 volume = "/Volumes/rootfs"
             elif path in ["/ssh"]:
                 volume = "/Volumes/boot"
             else:
                 print("ERROR: path not defined in cm-burn", path)
             location = Path("{volume}/{path}".format(volume=volume, path=path))
-        elif sys.platform == "Windows":
-            if path in ["etc/hostname"]:
-                volume = "TBD"
-                raise NotImplementedError()
-            if path in ["ssh"]:
-                volume = "TBD"
-                raise NotImplementedError()
+        elif platform.system() == "Windows":
+            if path in ["/etc/hostname",
+                        "/home/pi/.ssh/authorized_keys",
+                        "/home/pi/.ssh",
+                        "/etc/wpa_supplicant/wpa_supplicant.conf",
+                        "/etc/dhcpcd.conf"]:
+                volume = self.root_drive                
+            elif path in ["/ssh"]:
+                volume = self.boot_drive
+            else:
+                print("ERROR: path not defined in cm-burn", path)                
             location = Path("{volume}:{path}".format(volume=volume, path=path))
 
         return location
@@ -260,11 +261,11 @@ class piburner(object):
         """
         # store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
         # defaults from tehre if the file exist
-        if sys.platform == "Windows":
-            self.windows_drive = "K"
-            self.windows_pi_drive = "L"
-            self.root_drive = None
-            self.boot_drive = None
+        #if sys.platform == "Windows":
+        #    self.windows_drive = "K"
+        #    self.windows_pi_drive = "L"
+        #    self.root_drive = None
+        #    self.boot_drive = None
 
         self.host = None
         self.home = pathlib.Path(path.expanduser("~"))
@@ -332,6 +333,15 @@ class piburner(object):
         print('\n'.join(images))
         print()
 
+    def set_ip(self, ip):
+        """
+        TODO: How to set the static IP for both wifi and wired
+        :param drive: the ip 
+        :return:
+        """
+        
+        self.ip = ip
+
     def set_root_drive(self, drive):
         """
         TODO: provide explanation
@@ -351,26 +361,16 @@ class piburner(object):
         self.boot_drive = drive
 
     def image(self, imagepath):
-        """
-        set the default image
-        :param imagepath: the default image path into the image directory
-        :return:
-        """
         # set the image
-        BUG: not implemented
         pass
 
 
 
-    def unmountdrive(self):
-        """
-        Remove drive in windows
-        :return: True is successful
-        """
-        #
-        script = """RemoveDrive {drive}:""".format(drive=self.root_drive)
-        execute(script)
-        # if test successful: return True else: False
+ 
+    def device(self, devicename):
+        # set the device
+        pass 
+    
 
 
     def configure_wifi(self, ssid, psk):
@@ -394,11 +394,7 @@ class piburner(object):
         print(wifi)
         Path(self.filename("/etc/wpa_supplicant/wpa_supplicant.conf")).write_text(wifi)
 
-    def ip(self, ipaddress):
-        # Bug: not implemented
-        # set ip
-        pass
-
+    
     def create_burn_image(self, name):
         tmp = pathlib.Path(self.cloudmesh_images) / "tmp"
         if not os.path.exists(tmp):
@@ -426,6 +422,31 @@ class piburner(object):
             self.mount_burn_image(name + ".img")
     '''
 
+    def staticip(self):
+
+        #set staticip
+        staticip = """eth0
+static ip_address={ip}/24
+static routers=192.168.0.1
+static domain_name_servers=192.168.0.1
+
+interface wlan0
+
+static ip_address={ip}/24
+static routers=10.0.0.1
+static domain_name_servers=10.0.0.1
+""".format(ip=self.ip)
+        print(staticip)        
+        p = Path(self.filename("/etc/dhcpcd.conf"))
+        
+        with open(p, 'a', encoding='utf-8') as file:
+            file.write(staticip)
+        
+        if platform.system() == 'Windows':
+            fileContents = open(p,"r").read()
+            f = open(p,"w", newline="\n")
+            f.write(fileContents)
+            f.close()
 
     def burn(self):
         """
@@ -436,13 +457,14 @@ class piburner(object):
         # if not os.path.exists(IMAGE_DIR):
         # os.makedirs(IMAGE_DIR)
         # BUG: if condition is not implemented
+        
         script = ""
         if platform.system() == 'Windows':
             # BUG: does not use pathlib
             # BUG: command not in path, shoudl be in ~/.cloudmesh/bin so it can easier be found,
             # BUG: shoudl it not be installed from original
-            script = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\2018-04-18-raspbian-stretch.img {drive}".format(
-                dir=os.getcwd(), drive=self.windows_drive)
+            script = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\images\\2018-06-27-raspbian-stretch.img {drive}".format(
+                dir=os.getcwd(), drive=self.boot_drive)            
             # also dir needs to be done in pathlib
             # diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
             # script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
@@ -455,7 +477,7 @@ class piburner(object):
         # if test successful: return True else: False
 
     # replace with sefl.filname logic
-    def create(self, names, key, ssid=None, psk=None):
+    def create(self, names, key, ips, ssid=None, psk=None, bootdrive=None, rootdrive=None):
         """
         creates a repeated burn on all names specified,
         TODO: whay is sthi not part of the previous class?
@@ -470,12 +492,20 @@ class piburner(object):
         """
 
         hosts = hostlist.expand_hostlist(names)
+        iplist = hostlist.expand_hostlist(ips)
         # BUG: can we not discover the boot and rootdrive. Why do we have to set
         # it to I and G, can we not get the next free drive letter?
         # bootdrive = find_next_free_drive_letter()
         # rootdrive = find_next_free_drive_letter()
-        # BUG: are the drives released after use?
-        for host in hosts:
+        # BUG: are the drives released after use?         
+        print(bootdrive)
+        print(rootdrive)
+        if bootdrive:  
+            self.set_boot_drive(bootdrive)
+        if rootdrive:
+            self.set_root_drive(rootdrive)
+        for host, ip in zip(hosts, iplist):
+            print("Start Time - {currenttime}".format(currenttime = datetime.datetime.now()))
             print(columns * '-')
             print("Burning", host)
             # break
@@ -483,64 +513,59 @@ class piburner(object):
             yesno('Please insert the card for ' + host + "(y)?")
             print("wait till its recognized")
             print("once in conformation proceed")
-
+        
             self.burn()
             print("burn")
-
+            #Sleep for 5 seconds to have the SD to be mounted
+            time.sleep(5)
+            self.set_ip(ip)
+            print("Set IP - {id}".format(id=ip))
             self.write_hostname(host)
-            print("Updating host")
+            print("Updating host - {name}".format(name=host))
 
             print("ssid - {id}".format(id=ssid))
             print("psk - {pwd}".format(pwd=psk))
             if ssid:
-                self.wifi(ssid, psk)
-            print("Updating wifi")
+                self.configure_wifi(ssid, psk)
+                print("Updating wifi")
 
-            self.key(key)
+            self.activate_ssh(key)
             print("Updating ssh")
 
-            if os.platform() == 'Windows':
-                self.unmountdrive()
-                print("Removed drive")
+            self.staticip()
+            print("Updating Network - Static IP")  
+
+            self.unmount()
+            print("Removed drive")
 
             print("Please remove the card for host", host)
             yesno("Press y once the card is removed")
 
             print("take the card out")
+            print("End Time - {currenttime}".format(currenttime = datetime.datetime.now()))
             break
 
+def analyse():    
+   # if arguments["rm"]:
+   #     rm(arguments["image"])
 
-def analyse():
-    if debug:
-        print(arguments)
-
-    if arguments["rm"]:
-        rm(arguments["image"])
-
-    elif arguments["get"]:
-        url = arguments["URL"]
-        if url == []:
-            url = None
-        else:
-            url = url[0]
-        print(url)
-
-        burner = piburner()
-        burner.get(url)
-
-    elif arguments["ls"]:
+   # elif arguments["get"]:
+   #     print(arguments["URL"])
+   #     get(arguments["URL"])
+   # elif arguments["ls"]:
+    if arguments["ls"]:
         burner = piburner()
         burner.ls()
-
-    elif arguments["rm"]:
-        rm(arguments["IMAGE"])
 
     elif arguments["create"]:
         burner = piburner()
         burner.create(arguments["HOSTS"],
                       arguments["KEY"],
+                      arguments["IPS"],
                       arguments["SSID"],
-                      arguments["PSK"])
+                      arguments["PSK"],
+                      arguments["BOOTDRIVE"],
+                      arguments["ROOTDRIVE"])
 
     elif arguments["check"] and arguments["install"]:
         print("ERROR: not yet implemented")
