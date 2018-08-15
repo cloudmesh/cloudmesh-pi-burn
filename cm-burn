@@ -347,6 +347,15 @@ class piburner(object):
         if download:
             wget.download(image)
 
+        # uncompressing
+
+        basename = iamge.replace(".zip","")
+        image_file = pathlib.Path(self.cloudmesh_images / basename + "img")
+        if not os.path.exists(image_file):
+            self.unzip_image(image)
+        else:
+            ERROR("file already downloaded. Found at:", pathlib.Path(self.cloudmesh_images / image_file))
+            
     def ls(self):
         """
         List all images in the image directory
@@ -424,20 +433,13 @@ class piburner(object):
         Path(self.filename("/etc/wpa_supplicant/wpa_supplicant.conf")).write_text(wifi)
 
     
-    def create_burn_image(self, name):
+    def unzip_image(self, source):
         tmp = pathlib.Path(self.cloudmesh_images) / "."
-        if not os.path.exists(tmp):
-            # TODO: check if this works if path is ~/.cloudmesh/images
-            os.makedirs(tmp)
         os.chdir(tmp)
-        source = "2018-06-27-raspbian-stretch.zip"  # hardcoded for now for testing
         image_zip = pathlib.Path(self.cloudmesh_images / source)
-        print("copy image", image_zip)
-        shutil.copy(image_zip, source)
         print("unzip image", image_zip)
         zipfile.ZipFile(source).extractall()
-        img_name = source.replace("zip", "img")
-        shutil.copy(img_name, name + ".img")
+
 
     '''
     def gregor(self, names, key, ssid=None, psk=None):
