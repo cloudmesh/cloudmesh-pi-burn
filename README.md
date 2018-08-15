@@ -81,6 +81,27 @@ sudo apt-get update
 Certainly you can even have a much simpler setup by just attaching a keyboard, mouse and monitor/TV to your `master`. 
 This will allow you to directly work on the master node, not needing any additional hardware.
 
+## Cluster of Clusters
+
+To integrate the clusters into a single network, we need a switch  or combination of switches to which we connect the clusters.
+This is depicted in the Figure Cluster of Clusters
+
+
+![](images/network-cluster.png)
+
+Each cluster is naemed cluster01-clusterNN. The hostnames are node followed by 3 zeros padded with the node number
+There is a correlation between the cluster number and the node numbers in the following interval
+
+a cluster has the nodes 
+
+```
+[(clustername - 1) * 5 + 1, (clustername - 1) * 5 + 5]
+```
+
+For convenience we will be also enabeling a cluster burn logic, that burns all images for a given cluster
+
+cm-burn --workers=5 --name=cluster --nodes=nodes --id=3
+
 
 ## Prerequisits
 
