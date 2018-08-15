@@ -2,7 +2,6 @@
 """Cloudmesh Raspberry Pi Mass Image Burner.
 Usage:
   cm-burn create --group GROUP --names HOSTS [--key KEY] --image IMAGE --ip IPS [--bootdrive BOOTDRIVE] [--rootdrive ROOTDRIVE]
-  cm-burn gregor --group GROUP --names HOSTS --image IMAGE [--key=KEY]  [--ips=IPS]
   cm-burn ls
   cm-burn rm IMAGE
   cm-burn get [URL]
