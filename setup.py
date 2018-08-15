@@ -56,9 +56,13 @@ setup(
     #
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),  # Required
 
-    install_requires=['hostlist',
-                      'docopt',
-                      'prompter'],      
+    install_requires=[
+        "python-hostlist",
+        "docopt",
+        "prompter",
+        "requests",
+        "wget"
+        ],
 
     extras_require={  # Optional
         'dev': ['check-manifest'],
