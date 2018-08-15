@@ -404,3 +404,34 @@ mountvol <Drive Letter>: /d
 * https://www.jeffgeerling.com/blogs/jeff-geerling/mounting-raspberry-pis-ext4-sd
 * https://blog.hypriot.com/post/cloud-init-cloud-on-hypriot-x64/
 * https://www.paragon-software.com/home/extfs-mac/
+
+
+
+# OSX during burning
+
+```
+/dev/disk0 (internal):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      GUID_partition_scheme                         2.0 TB     disk0
+   1:                        EFI EFI                     314.6 MB   disk0s1
+   2:                 Apple_APFS Container disk1         2.0 TB     disk0s2
+
+/dev/disk1 (synthesized):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:      APFS Container Scheme -                      +2.0 TB     disk1
+                                 Physical Store disk0s2
+   1:                APFS Volume Macintosh HD            811.4 GB   disk1s1
+   2:                APFS Volume Preboot                 26.8 MB    disk1s2
+   3:                APFS Volume Recovery                519.0 MB   disk1s3
+   4:                APFS Volume VM                      9.7 GB     disk1s4
+
+/dev/disk2 (external, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:     FDisk_partition_scheme                        *31.9 GB    disk2
+
+/dev/disk3 (external, physical):
+   #:                       TYPE NAME                    SIZE       IDENTIFIER
+   0:     FDisk_partition_scheme                        *31.9 GB    disk3
+   
+   
+ ```
