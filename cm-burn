@@ -146,9 +146,9 @@ class piburner(object):
             # script =  "mountvol {drive} /p".format(drive = self.root_drive)
             script = "RemoveDrive {drive}:".format(drive = self.root_drive)
             execute(script)
-        elif platform.system() == 'darwin':
+        elif platform.system() == 'Darwin':
             if drive is None:
-                for drive in ['/Volume/boot', 'Volume/rootfs']:
+                for drive in ['/Volumes/boot', '/Volumes/rootfs']:
                     execute("sudo umount {drive}".format(drive=drive))
             else:
                 execute("sudo umount {drive}".format(drive=drive))
@@ -228,7 +228,7 @@ class piburner(object):
             information = {
                 "os": sys.platform,
                 "ssh": os.path.exists(self.filename("/ssh")),
-                "key": cat(self.filename("/home/pi/.ssh/authorized_keys")),
+                #"key": cat(self.filename("/home/pi/.ssh/authorized_keys")),
                 "hostname": cat(self.filename("/etc/hostname"))
             }
 
@@ -260,7 +260,7 @@ class piburner(object):
         :return:
         """        
         #print(path)
-        if platform.system() == "darwin":
+        if platform.system() == "Darwin":
             if path in ["/etc/hostname",
                         "/home/pi/.ssh/authorized_keys",
                         "/home/pi/.ssh",
@@ -320,7 +320,13 @@ class piburner(object):
             if self.boot_drive in out and self.root_drive in out:
                 deviceok = True
         elif platform.system() == "Darwin":
-            pass
+            devs = subprocess.getoutput("diskutil list").split("/dev/")
+            usbdev = None
+            for dev in devs:
+                if "boot" in dev and "rootfs" in dev and "Windows_FAT_32" in dev:
+                    usbdev = dev.split("\n")[0].split(" ")[0]
+            if usbdev == device:
+                deviceok = True
         elif platform.system() == "Windows":
             deviceok = True
         return deviceok
@@ -338,12 +344,11 @@ class piburner(object):
         self.root_drive = None
         self.boot_drive = None
         if platform.system() == 'Linux':
-            bootdrive = "/media/{user}/boot".format(user=getpass.getuser())
-            rootdrive = "/media/{user}/rootfs".format(user=getpass.getuser())
-        if bootdrive:
-            self.set_boot_drive(bootdrive)
-        if rootdrive:
-            self.set_root_drive(rootdrive)
+            self.bootdrive = "/media/{user}/boot".format(user=getpass.getuser())
+            self.rootdrive = "/media/{user}/rootfs".format(user=getpass.getuser())
+        elif platform.system() == 'Darwin':
+            self.bootdrive = "/Volumes/boot"
+            self.rootdrive = "/Volumes/rootfs"
         self.image = None
         self.host = None
         self.home = pathlib.Path(path.expanduser("~"))
@@ -587,8 +592,8 @@ class piburner(object):
             self.unmount()
             command = "sudo dd if={image} of=/dev/{device} bs=4M status=progress".format(image=self.image,device=device)
         elif platform.system() in ['Darwin']:
-            ERROR("not yet implemented")
-            sys.exit()
+            self.unmount()
+            command = "sudo dd if={image} of=/dev/{device} bs=4m".format(image=self.image,device=device)
 
         #print(command)
         if command:
