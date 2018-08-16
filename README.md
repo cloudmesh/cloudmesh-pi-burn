@@ -134,6 +134,16 @@ to be used for burning the SD Card.
 
 TODO: Python3
 
+#### Card Burning from commandline
+
+* Insert card and find mmcblk0, e.g. no letter p in it for partition
+
+```sudo ls -ltr /dev/*```
+
+
+```sudo dd bs=1M if=~/.cloudmesh/images/imagename.img of=mmcblk0 status=progress conv=fsync```
+
+
 ### OSX 
 
 #### Card Burning
