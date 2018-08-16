@@ -174,32 +174,32 @@ to avoid purchasing extFS.
 TODO: This section has to be written by *Anand*. The following
 description is incomplete and not yet accurate.
 
-you will need a terminal with elevated permissions. See:
-
-* <https://www.tenforums.com/tutorials/2790-open-elevated-command-prompt-windows-10-a.html> 
-
-First you need to elevate permissions Python.exe in Windows
+#### Elevate permissions for Python.exe in Windows
 
 * Create a shortcut for python.exe
-* Change the shortcut target into something like C:\xxx\...\python.exe
-  your_script.py
+* Change the shortcut target into something like C:\xxx\...\python.exe  
 * Click "advance..." in the property panel of the shortcut, and click
   the option "run as administrator"
 
-Download the Open source ext3/4 file system driver for Windows installer from
-
-* <http://www.ext2fsd.com/>
+#### Executable needed to burn the image on SD Card:
 
 Download CommandLineDiskImager from the following url
 
 * <https://github.com/davidferguson/CommandLineDiskImager>
 
-Burn the raspbian image to the SD card with the executable
+The above executable will be used by cm-burn script.
+
+It's necessary to burn the raspbian image to the SD card with this executable manually or thru Etcher in order to continue with next step.
 
 ```CommandLineDiskImager.exe C:\Users\John\Downloads\raspbian.img G```
 
+#### File System Management
+
+Download the Open source ext3/4 file system driver for Windows installer from
+
+* <http://www.ext2fsd.com/>
 * Open Ext2fsd exe
-* The SD card will have 2 partition
+* The burned image in the previous step in SD card will have 2 partition
 * FAT32 partition will be assigned with the Drive letter - Boot Drive
 * Assign Drive Letter for EXT4 (Right click on the EXT4, 
   Assign letter.  
@@ -207,7 +207,8 @@ Burn the raspbian image to the SD card with the executable
 * Setting Automount of this EXT4
 * F3 or Tools->Ext2 Volume Management
 * Check-> Automatically mount via Ext2Mgr
-* The above steps needed for the Ext2fsd to reserve the Drive Letters and any raspbian image burned to SD will be auto mounted to that reserved drive letters. The drive letters need to be specified while using cm-burn
+* The instructions above needed for the Ext2fsd to reserve the Drive Letters and any raspbian image burned to SD will be auto mounted to the specific reserved drive letters. These drive letters need to be specified while using cm-burn
+
 
 ## Installation 
 
