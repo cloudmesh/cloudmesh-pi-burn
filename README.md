@@ -174,16 +174,14 @@ to avoid purchasing extFS.
 TODO: This section has to be written by *Anand*. The following
 description is incomplete and not yet accurate.
 
-Prerequistics:
-
-1. Elevate permissions for Python.exe in Windows
+#### Elevate permissions for Python.exe in Windows
 
 * Create a shortcut for python.exe
 * Change the shortcut target into something like C:\xxx\...\python.exe  
 * Click "advance..." in the property panel of the shortcut, and click
   the option "run as administrator"
 
-2. Executable needed to burn the image on SD Card:
+#### Executable needed to burn the image on SD Card:
 
 Download CommandLineDiskImager from the following url
 
@@ -195,13 +193,11 @@ It's necessary to burn the raspbian image to the SD card with this executable ma
 
 ```CommandLineDiskImager.exe C:\Users\John\Downloads\raspbian.img G```
 
-3. File System Management
+#### File System Management
 
 Download the Open source ext3/4 file system driver for Windows installer from
 
 * <http://www.ext2fsd.com/>
-
-
 * Open Ext2fsd exe
 * The burned image in the previous step in SD card will have 2 partition
 * FAT32 partition will be assigned with the Drive letter - Boot Drive
