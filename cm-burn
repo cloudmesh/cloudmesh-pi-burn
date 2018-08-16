@@ -11,6 +11,7 @@ Usage:
   cm-burn ssh [PUBLICKEY]
   cm-burn wifi SSID [PASSWD]
   cm-burn info
+  cm-burn image IMAGE [DEVICE]
   cm-burn (-h | --help)
   cm-burn --version
 
@@ -30,6 +31,7 @@ BUG:
   bootdrive and rootdrive will be removed in a future release as they are self discoverable
 
 Description:
+  cm-burn
   cm-burn create --names HOSTS [--key KEY] --image IMAGE --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE --ssid SSID --psk PSK --ips IPS
   cm-burn update
         updates the downloaded images if new once are available
@@ -47,7 +49,6 @@ Description:
   cm-burn hostname
         reads the hostname form the current SD card
 
-        Identify what would be useful.
 Example:
   cm-burn create --names red[000-010] --key idrsa.pub --image raspbian_latest
 """
@@ -301,6 +302,7 @@ class piburner(object):
         #    self.root_drive = None
         #    self.boot_drive = None
 
+        self.image = None
         self.host = None
         self.home = pathlib.Path(path.expanduser("~"))
         self.keypath = pathlib.Path(self.home / ".ssh" / "id_rsa.pub")
@@ -356,6 +358,8 @@ class piburner(object):
             self.unzip_image(image_name)
         else:
             WARNING("file already downloaded. Found at:", pathlib.Path(self.cloudmesh_images / image_name))
+        self.image = pathlib.Path(self.cloudmesh_images / image_name)
+        return self.image
 
     def unzip_image(self, source):
         tmp = pathlib.Path(self.cloudmesh_images) / "."
@@ -405,18 +409,6 @@ class piburner(object):
         """
         # BUG: not sure what this drive is so replace efg with something meaningful
         self.boot_drive = drive
-
-    def image(self, imagepath):
-        # set the image
-        pass
-
-
-
- 
-    def device(self, devicename):
-        # set the device
-        pass 
-    
 
 
     def configure_wifi(self, ssid, psk):
@@ -498,7 +490,33 @@ class piburner(object):
         #    with open(path,"w", newline="\n") as file:
         #        file.write(fileContents)
 
-    def burn(self):
+    def am_i_pi(self):
+        return "raspberry" in platform.uname()
+
+
+    def prepare_burn_on_pi(self, image, device):
+        """
+        assumes you called get before and have valid image
+        :return:
+        """
+        if device is None:
+            if self.image is None:
+                # activate an image and create a yaml file cmburn.yaml with parameter that is read upon start in __init___
+                output = run("sudo", "ls",  "-ltr",  "/dev/*")
+                # TODO: find mmcblk0
+                device = "mmcblk0" # hard coded for now
+                print(output)
+        data = {
+            image: self.image,
+            device: device
+        }
+
+        command = "sudo dd bs=1M if=~{image} of={device} status=progress conv=fsync".format(**data).split(" ")
+        print (command)
+        return (command)
+
+
+    def burn(self, image, device):
         """
         burn the image onto the SD card
         :return: True if succesfull and test passed, false otherwise
@@ -508,21 +526,28 @@ class piburner(object):
         # os.makedirs(IMAGE_DIR)
         # BUG: if condition is not implemented
         
-        script = ""
+        command = ""
         if platform.system() == 'Windows':
             # BUG: does not use pathlib
             # BUG: command not in path, should be in ~/.cloudmesh/bin so it can easier be found,
             # BUG: should it not be installed from original
-            script = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\images\\2018-06-27-raspbian-stretch.img {drive}".format(
+            command = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\images\\2018-06-27-raspbian-stretch.img {drive}".format(
                 dir=os.getcwd(), drive=self.boot_drive)            
             # also dir needs to be done in pathlib
             # diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
             # script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
             # """.format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
+        elif self.am_i_pi():
+
+            command = self.prepare_burn_on_pi(image,device)
+            ERROR("not yet implemented")
+            sys.exit()
         elif platform.system() in ['Linux', 'Darwin']:
-            print("not yet implemented")
-        print(script)
-        execute(script)
+            ERROR("not yet implemented")
+            sys.exit()
+
+        print(command)
+        execute(command)
         # TODO: execute test
         # if test successful: return True else: False
 
@@ -641,6 +666,12 @@ def analyse():
         print (passwd)
         burner = piburner()
         burner.configure_wifi(ssid, passwd)
+
+    elif arguments["image"]:
+        image = arguments["IMAGE"]
+        device = arguments["DEVICE"]
+        burner = piburner()
+        burner.burn(image, device)
 
     elif arguments["ssh"]:
         key = arguments["PUBLICKEY"]
