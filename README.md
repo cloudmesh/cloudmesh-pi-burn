@@ -142,7 +142,7 @@ On OSX a good program is to use etcher for burning the images on disk:
 
 * <https://etcher.io/>
 
-To access it form the 
+To access it form the commandline you can also use
 
 * <https://etcher.io/cli/>
 
