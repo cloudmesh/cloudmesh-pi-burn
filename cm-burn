@@ -494,18 +494,17 @@ class piburner(object):
         return "raspberry" in platform.uname()
 
 
-    def prepare_burn_on_pi(self, image, device):
+    def prepare_burn_on_pi_command(self, image, device):
         """
         assumes you called get before and have valid image
         :return:
         """
         if device is None:
-            if self.image is None:
-                # activate an image and create a yaml file cmburn.yaml with parameter that is read upon start in __init___
-                output = run("sudo", "ls",  "-ltr",  "/dev/*")
-                # TODO: find mmcblk0
-                device = "mmcblk0" # hard coded for now
-                print(output)
+            # activate an image and create a yaml file cmburn.yaml with parameter that is read upon start in __init___
+            output = run("sudo", "ls",  "-ltr",  "/dev/*")
+            # TODO: find mmcblk0
+            device = "mmcblk0" # hard coded for now
+            print(output)
         data = {
             image: self.image,
             device: device
@@ -516,7 +515,7 @@ class piburner(object):
         return (command)
 
 
-    def burn(self, image, device):
+    def burn(self, image, device=Noe):
         """
         burn the image onto the SD card
         :return: True if succesfull and test passed, false otherwise
@@ -539,7 +538,7 @@ class piburner(object):
             # """.format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
         elif self.am_i_pi():
 
-            command = self.prepare_burn_on_pi(image,device)
+            command = self.prepare_burn_on_pi_command(image, device)
             ERROR("not yet implemented")
             sys.exit()
         elif platform.system() in ['Linux', 'Darwin']:
