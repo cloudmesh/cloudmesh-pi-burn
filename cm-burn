@@ -259,7 +259,7 @@ class piburner(object):
         :param path:
         :return:
         """        
-        print(path)
+        #print(path)
         if platform.system() == "darwin":
             if path in ["/etc/hostname",
                         "/home/pi/.ssh/authorized_keys",
@@ -284,7 +284,18 @@ class piburner(object):
             else:
                 ERROR("path not defined in cm-burn", path)
             location = pathlib.Path("{volume}:{path}".format(volume=volume, path=path))
-
+        elif platform.system() == "Linux":
+            if path in ["/etc/hostname",
+                        "/home/pi/.ssh/authorized_keys",
+                        "/home/pi/.ssh",
+                        "/etc/wpa_supplicant/wpa_supplicant.conf",
+                        "/etc/dhcpcd.conf"]:
+                volume = self.root_drive
+            elif path in ["/ssh"]:
+                volume = self.boot_drive
+            else:
+                ERROR("path not defined in cm-burn", path)
+            location = pathlib.Path("{volume}/{path}".format(volume=volume, path=path))
         return location
 
     # ok osx
