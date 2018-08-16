@@ -101,6 +101,14 @@ def cat(path):
         content = file.read()
     return content
 
+def execute_with_progress(command):
+    p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
+    while True:
+        line = p.stdout.readline()
+        if not line:
+            break
+        print (line)
+
 def execute(commands):
     """
        execute the commands that are included in the \n separated string line by line
@@ -573,7 +581,8 @@ class piburner(object):
 
         #print(command)
         if command:
-            execute(command)
+            execute_with_progress(command)
+            #execute(command)
         # TODO: execute test
         # if test successful: return True else: False
 
