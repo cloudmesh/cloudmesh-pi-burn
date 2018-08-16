@@ -519,7 +519,7 @@ class piburner(object):
         return (command)
 
 
-    def burn(self, image, device=Noe):
+    def burn(self, image, device=None):
         """
         burn the image onto the SD card
         :return: True if succesfull and test passed, false otherwise
