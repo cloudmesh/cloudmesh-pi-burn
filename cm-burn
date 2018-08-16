@@ -145,7 +145,8 @@ class piburner(object):
             else:
                 execute("sudo umount {drive}".format(drive=drive))
         else:
-            raise NotImplementedError()
+            subprocess.getoutput("sudo umount {drive}".format(drive=self.root_drive))
+            subprocess.getoutput("sudo umount {drive}".format(drive=self.boot_drive))
 
     def mount(self, device=None, path=None):
         """
@@ -563,12 +564,16 @@ class piburner(object):
             command = self.prepare_burn_on_pi_command(image, device)
             ERROR("not yet implemented")
             sys.exit()
-        elif platform.system() in ['Linux', 'Darwin']:
+        elif platform.system() in ['Linux']:
+            self.unmount()
+            command = "sudo dd if={image} of=/dev/{device} bs=4M status=progress".format(image=self.image,device=device)
+        elif platform.system() in ['Darwin']:
             ERROR("not yet implemented")
             sys.exit()
 
-        print(command)
-        execute(command)
+        #print(command)
+        if command:
+            execute(command)
         # TODO: execute test
         # if test successful: return True else: False
 
@@ -696,11 +701,13 @@ def analyse():
         if not burner.image_exists(image):
             ERROR("The image {image} does not exist".format(image=image))
             sys.exit()
+        else:
+            burner.image = pathlib.Path(burner.home / ".cloudmesh" / "images" / image)
         # TODO: check if device exists
         if not burner.check_device(device):
             ERROR("The device {device} does not exist or not available".format(device=device))
             sys.exit()
-        burner.burn(image, device)
+        burner.burn(burner.image, device)
 
     elif arguments["ssh"]:
         key = arguments["PUBLICKEY"]
