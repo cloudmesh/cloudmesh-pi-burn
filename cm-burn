@@ -291,7 +291,19 @@ class piburner(object):
 
     def image_exists(self, name):
         path = pathlib.Path(self.home / ".cloudmesh" / "images" / name)
-        return os.path.isfile(self.path)
+        return os.path.isfile(path)
+
+    def check_device(self, device):
+        deviceok = False
+        if platform.system() == "Linux":
+            out = subprocess.getoutput("lsblk | grep {device}".format(device=device))
+            if self.boot_drive in out and self.root_drive in out:
+                deviceok = True
+        elif platform.system() == "Darwin":
+            pass
+        elif platform.system() == "Windows":
+            deviceok = True
+        return deviceok
 
     def __init__(self):
         """
@@ -303,9 +315,15 @@ class piburner(object):
         #if sys.platform == "Windows":
         #    self.windows_drive = "K"
         #    self.windows_pi_drive = "L"
-        #    self.root_drive = None
-        #    self.boot_drive = None
-
+        self.root_drive = None
+        self.boot_drive = None
+        if platform.system() == 'Linux':
+            bootdrive = "/media/{user}/boot".format(user=getpass.getuser())
+            rootdrive = "/media/{user}/rootfs".format(user=getpass.getuser())
+        if bootdrive:
+            self.set_boot_drive(bootdrive)
+        if rootdrive:
+            self.set_root_drive(rootdrive)
         self.image = None
         self.host = None
         self.home = pathlib.Path(path.expanduser("~"))
@@ -671,15 +689,17 @@ def analyse():
         burner.configure_wifi(ssid, passwd)
 
     elif arguments["image"]:
-        image = arguments["IMAGE"]
-        device = arguments["DEVICE"]
+        image = arguments["--image"]
+        device = arguments["--device"]
         burner = piburner()
         # check if image exists
         if not burner.image_exists(image):
-            ERROR("the image does not exist". iamge)
+            ERROR("The image {image} does not exist".format(image=image))
             sys.exit()
         # TODO: check if device exists
-        # burner.exists(device)
+        if not burner.check_device(device):
+            ERROR("The device {device} does not exist or not available".format(device=device))
+            sys.exit()
         burner.burn(image, device)
 
     elif arguments["ssh"]:
