@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """Cloudmesh Raspberry Pi Mass Image Burner.
 Usage:
-  cm-burn create --group GROUP --names HOSTS [--key KEY] --image IMAGE --ip IPS [--bootdrive BOOTDRIVE] [--rootdrive ROOTDRIVE]
+  cm-burn create --group GROUP --names HOSTS [--key KEY] [--image IMAGE] --ip IPS [--bootdrive BOOTDRIVE] [--rootdrive ROOTDRIVE]
   cm-burn ls
   cm-burn rm IMAGE
   cm-burn get [URL]
@@ -11,7 +11,7 @@ Usage:
   cm-burn ssh [PUBLICKEY]
   cm-burn wifi SSID [PASSWD]
   cm-burn info
-  cm-burn image IMAGE [DEVICE]
+  cm-burn image [--image=IMAGE] [--device=DEVICE]
   cm-burn (-h | --help)
   cm-burn --version
 
@@ -20,6 +20,7 @@ Options:
   --version     Show version.
   --key=KEY     the path of the public key [default: ~/.ssh/id_rsa.pub].
   --ips=IPS     th ips in hostlist format
+  --image=IMAGE  the image to be burned [default: 2018-06-27-raspbian-stretch.img].
 
 Files:
   This is not fully thought through and needs to be documented
@@ -288,6 +289,9 @@ class piburner(object):
         host = cat(self.filename("/etc/hostname"))
         return host
 
+    def image_exists(self, name):
+        path = pathlib.Path(self.home / ".cloudmesh" / "images" / name)
+        return os.path.isfile(self.path)
 
     def __init__(self):
         """
@@ -670,6 +674,12 @@ def analyse():
         image = arguments["IMAGE"]
         device = arguments["DEVICE"]
         burner = piburner()
+        # check if image exists
+        if not burner.image_exists(image):
+            ERROR("the image does not exist". iamge)
+            sys.exit()
+        # TODO: check if device exists
+        # burner.exists(device)
         burner.burn(image, device)
 
     elif arguments["ssh"]:
