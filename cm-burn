@@ -317,7 +317,7 @@ class piburner(object):
         deviceok = False
         if platform.system() == "Linux":
             out = subprocess.getoutput("lsblk | grep {device}".format(device=device))
-            if self.boot_drive in out and self.root_drive in out:
+            if (self.boot_drive in out) and (self.root_drive in out):
                 deviceok = True
         elif platform.system() == "Darwin":
             devs = subprocess.getoutput("diskutil list").split("/dev/")
@@ -344,11 +344,11 @@ class piburner(object):
         self.root_drive = None
         self.boot_drive = None
         if platform.system() == 'Linux':
-            self.bootdrive = "/media/{user}/boot".format(user=getpass.getuser())
-            self.rootdrive = "/media/{user}/rootfs".format(user=getpass.getuser())
+            self.boot_drive = "/media/{user}/boot".format(user=getpass.getuser())
+            self.root_drive = "/media/{user}/rootfs".format(user=getpass.getuser())
         elif platform.system() == 'Darwin':
-            self.bootdrive = "/Volumes/boot"
-            self.rootdrive = "/Volumes/rootfs"
+            self.boot_drive = "/Volumes/boot"
+            self.root_drive = "/Volumes/rootfs"
         self.image = None
         self.host = None
         self.home = pathlib.Path(path.expanduser("~"))
