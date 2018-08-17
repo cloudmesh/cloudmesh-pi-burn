@@ -224,12 +224,12 @@ class piburner(object):
 
     # ok osx
     def info(self):
-        if sys.platform == 'darwin':
+        if sys.platform in ['darwin', 'linux']:
             information = {
                 "os": sys.platform,
                 "ssh": os.path.exists(self.filename("/ssh")),
                 #"key": cat(self.filename("/home/pi/.ssh/authorized_keys")),
-                "hostname": cat(self.filename("/etc/hostname"))
+                "hostname": cat(self.filename("/etc/hostname")).strip()
             }
 
             # print(yaml.dump(information, default_flow_style=False))
