@@ -281,7 +281,7 @@ class piburner(object):
         print (ssh_dir)
         if not os.path.isdir(ssh_dir):
             os.makedirs(ssh_dir)
-            os.chmod(ssh_dir, 0o700)
+        os.chmod(ssh_dir, 0o700)
         auth_keys = ssh_dir / "authorized_keys"
         auth_keys.write_text(key)
         os.chmod(auth_keys, 0o600)
