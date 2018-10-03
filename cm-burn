@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """Cloudmesh Raspberry Pi Mass Image Burner.
 Usage:
-  cm-burn create --group GROUP --names HOSTS [--key KEY] [--image IMAGE] --ip IPS [--bootdrive BOOTDRIVE] [--rootdrive ROOTDRIVE]
+  cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS] [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID] [--psk=PSK] [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
   cm-burn ls
   cm-burn rm IMAGE
   cm-burn get [URL]
@@ -33,7 +33,7 @@ BUG:
 
 Description:
   cm-burn
-  cm-burn create --names HOSTS [--key KEY] --image IMAGE --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE --ssid SSID --psk PSK --ips IPS
+  cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS] [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID] [--psk=PSK] [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
   cm-burn update
         updates the downloaded images if new once are available
   cm-burn ls
@@ -51,7 +51,7 @@ Description:
         reads the hostname form the current SD card
 
 Example:
-  cm-burn create --names red[000-010] --key idrsa.pub --image raspbian_latest
+  cm-burn create --group=red --names=red[5-6] --ip=192.168.1.[5-6]
 """
 from __future__ import print_function
 
@@ -101,6 +101,14 @@ def cat(path):
         content = file.read()
     return content
 
+def execute_with_progress(command):
+    p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
+    while True:
+        line = p.stdout.readline()
+        if not line:
+            break
+        print (line)
+
 def execute(commands):
     """
        execute the commands that are included in the \n separated string line by line
@@ -138,14 +146,15 @@ class piburner(object):
             # script =  "mountvol {drive} /p".format(drive = self.root_drive)
             script = "RemoveDrive {drive}:".format(drive = self.root_drive)
             execute(script)
-        elif platform.system() == 'darwin':
+        elif platform.system() == 'Darwin':
             if drive is None:
-                for drive in ['/Volume/boot', 'Volume/rootfs']:
+                for drive in ['/Volumes/boot', '/Volumes/rootfs']:
                     execute("sudo umount {drive}".format(drive=drive))
             else:
                 execute("sudo umount {drive}".format(drive=drive))
         else:
-            raise NotImplementedError()
+            subprocess.getoutput("sudo umount {drive}".format(drive=self.root_drive))
+            subprocess.getoutput("sudo umount {drive}".format(drive=self.boot_drive))
 
     def mount(self, device=None, path=None):
         """
@@ -215,12 +224,12 @@ class piburner(object):
 
     # ok osx
     def info(self):
-        if sys.platform == 'darwin':
+        if sys.platform in ['darwin', 'linux']:
             information = {
                 "os": sys.platform,
                 "ssh": os.path.exists(self.filename("/ssh")),
-                "key": cat(self.filename("/home/pi/.ssh/authorized_keys")),
-                "hostname": cat(self.filename("/etc/hostname"))
+                #"key": cat(self.filename("/home/pi/.ssh/authorized_keys")),
+                "hostname": cat(self.filename("/etc/hostname")).strip()
             }
 
             # print(yaml.dump(information, default_flow_style=False))
@@ -250,8 +259,8 @@ class piburner(object):
         :param path:
         :return:
         """        
-        print(path)
-        if platform.system() == "darwin":
+        #print(path)
+        if platform.system() == "Darwin":
             if path in ["/etc/hostname",
                         "/home/pi/.ssh/authorized_keys",
                         "/home/pi/.ssh",
@@ -275,7 +284,18 @@ class piburner(object):
             else:
                 ERROR("path not defined in cm-burn", path)
             location = pathlib.Path("{volume}:{path}".format(volume=volume, path=path))
-
+        elif platform.system() == "Linux":
+            if path in ["/etc/hostname",
+                        "/home/pi/.ssh/authorized_keys",
+                        "/home/pi/.ssh",
+                        "/etc/wpa_supplicant/wpa_supplicant.conf",
+                        "/etc/dhcpcd.conf"]:
+                volume = self.root_drive
+            elif path in ["/ssh"]:
+                volume = self.boot_drive
+            else:
+                ERROR("path not defined in cm-burn", path)
+            location = pathlib.Path("{volume}/{path}".format(volume=volume, path=path))
         return location
 
     # ok osx
@@ -291,7 +311,25 @@ class piburner(object):
 
     def image_exists(self, name):
         path = pathlib.Path(self.home / ".cloudmesh" / "images" / name)
-        return os.path.isfile(self.path)
+        return os.path.isfile(path)
+
+    def check_device(self, device):
+        deviceok = False
+        if platform.system() == "Linux":
+            out = subprocess.getoutput("lsblk | grep {device}".format(device=device))
+            if (self.boot_drive in out) and (self.root_drive in out):
+                deviceok = True
+        elif platform.system() == "Darwin":
+            devs = subprocess.getoutput("diskutil list").split("/dev/")
+            usbdev = None
+            for dev in devs:
+                if "boot" in dev and "rootfs" in dev and "Windows_FAT_32" in dev:
+                    usbdev = dev.split("\n")[0].split(" ")[0]
+            if usbdev == device:
+                deviceok = True
+        elif platform.system() == "Windows":
+            deviceok = True
+        return deviceok
 
     def __init__(self):
         """
@@ -303,9 +341,14 @@ class piburner(object):
         #if sys.platform == "Windows":
         #    self.windows_drive = "K"
         #    self.windows_pi_drive = "L"
-        #    self.root_drive = None
-        #    self.boot_drive = None
-
+        self.root_drive = None
+        self.boot_drive = None
+        if platform.system() == 'Linux':
+            self.boot_drive = "/media/{user}/boot".format(user=getpass.getuser())
+            self.root_drive = "/media/{user}/rootfs".format(user=getpass.getuser())
+        elif platform.system() == 'Darwin':
+            self.boot_drive = "/Volumes/boot"
+            self.root_drive = "/Volumes/rootfs"
         self.image = None
         self.host = None
         self.home = pathlib.Path(path.expanduser("~"))
@@ -519,7 +562,7 @@ class piburner(object):
         return (command)
 
 
-    def burn(self, image, device=Noe):
+    def burn(self, image, device=None):
         """
         burn the image onto the SD card
         :return: True if succesfull and test passed, false otherwise
@@ -545,17 +588,22 @@ class piburner(object):
             command = self.prepare_burn_on_pi_command(image, device)
             ERROR("not yet implemented")
             sys.exit()
-        elif platform.system() in ['Linux', 'Darwin']:
-            ERROR("not yet implemented")
-            sys.exit()
+        elif platform.system() in ['Linux']:
+            self.unmount()
+            command = "sudo dd if={image} of=/dev/{device} bs=4M status=progress".format(image=image,device=device)
+        elif platform.system() in ['Darwin']:
+            self.unmount()
+            command = "sudo dd if={image} of=/dev/{device} bs=4m".format(image=image,device=device)
 
-        print(command)
-        execute(command)
+        #print(command)
+        if command:
+            execute_with_progress(command)
+            #execute(command)
         # TODO: execute test
         # if test successful: return True else: False
 
     # TODO: remove bootdrives from parameters as they should be selfdicoverable
-    def create(self, names, key, ips, ssid=None, psk=None, bootdrive=None, rootdrive=None):
+    def create(self, image, names, key, ips, ssid=None, psk=None, bootdrive=None, rootdrive=None):
         """
         creates a repeated burn on all names specified,
         TODO: why is this not part of the previous class?
@@ -592,9 +640,10 @@ class piburner(object):
             print("wait till its recognized")
             print("once in conformation proceed")
         
-            self.burn()
+            self.burn(image)
             print("burn")
             #Sleep for 5 seconds to have the SD to be mounted
+            yesno('Please eject the SD card and re-insert. Press (y) when done')
             time.sleep(5)
             self.set_ip(ip)
             print("Set IP - {id}".format(id=ip))
@@ -631,6 +680,7 @@ def analyse():
    #     print(arguments["URL"])
    #     get(arguments["URL"])
    # elif arguments["ls"]:
+    print (arguments)
     if arguments["ls"]:
         burner = piburner()
         burner.ls()
@@ -639,13 +689,27 @@ def analyse():
         burner.get()
     elif arguments["create"]:
         burner = piburner()
-        burner.create(arguments["HOSTS"],
-                      arguments["KEY"],
-                      arguments["IPS"],
-                      arguments["SSID"],
-                      arguments["PSK"],
-                      arguments["BOOTDRIVE"],
-                      arguments["ROOTDRIVE"])
+        wifipass = None
+        bootdrv = None
+        rootdrv = None
+        if "BOOTDRIVE" in arguments:
+            bootdrv = arguments["BOOTDRIVE"]
+        if "ROOTDRIVE" in arguments:
+            rootdrv = arguments["ROOTDRIVE"]
+        image = arguments["--image"]
+        if not burner.image_exists(image):
+            ERROR("The image {image} does not exist".format(image=image))
+            sys.exit()
+        else:
+            burner.image = pathlib.Path(burner.home / ".cloudmesh" / "images" / image)
+        burner.create(burner.image,
+                      names=arguments["--names"],
+                      key=arguments["--key"],
+                      ips=arguments["--ips"],
+                      ssid=arguments["--ssid"],
+                      psk=arguments["--psk"],
+                      bootdrive=bootdrv,
+                      rootdrive=rootdrv)
 
     elif arguments["check"] and arguments["install"]:
         ERROR("not yet implemented")
@@ -671,16 +735,21 @@ def analyse():
         burner.configure_wifi(ssid, passwd)
 
     elif arguments["image"]:
-        image = arguments["IMAGE"]
-        device = arguments["DEVICE"]
+        image = arguments["--image"]
+        device = arguments["--device"]
         burner = piburner()
         # check if image exists
         if not burner.image_exists(image):
-            ERROR("the image does not exist". iamge)
+            ERROR("The image {image} does not exist".format(image=image))
             sys.exit()
+        else:
+            burner.image = pathlib.Path(burner.home / ".cloudmesh" / "images" / image)
+
         # TODO: check if device exists
-        # burner.exists(device)
-        burner.burn(image, device)
+        if not burner.check_device(device):
+            ERROR("The device {device} does not exist or not available".format(device=device))
+            sys.exit()
+        burner.burn(burner.image, device)
 
     elif arguments["ssh"]:
         key = arguments["PUBLICKEY"]

@@ -181,8 +181,6 @@ to avoid purchasing extFS.
 
 ## Windows
 
-TODO: This section has to be written by *Anand*. The following
-description is incomplete and not yet accurate.
 
 #### Elevate permissions for Python.exe in Windows
 
