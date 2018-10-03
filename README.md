@@ -263,6 +263,16 @@ the code runs in a container.
 
 ### Usage
 
+#### cmburn.yaml
+
+```
+cloudmesh:
+    burn:
+       image: None
+```
+
+#### Manual page
+
 TODO: This section has to be updated with the newest cm-burn -h 
 
 The manual page is as follows:
@@ -467,3 +477,18 @@ mountvol <Drive Letter>: /d
    
    
  ```
+ 
+ 
+ ## Experiment DIY multiSDCard writer
+ 
+We intend to experiment to build a multiSD card writer via USB. 
+We will attempt to do this for OSX initially, therefore we like to order the following product
+
+* [USB Hub 3.0 Splitter, LYFNLOVE 7 Port USB Data](https://www.amazon.com/Splitter-LYFNLOVE-Charging-Individual-Switches/dp/B072LW1RGG/ref=sr_1_9?ie=UTF8&qid=1534418434&sr=8-9&keywords=usb+3.0+hub)
+
+We will use multiple USB card readers (possibly just USB2 till we replacethem with USB3)
+
+Than we will rewrite our program to attempt using the SDcard writers
+
+
+
