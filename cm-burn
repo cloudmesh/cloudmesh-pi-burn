@@ -1,7 +1,11 @@
 #! /usr/bin/env python
 """Cloudmesh Raspberry Pi Mass Image Burner.
 Usage:
-  cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS] [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID] [--psk=PSK] [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
+  cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS]
+                 [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID] [--psk=PSK]
+                 [--domain=DOMAIN]
+                 [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
+                 [-n --dry-run] [-i --interactive]
   cm-burn ls
   cm-burn rm IMAGE
   cm-burn get [URL]
@@ -16,11 +20,13 @@ Usage:
   cm-burn --version
 
 Options:
-  -h --help     Show this screen.
-  --version     Show version.
-  --key=KEY     the path of the public key [default: ~/.ssh/id_rsa.pub].
-  --ips=IPS     th ips in hostlist format
-  --image=IMAGE  the image to be burned [default: 2018-06-27-raspbian-stretch.img].
+  -h --help         Show this screen.
+  -n --dry-run      Show output of commands but don't execute them
+  -i --interactive  Confirm each change before doing it
+  --version         Show version.
+  --key=KEY         the path of the public key [default: ~/.ssh/id_rsa.pub].
+  --ips=IPS         the IPs in hostlist format
+  --image=IMAGE     the image to be burned [default: 2018-06-27-raspbian-stretch.img].
 
 Files:
   This is not fully thought through and needs to be documented
@@ -59,7 +65,7 @@ import os
 import subprocess
 from docopt import docopt
 import hostlist
-from prompter import yesno
+from prompter import yesno, prompt
 import platform
 import wget
 import pathlib
@@ -78,6 +84,20 @@ import datetime
 
 VERSION = "0.1"
 debug = False
+dry_run = False
+interactive = False
+
+def os_is_windows():
+    return platform.system() == "Windows"
+
+def os_is_linux():
+    return platform.system() == "Linux" and "raspberry" not in platform.uname()
+
+def os_is_mac():
+    return  platform.system() == "Darwin"
+
+def os_is_pi():
+    return "raspberry" in platform.uname()
 
 columns, lines = os.get_terminal_size()
 
@@ -93,7 +113,25 @@ def WARNING(*args, **kwargs):
 def ERROR(*args, **kwargs):
     print("ERROR:", *args, file=sys.stderr, **kwargs)
 
+def getoutput(command):
+    if dry_run:
+        print ("DRY RUN - skipping command:\n{}".format(command))
+        return ""
+    elif interactive:
+        if not yesno(("About to run the command\n" + command +
+                      "\nPlease confirm:")):
+            return ""
+    # TODO: Is this different or better than run() below? Can we just keep one?
+    return subprocess.getoutput(command)
+
 def run(command):
+    if dry_run:
+        print ("DRY RUN - skipping command:\n{}".format(command))
+        return ""
+    elif interactive:
+        if not yesno(("About to run the command\n" + command +
+                      "\nPlease confirm:")):
+            return ""
     return subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8')
 
 def cat(path):
@@ -102,6 +140,13 @@ def cat(path):
     return content
 
 def execute_with_progress(command):
+    if dry_run:
+        print ("DRY RUN - skipping command:\n{}".format(command))
+        return
+    elif interactive:
+        if not yesno(("About to run the command\n" + command +
+                      "\nPlease confirm:")):
+            return
     p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
     while True:
         line = p.stdout.readline()
@@ -116,9 +161,16 @@ def execute(commands):
        :return:
     """
     lines = commands.split("\n")
-    for line in lines:
-        print(line)
-        proc = subprocess.Popen(line, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    for command in lines:
+        if dry_run:
+            print ("DRY RUN - skipping command:\n{}".format(command))
+            continue
+        elif interactive:
+            if not yesno(("About to run the command\n" + command +
+                        "\nPlease confirm:")):
+                continue
+        print(command)
+        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         while proc.poll() is None:
             print(proc.stdout.readline())  # give output from your execution/your own message
         # self.commandResult = proc.wait() #catch return code
@@ -140,21 +192,24 @@ class piburner(object):
         :param path:
         :return:
         """
-        if platform.system() == 'Windows':
+        if os_is_windows():
             #TODO: Remove drive in windows, why can you not use the mount function build into windows?
             #TODO: Why do you need RemoveDrive?
             # script =  "mountvol {drive} /p".format(drive = self.root_drive)
             script = "RemoveDrive {drive}:".format(drive = self.root_drive)
             execute(script)
-        elif platform.system() == 'Darwin':
+        elif os_is_mac():
             if drive is None:
                 for drive in ['/Volumes/boot', '/Volumes/rootfs']:
                     execute("sudo umount {drive}".format(drive=drive))
             else:
-                execute("sudo umount {drive}".format(drive=drive))
-        else:
-            subprocess.getoutput("sudo umount {drive}".format(drive=self.root_drive))
-            subprocess.getoutput("sudo umount {drive}".format(drive=self.boot_drive))
+                # Unmount the entire drive
+                execute("sudo diskutil unmountDisk /dev/{drive}".format(drive=drive))
+                # execute("sudo umount {drive}".format(drive=drive))
+        elif os_is_linux() or os_is_pi():
+            # TODO: Why is this using getoutput instead of execute?
+            getoutput("sudo umount {drive}".format(drive=self.root_drive))
+            getoutput("sudo umount {drive}".format(drive=self.boot_drive))
 
     def mount(self, device=None, path=None):
         """
@@ -162,7 +217,7 @@ class piburner(object):
         :param path:
         :return:
         """
-        if platform.system() == 'Windows':
+        if os_is_windows():
             #TODO: Remove drive in windows, why can you not use the mount function build into windows?
             #TODO: Why do you need RemoveDrive?
             # mountvol %drive% /p
@@ -174,10 +229,9 @@ class piburner(object):
             #script = "RemoveDrive {drive}:".format(drive = self.root_drive)
             #execute(script)
             raise NotImplementedError()
-        elif platform.system() == 'darwin':
+        elif os_is_mac():
             # extFS does outomount so we just check i f they are mounted
             # TODO: check if they exist
-            pass
             if drive is None:
                 drives = ['/Volume/boot', 'Volume/rootfs']
             else:
@@ -211,22 +265,32 @@ class piburner(object):
             ERROR("key does not exist", self.keypath)
             sys.exit()
 
+        if dry_run:
+            print ("DRY RUN - skipping:")
+            print ("Activate ssh authorized_keys pkey:{}".format(public_key))
+            return
+        elif interactive:
+            if not yesno("About to write ssh config. Please confirm:"):
+                return
 
         # activate ssh by creating an empty ssh file in the boot drive
-        Path(self.filename("/ssh")).touch()
+        pathlib.Path(self.filename("/ssh")).touch()
         # Write the content of the ssh rsa to the authorized_keys file
         key = pathlib.Path(public_key).read_text()
         ssh_dir = self.filename("/home/pi/.ssh")
         print (ssh_dir)
         if not os.path.isdir(ssh_dir):
             os.makedirs(ssh_dir)
-        pathlib.Path(self.filename("/home/pi/.ssh/authorized_keys")).write_text(key)
+            os.chmod(ssh_dir, 0o700)
+        auth_keys = ssh_dir / "authorized_keys"
+        auth_keys.write_text(key)
+        os.chmod(auth_keys, 0o600)
 
     # ok osx
     def info(self):
-        if sys.platform in ['darwin', 'linux']:
+        if os_is_linux() or os_is_mac():
             information = {
-                "os": sys.platform,
+                "os": platform.system(),
                 "ssh": os.path.exists(self.filename("/ssh")),
                 #"key": cat(self.filename("/home/pi/.ssh/authorized_keys")),
                 "hostname": cat(self.filename("/etc/hostname")).strip()
@@ -247,7 +311,11 @@ class piburner(object):
         self.host = host
         path = self.filename("/etc/hostname")
         if debug:
-            print(self.host)
+            print (self.host)
+        if dry_run:
+            print ("DRY RUN - skipping:")
+            print ("Writing host name {} to {}".format(host, path))
+            return
         pathlib.Path(path).write_text(host)
 
     def filename(self, path):
@@ -260,7 +328,7 @@ class piburner(object):
         :return:
         """        
         #print(path)
-        if platform.system() == "Darwin":
+        if os_is_mac():
             if path in ["/etc/hostname",
                         "/home/pi/.ssh/authorized_keys",
                         "/home/pi/.ssh",
@@ -272,7 +340,7 @@ class piburner(object):
             else:
                 ERROR("path not defined in cm-burn", path)
             location = pathlib.Path("{volume}/{path}".format(volume=volume, path=path))
-        elif platform.system() == "Windows":
+        elif os_is_windows():
             if path in ["/etc/hostname",
                         "/home/pi/.ssh/authorized_keys",
                         "/home/pi/.ssh",
@@ -284,7 +352,7 @@ class piburner(object):
             else:
                 ERROR("path not defined in cm-burn", path)
             location = pathlib.Path("{volume}:{path}".format(volume=volume, path=path))
-        elif platform.system() == "Linux":
+        elif os_is_linux():
             if path in ["/etc/hostname",
                         "/home/pi/.ssh/authorized_keys",
                         "/home/pi/.ssh",
@@ -315,19 +383,19 @@ class piburner(object):
 
     def check_device(self, device):
         deviceok = False
-        if platform.system() == "Linux":
-            out = subprocess.getoutput("lsblk | grep {device}".format(device=device))
+        if os_is_linux():
+            out = getoutput("lsblk | grep {device}".format(device=device))
             if (self.boot_drive in out) and (self.root_drive in out):
                 deviceok = True
-        elif platform.system() == "Darwin":
-            devs = subprocess.getoutput("diskutil list").split("/dev/")
+        elif os_is_mac():
+            devs = getoutput("diskutil list").split("/dev/")
             usbdev = None
             for dev in devs:
                 if "boot" in dev and "rootfs" in dev and "Windows_FAT_32" in dev:
                     usbdev = dev.split("\n")[0].split(" ")[0]
             if usbdev == device:
                 deviceok = True
-        elif platform.system() == "Windows":
+        elif os_is_windows():
             deviceok = True
         return deviceok
 
@@ -338,19 +406,20 @@ class piburner(object):
         """
         # store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
         # defaults from there if the file exist
-        #if sys.platform == "Windows":
+        #if os_is_windows():
         #    self.windows_drive = "K"
         #    self.windows_pi_drive = "L"
         self.root_drive = None
         self.boot_drive = None
-        if platform.system() == 'Linux':
+        if os_is_linux():
             self.boot_drive = "/media/{user}/boot".format(user=getpass.getuser())
             self.root_drive = "/media/{user}/rootfs".format(user=getpass.getuser())
-        elif platform.system() == 'Darwin':
+        elif os_is_mac():
             self.boot_drive = "/Volumes/boot"
             self.root_drive = "/Volumes/rootfs"
         self.image = None
         self.host = None
+        self.domain = "192.168.0.1"
         self.home = pathlib.Path(path.expanduser("~"))
         self.keypath = pathlib.Path(self.home / ".ssh" / "id_rsa.pub")
         # BUG: is this not the image directory?
@@ -436,7 +505,7 @@ class piburner(object):
         :param drive: the ip 
         :return:
         """
-        
+
         self.ip = ip
 
     def set_root_drive(self, drive):
@@ -477,10 +546,13 @@ class piburner(object):
                         key_mgmt=WPA-PSK
                 }}""".format(network=ssid, pwd=psk))
         print(wifi)
-        Path(self.filename("/etc/wpa_supplicant/wpa_supplicant.conf")).write_text(wifi)
-
-    
-
+        path = "/etc/wpa_supplicant/wpa_supplicant.conf"
+        if dry_run:
+            print ("DRY RUN - skipping:")
+            print ("Writing wifi ssid:{} psk:{} to {}".format(ssid,
+                psk, path))
+            return
+        Path(self.filename(path)).write_text(wifi)
 
 
     '''
@@ -499,8 +571,8 @@ class piburner(object):
 
         #set staticip
         data = {
-            "domain": "192.168.0.1",
-            "ip": self.ip
+            "domain": self.domain,
+            "ip": self.ip,
         }
         # TODO: why are eth0 and wlan0 differnt? should they not be the same as eth0?
         # OLD:
@@ -524,6 +596,12 @@ class piburner(object):
 
         if debug:
             print(dhcp_conf)
+        if dry_run:
+            print("DRY RUN - skipping statis ip config")
+            return
+        elif interactive:
+            if not yesno("About write static ip config. Please confirm:"):
+                return
         #
         # TODO: this seems not coorect, shoudl be in etc/network/interfaces?
         path = pathlib.Path(self.filename("/etc/dhcpcd.conf"))
@@ -532,13 +610,10 @@ class piburner(object):
             file.write(dhcp_conf)
 
         # why is this needed?
-        # if platform.system() == 'Windows':
+        # if os_is_windows():
         #    fileContents = open(path,"r").read()
         #    with open(path,"w", newline="\n") as file:
         #        file.write(fileContents)
-
-    def am_i_pi(self):
-        return "raspberry" in platform.uname()
 
 
     def prepare_burn_on_pi_command(self, image, device):
@@ -573,7 +648,7 @@ class piburner(object):
         # BUG: if condition is not implemented
         
         command = ""
-        if platform.system() == 'Windows':
+        if os_is_windows():
             # BUG: does not use pathlib
             # BUG: command not in path, should be in ~/.cloudmesh/bin so it can easier be found,
             # BUG: should it not be installed from original
@@ -583,16 +658,16 @@ class piburner(object):
             # diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
             # script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
             # """.format(dir=os.getcwd(), drive=self.windows_drive, diskimiger=dikimiger)
-        elif self.am_i_pi():
+        elif os_is_pi():
 
             command = self.prepare_burn_on_pi_command(image, device)
             ERROR("not yet implemented")
             sys.exit()
-        elif platform.system() in ['Linux']:
-            self.unmount()
+        elif os_is_linux():
+            self.unmount(device)
             command = "sudo dd if={image} of=/dev/{device} bs=4M status=progress".format(image=image,device=device)
-        elif platform.system() in ['Darwin']:
-            self.unmount()
+        elif os_is_mac():
+            self.unmount(device)
             command = "sudo dd if={image} of=/dev/{device} bs=4m".format(image=image,device=device)
 
         #print(command)
@@ -602,8 +677,26 @@ class piburner(object):
         # TODO: execute test
         # if test successful: return True else: False
 
+    def detect_device(self):
+        """
+        Detect the device to burn the image to.
+        """
+        # TODO Implement this
+        # Windows doesn't need a device (but it needs drives...)
+        # Mac the device can be parsed from diskutil list
+        # Linux not sure
+        # If we need a device and don't know, ask the user
+        if os_is_mac() or os_is_linux() or os_is_pi():
+            device = prompt("Please enter the device name to install to:")
+        else:
+            device = None
+        return device
+
     # TODO: remove bootdrives from parameters as they should be selfdicoverable
-    def create(self, image, names, key, ips, ssid=None, psk=None, bootdrive=None, rootdrive=None):
+    def create(self, image, names, key, ips,
+               ssid=None, psk=None,
+               domain=None,
+               bootdrive=None, rootdrive=None):
         """
         creates a repeated burn on all names specified,
         TODO: why is this not part of the previous class?
@@ -626,27 +719,36 @@ class piburner(object):
         # BUG: are the drives released after use?         
         print(bootdrive)
         print(rootdrive)
-        if bootdrive:  
+        if bootdrive:
             self.set_boot_drive(bootdrive)
         if rootdrive:
             self.set_root_drive(rootdrive)
+        device = self.detect_device()
+        if domain is not None:
+            self.domain = domain
         for host, ip in zip(hosts, iplist):
             print("Start Time - {currenttime}".format(currenttime = datetime.datetime.now()))
             print(columns * '-')
             print("Burning", host)
             # break
             print(columns * '-')
-            yesno('Please insert the card for ' + host + "(y)?")
+            if not yesno('Please insert the card for ' + host +
+                    "\nReady to continue?"):
+                break
             print("wait till its recognized")
             print("once in conformation proceed")
         
-            self.burn(image)
+            self.burn(image, device)
             print("burn")
             #Sleep for 5 seconds to have the SD to be mounted
-            yesno('Please eject the SD card and re-insert. Press (y) when done')
+            # TODO: OS X can eject ourselves:
+            # diskutil eject /dev/{device}
+            if not yesno('Please eject the SD card and re-insert.'
+                    '\nReady to continue?'):
+                break
             time.sleep(5)
             self.set_ip(ip)
-            print("Set IP - {id}".format(id=ip))
+            print("Set IP - {ip}".format(ip=ip))
             self.write_hostname(host)
             print("Updating host - {name}".format(name=host))
 
@@ -662,15 +764,15 @@ class piburner(object):
             self.configure_static_ip()
             print("Updating Network - Static IP")  
 
-            self.unmount()
+            self.unmount(device)
             print("Removed drive")
 
             print("Please remove the card for host", host)
-            yesno("Press y once the card is removed")
+            if not yesno("Ready to continue?"):
+                break
 
             print("take the card out")
             print("End Time - {currenttime}".format(currenttime = datetime.datetime.now()))
-            break
 
 def analyse():    
    # if arguments["rm"]:
@@ -681,6 +783,16 @@ def analyse():
    #     get(arguments["URL"])
    # elif arguments["ls"]:
     print (arguments)
+    # Set global dry-run to disable executing (potentially dangerous) commands
+    if arguments["--interactive"]:
+        global interactive
+        interactive = True
+
+    if arguments["--dry-run"]:
+        global dry_run
+        dry_run = True
+        print("DRY RUN - nothing will be executed.")
+
     if arguments["ls"]:
         burner = piburner()
         burner.ls()
@@ -706,6 +818,7 @@ def analyse():
                       names=arguments["--names"],
                       key=arguments["--key"],
                       ips=arguments["--ips"],
+                      domain=arguments["--domain"],
                       ssid=arguments["--ssid"],
                       psk=arguments["--psk"],
                       bootdrive=bootdrv,
@@ -741,7 +854,7 @@ def analyse():
         # check if image exists
         if not burner.image_exists(image):
             ERROR("The image {image} does not exist".format(image=image))
-            sys.exit()
+            sys.exit(1)
         else:
             burner.image = pathlib.Path(burner.home / ".cloudmesh" / "images" / image)
 
