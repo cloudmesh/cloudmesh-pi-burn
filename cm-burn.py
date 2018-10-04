@@ -92,14 +92,18 @@ debug = False
 dry_run = False
 interactive = False
 
+
 def os_is_windows():
     return platform.system() == "Windows"
+
 
 def os_is_linux():
     return platform.system() == "Linux" and "raspberry" not in platform.uname()
 
+
 def os_is_mac():
-    return  platform.system() == "Darwin"
+    return platform.system() == "Darwin"
+
 
 def os_is_pi():
     return "raspberry" in platform.uname()
@@ -130,18 +134,21 @@ columns, lines = os.get_terminal_size()
 # TODO: the dirs are only needed for windows as they are implemented now in self.filename for OSX
 # we should remove them and make sure that cloudmesh images gets created on osx
 # and linux if it does not exist
-IMAGE_DIR=os.path.expanduser("~/.cloudmesh/images")
-BOOT_DIR =''
+IMAGE_DIR = os.path.expanduser("~/.cloudmesh/images")
+BOOT_DIR = ''
+
 
 def WARNING(*args, **kwargs):
     print("WARNING:", *args, file=sys.stderr, **kwargs)
 
+
 def ERROR(*args, **kwargs):
     print("ERROR:", *args, file=sys.stderr, **kwargs)
 
+
 def getoutput(command):
     if dry_run:
-        print ("DRY RUN - skipping command:\n{}".format(command))
+        print("DRY RUN - skipping command:\n{}".format(command))
         return ""
     elif interactive:
         if not yesno(("About to run the command\n" + command +
@@ -150,9 +157,10 @@ def getoutput(command):
     # TODO: Is this different or better than run() below? Can we just keep one?
     return subprocess.getoutput(command)
 
+
 def run(command):
     if dry_run:
-        print ("DRY RUN - skipping command:\n{}".format(command))
+        print("DRY RUN - skipping command:\n{}".format(command))
         return ""
     elif interactive:
         if not yesno(("About to run the command\n" + command +
@@ -160,14 +168,16 @@ def run(command):
             return ""
     return subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8')
 
+
 def cat(path):
     with open(path, 'r') as file:
         content = file.read()
     return content
 
+
 def execute_with_progress(command):
     if dry_run:
-        print ("DRY RUN - skipping command:\n{}".format(command))
+        print("DRY RUN - skipping command:\n{}".format(command))
         return
     elif interactive:
         if not yesno(("About to run the command\n" + command +
@@ -178,7 +188,8 @@ def execute_with_progress(command):
         line = p.stdout.readline()
         if not line:
             break
-        print (line)
+        print(line)
+
 
 def execute(commands):
     """
@@ -189,11 +200,11 @@ def execute(commands):
     lines = commands.split("\n")
     for command in lines:
         if dry_run:
-            print ("DRY RUN - skipping command:\n{}".format(command))
+            print("DRY RUN - skipping command:\n{}".format(command))
             continue
         elif interactive:
             if not yesno(("About to run the command\n" + command +
-                        "\nPlease confirm:")):
+                          "\nPlease confirm:")):
                 continue
         print(command)
         proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -219,10 +230,10 @@ class piburner(object):
         :return:
         """
         if os_is_windows():
-            #TODO: Remove drive in windows, why can you not use the mount function build into windows?
-            #TODO: Why do you need RemoveDrive?
+            # TODO: Remove drive in windows, why can you not use the mount function build into windows?
+            # TODO: Why do you need RemoveDrive?
             # script =  "mountvol {drive} /p".format(drive = self.root_drive)
-            script = "RemoveDrive {drive}:".format(drive = self.root_drive)
+            script = "RemoveDrive {drive}:".format(drive=self.root_drive)
             execute(script)
         elif os_is_mac():
             if drive is None:
@@ -252,8 +263,8 @@ class piburner(object):
             # remember to escape \ in volume
             # script = "mount {drive} {volume}:".format(drive=self.root_drive, volume=volume)
             # why remove, should we not mount?
-            #script = "RemoveDrive {drive}:".format(drive = self.root_drive)
-            #execute(script)
+            # script = "RemoveDrive {drive}:".format(drive = self.root_drive)
+            # execute(script)
             raise NotImplementedError()
         elif os_is_mac():
             # extFS does outomount so we just check i f they are mounted
@@ -292,10 +303,10 @@ class piburner(object):
             return re.search(re_sets_param, line) is not None
 
         force_params = [
-                ("ChallengeResponseAuthentication", "no"),
-                ("PasswordAuthentication", "no"),
-                ("UsePAM", "no"),
-                ("PermitRootLogin", "no"),
+            ("ChallengeResponseAuthentication", "no"),
+            ("PasswordAuthentication", "no"),
+            ("UsePAM", "no"),
+            ("PermitRootLogin", "no"),
         ]
 
         found_params = set()
@@ -340,8 +351,8 @@ class piburner(object):
             sys.exit()
 
         if dry_run:
-            print ("DRY RUN - skipping:")
-            print ("Activate ssh authorized_keys pkey:{}".format(public_key))
+            print("DRY RUN - skipping:")
+            print("Activate ssh authorized_keys pkey:{}".format(public_key))
             return
         elif interactive:
             if not yesno("About to write ssh config. Please confirm:"):
@@ -352,7 +363,7 @@ class piburner(object):
         # Write the content of the ssh rsa to the authorized_keys file
         key = pathlib.Path(public_key).read_text()
         ssh_dir = self.filename("/home/pi/.ssh")
-        print (ssh_dir)
+        print(ssh_dir)
         if not os.path.isdir(ssh_dir):
             os.makedirs(ssh_dir)
         auth_keys = ssh_dir / "authorized_keys"
@@ -378,7 +389,7 @@ class piburner(object):
         # already exists modifying it shouldn't change ownership or permissions
         # so it should run correctly. One lingering question is: should we clean
         # this up later?
-        new_lines='''
+        new_lines = '''
 # FIX298-START: Fix permissions for .ssh directory to enable key login
 if [ -d "/home/pi/.ssh" ]; then
     chown pi:pi /home/pi/.ssh
@@ -415,13 +426,12 @@ fi
             information = {
                 "os": platform.system(),
                 "ssh": os.path.exists(self.filename("/ssh")),
-                #"key": cat(self.filename("/home/pi/.ssh/authorized_keys")),
+                # "key": cat(self.filename("/home/pi/.ssh/authorized_keys")),
                 "hostname": cat(self.filename("/etc/hostname")).strip()
             }
 
             # print(yaml.dump(information, default_flow_style=False))
             pprint(information)
-
 
     # ok osx
     def write_hostname(self, host):
@@ -434,10 +444,10 @@ fi
         self.host = host
         path = self.filename("/etc/hostname")
         if debug:
-            print (self.host)
+            print(self.host)
         if dry_run:
-            print ("DRY RUN - skipping:")
-            print ("Writing host name {} to {}".format(host, path))
+            print("DRY RUN - skipping:")
+            print("Writing host name {} to {}".format(host, path))
             return
         elif interactive:
             if not yesno("About write hostname. Please confirm:"):
@@ -448,7 +458,7 @@ fi
         hosts = self.filename("/etc/hosts")
         with hosts.open() as fr:
             contents = fr.read()
-        new_hosts = contents.replace("raspberrypi",host)
+        new_hosts = contents.replace("raspberrypi", host)
         # NOTE: This is actually necessary, see comment in method
         truncate_file(hosts)
         # print(new_hosts)
@@ -457,13 +467,13 @@ fi
 
     def filename(self, path):
         """
-        creates the proper path for the file bby using the proper file systyem prefix. This method is
+        creates the proper path for the file by using the proper file systyem prefix. This method is
         supposed to universally work, so that we simply can use the filesystem name without worrying
-        about the location of the root file system.
+        about the location it it is in the boot or root file system of the SD Card.
 
         :param path:
         :return:
-        """        
+        """
         # print(path)
         if os_is_mac() or os_is_linux():
             if path in ["/etc/hostname",
@@ -486,7 +496,7 @@ fi
                         "/home/pi/.ssh",
                         "/etc/wpa_supplicant/wpa_supplicant.conf",
                         "/etc/dhcpcd.conf"]:
-                volume = self.root_drive                
+                volume = self.root_drive
             elif path in ["/ssh"]:
                 volume = self.boot_drive
             else:
@@ -534,7 +544,7 @@ fi
         """
         # store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
         # defaults from there if the file exist
-        #if os_is_windows():
+        # if os_is_windows():
         #    self.windows_drive = "K"
         #    self.windows_pi_drive = "L"
         self.root_drive = None
@@ -596,8 +606,8 @@ fi
 
         # uncompressing
 
-        image_name = destination.replace(".zip","") + ".img"
-        image_file = pathlib.Path(self.cloudmesh_images /image_name)
+        image_name = destination.replace(".zip", "") + ".img"
+        image_file = pathlib.Path(self.cloudmesh_images / image_name)
         if not os.path.exists(image_file):
             self.unzip_image(image_name)
         else:
@@ -654,7 +664,6 @@ fi
         # BUG: not sure what this drive is so replace efg with something meaningful
         self.boot_drive = drive
 
-
     def configure_wifi(self, ssid, psk):
         """
         sets the wifi. ONly works for psk based wifi
@@ -676,15 +685,14 @@ fi
         print(wifi)
         path = "/etc/wpa_supplicant/wpa_supplicant.conf"
         if dry_run:
-            print ("DRY RUN - skipping:")
-            print ("Writing wifi ssid:{} psk:{} to {}".format(ssid,
-                psk, path))
+            print("DRY RUN - skipping:")
+            print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
+                                                             psk, path))
             return
         elif interactive:
             if not yesno("About write wifi info. Please confirm:"):
                 return
         Path(self.filename(path)).write_text(wifi)
-
 
     '''
     def gregor(self, names, key, ssid=None, psk=None):
@@ -700,7 +708,7 @@ fi
 
     def configure_static_ip(self):
 
-        #set staticip
+        # set staticip
         data = {
             "domain": self.domain,
             "ip": self.ip,
@@ -736,7 +744,7 @@ fi
         #
         # TODO: this seems not coorect, shoudl be in etc/network/interfaces?
         path = pathlib.Path(self.filename("/etc/dhcpcd.conf"))
-        
+
         with open(path, 'a', encoding='utf-8', newline="\n") as file:
             file.write(dhcp_conf)
 
@@ -746,7 +754,6 @@ fi
         #    with open(path,"w", newline="\n") as file:
         #        file.write(fileContents)
 
-
     def prepare_burn_on_pi_command(self, image, device):
         """
         assumes you called get before and have valid image
@@ -755,9 +762,9 @@ fi
         if device is None:
             # activate an image and create a yaml file cmburn.yaml with parameter
             # that is read upon start in __init___
-            output = run("sudo", "ls",  "-ltr",  "/dev/*")
+            output = run("sudo", "ls", "-ltr", "/dev/*")
             # TODO: find mmcblk0
-            device = "mmcblk0" # hard coded for now
+            device = "mmcblk0"  # hard coded for now
             print(output)
         data = {
             image: self.image,
@@ -765,9 +772,8 @@ fi
         }
 
         command = "sudo dd bs=1M if=~{image} of={device} status=progress conv=fsync".format(**data).split(" ")
-        print (command)
+        print(command)
         return (command)
-
 
     def burn(self, image, device=None):
         """
@@ -778,14 +784,15 @@ fi
         # if not os.path.exists(IMAGE_DIR):
         # os.makedirs(IMAGE_DIR)
         # BUG: if condition is not implemented
-        
+
         command = ""
         if os_is_windows():
             # BUG: does not use pathlib
             # BUG: command not in path, should be in ~/.cloudmesh/bin so it can easier be found,
             # BUG: should it not be installed from original
-            command = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}\\images\\2018-06-27-raspbian-stretch.img {drive}".format(
-                dir=os.getcwd(), drive=self.boot_drive)            
+            command = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}" + \
+                      "\\images\\2018-06-27-raspbian-stretch.img {drive}".format(
+                         dir=os.getcwd(), drive=self.boot_drive)
             # also dir needs to be done in pathlib
             # diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
             # script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
@@ -797,15 +804,15 @@ fi
             sys.exit()
         elif os_is_linux():
             self.unmount(device)
-            command = "sudo dd if={image} of=/dev/{device} bs=4M status=progress".format(image=image,device=device)
+            command = "sudo dd if={image} of=/dev/{device} bs=4M status=progress".format(image=image, device=device)
         elif os_is_mac():
             self.unmount(device)
-            command = "sudo dd if={image} of=/dev/{device} bs=4m".format(image=image,device=device)
+            command = "sudo dd if={image} of=/dev/{device} bs=4m".format(image=image, device=device)
 
         # print(command)
         if command:
             execute_with_progress(command)
-            #execute(command)
+            # execute(command)
         # TODO: execute test
         # if test successful: return True else: False
 
@@ -835,10 +842,14 @@ fi
 
         :param names: the hostnames of in hostlist format to be burned
         :param key: the public key location # TODO: should be defaulted to ~/.ssh/id_rsa.pub
-        :param bootdrive: the boot drive # BUG: on linux we do not have a boot drive, so this should not be a parameter and needs to be autodiscovered
-        :param rootdrive: # BUG: on linux we do not have a boot drive, so this should not be a parameter and needs to be autodiscovered
-        :param ssid: # TODO: should be set to None and if its none we do not do it we actually do not need wifi, should be handled differently
-        :param psk: # TODO: should be set to None and if its none we do not do it we actually do not need wifi, should be handled differently
+        :param bootdrive: the boot drive # BUG: on linux we do not have a boot drive,
+               so this should not be a parameter and needs to be autodiscovered
+        :param rootdrive: # BUG: on linux we do not have a boot drive, so this
+               should not be a parameter and needs to be autodiscovered
+        :param ssid: # TODO: should be set to None and if its none we do not do it
+                     # we actually do not need wifi, should be handled differently
+        :param psk: # TODO: should be set to None and if its none we do not do
+                    # it we actually do not need wifi, should be handled differently
         :return:
         """
 
@@ -860,23 +871,23 @@ fi
         if domain is not None:
             self.domain = domain
         for host, ip in zip(hosts, iplist):
-            print("Start Time - {currenttime}".format(currenttime = datetime.datetime.now()))
+            print("Start Time - {currenttime}".format(currenttime=datetime.datetime.now()))
             print(columns * '-')
             print("Burning", host)
             # break
             print(columns * '-')
             if not yesno('Please insert the card for ' + host +
-                    " and wait until it is recognized by the system." +
-                    "\nReady to continue?"):
+                         " and wait until it is recognized by the system." +
+                         "\nReady to continue?"):
                 break
 
             print("Beginning to burn image {image}".format(image=image))
             self.burn(image, device)
-            #Sleep for 5 seconds to have the SD to be mounted
+            # Sleep for 5 seconds to have the SD to be mounted
             # TODO: OS X can eject ourselves:
             # diskutil eject /dev/{device}
             if not yesno('Please eject the SD card and re-insert.'
-                    '\nReady to continue?'):
+                         '\nReady to continue?'):
                 break
             time.sleep(5)
             self.set_ip(ip)
@@ -894,7 +905,7 @@ fi
             print("Updating ssh")
 
             self.configure_static_ip()
-            print("Updating Network - Static IP")  
+            print("Updating Network - Static IP")
 
             self.unmount(device)
             print("Removed drive")
@@ -904,17 +915,18 @@ fi
                 break
 
             print("take the card out")
-            print("End Time - {currenttime}".format(currenttime = datetime.datetime.now()))
+            print("End Time - {currenttime}".format(currenttime=datetime.datetime.now()))
 
-def analyse():    
-   # if arguments["rm"]:
-   #     rm(arguments["image"])
 
-   # elif arguments["get"]:
-   #     print(arguments["URL"])
-   #     get(arguments["URL"])
-   # elif arguments["ls"]:
-    print (arguments)
+def analyse():
+    # if arguments["rm"]:
+    #     rm(arguments["image"])
+
+    # elif arguments["get"]:
+    #     print(arguments["URL"])
+    #     get(arguments["URL"])
+    # elif arguments["ls"]:
+    print(arguments)
     # Set global dry-run to disable executing (potentially dangerous) commands
     if arguments["--interactive"]:
         global interactive
@@ -974,8 +986,8 @@ def analyse():
         passwd = arguments["PASSWD"]
         if passwd is None:
             passwd = getpass.getpass()
-        print (ssid)
-        print (passwd)
+        print(ssid)
+        print(passwd)
         burner = piburner()
         burner.configure_wifi(ssid, passwd)
 
