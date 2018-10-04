@@ -220,8 +220,8 @@ class piburner(object):
         :return:
         """
         if os_is_windows():
-            #TODO: Remove drive in windows, why can you not use the mount function build into windows?
-            #TODO: Why do you need RemoveDrive?
+            # TODO: Remove drive in windows, why can you not use the mount function build into windows?
+            # TODO: Why do you need RemoveDrive?
             # mountvol %drive% /p
             # create volume mount pount as volume
             # volume = ...
@@ -329,16 +329,16 @@ class piburner(object):
         :param path:
         :return:
         """        
-        #print(path)
-        if os_is_mac():
+        # print(path)
+        if os_is_mac() or  os_is_linux():
             if path in ["/etc/hostname",
                         "/home/pi/.ssh/authorized_keys",
                         "/home/pi/.ssh",
                         "/etc/wpa_supplicant/wpa_supplicant.conf",
                         "/etc/dhcpcd.conf"]:
-                volume = "/Volumes/rootfs"
+                volume = self.root_drive
             elif path in ["/ssh"]:
-                volume = "/Volumes/boot"
+                volume = self.boot_drive
             else:
                 ERROR("path not defined in cm-burn", path)
             location = pathlib.Path("{volume}/{path}".format(volume=volume, path=path))
@@ -354,18 +354,6 @@ class piburner(object):
             else:
                 ERROR("path not defined in cm-burn", path)
             location = pathlib.Path("{volume}:{path}".format(volume=volume, path=path))
-        elif os_is_linux():
-            if path in ["/etc/hostname",
-                        "/home/pi/.ssh/authorized_keys",
-                        "/home/pi/.ssh",
-                        "/etc/wpa_supplicant/wpa_supplicant.conf",
-                        "/etc/dhcpcd.conf"]:
-                volume = self.root_drive
-            elif path in ["/ssh"]:
-                volume = self.boot_drive
-            else:
-                ERROR("path not defined in cm-burn", path)
-            location = pathlib.Path("{volume}/{path}".format(volume=volume, path=path))
         return location
 
     # ok osx
