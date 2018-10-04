@@ -39,7 +39,9 @@ BUG:
 
 Description:
   cm-burn
-  cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS] [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID] [--psk=PSK] [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
+  cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS]
+                 [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID]
+                 [--psk=PSK] [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
   cm-burn update
         updates the downloaded images if new once are available
   cm-burn ls
@@ -622,7 +624,8 @@ class piburner(object):
         :return:
         """
         if device is None:
-            # activate an image and create a yaml file cmburn.yaml with parameter that is read upon start in __init___
+            # activate an image and create a yaml file cmburn.yaml with parameter
+            # that is read upon start in __init___
             output = run("sudo", "ls",  "-ltr",  "/dev/*")
             # TODO: find mmcblk0
             device = "mmcblk0" # hard coded for now
@@ -670,7 +673,7 @@ class piburner(object):
             self.unmount(device)
             command = "sudo dd if={image} of=/dev/{device} bs=4m".format(image=image,device=device)
 
-        #print(command)
+        # print(command)
         if command:
             execute_with_progress(command)
             #execute(command)
@@ -703,8 +706,8 @@ class piburner(object):
 
         :param names: the hostnames of in hostlist format to be burned
         :param key: the public key location # TODO: should be defaulted to ~/.ssh/id_rsa.pub
-        :param bootdrive: the boot drive # TODO: on linux we do not have a boot drive, so this should not be a parameter and needs to be autodiscovered
-        :param rootdrive: #TODO: on linux we do not have a boot drive, so this should not be a parameter and needs to be autodiscovered
+        :param bootdrive: the boot drive # BUG: on linux we do not have a boot drive, so this should not be a parameter and needs to be autodiscovered
+        :param rootdrive: # BUG: on linux we do not have a boot drive, so this should not be a parameter and needs to be autodiscovered
         :param ssid: # TODO: should be set to None and if its none we do not do it we actually do not need wifi, should be handled differently
         :param psk: # TODO: should be set to None and if its none we do not do it we actually do not need wifi, should be handled differently
         :return:
@@ -714,6 +717,7 @@ class piburner(object):
         iplist = hostlist.expand_hostlist(ips)
         # BUG: can we not discover the boot and rootdrive. Why do we have to set
         # it to I and G, can we not get the next free drive letter?
+        # THis only seems to be needed for Windows?
         # bootdrive = find_next_free_drive_letter()
         # rootdrive = find_next_free_drive_letter()
         # BUG: are the drives released after use?         
