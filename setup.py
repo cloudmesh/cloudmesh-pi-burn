@@ -1,9 +1,9 @@
 """A command to burn many sd cards for PI clusters.
 
-    # $ pip install cloudmesh/cm-burn
+    # $ pip install cloudmesh/cm-burn.py
     
     we may cahnge this to 
-        # And where it will live on PyPI: https://pypi.org/cloudmesh/cm-burn/
+        # And where it will live on PyPI: https://pypi.org/cloudmesh/cm-burn.py/
 
 
 """
@@ -18,12 +18,12 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='cm-burn',  
+    name='cm-burn.py',
     version='0.0.1',  
     description='A command to burn many SD cards for building PI clusters',
     long_description=long_description,  
     long_description_content_type='text/markdown',  
-    url='https://github.com/cloudmesh-community/cm-burn',  
+    url='https://github.com/cloudmesh-community/cm-burn.py',
     author='Cloudmesh Team', 
     author_email='laszewski@gmail.comm', 
 
@@ -76,14 +76,14 @@ setup(
 
     entry_points={  
         'console_scripts': [
-            'cm-burn=cm-burn:main',
+            'cm-burn.py=cm-burn.py:main',
         ],
     },
 
     project_urls={  # Optional
-        'Bug Reports': 'https://github.com/cloudmesh-community/cm-burn/issues',
+        'Bug Reports': 'https://github.com/cloudmesh-community/cm-burn.py/issues',
         # 'Funding': 'https://donate.pypi.org',
         # 'Say Thanks!': 'http://saythanks.io/to/example',
-        'Source': 'https://github.com/cloudmesh-community/cm-burn/',
+        'Source': 'https://github.com/cloudmesh-community/cm-burn.py/',
     },
 )
