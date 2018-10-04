@@ -72,6 +72,7 @@ import hostlist
 from prompter import yesno, prompt
 import platform
 import wget
+# noinspection PyCompatibility
 import pathlib
 from os import path
 import glob
@@ -138,10 +139,12 @@ IMAGE_DIR = os.path.expanduser("~/.cloudmesh/images")
 BOOT_DIR = ''
 
 
+# noinspection PyPep8Naming
 def WARNING(*args, **kwargs):
     print("WARNING:", *args, file=sys.stderr, **kwargs)
 
 
+# noinspection PyPep8Naming
 def ERROR(*args, **kwargs):
     print("ERROR:", *args, file=sys.stderr, **kwargs)
 
@@ -213,7 +216,7 @@ def execute(commands):
         # self.commandResult = proc.wait() #catch return code
 
 
-class piburner(object):
+class PiBurner(object):
 
     def disable_password(self):
         """
@@ -226,7 +229,7 @@ class piburner(object):
     def unmount(self, drive=None):
         """
         unmounts the filesystem regardless of OS using the given path
-        :param path:
+        :param drive:
         :return:
         """
         if os_is_windows():
@@ -251,6 +254,7 @@ class piburner(object):
     def mount(self, device=None, path=None):
         """
         mounts the device to the filesystem regardless of OS using the given path
+        :param device:
         :param path:
         :return:
         """
@@ -509,7 +513,6 @@ fi
         """
         set the hostname
 
-        :param host: the hostname
         :return:
         """
         host = cat(self.filename("/etc/hostname"))
@@ -557,6 +560,7 @@ fi
             self.root_drive = "/Volumes/rootfs"
         self.image = None
         self.host = None
+        self.ip = None
         self.domain = "192.168.0.1"
         self.home = pathlib.Path(path.expanduser("~"))
         self.keypath = pathlib.Path(self.home / ".ssh" / "id_rsa.pub")
@@ -640,7 +644,7 @@ fi
     def set_ip(self, ip):
         """
         TODO: How to set the static IP for both wifi and wired
-        :param drive: the ip 
+        :param ip: the ip
         :return:
         """
 
@@ -762,7 +766,7 @@ fi
         if device is None:
             # activate an image and create a yaml file cmburn.yaml with parameter
             # that is read upon start in __init___
-            output = run("sudo", "ls", "-ltr", "/dev/*")
+            output = run("sudo", "ls", "-ltr", "/dev/*") # TODO BUG this is not how run works
             # TODO: find mmcblk0
             device = "mmcblk0"  # hard coded for now
             print(output)
@@ -773,7 +777,7 @@ fi
 
         command = "sudo dd bs=1M if=~{image} of={device} status=progress conv=fsync".format(**data).split(" ")
         print(command)
-        return (command)
+        return command
 
     def burn(self, image, device=None):
         """
@@ -792,7 +796,7 @@ fi
             # BUG: should it not be installed from original
             command = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}" + \
                       "\\images\\2018-06-27-raspbian-stretch.img {drive}".format(
-                         dir=os.getcwd(), drive=self.boot_drive)
+                          dir=os.getcwd(), drive=self.boot_drive)
             # also dir needs to be done in pathlib
             # diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
             # script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
@@ -840,6 +844,9 @@ fi
         creates a repeated burn on all names specified,
         TODO: why is this not part of the previous class?
 
+        :param ips: TODO
+        :param domain: TODO
+        :param image: TODO
         :param names: the hostnames of in hostlist format to be burned
         :param key: the public key location # TODO: should be defaulted to ~/.ssh/id_rsa.pub
         :param bootdrive: the boot drive # BUG: on linux we do not have a boot drive,
@@ -938,13 +945,13 @@ def analyse():
         print("DRY RUN - nothing will be executed.")
 
     if arguments["ls"]:
-        burner = piburner()
+        burner = PiBurner()
         burner.ls()
     elif arguments["get"]:
-        burner = piburner()
+        burner = PiBurner()
         burner.get()
     elif arguments["create"]:
-        burner = piburner()
+        burner = PiBurner()
         wifipass = None
         bootdrv = None
         rootdrv = None
@@ -973,9 +980,9 @@ def analyse():
 
     elif arguments["hostname"]:
         host = arguments["HOSTNAME"]
-        burner = piburner()
+        burner = PiBurner()
 
-        if host != None:
+        if host is not None:
             print("Set host to:", host)
             burner.write_hostname(host)
         else:
@@ -988,13 +995,13 @@ def analyse():
             passwd = getpass.getpass()
         print(ssid)
         print(passwd)
-        burner = piburner()
+        burner = PiBurner()
         burner.configure_wifi(ssid, passwd)
 
     elif arguments["image"]:
         image = arguments["--image"]
         device = arguments["--device"]
-        burner = piburner()
+        burner = PiBurner()
         # check if image exists
         if not burner.image_exists(image):
             ERROR("The image {image} does not exist".format(image=image))
@@ -1009,7 +1016,7 @@ def analyse():
         burner.burn(burner.image, device)
 
     elif arguments["ip"]:
-        burner = piburner()
+        burner = PiBurner()
 
         ip = arguments["IPADDRESS"]
         print("Use ip:", ip)
@@ -1027,11 +1034,11 @@ def analyse():
         if key is None:
             key = os.path.expanduser("~") + "/.ssh/id_rsa.pub"
         print("Use ssh key:", key)
-        burner = piburner()
+        burner = PiBurner()
         burner.activate_ssh(key)
 
     elif arguments["info"]:
-        burner = piburner()
+        burner = PiBurner()
         burner.info()
 
 
