@@ -6,16 +6,18 @@ Usage:
                  [--domain=DOMAIN]
                  [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
                  [-n --dry-run] [-i --interactive]
-  cm-burn ls
-  cm-burn rm IMAGE
+  cm-burn ls [-ni]
+  cm-burn rm IMAGE [-ni]
   cm-burn get [URL]
   cm-burn update
   cm-burn check install
-  cm-burn hostname [HOSTNAME]
-  cm-burn ssh [PUBLICKEY]
-  cm-burn wifi SSID [PASSWD]
-  cm-burn info
+  cm-burn hostname [HOSTNAME] [-ni]
+  cm-burn ssh [PUBLICKEY] [-ni]
+  cm-burn ip IPADDRESS [--domain=DOMAIN] [-ni]
+  cm-burn wifi SSID [PASSWD] [-ni]
+  cm-burn info [-ni]
   cm-burn image [--image=IMAGE] [--device=DEVICE]
+                [-ni]
   cm-burn (-h | --help)
   cm-burn --version
 
@@ -75,6 +77,7 @@ from os import path
 import glob
 import shutil
 import requests
+import re
 import zipfile
 import sys
 from pprint import pprint
@@ -100,6 +103,27 @@ def os_is_mac():
 
 def os_is_pi():
     return "raspberry" in platform.uname()
+
+
+def truncate_file(pathlib_obj):
+    """Truncate a file on disk before writing.
+
+    This is strange, but was found to be necessary when mounting the newly
+    burned image with extFS on OS X.
+    """
+    # NOTE (jobranam 2018-10-04): I'm not sure why, but on my OS X with
+    # extFS overwriting the file with a shorter version was not working.
+    # There were extra bytes at the end where the file was truncated. Adding
+    # this next section fixed the problem. Maybe there is a better solution.
+    # This problem only shows up the *first* time after burning the image.
+    # Touching the file at all fixes it (e.g. just editing with vim fixes
+    # it)
+    with pathlib_obj.open("w") as f:
+        f.truncate(0)
+        f.flush()
+        f.write("#")
+        f.flush()
+
 
 columns, lines = os.get_terminal_size()
 
@@ -251,6 +275,54 @@ class piburner(object):
         else:
             raise NotImplementedError()
 
+    def disable_password_ssh(self):
+        sshd_config = self.filename("/etc/ssh/sshd_config")
+        new_sshd_config = ""
+        updated_params = False
+
+        def sets_param(param, line):
+            """See if a config line sets this parameter to something."""
+            # front is only whitespace maybe a comment
+            front = r'^\s*#?\s*'
+            # only whitespace between param and value
+            middle = r'\s+'
+            # end can include a comment
+            end = r'\s*(?:#.*)?$'
+            re_sets_param = front + param + middle + r'.*' + end
+            return re.search(re_sets_param, line) is not None
+
+        force_params = [
+                ("ChallengeResponseAuthentication", "no"),
+                ("PasswordAuthentication", "no"),
+                ("UsePAM", "no"),
+                ("PermitRootLogin", "no"),
+        ]
+
+        found_params = set()
+        with sshd_config.open() as f:
+            for line in f:
+                found_a_param = False
+                for param, value in force_params:
+                    if sets_param(param, line):
+                        # Only set the parameter once
+                        if param not in found_params:
+                            new_sshd_config += param + " " + value + "\n"
+                            updated_params = True
+                        found_a_param = True
+                        found_params.add(param)
+                if not found_a_param:
+                    new_sshd_config += line
+        # Check if any params not found
+        for param, value in force_params:
+            if param not in found_params:
+                new_sshd_config += param + " " + value + "\n"
+                updated_params = True
+        if updated_params:
+            # NOTE: This is actually necessary, see comment in method
+            truncate_file(sshd_config)
+            with sshd_config.open("w") as f:
+                f.write(new_sshd_config)
+
     # ok osx
     def activate_ssh(self, public_key):
         """
@@ -283,10 +355,59 @@ class piburner(object):
         print (ssh_dir)
         if not os.path.isdir(ssh_dir):
             os.makedirs(ssh_dir)
-        os.chmod(ssh_dir, 0o700)
         auth_keys = ssh_dir / "authorized_keys"
         auth_keys.write_text(key)
-        os.chmod(auth_keys, 0o600)
+
+        # We need to fix the permissions on the .ssh folder but it is hard to
+        # get this working from a host OS because the host OS must have a user
+        # and group with the same pid and gid as the raspberry pi OS. On the PI
+        # the pi uid and gid are both 1000.
+
+        # All of the following do not work on OS X:
+        # execute("chown 1000:1000 {ssh_dir}".format(ssh_dir=ssh_dir))
+        # shutil.chown(ssh_dir, user=1000, group=1000)
+        # shutil.chown(ssh_dir, user=1000, group=1000)
+        # execute("sudo chown 1000:1000 {ssh_dir}".format(ssh_dir=ssh_dir))
+
+        # Changing the modification attributes does work, but we can just handle
+        # this the same way as the previous chown issue for consistency.
+        # os.chmod(ssh_dir, 0o700)
+        # os.chmod(auth_keys, 0o600)
+
+        # /etc/rc.local runs at boot with root permissions - since the file
+        # already exists modifying it shouldn't change ownership or permissions
+        # so it should run correctly. One lingering question is: should we clean
+        # this up later?
+        new_lines='''
+# FIX298-START: Fix permissions for .ssh directory to enable key login
+if [ -d "/home/pi/.ssh" ]; then
+    chown pi:pi /home/pi/.ssh
+    chmod 700 /home/pi/.ssh
+    if [ -f "/home/pi/.ssh/authorized_keys" ]; then
+        chown pi:pi /home/pi/.ssh/authorized_keys
+        chmod 600 /home/pi/.ssh/authorized_keys
+    fi
+fi
+# FIX298-END
+
+'''
+        rc_local = self.filename("/etc/rc.local")
+        new_rc_local = ""
+        already_updated = False
+        with rc_local.open() as f:
+            for line in f:
+                if "FIX298" in line:
+                    already_updated = True
+                    break
+                if line == "exit 0\n":
+                    new_rc_local += new_lines
+                    new_rc_local += line
+                else:
+                    new_rc_local += line
+        if not already_updated:
+            with rc_local.open("w") as f:
+                f.write(new_rc_local)
+        self.disable_password_ssh()
 
     # ok osx
     def info(self):
@@ -318,7 +439,21 @@ class piburner(object):
             print ("DRY RUN - skipping:")
             print ("Writing host name {} to {}".format(host, path))
             return
+        elif interactive:
+            if not yesno("About write hostname. Please confirm:"):
+                return
         pathlib.Path(path).write_text(host)
+
+        # /etc/hosts needs to be updated also with the hostname
+        hosts = self.filename("/etc/hosts")
+        with hosts.open() as fr:
+            contents = fr.read()
+        new_hosts = contents.replace("raspberrypi",host)
+        # NOTE: This is actually necessary, see comment in method
+        truncate_file(hosts)
+        # print(new_hosts)
+        with hosts.open("w") as fw:
+            fw.write(new_hosts)
 
     def filename(self, path):
         """
@@ -330,8 +465,11 @@ class piburner(object):
         :return:
         """        
         # print(path)
-        if os_is_mac() or  os_is_linux():
+        if os_is_mac() or os_is_linux():
             if path in ["/etc/hostname",
+                        "/etc/hosts",
+                        "/etc/rc.local",
+                        "/etc/ssh/sshd_config",
                         "/home/pi/.ssh/authorized_keys",
                         "/home/pi/.ssh",
                         "/etc/wpa_supplicant/wpa_supplicant.conf",
@@ -542,6 +680,9 @@ class piburner(object):
             print ("Writing wifi ssid:{} psk:{} to {}".format(ssid,
                 psk, path))
             return
+        elif interactive:
+            if not yesno("About write wifi info. Please confirm:"):
+                return
         Path(self.filename(path)).write_text(wifi)
 
 
@@ -725,13 +866,12 @@ class piburner(object):
             # break
             print(columns * '-')
             if not yesno('Please insert the card for ' + host +
+                    " and wait until it is recognized by the system." +
                     "\nReady to continue?"):
                 break
-            print("wait till its recognized")
-            print("once in conformation proceed")
-        
+
+            print("Beginning to burn image {image}".format(image=image))
             self.burn(image, device)
-            print("burn")
             #Sleep for 5 seconds to have the SD to be mounted
             # TODO: OS X can eject ourselves:
             # diskutil eject /dev/{device}
@@ -855,6 +995,20 @@ def analyse():
             ERROR("The device {device} does not exist or not available".format(device=device))
             sys.exit()
         burner.burn(burner.image, device)
+
+    elif arguments["ip"]:
+        burner = piburner()
+
+        ip = arguments["IPADDRESS"]
+        print("Use ip:", ip)
+        burner.set_ip(ip)
+
+        domain = arguments["--domain"]
+        if domain is not None:
+            print("Use domain:", domain)
+        burner.domain = domain
+
+        burner.configure_static_ip()
 
     elif arguments["ssh"]:
         key = arguments["PUBLICKEY"]
