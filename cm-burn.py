@@ -191,8 +191,8 @@ def execute_with_progress(command):
         line = p.stdout.readline()
         if not line:
             break
-        print(line)
-
+        if len(line) > 0:
+            print(line)
 
 def execute(commands):
     """
