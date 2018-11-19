@@ -61,7 +61,8 @@ setup(
         "docopt",
         "prompter",
         "requests",
-        "wget"
+        "wget",
+        "pyyaml",
         ],
 
     extras_require={  # Optional
