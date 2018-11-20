@@ -191,8 +191,8 @@ def execute_with_progress(command):
         line = p.stdout.readline()
         if not line:
             break
-        print(line)
-
+        if len(line) > 0:
+            print(line)
 
 def execute(commands):
     """
@@ -212,7 +212,9 @@ def execute(commands):
         print(command)
         proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         while proc.poll() is None:
-            print(proc.stdout.readline())  # give output from your execution/your own message
+            line = proc.stdout.readline()
+            if len(line) > 0:
+                print(line.decode(sys.stdout.encoding))  # give output from your execution/your own message
         # self.commandResult = proc.wait() #catch return code
 
 
@@ -1041,9 +1043,13 @@ def analyse():
         burner = PiBurner()
         burner.info()
 
-
-if __name__ == '__main__':
+def main():
+    """main entrypoint for setup.py"""
+    global arguments
     arguments = docopt(__doc__, version=VERSION)
     # if debug:
     #   print(arguments) # just for debugging
     analyse()
+
+if __name__ == '__main__':
+    main()

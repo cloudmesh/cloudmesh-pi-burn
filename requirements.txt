@@ -3,3 +3,4 @@ docopt
 prompter
 requests
 wget
+pyyaml
