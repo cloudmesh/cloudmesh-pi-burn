@@ -1043,9 +1043,12 @@ def analyse():
         burner = PiBurner()
         burner.info()
 
-
-if __name__ == '__main__':
+def main():
+    """main entrypoint for setup.py"""
     arguments = docopt(__doc__, version=VERSION)
     # if debug:
     #   print(arguments) # just for debugging
     analyse()
+
+if __name__ == '__main__':
+    main()
