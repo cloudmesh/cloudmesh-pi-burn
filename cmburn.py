@@ -1045,6 +1045,7 @@ def analyse():
 
 def main():
     """main entrypoint for setup.py"""
+    global arguments
     arguments = docopt(__doc__, version=VERSION)
     # if debug:
     #   print(arguments) # just for debugging
