@@ -18,7 +18,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='cm-burn.py',
+    name='cm-burn',
     version='0.0.1',  
     description='A command to burn many SD cards for building PI clusters',
     long_description=long_description,  
@@ -26,6 +26,7 @@ setup(
     url='https://github.com/cloudmesh-community/cm-burn.py',
     author='Cloudmesh Team', 
     author_email='laszewski@gmail.comm', 
+    scripts=['cmburn.py'],
 
     classifiers=[  
         # How mature is this project? Common values are
@@ -61,7 +62,8 @@ setup(
         "docopt",
         "prompter",
         "requests",
-        "wget"
+        "wget",
+        "pyyaml",
         ],
 
     extras_require={  # Optional
@@ -74,9 +76,9 @@ setup(
     # },
     # data_files=[('my_data', ['data/data_file'])],  # Optional
 
-    entry_points={  
+    entry_points={
         'console_scripts': [
-            'cm-burn.py=cm-burn.py:main',
+            'cm-burn=cmburn:main',
         ],
     },
 
