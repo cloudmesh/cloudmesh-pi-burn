@@ -87,12 +87,14 @@ import textwrap
 import getpass
 import time
 import datetime
+import wmi
+
+
 
 VERSION = "0.1"
 debug = False
 dry_run = False
 interactive = False
-
 
 def os_is_windows():
     return platform.system() == "Windows"
@@ -186,9 +188,10 @@ def execute_with_progress(command):
         if not yesno(("About to run the command\n" + command +
                       "\nPlease confirm:")):
             return
-    p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
-    while True:
-        line = p.stdout.readline()
+    p = subprocess.Popen(command.split(" "), shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding='utf8')    
+    
+    while True:       
+        line = p.stdout.readlines()        
         if not line:
             break
         if len(line) > 0:
@@ -374,7 +377,7 @@ class PiBurner(object):
             os.makedirs(ssh_dir)
         auth_keys = ssh_dir / "authorized_keys"
         auth_keys.write_text(key)
-
+        
         # We need to fix the permissions on the .ssh folder but it is hard to
         # get this working from a host OS because the host OS must have a user
         # and group with the same pid and gid as the raspberry pi OS. On the PI
@@ -461,7 +464,7 @@ fi
         pathlib.Path(path).write_text(host)
 
         # /etc/hosts needs to be updated also with the hostname
-        hosts = self.filename("/etc/hosts")
+        hosts = self.filename("/etc/hostname")
         with hosts.open() as fr:
             contents = fr.read()
         new_hosts = contents.replace("raspberrypi", host)
@@ -497,7 +500,10 @@ fi
                 ERROR("path not defined in cm-burn", path)
             location = pathlib.Path("{volume}/{path}".format(volume=volume, path=path))
         elif os_is_windows():
+            
             if path in ["/etc/hostname",
+                        "/etc/rc.local",
+                        "/etc/ssh/sshd_config",
                         "/home/pi/.ssh/authorized_keys",
                         "/home/pi/.ssh",
                         "/etc/wpa_supplicant/wpa_supplicant.conf",
@@ -507,6 +513,7 @@ fi
                 volume = self.boot_drive
             else:
                 ERROR("path not defined in cm-burn", path)
+            print("{volume}:{path}".format(volume=volume, path=path))
             location = pathlib.Path("{volume}:{path}".format(volume=volume, path=path))
         return location
 
@@ -698,7 +705,7 @@ fi
         elif interactive:
             if not yesno("About write wifi info. Please confirm:"):
                 return
-        Path(self.filename(path)).write_text(wifi)
+        pathlib.Path(self.filename(path)).write_text(wifi)
 
     '''
     def gregor(self, names, key, ssid=None, psk=None):
@@ -790,15 +797,19 @@ fi
         # if not os.path.exists(IMAGE_DIR):
         # os.makedirs(IMAGE_DIR)
         # BUG: if condition is not implemented
+        
 
+        
+
+        #output = wmic.query("select DeviceID, Model from Win32_DiskDrive where   InterfaceType='USB'")
+        #print(output)
+        
         command = ""
         if os_is_windows():
             # BUG: does not use pathlib
             # BUG: command not in path, should be in ~/.cloudmesh/bin so it can easier be found,
             # BUG: should it not be installed from original
-            command = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {dir}" + \
-                      "\\images\\2018-06-27-raspbian-stretch.img {drive}".format(
-                          dir=os.getcwd(), drive=self.boot_drive)
+            command = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {image} {drive}".format(dir=os.getcwd(), drive=self.boot_drive, image = image)
             # also dir needs to be done in pathlib
             # diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
             # script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
@@ -815,7 +826,7 @@ fi
             self.unmount(device)
             command = "sudo dd if={image} of=/dev/{device} bs=4m".format(image=image, device=device)
 
-        # print(command)
+        print(command)
         if command:
             execute_with_progress(command)
             # execute(command)
@@ -834,7 +845,7 @@ fi
         if os_is_mac() or os_is_linux() or os_is_pi():
             device = prompt("Please enter the device name to install to:")
         else:
-            device = None
+            device = self.boot_drive
         return device
 
     # TODO: remove bootdrives from parameters as they should be selfdicoverable
@@ -861,7 +872,24 @@ fi
                     # it we actually do not need wifi, should be handled differently
         :return:
         """
+        
+        """
+        TODO The following commented code is specific to retrive the USB drive name - boot drive
+        DRIVE_TYPES = {
+        0 : "Unknown",
+        1 : "No Root Directory",
+        2 : "Removable Disk",
+        3 : "Local Disk",
+        4 : "Network Drive",
+        5 : "Compact Disc",
+        6 : "RAM Disk"
+        }
 
+        c = wmi.WMI ()
+        for drive in c.Win32_LogicalDisk ():
+            print(drive.Caption, DRIVE_TYPES[drive.DriveType])
+        
+        """
         hosts = hostlist.expand_hostlist(names)
         iplist = hostlist.expand_hostlist(ips)
         # BUG: can we not discover the boot and rootdrive. Why do we have to set
@@ -890,7 +918,7 @@ fi
                          "\nReady to continue?"):
                 break
 
-            print("Beginning to burn image {image}".format(image=image))
+            print("Beginning to burn image {image} to {device}".format(image=image, device = device))
             self.burn(image, device)
             # Sleep for 5 seconds to have the SD to be mounted
             # TODO: OS X can eject ourselves:
@@ -957,10 +985,10 @@ def analyse():
         wifipass = None
         bootdrv = None
         rootdrv = None
-        if "BOOTDRIVE" in arguments:
-            bootdrv = arguments["BOOTDRIVE"]
-        if "ROOTDRIVE" in arguments:
-            rootdrv = arguments["ROOTDRIVE"]
+        if "--bootdrive" in arguments:
+            bootdrv = arguments["--bootdrive"]
+        if "--rootdrive" in arguments:
+            rootdrv = arguments["--rootdrive"]
         image = arguments["--image"]
         if not burner.image_exists(image):
             ERROR("The image {image} does not exist".format(image=image))
