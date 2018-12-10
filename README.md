@@ -1,6 +1,4 @@
-# cm-burn
-
-:warning: this page is a draft and under development cm-burn is not yet working
+## cm-burn
 
 `cm-burn` is a program to burn many SD cards for the preparation of
 building clusters with Raspberry Pi's.  The program is developed in
@@ -42,7 +40,7 @@ In case a SD Card of a PI in the cluster goes bad, you can simply burn
 it again by providing the appropriate parameters, and just print the
 subset that are broken.
 
-## Networking
+## Setting up a Single Large Cluster with cm-burn
 
 `cm-burn` will setup a simple network on all cluster nodes
 configured. There are different models for networking configuration we
@@ -81,7 +79,7 @@ sudo apt-get update
 Certainly you can even have a much simpler setup by just attaching a keyboard, mouse and monitor/TV to your `master`. 
 This will allow you to directly work on the master node, not needing any additional hardware.
 
-## Cluster of Clusters
+## Setting up a Cluster of Clusters with cm-burn
 
 To integrate the clusters into a single network, we need a switch  or combination of switches to which we connect the clusters.
 This is depicted in the Figure Cluster of Clusters
@@ -102,6 +100,7 @@ For convenience we will be also enabeling a cluster burn logic, that burns all i
 
 cm-burn --workers=5 --name=cluster --nodes=nodes --id=3
 
+![](images/pi_clusters.jpg)
 
 ## Prerequisits
 
@@ -249,16 +248,6 @@ run the command as on some OSes you must be in the sudo list to runi
 it and access the SD card burner as well as mounting some file systems.
 
 
-### Instalation on Windows via docker
-
-The following instructions will install cm-burn via docker on your platform
-
-TODO: *Anand* will provide the instructions for Windows. It will use
-the Linux backend and access the devices from within the docker image
-in order to execute the program. as such it is very similar to the
-version provided for the Raspberry PI or a Linux OS based system, but
-the code runs in a container. 
-
 ### Usage
 
 #### cmburn.yaml
@@ -271,7 +260,11 @@ cloudmesh:
 
 #### Manual page
 
-TODO: This section has to be updated with the newest cm-burn -h 
+
+1. git clone https://github.com/cloudmesh-community/cm-burn
+2. cd cm-burn
+3. python setup.py install
+4. Copy the Raspberyy PI images to be burned under ~/.cloudmesh/images
 
 The manual page is as follows:
 
@@ -296,30 +289,47 @@ Options:
   --key=KEY     the path of the public key [default: ~/.ssh/id_rsa.pub].
   --ips=IPS     th ips in hostlist format
 
-Files:
-  This is not fully thought through and needs to be documented
+Location of the images to be stored for reuse:
+  
   ~/.cloudmesh/images
   ~/.cloudmesh/inventory
-  Location where the images will be stored for reuse
+  
 
 Description:
-  cm-burn create --names HOSTS [--key KEY] --image IMAGE --bootdrive BOOTDRIVE --rootdrive ROOTDRIVE --ssid SSID --psk PSK
+  cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS]
+                 [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID] [--psk=PSK]
+                 [--domain=DOMAIN]
+                 [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
+                 [-n --dry-run] [-i --interactive]
+  cm-burn ls [-ni]
+  cm-burn rm IMAGE [-ni]
+  cm-burn get [URL]
   cm-burn update
-        updates the downloaded images if new once are available
-  cm-burn ls
-        lists the downloaded images
-  cm-burn rm IMAGE
-        remove the image
-  cm-burn get URL
-        downloads the image at the given URL
-  cm-burn get jessie
-        abbreviation to download a specific version of an image.
-        Identify what would be useful.
+  cm-burn check install
+  cm-burn hostname [HOSTNAME] [-ni]
+  cm-burn ssh [PUBLICKEY] [-ni]
+  cm-burn ip IPADDRESS [--domain=DOMAIN] [-ni]
+  cm-burn wifi SSID [PASSWD] [-ni]
+  cm-burn info [-ni]
+  cm-burn image [--image=IMAGE] [--device=DEVICE]
+                [-ni]
+  cm-burn (-h | --help)
+  cm-burn --version
+
+Options:
+  -h --help         Show this screen.
+  -n --dry-run      Show output of commands but don't execute them
+  -i --interactive  Confirm each change before doing it
+  --version         Show version.
+  --key=KEY         the path of the public key [default: ~/.ssh/id_rsa.pub].
+  --ips=IPS         the IPs in hostlist format
+  --image=IMAGE     the image to be burned [default: 2018-06-27-raspbian-stretch.img].
 
 Example:
   cm-burn create --names red[000-010] ips --image rasbian_latest
-```
+  cmb-urn create --group g1 --names red[001-003] --key c:/users/<user>/.ssh/id_rsa.pub --image 2018-06-27-raspbian-stretch.img --bootdrive I --rootdrive G --domain 192.168.1.254 --ip 192.168.1.[111-113]
 
+```
 ## Appendix
 
 ### OSX ext4fuse
@@ -487,6 +497,11 @@ We will attempt to do this for OSX initially, therefore we like to order the fol
 We will use multiple USB card readers (possibly just USB2 till we replacethem with USB3)
 
 Than we will rewrite our program to attempt using the SDcard writers
+
+
+
+
+```
 
 
 
