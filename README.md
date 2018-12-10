@@ -1,6 +1,4 @@
-# cm-burn
-
-:warning: this page is a draft and under development cm-burn is not yet working
+## cm-burn
 
 `cm-burn` is a program to burn many SD cards for the preparation of
 building clusters with Raspberry Pi's.  The program is developed in
@@ -42,7 +40,7 @@ In case a SD Card of a PI in the cluster goes bad, you can simply burn
 it again by providing the appropriate parameters, and just print the
 subset that are broken.
 
-## Networking
+## Setting up a Single Large Cluster with cm-burn
 
 `cm-burn` will setup a simple network on all cluster nodes
 configured. There are different models for networking configuration we
@@ -81,7 +79,7 @@ sudo apt-get update
 Certainly you can even have a much simpler setup by just attaching a keyboard, mouse and monitor/TV to your `master`. 
 This will allow you to directly work on the master node, not needing any additional hardware.
 
-## Cluster of Clusters
+## Setting up a Cluster of Clusters with cm-burn
 
 To integrate the clusters into a single network, we need a switch  or combination of switches to which we connect the clusters.
 This is depicted in the Figure Cluster of Clusters
@@ -248,16 +246,6 @@ It will check if you have installed all prerequisites and are able to
 run the command as on some OSes you must be in the sudo list to runi
 it and access the SD card burner as well as mounting some file systems.
 
-
-### Instalation on Windows via docker
-
-The following instructions will install cm-burn via docker on your platform
-
-TODO: *Anand* will provide the instructions for Windows. It will use
-the Linux backend and access the devices from within the docker image
-in order to execute the program. as such it is very similar to the
-version provided for the Raspberry PI or a Linux OS based system, but
-the code runs in a container. 
 
 ### Usage
 
@@ -487,6 +475,11 @@ We will attempt to do this for OSX initially, therefore we like to order the fol
 We will use multiple USB card readers (possibly just USB2 till we replacethem with USB3)
 
 Than we will rewrite our program to attempt using the SDcard writers
+
+
+
+
+```
 
 
 
