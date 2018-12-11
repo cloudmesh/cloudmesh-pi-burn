@@ -100,7 +100,7 @@ For convenience we will be also enabeling a cluster burn logic, that burns all i
 
 cm-burn --workers=5 --name=cluster --nodes=nodes --id=3
 
-![](images/pi_clusters.jpg)
+![](images/pi_clusters_case.jpg)
 
 ## Prerequisits
 
