@@ -188,10 +188,16 @@ def execute_with_progress(command):
         if not yesno(("About to run the command\n" + command +
                       "\nPlease confirm:")):
             return
-    p = subprocess.Popen(command.split(" "), shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding='utf8')    
-    
-    while True:       
-        line = p.stdout.readlines()        
+
+    if os_is_windows():
+        p = subprocess.Popen(command.split(" "), shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding='utf8')
+    elif os_is_mac() or os_is_linux() or os_is_pi():
+        p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
+    else:
+        raise Error("Unknown operating system.")
+
+    while True:
+        line = p.stdout.readlines()
         if not line:
             break
         if len(line) > 0:
@@ -464,7 +470,7 @@ fi
         pathlib.Path(path).write_text(host)
 
         # /etc/hosts needs to be updated also with the hostname
-        hosts = self.filename("/etc/hostname")
+        hosts = self.filename("/etc/hosts")
         with hosts.open() as fr:
             contents = fr.read()
         new_hosts = contents.replace("raspberrypi", host)
@@ -502,6 +508,7 @@ fi
         elif os_is_windows():
             
             if path in ["/etc/hostname",
+                        "/etc/hosts",
                         "/etc/rc.local",
                         "/etc/ssh/sshd_config",
                         "/home/pi/.ssh/authorized_keys",
@@ -650,15 +657,6 @@ fi
         print('\n'.join(images))
         print()
 
-    def set_ip(self, ip):
-        """
-        TODO: How to set the static IP for both wifi and wired
-        :param ip: the ip
-        :return:
-        """
-
-        self.ip = ip
-
     def set_root_drive(self, drive):
         """
         TODO: provide explanation
@@ -758,6 +756,11 @@ fi
         # TODO: this seems not coorect, shoudl be in etc/network/interfaces?
         path = pathlib.Path(self.filename("/etc/dhcpcd.conf"))
 
+        # TODO: JPB 12/12/2018 my file is ending up with a lot of NULL
+        # characters at the top and the original contents wiped out. Need to
+        # verify this and fix. Solution for other files was to copy their
+        # contents first into a buffer then rewrite the entire file instead of
+        # simply appending.
         with open(path, 'a', encoding='utf-8', newline="\n") as file:
             file.write(dhcp_conf)
 
@@ -849,7 +852,7 @@ fi
         return device
 
     # TODO: remove bootdrives from parameters as they should be selfdicoverable
-    def create(self, image, names, key, ips,
+    def create(self, image, names, key, ips=None,
                ssid=None, psk=None,
                domain=None,
                bootdrive=None, rootdrive=None):
@@ -891,7 +894,10 @@ fi
         
         """
         hosts = hostlist.expand_hostlist(names)
-        iplist = hostlist.expand_hostlist(ips)
+        if ips:
+            iplist = hostlist.expand_hostlist(ips)
+        else:
+            iplist = [None]*len(hosts)
         # BUG: can we not discover the boot and rootdrive. Why do we have to set
         # it to I and G, can we not get the next free drive letter?
         # THis only seems to be needed for Windows?
@@ -927,8 +933,16 @@ fi
                          '\nReady to continue?'):
                 break
             time.sleep(5)
-            self.set_ip(ip)
-            print("Set IP - {ip}".format(ip=ip))
+
+            if ip is not None:
+                self.ip = ip
+                print("Set IP - {ip}".format(ip=ip))
+
+                self.configure_static_ip()
+                print("Updating Network - Static IP")
+            else:
+                print("Not setting up static IP, assuming DHCP.")
+
             self.write_hostname(host)
             print("Updating host - {name}".format(name=host))
 
@@ -940,9 +954,6 @@ fi
 
             self.activate_ssh(key)
             print("Updating ssh")
-
-            self.configure_static_ip()
-            print("Updating Network - Static IP")
 
             self.unmount(device)
             print("Removed drive")
@@ -1050,7 +1061,7 @@ def analyse():
 
         ip = arguments["IPADDRESS"]
         print("Use ip:", ip)
-        burner.set_ip(ip)
+        burner.ip = ip
 
         domain = arguments["--domain"]
         if domain is not None:
