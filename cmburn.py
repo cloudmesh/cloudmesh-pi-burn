@@ -2,7 +2,8 @@
 """Cloudmesh Raspberry Pi Mass Image Burner.
 Usage:
   cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS]
-                 [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID] [--psk=PSK]
+                 [--ips=IPS] [--key=PUBLICKEY]
+                 [--ssid=SSID] [--psk=PSK] [--psk-hash=PSK-HASH]
                  [--domain=DOMAIN]
                  [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
                  [-n --dry-run] [-i --interactive]
@@ -675,7 +676,7 @@ fi
         # BUG: not sure what this drive is so replace efg with something meaningful
         self.boot_drive = drive
 
-    def configure_wifi(self, ssid, psk):
+    def configure_wifi(self, ssid, psk, psk_hash=None):
         """
         sets the wifi. ONly works for psk based wifi
         :param ssid: the ssid
@@ -683,16 +684,31 @@ fi
         :return:
         """
 
-        wifi = textwrap.dedent("""\
-                ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
-                update_config=1 
-                country=US
-                
-                network={{
-                        ssid=\"{network}\"
-                        psk=\"{pwd}\"
-                        key_mgmt=WPA-PSK
-                }}""".format(network=ssid, pwd=psk))
+        if psk is not None:
+            wifi = textwrap.dedent("""\
+                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
+                    update_config=1 
+                    country=US
+
+                    network={{
+                            ssid=\"{network}\"
+                            psk=\"{psk}\"
+                            key_mgmt=WPA-PSK
+                    }}""".format(network=ssid, psk=psk))
+        elif psk_hash is not None:
+            # psk-hash must NOT be surrounded by quotation marks
+            wifi = textwrap.dedent("""\
+                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
+                    update_config=1 
+                    country=US
+
+                    network={{
+                            ssid=\"{network}\"
+                            psk={psk}
+                            key_mgmt=WPA-PSK
+                    }}""".format(network=ssid, psk=psk_hash))
+        else:
+            raise ValueError("--psk or --psk-hash must be provided")
         print(wifi)
         path = "/etc/wpa_supplicant/wpa_supplicant.conf"
         if dry_run:
@@ -853,7 +869,7 @@ fi
 
     # TODO: remove bootdrives from parameters as they should be selfdicoverable
     def create(self, image, names, key, ips=None,
-               ssid=None, psk=None,
+               ssid=None, psk=None, psk_hash=None,
                domain=None,
                bootdrive=None, rootdrive=None):
         """
@@ -946,10 +962,14 @@ fi
             self.write_hostname(host)
             print("Updating host - {name}".format(name=host))
 
-            print("ssid - {id}".format(id=ssid))
-            print("psk - {pwd}".format(pwd=psk))
             if ssid:
-                self.configure_wifi(ssid, psk)
+                print("ssid - {id}".format(id=ssid))
+                if psk is not None:
+                    print("psk - {psk}".format(psk=psk))
+                    self.configure_wifi(ssid, psk)
+                elif psk_hash is not None:
+                    print("psk-hash - {psk}".format(psk=psk_hash))
+                    self.configure_wifi(ssid, None, psk_hash)
                 print("Updating wifi")
 
             self.activate_ssh(key)
@@ -1013,6 +1033,7 @@ def analyse():
                       domain=arguments["--domain"],
                       ssid=arguments["--ssid"],
                       psk=arguments["--psk"],
+                      psk_hash=arguments["--psk-hash"],
                       bootdrive=bootdrv,
                       rootdrive=rootdrv)
 
