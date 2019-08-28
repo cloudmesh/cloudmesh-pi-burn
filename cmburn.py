@@ -992,14 +992,8 @@ fi
                 currenttime=datetime.datetime.now()))
 
 
-def analyse():
-    # if arguments["rm"]:
-    #     rm(arguments["image"])
+def analyse(arguments):
 
-    # elif arguments["get"]:
-    #     print(arguments["URL"])
-    #     get(arguments["URL"])
-    # elif arguments["ls"]:
     print(arguments)
     # Set global dry-run to disable executing (potentially dangerous) commands
     if arguments["--interactive"]:
@@ -1117,7 +1111,7 @@ def main():
     arguments = docopt(__doc__, version=VERSION)
     # if debug:
     #   print(arguments) # just for debugging
-    analyse()
+    analyse(arguments)
 
 
 if __name__ == '__main__':
