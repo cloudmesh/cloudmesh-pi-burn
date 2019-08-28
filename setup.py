@@ -22,8 +22,8 @@ setup(
     version='0.0.1',  
     description='A command to burn many SD cards for building PI clusters',
     long_description=long_description,  
-    long_description_content_type='text/markdown',  
-    url='https://github.com/cloudmesh-community/cm-burn.py',
+    long_description_content_type='text/markdown',
+    url='https://github.com/cloudmesh/cm-burn.py',
     author='Cloudmesh Team', 
     author_email='laszewski@gmail.comm', 
     scripts=['cmburn.py'],
@@ -83,9 +83,9 @@ setup(
     },
 
     project_urls={  # Optional
-        'Bug Reports': 'https://github.com/cloudmesh-community/cm-burn.py/issues',
+        'Bug Reports': 'https://github.com/cloudmesh/cm-burn.py/issues',
         # 'Funding': 'https://donate.pypi.org',
         # 'Say Thanks!': 'http://saythanks.io/to/example',
-        'Source': 'https://github.com/cloudmesh-community/cm-burn.py/',
+        'Source': 'https://github.com/cloudmesh/cm-burn.py/',
     },
 )
