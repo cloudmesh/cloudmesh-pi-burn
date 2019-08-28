@@ -19,16 +19,16 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='cm-burn',
-    version='0.0.1',  
+    version='0.0.1',
     description='A command to burn many SD cards for building PI clusters',
-    long_description=long_description,  
+    long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/cloudmesh/cm-burn.py',
-    author='Cloudmesh Team', 
-    author_email='laszewski@gmail.comm', 
+    author='Cloudmesh Team',
+    author_email='laszewski@gmail.comm',
     scripts=['cmburn.py'],
 
-    classifiers=[  
+    classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha
         #   4 - Beta
@@ -44,7 +44,7 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
 
-    keywords='Raspberry PI SDcard cloudmesh',  
+    keywords='Raspberry PI SDcard cloudmesh',
 
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
@@ -64,13 +64,13 @@ setup(
         "requests",
         "wget",
         "pyyaml",
-        ],
+    ],
 
     extras_require={  # Optional
         'dev': ['check-manifest'],
         'test': ['coverage'],
     },
-    
+
     # package_data={  # Optional
     #    'sample': ['package_data.dat'],
     # },

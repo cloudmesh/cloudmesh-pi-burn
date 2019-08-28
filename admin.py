@@ -5,32 +5,36 @@
 # (C) COPYRIGHT © Preston Landers 2010
 # Released under the same license as Python 2.6.5
 
+# see: https://github.com/dlcowen/dfirwizard/blob/master/admin.py
 
-import sys, os, traceback, types
+import os
+import sys
+import types
+import traceback
 
 def isUserAdmin():
-
     if os.name == 'nt':
         import ctypes
         # WARNING: requires Windows XP SP2 or higher!
         try:
             return ctypes.windll.shell32.IsUserAnAdmin()
         except:
-            traceack.print_exc()
+            traceback.print_exc()
             print("Admin check failed, assuming not an admin.")
             return False
     elif os.name == 'posix':
         # Check for root on Posix
         return os.getuid() == 0
     else:
-        raise RuntimeError("Unsupported operating system for this module: %s" % (os.name,))
+        raise RuntimeError(
+            "Unsupported operating system for this module: %s" % (os.name,))
+
 
 def runAsAdmin(cmdLine=None, wait=True):
-
     if os.name != 'nt':
         raise RuntimeError("This function is only implemented on Windows.")
 
-    import win32api, win32con, win32event, win32process
+    import win32con, win32event, win32process
     from win32com.shell.shell import ShellExecuteEx
     from win32com.shell import shellcon
 
@@ -38,14 +42,14 @@ def runAsAdmin(cmdLine=None, wait=True):
 
     if cmdLine is None:
         cmdLine = [python_exe] + sys.argv
-    elif type(cmdLine) not in (types.TupleType,types.ListType):
-        raise ValueError( "cmdLine is not a sequence.")
+    elif type(cmdLine) not in (types.TupleType, types.ListType):
+        raise ValueError("cmdLine is not a sequence.")
     cmd = '"%s"' % (cmdLine[0],)
     # XXX TODO: isn't there a function or something we can call to massage command line params?
     params = " ".join(['"%s"' % (x,) for x in cmdLine[1:]])
     cmdDir = ''
     showCmd = win32con.SW_SHOWNORMAL
-    #showCmd = win32con.SW_HIDE
+    # showCmd = win32con.SW_HIDE
     lpVerb = 'runas'  # causes UAC elevation prompt.
 
     # print "Running", cmd, params
@@ -63,23 +67,24 @@ def runAsAdmin(cmdLine=None, wait=True):
                               lpParameters=params)
 
     if wait:
-        procHandle = procInfo['hProcess']    
+        procHandle = procInfo['hProcess']
         obj = win32event.WaitForSingleObject(procHandle, win32event.INFINITE)
         rc = win32process.GetExitCodeProcess(procHandle)
-        #print "Process handle %s returned code %s" % (procHandle, rc)
+        # print "Process handle %s returned code %s" % (procHandle, rc)
     else:
         rc = None
 
     return rc
 
+
 def test():
     rc = 0
     if not isUserAdmin():
         print("You're not an admin.", os.getpid(), "params: ", sys.argv)
-        #rc = runAsAdmin(["c:\\Windows\\notepad.exe"])
+        # rc = runAsAdmin(["c:\\Windows\\notepad.exe"])
         rc = runAsAdmin()
     else:
         print("You are an admin!", os.getpid(), "params: ", sys.argv)
         rc = 0
-    #x = raw_input('Press Enter to exit.')
+    # x = raw_input('Press Enter to exit.')
     return rc

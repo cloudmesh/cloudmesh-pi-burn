@@ -37,7 +37,8 @@ Files:
   Location where the images will be stored for reuse
 
 BUG:
-  bootdrive and rootdrive will be removed in a future release as they are self discoverable
+  bootdrive and rootdrive will be removed in a future release as they are self
+  discoverable
 
 Description:
   cm-burn
@@ -87,14 +88,15 @@ import textwrap
 import getpass
 import time
 import datetime
-#import wmi
 
+# import wmi
 
 
 VERSION = "0.1"
 debug = False
 dry_run = False
 interactive = False
+
 
 def os_is_windows():
     return platform.system() == "Windows"
@@ -134,7 +136,8 @@ def truncate_file(pathlib_obj):
 
 columns, lines = os.get_terminal_size()
 
-# TODO: the dirs are only needed for windows as they are implemented now in self.filename for OSX
+# TODO: the dirs are only needed for windows as they are
+#  implemented now in self.filename for OSX
 # we should remove them and make sure that cloudmesh images gets created on osx
 # and linux if it does not exist
 IMAGE_DIR = os.path.expanduser("~/.cloudmesh/images")
@@ -171,7 +174,8 @@ def run(command):
         if not yesno(("About to run the command\n" + command +
                       "\nPlease confirm:")):
             return ""
-    return subprocess.run(command, stdout=subprocess.PIPE).stdout.decode('utf-8')
+    return subprocess.run(command, stdout=subprocess.PIPE).stdout.decode(
+        'utf-8')
 
 
 def cat(path):
@@ -188,18 +192,22 @@ def execute_with_progress(command):
         if not yesno(("About to run the command\n" + command +
                       "\nPlease confirm:")):
             return
-    p = subprocess.Popen(command.split(" "), shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, encoding='utf8')    
-    
-    while True:       
-        line = p.stdout.readlines()        
+    p = subprocess.Popen(command.split(" "), shell=True, stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE, encoding='utf8')
+
+    while True:
+        line = p.stdout.readlines()
         if not line:
             break
         if len(line) > 0:
             print(line)
 
+
 def execute(commands):
     """
-       execute the commands that are included in the \n separated string line by line
+       execute the commands that are included in the \n separated string line by
+       line
+
        :param commands: the commands
        :return:
     """
@@ -213,11 +221,14 @@ def execute(commands):
                           "\nPlease confirm:")):
                 continue
         print(command)
-        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
         while proc.poll() is None:
             line = proc.stdout.readline()
             if len(line) > 0:
-                print(line.decode(sys.stdout.encoding))  # give output from your execution/your own message
+                print(line.decode(
+                    sys.stdout.encoding))
+                # give output from your execution/your own message
         # self.commandResult = proc.wait() #catch return code
 
 
@@ -225,8 +236,10 @@ class PiBurner(object):
 
     def disable_password(self):
         """
-        disables and replaces the password with a random string so that by accident the pi can not be logged into.
-        The only way to login is via the ssh key
+        disables and replaces the password with a random string so that by
+        accident the pi can not be logged into. The only way to login is via the
+        ssh key
+
         :return:
         """
         raise NotImplementedError()
@@ -249,7 +262,8 @@ class PiBurner(object):
                     execute("sudo umount {drive}".format(drive=drive))
             else:
                 # Unmount the entire drive
-                execute("sudo diskutil unmountDisk /dev/{drive}".format(drive=drive))
+                execute("sudo diskutil unmountDisk /dev/{drive}".format(
+                    drive=drive))
                 # execute("sudo umount {drive}".format(drive=drive))
         elif os_is_linux() or os_is_pi():
             # TODO: Why is this using getoutput instead of execute?
@@ -258,13 +272,16 @@ class PiBurner(object):
 
     def mount(self, device=None, path=None):
         """
-        mounts the device to the filesystem regardless of OS using the given path
+        mounts the device to the filesystem regardless of OS using the given
+        path
+
         :param device:
         :param path:
         :return:
         """
         if os_is_windows():
-            # TODO: Remove drive in windows, why can you not use the mount function build into windows?
+            # TODO: Remove drive in windows, why can you not use the
+            #  mount function build into windows?
             # TODO: Why do you need RemoveDrive?
             # mountvol %drive% /p
             # create volume mount pount as volume
@@ -377,7 +394,7 @@ class PiBurner(object):
             os.makedirs(ssh_dir)
         auth_keys = ssh_dir / "authorized_keys"
         auth_keys.write_text(key)
-        
+
         # We need to fix the permissions on the .ssh folder but it is hard to
         # get this working from a host OS because the host OS must have a user
         # and group with the same pid and gid as the raspberry pi OS. On the PI
@@ -476,9 +493,10 @@ fi
 
     def filename(self, path):
         """
-        creates the proper path for the file by using the proper file systyem prefix. This method is
-        supposed to universally work, so that we simply can use the filesystem name without worrying
-        about the location it it is in the boot or root file system of the SD Card.
+        creates the proper path for the file by using the proper file systyem
+        prefix. This method is supposed to universally work, so that we simply
+        can use the filesystem name without worrying about the location it it is
+        in the boot or root file system of the SD Card.
 
         :param path:
         :return:
@@ -498,9 +516,10 @@ fi
                 volume = self.boot_drive
             else:
                 ERROR("path not defined in cm-burn", path)
-            location = pathlib.Path("{volume}/{path}".format(volume=volume, path=path))
+            location = pathlib.Path(
+                "{volume}/{path}".format(volume=volume, path=path))
         elif os_is_windows():
-            
+
             if path in ["/etc/hostname",
                         "/etc/rc.local",
                         "/etc/ssh/sshd_config",
@@ -514,7 +533,8 @@ fi
             else:
                 ERROR("path not defined in cm-burn", path)
             print("{volume}:{path}".format(volume=volume, path=path))
-            location = pathlib.Path("{volume}:{path}".format(volume=volume, path=path))
+            location = pathlib.Path(
+                "{volume}:{path}".format(volume=volume, path=path))
         return location
 
     # ok osx
@@ -554,7 +574,8 @@ fi
         initialize the pi burner
         TODO: provide more information
         """
-        # store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to execute it a lot, we can than read 
+        # store defaults also in ~/.cloudmesh/cm-burn.yaml as we have to
+        # execute it a lot, we can than read
         # defaults from there if the file exist
         # if os_is_windows():
         #    self.windows_drive = "K"
@@ -562,8 +583,10 @@ fi
         self.root_drive = None
         self.boot_drive = None
         if os_is_linux():
-            self.boot_drive = "/media/{user}/boot".format(user=getpass.getuser())
-            self.root_drive = "/media/{user}/rootfs".format(user=getpass.getuser())
+            self.boot_drive = "/media/{user}/boot".format(
+                user=getpass.getuser())
+            self.root_drive = "/media/{user}/rootfs".format(
+                user=getpass.getuser())
         elif os_is_mac():
             self.boot_drive = "/Volumes/boot"
             self.root_drive = "/Volumes/rootfs"
@@ -575,7 +598,8 @@ fi
         self.keypath = pathlib.Path(self.home / ".ssh" / "id_rsa.pub")
         # BUG: is this not the image directory?
         # should that not also be declared globally with pathlib
-        self.cloudmesh_images = pathlib.Path(self.home / ".cloudmesh" / "images")
+        self.cloudmesh_images = pathlib.Path(
+            self.home / ".cloudmesh" / "images")
         if debug:
             print("HOME:", self.home)
             print("KEY:", self.keypath)
@@ -585,7 +609,8 @@ fi
     def get(self, image=None):
         """
         downloads the image and stores it in ~/.cloudmesh/images
-        TODO: finalize the directory, create it if image already exists  doe not  not download
+        TODO: finalize the directory, create it if image already
+        exists  doe not  not download
         :param image: The image url
         :return:
         """
@@ -612,7 +637,8 @@ fi
         download = True
         if os.path.exists(destination):
             if int(os.path.getsize(destination)) == int(size):
-                WARNING("file already downloaded. Found at:", pathlib.Path(self.cloudmesh_images / destination))
+                WARNING("file already downloaded. Found at:",
+                        pathlib.Path(self.cloudmesh_images / destination))
                 download = False
         if download:
             wget.download(image)
@@ -624,14 +650,16 @@ fi
         if not os.path.exists(image_file):
             self.unzip_image(image_name)
         else:
-            WARNING("file already downloaded. Found at:", pathlib.Path(self.cloudmesh_images / image_name))
+            WARNING("file already downloaded. Found at:",
+                    pathlib.Path(self.cloudmesh_images / image_name))
         self.image = pathlib.Path(self.cloudmesh_images / image_name)
         return self.image
 
     def unzip_image(self, source):
         tmp = pathlib.Path(self.cloudmesh_images) / "."
         os.chdir(tmp)
-        image_zip = str(pathlib.Path(self.cloudmesh_images / source)).replace(".img", ".zip")
+        image_zip = str(pathlib.Path(self.cloudmesh_images / source)).replace(
+            ".img", ".zip")
         print("unzip image", image_zip)
         zipfile.ZipFile(image_zip).extractall()
 
@@ -665,7 +693,8 @@ fi
         :param drive: the drive name for windows
         :return:
         """
-        # BUG: not sure what this drive is so replace abc with something meaningful
+        # BUG: not sure what this drive is so replace abc with something
+        # meaningful
         self.root_drive = drive
 
     def set_boot_drive(self, drive):
@@ -674,7 +703,8 @@ fi
         :param drive: the drive name for windows
         :return:
         """
-        # BUG: not sure what this drive is so replace efg with something meaningful
+        # BUG: not sure what this drive is so replace efg with something
+        # meaningful
         self.boot_drive = drive
 
     def configure_wifi(self, ssid, psk):
@@ -775,7 +805,8 @@ fi
         if device is None:
             # activate an image and create a yaml file cmburn.yaml with parameter
             # that is read upon start in __init___
-            output = run("sudo", "ls", "-ltr", "/dev/*") # TODO BUG this is not how run works
+            output = run("sudo", "ls", "-ltr",
+                         "/dev/*")  # TODO BUG this is not how run works
             # TODO: find mmcblk0
             device = "mmcblk0"  # hard coded for now
             print(output)
@@ -784,7 +815,8 @@ fi
             device: device
         }
 
-        command = "sudo dd bs=1M if=~{image} of={device} status=progress conv=fsync".format(**data).split(" ")
+        command = "sudo dd bs=1M if=~{image} of={device} status=progress conv=fsync".format(
+            **data).split(" ")
         print(command)
         return command
 
@@ -797,19 +829,18 @@ fi
         # if not os.path.exists(IMAGE_DIR):
         # os.makedirs(IMAGE_DIR)
         # BUG: if condition is not implemented
-        
 
-        
+        # output = wmic.query("select DeviceID, Model from Win32_DiskDrive where
+        # InterfaceType='USB'")
+        # print(output)
 
-        #output = wmic.query("select DeviceID, Model from Win32_DiskDrive where   InterfaceType='USB'")
-        #print(output)
-        
         command = ""
         if os_is_windows():
             # BUG: does not use pathlib
             # BUG: command not in path, should be in ~/.cloudmesh/bin so it can easier be found,
             # BUG: should it not be installed from original
-            command = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {image} {drive}".format(dir=os.getcwd(), drive=self.boot_drive, image = image)
+            command = "{dir}\\CommandLineDiskImager\\CommandLineDiskImager.exe {image} {drive}".format(
+                dir=os.getcwd(), drive=self.boot_drive, image=image)
             # also dir needs to be done in pathlib
             # diskimager = pathlib.Path(r'/CommandLineDiskImager/CommandLineDiskImager.exe')
             # script = """{dir}\\{diskimager} {dir}\\2018-04-18-raspbian-stretch.img {drive}
@@ -821,10 +852,12 @@ fi
             sys.exit()
         elif os_is_linux():
             self.unmount(device)
-            command = "sudo dd if={image} of=/dev/{device} bs=4M status=progress".format(image=image, device=device)
+            command = "sudo dd if={image} of=/dev/{device} bs=4M status=progress".format(
+                image=image, device=device)
         elif os_is_mac():
             self.unmount(device)
-            command = "sudo dd if={image} of=/dev/{device} bs=4m".format(image=image, device=device)
+            command = "sudo dd if={image} of=/dev/{device} bs=4m".format(
+                image=image, device=device)
 
         print(command)
         if command:
@@ -872,9 +905,10 @@ fi
                     # it we actually do not need wifi, should be handled differently
         :return:
         """
-        
+
         """
-        TODO The following commented code is specific to retrive the USB drive name - boot drive
+        TODO The following commented code is specific to retrive the 
+        USB drive name - boot drive
         DRIVE_TYPES = {
         0 : "Unknown",
         1 : "No Root Directory",
@@ -908,7 +942,8 @@ fi
         if domain is not None:
             self.domain = domain
         for host, ip in zip(hosts, iplist):
-            print("Start Time - {currenttime}".format(currenttime=datetime.datetime.now()))
+            print("Start Time - {currenttime}".format(
+                currenttime=datetime.datetime.now()))
             print(columns * '-')
             print("Burning", host)
             # break
@@ -918,7 +953,8 @@ fi
                          "\nReady to continue?"):
                 break
 
-            print("Beginning to burn image {image} to {device}".format(image=image, device = device))
+            print("Beginning to burn image {image} to {device}".format(
+                image=image, device=device))
             self.burn(image, device)
             # Sleep for 5 seconds to have the SD to be mounted
             # TODO: OS X can eject ourselves:
@@ -952,7 +988,8 @@ fi
                 break
 
             print("take the card out")
-            print("End Time - {currenttime}".format(currenttime=datetime.datetime.now()))
+            print("End Time - {currenttime}".format(
+                currenttime=datetime.datetime.now()))
 
 
 def analyse():
@@ -994,7 +1031,8 @@ def analyse():
             ERROR("The image {image} does not exist".format(image=image))
             sys.exit()
         else:
-            burner.image = pathlib.Path(burner.home / ".cloudmesh" / "images" / image)
+            burner.image = pathlib.Path(
+                burner.home / ".cloudmesh" / "images" / image)
         burner.create(burner.image,
                       names=arguments["--names"],
                       key=arguments["--key"],
@@ -1037,11 +1075,13 @@ def analyse():
             ERROR("The image {image} does not exist".format(image=image))
             sys.exit(1)
         else:
-            burner.image = pathlib.Path(burner.home / ".cloudmesh" / "images" / image)
+            burner.image = pathlib.Path(
+                burner.home / ".cloudmesh" / "images" / image)
 
         # TODO: check if device exists
         if not burner.check_device(device):
-            ERROR("The device {device} does not exist or not available".format(device=device))
+            ERROR("The device {device} does not exist or not available".format(
+                device=device))
             sys.exit()
         burner.burn(burner.image, device)
 
@@ -1071,13 +1111,14 @@ def analyse():
         burner = PiBurner()
         burner.info()
 
+
 def main():
     """main entrypoint for setup.py"""
-    global arguments
     arguments = docopt(__doc__, version=VERSION)
     # if debug:
     #   print(arguments) # just for debugging
     analyse()
+
 
 if __name__ == '__main__':
     main()
