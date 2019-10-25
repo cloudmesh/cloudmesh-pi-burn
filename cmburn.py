@@ -28,7 +28,13 @@ Options:
   --version         Show version.
   --key=KEY         the path of the public key [default: ~/.ssh/id_rsa.pub].
   --ips=IPS         the IPs in hostlist format
-  --image=IMAGE     the image to be burned [default: 2018-06-27-raspbian-stretch.img].
+  --image=IMAGE     the image [default: 2019-09-26-raspbian-buster.img]
+
+
+Previously [default: 2018-06-27-raspbian-stretch.img]
+Other images can be found at
+
+https://downloads.raspberrypi.org/raspbian/images/
 
 Files:
   This is not fully thought through and needs to be documented
@@ -66,28 +72,27 @@ Example:
 """
 from __future__ import print_function
 
+import datetime
+import getpass
+import glob
 import os
-import subprocess
-from docopt import docopt
-import hostlist
-from prompter import yesno, prompt
-import platform
-import wget
 # noinspection PyCompatibility
 import pathlib
-from os import path
-import glob
-import shutil
-import requests
+import platform
 import re
-import zipfile
+import subprocess
 import sys
-from pprint import pprint
-import yaml
 import textwrap
-import getpass
 import time
-import datetime
+import zipfile
+from os import path
+from pprint import pprint
+
+import hostlist
+import requests
+import wget
+from docopt import docopt
+from prompter import yesno, prompt
 
 # import wmi
 
@@ -174,8 +179,8 @@ def run(command):
         if not yesno(("About to run the command\n" + command +
                       "\nPlease confirm:")):
             return ""
-    return subprocess.run(command, stdout=subprocess.PIPE).stdout.decode(
-        'utf-8')
+    return subprocess.run(command,
+                          stdout=subprocess.PIPE).stdout.decode('utf-8')
 
 
 def cat(path):
@@ -192,8 +197,11 @@ def execute_with_progress(command):
         if not yesno(("About to run the command\n" + command +
                       "\nPlease confirm:")):
             return
-    p = subprocess.Popen(command.split(" "), shell=True, stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE, encoding='utf8')
+    p = subprocess.Popen(command.split(" "),
+                         shell=True,
+                         stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE,
+                         encoding='utf8')
 
     while True:
         line = p.stdout.readlines()
@@ -295,6 +303,11 @@ class PiBurner(object):
         elif os_is_mac():
             # extFS does outomount so we just check i f they are mounted
             # TODO: check if they exist
+
+            # BUG drive is not defined.
+
+            drive = None
+
             if drive is None:
                 drives = ['/Volume/boot', 'Volume/rootfs']
             else:
@@ -415,19 +428,19 @@ class PiBurner(object):
         # already exists modifying it shouldn't change ownership or permissions
         # so it should run correctly. One lingering question is: should we clean
         # this up later?
-        new_lines = '''
-# FIX298-START: Fix permissions for .ssh directory to enable key login
-if [ -d "/home/pi/.ssh" ]; then
-    chown pi:pi /home/pi/.ssh
-    chmod 700 /home/pi/.ssh
-    if [ -f "/home/pi/.ssh/authorized_keys" ]; then
-        chown pi:pi /home/pi/.ssh/authorized_keys
-        chmod 600 /home/pi/.ssh/authorized_keys
-    fi
-fi
-# FIX298-END
 
-'''
+        new_lines = textwrap.dedent('''
+                    # FIX298-START: Fix permissions for .ssh directory 
+                    if [ -d "/home/pi/.ssh" ]; then
+                        chown pi:pi /home/pi/.ssh
+                        chmod 700 /home/pi/.ssh
+                        if [ -f "/home/pi/.ssh/authorized_keys" ]; then
+                            chown pi:pi /home/pi/.ssh/authorized_keys
+                            chmod 600 /home/pi/.ssh/authorized_keys
+                        fi
+                    fi
+                    # FIX298-END
+                    ''')
         rc_local = self.filename("/etc/rc.local")
         new_rc_local = ""
         already_updated = False
@@ -519,7 +532,6 @@ fi
             location = pathlib.Path(
                 "{volume}/{path}".format(volume=volume, path=path))
         elif os_is_windows():
-
             if path in ["/etc/hostname",
                         "/etc/rc.local",
                         "/etc/ssh/sshd_config",
@@ -805,8 +817,8 @@ fi
         if device is None:
             # activate an image and create a yaml file cmburn.yaml with parameter
             # that is read upon start in __init___
-            output = run("sudo", "ls", "-ltr",
-                         "/dev/*")  # TODO BUG this is not how run works
+            output = run(["sudo", "ls", "-ltr", "/dev/*"])
+            # TODO BUG this is not how run works
             # TODO: find mmcblk0
             device = "mmcblk0"  # hard coded for now
             print(output)
@@ -894,14 +906,16 @@ fi
         :param domain: TODO
         :param image: TODO
         :param names: the hostnames of in hostlist format to be burned
-        :param key: the public key location # TODO: should be defaulted to ~/.ssh/id_rsa.pub
-        :param bootdrive: the boot drive # BUG: on linux we do not have a boot drive,
-               so this should not be a parameter and needs to be autodiscovered
+        :param key: the public key location # TODO: should be defaulted
+                    to ~/.ssh/id_rsa.pub
+        :param bootdrive: the boot drive # BUG: on linux we do not have a
+                          boot drive, so this should not be a parameter and
+                          needs to be autodiscovered
         :param rootdrive: # BUG: on linux we do not have a boot drive, so this
                should not be a parameter and needs to be autodiscovered
-        :param ssid: # TODO: should be set to None and if its none we do not do it
+        :param ssid: # TODO: should be set to None and if its None we do not do it
                      # we actually do not need wifi, should be handled differently
-        :param psk: # TODO: should be set to None and if its none we do not do
+        :param psk: # TODO: should be set to None and if its None we do not do
                     # it we actually do not need wifi, should be handled differently
         :return:
         """
@@ -993,7 +1007,6 @@ fi
 
 
 def analyse(arguments):
-
     print(arguments)
     # Set global dry-run to disable executing (potentially dangerous) commands
     if arguments["--interactive"]:
