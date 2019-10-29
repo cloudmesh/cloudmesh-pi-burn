@@ -79,6 +79,7 @@ setup(
     entry_points={
         'console_scripts': [
             'cm-burn=cmburn:main',
+            'cm-pi-burn=cm-pi-burn:main',
         ],
     },
 
