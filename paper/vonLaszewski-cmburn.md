@@ -1,3 +1,137 @@
+# Introduction
+
+The Rasperry Pi provides to the community a cheap platform with the
+ability to expose Lunix and other operating systems to the masses. Du
+to its cost point it is easy to buy a PI and experiment with it. As
+such this platform has been ideal to lower the entry barrier to
+advanced computing from the university level to highschool and middle
+school and even elementary school. However the PI has also been used
+by universities and even national labs. Due to its availability iand
+is convenient accessibility is has become a staple of our educational
+pipeline.
+
+Due to its price point the PI can also be used to build cheap clusters
+putting forward a hardware platform ideal for experimenting with
+issues such as networking and cluster management as educational
+tool. Many such efforts exist to use a PI as a cluster environment
+
+TODO: add links here
+
+There are a variety of administrative tasks that need to be conducted
+to allow such clusters to be put in place. This not only includes the
+creation of a physical space for the cluster, but also the ability to
+initialize such a cluster with software.
+
+There are a number of different approaches to placing software for
+clusters on the Pi. IN general we distinguish the following setups
+PIXE boot and OS preloaded mode on the SD Cards.
+
+# Boot Configuration Methods
+
+We review a number of configuration methods including setups know
+under the terms *headless*, *network booting*, and *booting form
+SDCards* and describe them in more detail next.
+
+## Headless
+
+Under headless mode we understand the the Pi can be set up without the
+ability to have a monitor.  The setup assumes that you have another
+computer from which you can log into the Raspberry. For this to work
+the PI and the computer must be on the same network. THis could be a
+wired or wireless connection. The most common setup discussed in the
+community is the wireless setup. Here one needs to modify the
+`/etc/wpa_supplicant/wpa_supplicant.conf` file and enter the `ssid`
+and the `password` of the network (see [@lst:wpa]). This can be accomplished by
+changing the file on the SDCard.
+
+```{#lst:wpa .bash caption="wpa_supplicant.conf"}
+country=us
+update_config=1
+ctrl_interface=/var/run/wpa_supplicant
+
+network={
+ ssid="<Name of your WiFi>"
+ psk="<Password for your WiFi>"
+ }
+ ```
+
+In addition we need to add the ability to remotely login with ssh. To
+do so we just have to place the file `ssh` ino the boot folder.
+
+More information about this method can be found at 
+
+* <https://www.raspberrypi.org/documentation/configuration/wireless/headless.md>
+
+
+## Network Booting or PXE Boot
+
+The abbreviation PXE stands for Pre-boot eXecution Environment and is
+associated with the netwrok booting process of clients that boot from
+a server reachable via the network
+
+In network booting we boot the PI from a server that contains all
+important OS information. One of the Pi's in the cluster (or other
+computer in the same network) needs to be set up as a DHCP/TFTP
+server.
+
+This is typically a bit more complex, but can be scriptes entirely so
+that you could convert a freshly installed PI into such a server.
+
+More information about this is available at
+
+* <https://www.raspberrypi.org/documentation/hardware/raspberrypi/bootmodes/net_tutorial.md>
+* <https://www.raspberrypi.org/documentation/hardware/raspberrypi/bootmodes/net.md>
+
+
+In addition to setting up the server, each Pi must be set up as a
+client. On each PI we need to install a number of tools and services
+that interact with the server. THe boot process will take a
+significant amount of time and we need to be careful not too have too
+many Pi's in boot mode so the network is not overloaded.
+
+## Boot From a SDCard
+
+The most common method the boot a PI is to have the operating system
+burned on the SDCard. In other methods we still have to have an SDCard
+or conduct modifications on the OS prior to us using an alternative
+method. Thus you will see that it is convenient to be able to write
+SDCards en-mass and make modifications on them to support the one or
+the other install method.
+
+Hence if we had a convenient tool that allows us to not only burn the
+OS, but place important information on the SDCard before we boot, this
+will significantly reduce our setup time and also free the network
+from unnecessary traffic during the boot process of many PI's at once.
+This motivates our work and we deliver and describe our convenient
+command line tool to make such SDCards available through simple
+command interactions.
+
+## Other Solutions
+
+Other solutions that we will expand upon in more detail in a future
+version of this paper include:
+
+* PiServer: <https://www.raspberrypi.org/blog/piserver/>
+* Boot from EEPROM (PI4): <https://www.raspberrypi.org/documentation/hardware/raspberrypi/booteeprom.md>
+* Boot from USB
+
+
+
+# INTEGRATE FROM HERE ON
+
+
+To create a cluster from Raspberry Pi's one needs to either use a
+headless setup or burn a number of SDC cards. Typically after the
+burning of SDCards, we are faced with additional setup steps. However
+these steps can be simplified while assuring that the SDCard is
+modified after the burning with ssh enabled, a public key injected,
+a unique hostname assigned, and a network address specified. This
+command is naturally also important in case we need to re-burn a card
+in case a card would become bad or the OS on it for some reason
+corrupted. While attaching a multi-card USB writer it is possible
+to write multiple cards at the time one needs to switch cards into a
+single card writer.
+
 # Overview
 
 `cm-burn` is a program to burn many SD cards for the preparation of
@@ -9,6 +143,8 @@ the cards.  The unique feature is that you can burn multiple cards in
 a row.
 tem
 A sample command invocation looks like [@lst:overview]:
+
+
 
 
 ```{#lst:overview .bash caption="Command line invokation"}
@@ -268,7 +404,6 @@ cloudmesh:
 
 #### Manual page
 
-
 1. git clone https://github.com/cloudmesh/cm-burn
 2. cd cm-burn
 3. python setup.py install
@@ -507,11 +642,18 @@ We will use multiple USB card readers (possibly just USB2 till we replacethem wi
 Than we will rewrite our program to attempt using the SDcard writers
 
 
+\clearpage
 
+~~~~ {include="manual.md"}
+this will be replaced by contents of manual.md
+~~~~
 
+\clearpage
 
 # References
 
 ---
 nocite: '@*'
 ---
+
+
