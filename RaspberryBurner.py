@@ -29,7 +29,7 @@ class Image(object):
 
 class Burner(object):
 
-    def __init__(self, device):
+    def __init__(self, device=None, name="red01"):
         pass
 
     def burn(self, image):
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     image.fetch()
     image.verify()
 
-    sdcard = Burner()
+    sdcard = Burner(device="TBD", name = "red01")
     sdcard.burn(image)
     sdcard.mount()
     sdcard.enable_ssh()
