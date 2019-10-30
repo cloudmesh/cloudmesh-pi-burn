@@ -5,8 +5,9 @@ FLAGS = \
 	-F pandoc-crossref \
 	-f markdown \
 	--pdf-engine=pdflatex \
-	--filter table-filter.py \
+	--filter=bin/table-filter.py \
 	--filter=pandoc-citeproc \
+	--filter=bin/includes.hs \
 	--bibliography=bibliography.bib \
 	--csl=bibliography.csl \
 	-s
