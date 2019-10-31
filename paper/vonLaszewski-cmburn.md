@@ -1,12 +1,12 @@
 # Introduction
 
-The Rasperry Pi provides to the community a cheap platform with the
-ability to expose Lunix and other operating systems to the masses. Du
+The Raspberry Pi provides to the community a cheap platform with the
+ability to expose Linux and other operating systems to the masses. Du
 to its cost point it is easy to buy a PI and experiment with it. As
 such this platform has been ideal to lower the entry barrier to
 advanced computing from the university level to highschool and middle
 school and even elementary school. However the PI has also been used
-by universities and even national labs. Due to its availability iand
+by universities and even national labs. Due to its availability and
 is convenient accessibility is has become a staple of our educational
 pipeline.
 
@@ -23,7 +23,7 @@ creation of a physical space for the cluster, but also the ability to
 initialize such a cluster with software.
 
 There are a number of different approaches to placing software for
-clusters on the Pi. IN general we distinguish the following setups
+clusters on the Pi. In general we distinguish the following setups
 PIXE boot and OS preloaded mode on the SD Cards.
 
 # Boot Configuration Methods
@@ -117,78 +117,120 @@ version of this paper include:
 
 
 
-# INTEGRATE FROM HERE ON
+# SDCard Cluster Solution
 
 
-To create a cluster from Raspberry Pi's one needs to either use a
-headless setup or burn a number of SDC cards. Typically after the
-burning of SDCards, we are faced with additional setup steps. However
-these steps can be simplified while assuring that the SDCard is
-modified after the burning with ssh enabled, a public key injected,
-a unique hostname assigned, and a network address specified. This
-command is naturally also important in case we need to re-burn a card
-in case a card would become bad or the OS on it for some reason
-corrupted. While attaching a multi-card USB writer it is possible
-to write multiple cards at the time one needs to switch cards into a
-single card writer.
+To create a cluster from Raspberry Pi's we decided to burn a number of
+SDCards that are modified to simplify the boot process. Typically
+after the burning of SDCards, we are faced with additional setup
+steps. However these steps can be simplified while assuring that the
+SDCard is modified after the burning with ssh enabled, a public key
+injected, a unique hostname assigned, and a network address
+specified. This command is naturally also important in case we need to
+re-burn a card in case a card would become bad or the OS on it for
+some reason corrupted. While attaching a multi-card USB writer it is
+possible to write multiple cards at the time one needs to switch cards
+into a single card writer.
 
-# Overview
+## Overview of the cm-pi-burn Command
 
-`cm-burn` is a program to burn many SD cards for the preparation of
-building clusters with Raspberry Pi's.  The program is developed in
-Python and is portable on Linux, Windows, and OSX. It allows users to
-create readily bootable SD cards that have the network configured,
-contain a public ssh key from your machine that you used to configure
-the cards.  The unique feature is that you can burn multiple cards in
-a row.
-tem
-A sample command invocation looks like [@lst:overview]:
+To facilitate this activity, we designed a program called
+`cm-pi-burn`.  It is a program that is intended to be run on a PI and
+focusses on burning many SD cards for the preparation of building
+clusters with Raspberry Pi's.  The program is developed in
+Python. However, an earlier version is portable on Linux, Windows, and
+OSX, and is called `cm--burn.
 
-
+Focussing on the Raspberry Pi focused version, it allows users to
+create from a PI master readily bootable SD cards that have the
+network configured, contain a public ssh key from your machine that
+you used to configure the cards.  The unique feature is that you can
+burn multiple cards in a row.  tem A sample command invocation looks
+like [@lst:overview]:
 
 
 ```{#lst:overview .bash caption="Command line invokation"}
-cm-burn —-name  red[5-7] \
+cm-pi-burn \
+        —-name  red[5-7] \
         --key ~/.ssh/id_rsa.pub \
-        —-ips 192.168.1.[5-7] \
+        —-ip 192.168.1.[5-7] \
         —-image 2018-06-27-raspbian-stretch
 ```
         
-This command creates 3 SD cards where the hostnames `red5`, `red6`, `red 7`
-with the network addresses `192.168.1.5`, `192.168.1.6`,
-and `192.168.1.7`. The public key is added to the authorized_keys file
-of the pi user.  The password login is automatically disabled and only
-the ssh key authentication is enabled.
+This command creates three SD cards where the hostnames `red5`,
+`red6`, `red 7` with the network addresses `192.168.1.5`,
+`192.168.1.6`, and `192.168.1.7`. The public key is added to the
+authorized_keys file of the pi user.  The password login is
+automatically disabled and only the ssh key authentication is enabled.
 
-# Process
+## The Burn Process
 
-The process of the burn is as follows.
+The process of the multi-SDCard burn is as follows:
 
-1. start the programm with the appropriate parameters the program will
+1. Start the programm with the appropriate parameters the program will
    ask you to place an SD Card in the SD Card writer. Place it in
-2. the specified image will be burned on the SD Card
-3. next the SD Card will be mounted by the program and the appropriate
-   modifications will bbe conducted.
-4. after the modifications the SD Card will be unmounted
-5. you will be asked to remove the card
-6. if additional cards need to be burned, you will go to step 2.
+   the writer. After you acknowledge, the image will be burned on the SD Card.
+2. After the burning  the SD Card will be mounted by the program and the appropriate
+   modifications will be conducted automatically.
+4. Once the modifications are completed, the SD Card will be unmounted.
+5. Next you will be asked to remove the card from the reader.
+6. If multiple cards need to be burned, you will go to step 2 while
+   making sure you have added a new card the the writer.
 
 In case a SD Card of a PI in the cluster goes bad, you can simply burn
 it again by providing the appropriate parameters, and just print the
 subset that are broken.
 
-# Setting up a Single Large Cluster with cm-burn
+## Setting up a Single Large Cluster with cm-pi-burn
 
-`cm-burn` will setup a simple network on all cluster nodes
-configured. There are different models for networking configuration we
+Next we describe practically how to set up a small cluster with five nodes.
+One of the five nodes will be set up as master while the others will
+be set up as the worker. Moreover, the master will be used to burn all
+SD Cards.
+
+To get started we need to create the first Raspberry Pi by hand. To do
+this follow these steps:
+
+* TODO
+
+* make sure the regional settings ar correct and that you are on a wifi
+* make sure you update.
+* develop a script that does the regional settings
+* make sure to set the date with `data -s "Oct 31 2019 14:00 EST" (use
+  the correct time ;-)
+* make sure python 3 is installed
+* make sure pip is installed
+
+After you have accomplished this, make sure you install cm-pi-burner
+with
+
+```bash
+pi> pip install cm-burner
+```
+
+TODO: Gregor will upload to pi pi
+
+If you are a developer you can clone from github and do the install
+locally with
+
+```
+pi> git clone ....
+pi> cd cm-burner
+pi> pip install -e .
+```
+
+# TO BE INTEGRATED
+
+
+
+We intent to setup with `cm-pi-burn` simple network with all nodes
+includes in that cluster. There are different models for networking configuration we
 could use.  However we have decided for one that allows you to
 interface with your local Laptop to the cluster via Wifi.  The setup
 is illustrated in [@fig:pi-network-cluster]
 
 
 ![Network of a Raspberry Pi cluster](../images/network.png){#fig:pi-network-cluster}
-
-Figure: Networking
 
 We assume that you have used cm-burn to create all SD cards for the
 Pi's. One of the Pi's is specially configured with the command 
