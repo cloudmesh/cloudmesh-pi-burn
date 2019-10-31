@@ -1,11 +1,18 @@
 #! /usr/bin/env python
 """Cloudmesh Raspberry Pi Mass Image Burner.
 Usage:
-  cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS]
-                 [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID] [--psk=PSK]
+  cm-burn create [--image=IMAGE]
+                 [--group=GROUP]
+                 [--names=HOSTS]
+                 [--ips=IPS]
+                 [--key=PUBLICKEY]
+                 [--ssid=SSID]
+                 [--psk=PSK]
                  [--domain=DOMAIN]
-                 [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
-                 [-n --dry-run] [-i --interactive]
+                 [--bootdrive=BOOTDRIVE]
+                 [--rootdrive=ROOTDRIVE]
+                 [-n --dry-run]
+                 [-i --interactive]
   cm-burn ls [-ni]
   cm-burn rm IMAGE [-ni]
   cm-burn get [URL]
@@ -16,7 +23,8 @@ Usage:
   cm-burn ip IPADDRESS [--domain=DOMAIN] [-ni]
   cm-burn wifi SSID [PASSWD] [-ni]
   cm-burn info [-ni]
-  cm-burn image [--image=IMAGE] [--device=DEVICE]
+  cm-burn image [--image=IMAGE]
+                [--device=DEVICE]
                 [-ni]
   cm-burn (-h | --help)
   cm-burn --version
@@ -48,9 +56,15 @@ BUG:
 
 Description:
   cm-burn
-  cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS]
-                 [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID]
-                 [--psk=PSK] [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
+  cm-burn create [--image=IMAGE]
+                 [--group=GROUP]
+                 [--names=HOSTS]
+                 [--ips=IPS]
+                 [--key=PUBLICKEY]
+                 [--ssid=SSID]
+                 [--psk=PSK]
+                 [--bootdrive=BOOTDRIVE]
+                 [--rootdrive=ROOTDRIVE]
   cm-burn update
         updates the downloaded images if new once are available
   cm-burn ls
@@ -138,8 +152,11 @@ def truncate_file(pathlib_obj):
         f.write("#")
         f.flush()
 
-
-columns, lines = os.get_terminal_size()
+try:
+    columns, lines = os.get_terminal_size()
+except:
+    columns = 80
+    lines = 24
 
 # TODO: the dirs are only needed for windows as they are
 #  implemented now in self.filename for OSX
