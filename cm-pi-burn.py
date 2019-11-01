@@ -7,14 +7,14 @@ Usage:
                     [--hostname=HOSTNAME] [--ipaddr=IP] [--sshkey=KEY]
   cm-pi-burn burn [IMAGE] [DEVICE]
   cm-pi-burn mount [DEVICE] [MOUNTPOINT]
-  cm-pi-burn set-hostname [HOSTNAME] [MOUNTPOINT]
-  cm-pi-burn set-ip [IP] [MOUNTPOINT]
-  cm-pi-burn set-key [KEY] [MOUNTPOINT]
-  cm-pi-burn enable-ssh [MOUNTPOINT]
+  cm-pi-burn set hostname [HOSTNAME] [MOUNTPOINT]
+  cm-pi-burn set ip [IP] [MOUNTPOINT]
+  cm-pi-burn set key [KEY] [MOUNTPOINT]
+  cm-pi-burn enable ssh [MOUNTPOINT]
   cm-pi-burn unmount [DEVICE]
-  cm-pi-burn image-get-latest # TODO
-  cm-pi-burn image-ls # TODO
-  cm-pi-burn image-delete [IMAGE] # TODO
+  cm-pi-burn image get latest # TODO
+  cm-pi-burn image ls # TODO
+  cm-pi-burn image delete [IMAGE] # TODO
   cm-pi-burn (-h | --help)
   cm-pi-burn --version
 
