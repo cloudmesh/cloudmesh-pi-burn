@@ -4,7 +4,7 @@ Usage:
   cm-burn create [--image=IMAGE]
                  [--group=GROUP]
                  [--names=HOSTS]
-                 [--ip=IPS]
+                 [--ips=IPS]
                  [--key=PUBLICKEY]
                  [--ssid=SSID]
                  [--psk=PSK]
@@ -35,7 +35,7 @@ Options:
   -i --interactive  Confirm each change before doing it
   --version         Show version.
   --key=KEY         the path of the public key [default: ~/.ssh/id_rsa.pub].
-  --ip=IPS         the IPs in hostlist format
+  --ips=IPS         the IPs in hostlist format
   --image=IMAGE     the image [default: 2019-09-26-raspbian-buster.img]
 
 
@@ -59,7 +59,7 @@ Description:
   cm-burn create [--image=IMAGE]
                  [--group=GROUP]
                  [--names=HOSTS]
-                 [--ip=IPS]
+                 [--ips=IPS]
                  [--key=PUBLICKEY]
                  [--ssid=SSID]
                  [--psk=PSK]
@@ -1060,7 +1060,7 @@ def analyse(arguments):
         burner.create(burner.image,
                       names=arguments["--names"],
                       key=arguments["--key"],
-                      ips=arguments["--ip"],
+                      ips=arguments["--ips"],
                       domain=arguments["--domain"],
                       ssid=arguments["--ssid"],
                       psk=arguments["--psk"],
