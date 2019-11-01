@@ -67,6 +67,9 @@ class Image(object): # TODO
             self.image_name = 'raspbian-buster-lite.img'
             self.url = 'https://downloads.raspberrypi.org/raspbian_lite_latest'
         else:
+            #
+            # BUG: THIS SEEMS NOT RIGHT, see cm-burn
+            #
             self.image_name = name
             self.url = 'https://downloads.raspberrypi.org/' + self.image_name.replace('.img', '')
 
