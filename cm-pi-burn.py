@@ -51,6 +51,7 @@ from pprint import pprint
 import requests
 from pathlib import Path
 import sys
+import zipfile
 
 debug = True
 
@@ -111,7 +112,6 @@ class Image(object): # TODO
         os.chdir(tmp)
         image_zip = str(Path(self.directory / source)).replace(".img", ".zip")
         print("unzip image", image_zip)
-        # BUG zipfile not defined
         zipfile.ZipFile(image_zip).extractall()
 
     def verify(self):
