@@ -60,12 +60,16 @@ def WARNING(*args, **kwargs):
 
 class Image(object): # TODO
     def __init__(self, name):
+        self.directory = '~/.cloudmesh/images'
+        os.system('mkdir -p ' + self.directory)
+
         if name == "latest":
-            self.url = 'https://downloads.raspberrypi.org/raspbian_lite_latest'
-            self.directory = '~/.cloudmesh/images'
-            os.system('mkdir -p ' + self.directory)
-            # name to use for the downloaded file
             self.image_name = 'raspbian-buster-lite.img'
+            self.url = 'https://downloads.raspberrypi.org/raspbian_lite_latest'
+        else:
+            self.image_name = name
+            self.url = 'https://downloads.raspberrypi.org/' + self.image_name.replace('.img', '')
+
 
     def fetch(self):
         # if image is already there skip
@@ -87,8 +91,7 @@ class Image(object): # TODO
                 WARNING("file already downloaded. Found at:", Path(self.directory / destination))
                 download = False
         if download:
-            ## BUG image not defined
-            wget.download(image)
+            wget.download(self.url)
 
         # uncompressing
         image_name = destination.replace(".zip", "") + ".img"
