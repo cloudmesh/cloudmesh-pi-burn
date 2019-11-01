@@ -48,6 +48,15 @@ import wget
 import hostlist
 from docopt import docopt
 from pprint import pprint
+import requests
+from pathlib import Path
+import sys
+
+debug = True
+
+# noinspection PyPep8Naming
+def WARNING(*args, **kwargs):
+    print("WARNING:", *args, file=sys.stderr, **kwargs)
 
 class Image(object): # TODO
     def __init__(self, name):
@@ -64,7 +73,7 @@ class Image(object): # TODO
         # see cmburn.py you can copy form there
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
-        if os.path.isfile(pathlib.Path(self.directory / self.image_name)):
+        if os.path.isfile(Path(self.directory / self.image_name)):
             return
         source = requests.head(self.url, allow_redirects=True).url
         size = requests.get(self.url, stream=True).headers['Content-length']
@@ -75,26 +84,28 @@ class Image(object): # TODO
         download = True
         if os.path.exists(destination):
             if int(os.path.getsize(destination)) == int(size):
-                WARNING("file already downloaded. Found at:", pathlib.Path(self.directory / destination))
+                WARNING("file already downloaded. Found at:", Path(self.directory / destination))
                 download = False
         if download:
+            ## BUG image not defined
             wget.download(image)
 
         # uncompressing
         image_name = destination.replace(".zip", "") + ".img"
-        image_file = pathlib.Path(self.directory / image_name)
+        image_file = Path(self.directory / image_name)
         if not os.path.exists(image_file):
             self.unzip_image(image_name)
         else:
-            WARNING("file already downloaded. Found at:", pathlib.Path(self.directory / image_name))
-        self.image = pathlib.Path(self.directory / image_name)
+            WARNING("file already downloaded. Found at:", Path(self.directory / image_name))
+        self.image = Path(self.directory / image_name)
         return self.image
 
     def unzip_image(self, source):
-        tmp = pathlib.Path(self.directory) / "."
+        tmp = Path(self.directory) / "."
         os.chdir(tmp)
-        image_zip = str(pathlib.Path(self.directory / source)).replace(".img", ".zip")
+        image_zip = str(Path(self.directory / source)).replace(".img", ".zip")
         print("unzip image", image_zip)
+        # BUG zipfile not defined
         zipfile.ZipFile(image_zip).extractall()
 
     def verify(self):
@@ -103,10 +114,10 @@ class Image(object): # TODO
 
     def rm(self):
         # remove the downloaded image
-        pathlib.Path(self.directory / self.image_name).unlink()
+        Path(self.directory / self.image_name).unlink()
 
     def ls(self):
-        #pathlib.Path(self.directory)
+        #Path(self.directory)
         raise NotImplementedError
 
 class Burner(object):
