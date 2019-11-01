@@ -1,15 +1,12 @@
 ---
-title: |
-  | Raspberry Pi SDCard Burner for
-  | Building Cloud and Compute Clusters
-subtitle: 'contact: laszewski@gmail.com'
+title:  'Raspberry Pi SDCard Burner for Building Cloud and Compute Clusters'
+subtitle: ''
 author:
-  - name: |
-      | Gregor von Laszewski, Anand Sriramulu, Sub Raizada,
-      | Akshay Kowshik, Daivik Uggehalli Dayanand, Fugang Wang
+  - name: Gregor von Laszewski
     affilation: Indiana University
-    location: Indiana University, Bloomington, IN 47401
+    location: loomington, IN 47401
     email: laszewski@gmail.com
+    
 date: Nov. 1st, 2019
 tags: [rasperry pi, cluster, sdcard, cloudmesh]
 numbersections: yes
@@ -19,19 +16,19 @@ abstract: |
 
   To create a cluster from Rasberry Pi's one needs to either use a
   headless setup or burn a number of SDC cards. Typically after the
-  burning of SDCards, we are faced with additional setup steps. However
-  these steps can be simplified while assuring that the SDCard is
-  modified after the burning with ssh enabled, a public key injected,
-  a unique hostname assigned, and a network address specified. This
-  command is naturally also important in case we need to re-burn a card
+  burning of SDCards we are faced with additional setup steps. HOwever
+  these steps can be simplified while asuring that the SDCard is
+  modified after the burning with ssh enabeled, a public key injected,
+  a unique hostname assigned, and a network address specified. THis
+  command is naturally also important in case we need to reburn a card
   in case a card would become bad or the OS on it for some reason
-  corrupted. While attaching a multi-card USB writer it is possible
-  to write multiple cards at the time one needs to switch cards into a
+  coccupteed.  While attaching a multicard USB writer it is possible
+  to write multiple cards easily while avoiding the cost of a card
+  duplicator and minimizing the time one needs to switch cards into a
   single card writer.
-
+  
 header-includes: |
   \usepackage{booktabs}
 
 ...
-
 
