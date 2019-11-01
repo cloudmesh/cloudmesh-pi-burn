@@ -126,6 +126,14 @@ class Image(object): # TODO
         #Path(self.directory)
         raise NotImplementedError
 
+    def list(self):
+        """
+        lists the available images from raspberry pi.org
+
+        :return:
+        """
+        raise NotImplementedError
+
 class Burner(object):
 
     @staticmethod
