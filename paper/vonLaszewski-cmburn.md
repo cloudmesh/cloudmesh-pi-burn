@@ -139,7 +139,7 @@ To facilitate this activity, we designed a program called
 focusses on burning many SD cards for the preparation of building
 clusters with Raspberry Pi's.  The program is developed in
 Python. However, an earlier version is portable on Linux, Windows, and
-OSX, and is called `cm--burn.
+OSX, and is called `cm--burn`.
 
 Focussing on the Raspberry Pi focused version, it allows users to
 create from a PI master readily bootable SD cards that have the
@@ -196,7 +196,7 @@ this follow these steps:
 * make sure the regional settings ar correct and that you are on a wifi
 * make sure you update.
 * develop a script that does the regional settings
-* make sure to set the date with `data -s "Oct 31 2019 14:00 EST" (use
+* make sure to set the date with `data -s "Oct 31 2019 14:00 EST"` (use
   the correct time ;-)
 * make sure python 3 is installed
 * make sure pip is installed
