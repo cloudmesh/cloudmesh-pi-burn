@@ -273,7 +273,7 @@ This is depicted in the Figure Cluster of Clusters
 
 ![](../images/network-cluster.png)
 
-Each cluster is naemed cluster01-clusterNN. The hostnames are node followed by 3 zeros padded with the node number
+Each cluster is named cluster01-clusterNN. The hostnames are node followed by 3 zeros padded with the node number
 There is a correlation between the cluster number and the node numbers in the following interval
 
 a cluster has the nodes 
@@ -342,6 +342,7 @@ To access it form the commandline you can also use
 * <https://etcher.io/cli/>
 
 #### File System Management
+
 Unfortunately, the free versions of writing the ext file system are no
 longer supported on OSX. This means that as of writing of this document
 the best solution we found is to purchase and install extFS on the
@@ -382,7 +383,9 @@ Download CommandLineDiskImager from the following url
 
 The above executable will be used by cm-burn script.
 
-It's necessary to burn the raspbian image to the SD card with this executable manually or thru Etcher in order to continue with next step.
+It iss necessary to burn the raspbian image to the SD card with this
+executable manually or thru Etcher in order to continue with next
+step.
 
 ```CommandLineDiskImager.exe C:\Users\John\Downloads\raspbian.img G```
 
@@ -400,7 +403,10 @@ Download the Open source ext3/4 file system driver for Windows installer from
 * Setting Automount of this EXT4
 * F3 or Tools->Ext2 Volume Management
 * Check-> Automatically mount via Ext2Mgr
-* The instructions above needed for the Ext2fsd to reserve the Drive Letters and any raspbian image burned to SD will be auto mounted to the specific reserved drive letters. These drive letters need to be specified while using cm-burn
+* The instructions above needed for the Ext2fsd to reserve the Drive
+  Letters and any raspbian image burned to SD will be auto mounted to
+  the specific reserved drive letters. These drive letters need to be
+  specified while using cm-burn
 
 
 ## Installation 
