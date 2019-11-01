@@ -4,7 +4,7 @@
 Cloudmesh Raspberry Pi Image Burner.
 Usage:
   cm-pi-burn create [--image=IMAGE] [--device=DEVICE]
-                    [--hostname=HOSTNAME] [--ipaddr=IP] [--key=KEY]
+                    [--hostname=HOSTNAME] [--ipaddr=IP] [--sshkey=KEY]
   cm-pi-burn burn [IMAGE] [DEVICE]
   cm-pi-burn mount [DEVICE] [MOUNTPOINT]
   cm-pi-burn set-hostname [HOSTNAME] [MOUNTPOINT]
@@ -38,10 +38,14 @@ Description:
 Example:
   cm-pi-burn create --image=2019-09-26-raspbian-buster.img --device=/dev/mmcblk0
                     --hostname=red1 --ipaddr=192.168.1.1 --key=id_rsa
+  cm-pi-burn create-many --image=2019-09-26-raspbian-buster.img --device=/dev/mmcblk0
+                         --hostname=red --ipaddr=192.168.1. --key=id_rsa
+                         --hostnamerange=5-7 --ipaddrrange=5-7
 """
 
 import os
 import wget
+import hostlist
 from docopt import docopt
 from pprint import pprint
 
@@ -220,17 +224,20 @@ def analyse(arguments):
     elif arguments['create']:
         image = arguments['--image']
         device = arguments['--device']
-        hostname = arguments['--hostname']
-        ip = arguments['--ipaddr']
-        key = arguments['--key']
+        hostnames = hostlist.expand_hostlist(arguments['--hostname'])
+        ips = hostlist.expand_hostlist(arguments['--ipaddr'])
+        key = arguments['--sshkey']
         mp = '/mount/pi'
-        Burner.burn(image, device)
-        Burner.mount(device, mp)
-        Burner.enable_ssh(mp)
-        Burner.set_hostname(hostname, mp)
-        Burner.set_key(key, mp)
-        Burner.set_static_ip(ip, mp)
-        Burner.unmount(device)
+
+        for hostname, ip in zip(hostnames, ips):
+            Burner.burn(image, device)
+            Burner.mount(device, mp)
+            Burner.enable_ssh(mp)
+            Burner.set_hostname(hostname, mp)
+            Burner.set_key(key, mp)
+            Burner.set_static_ip(ip, mp)
+            Burner.unmount(device)
+            input('Insert next card and press enter...')
 
 
 def main():
