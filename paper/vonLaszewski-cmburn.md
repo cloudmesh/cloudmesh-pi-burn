@@ -139,7 +139,7 @@ To facilitate this activity, we designed a program called
 focusses on burning many SD cards for the preparation of building
 clusters with Raspberry Pi's.  The program is developed in
 Python. However, an earlier version is portable on Linux, Windows, and
-OSX, and is called `cm--burn`.
+OSX, and is called `cm-pi-burn`.
 
 Focussing on the Raspberry Pi focused version, it allows users to
 create from a PI master readily bootable SD cards that have the
@@ -536,7 +536,8 @@ brew cask install osxfuse
 brew install ext4fuse
 ```
 
-To run it, your account must be in the sudoers list. Than you can do the following
+To run it, your account must be in the sudoers list. Than you can do
+the following
 
 ```
 mkdir linux
@@ -562,7 +563,8 @@ ls /Volumes/boot/
 
 This partition is writable as it is not in ext format.
 
-However to access the Linux partition in read only form we need to mount it with fuse
+However to access the Linux partition in read only form we need to
+mount it with fuse
 
 ```
 sudo mkdir /Volumes/Linux
@@ -599,17 +601,20 @@ see <https://www.raspberrypi.org/learning/networking-lessons/rpi-static-ip-addre
 
 From the net (wrong method):
 
-Mount the SD card, go into the file system, and edit /etc/passwd. Find the line starting with "pi" that begins like this:
+Mount the SD card, go into the file system, and edit `/etc/passwd`. Find
+the line starting with "pi" that begins like this:
 
 ```pi:x:1000:1000...```
 
-Get rid of the x; leave the colons on either side. This will eliminate the need for a password.
+Get rid of the x; leave the colons on either side. This will eliminate
+the need for a password.
 
-You probably then want to create a new password by using the passwd command after you log in.
+You probably then want to create a new password by using the passwd
+command after you log in.
 
-The right thing to do is to create a new hash and store it in place of x.
-not yet sure how that can be done a previous student from the class may have been aboe to do that 
-Bertholt is firstname.
+The right thing to do is to create a new hash and store it in place of
+x.  not yet sure how that can be done a previous student from the
+class may have been aboe to do that Bertholt is firstname.
 
 could this work? <https://unix.stackexchange.com/questions/81240/manually-generate-password-for-etc-shadow>
 
@@ -617,7 +622,10 @@ could this work? <https://unix.stackexchange.com/questions/81240/manually-genera
 
 ## Unmount Drives on Windows
 
-RemoveDrive.exe needs to be downloaded to `c:\Tools` from the following path and to have the Administrator rights (Right Click on the exe -> Properties -> Compatibility Tab -> Run this program as an Administrator
+RemoveDrive.exe needs to be downloaded to `c:\Tools` from the
+following path and to have the Administrator rights (Right Click on
+the exe -> Properties -> Compatibility Tab -> Run this program as an
+Administrator
 
 * <https://www.uwe-sieber.de/drivetools_e.html>
 
