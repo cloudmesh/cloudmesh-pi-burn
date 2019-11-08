@@ -124,7 +124,15 @@ class Image(object): # TODO
 
     def ls(self):
         #Path(self.directory)
-        raise NotImplementedError
+        images_search = pathlib.Path(self.cloudmesh_images / "*")
+        if debug:
+            print("images search", images_search)
+        images = glob.glob(str(images_search))
+        print()
+        print('Available images')
+        print(columns * '=')
+        print('\n'.join(images))
+        print()
 
     def list(self):
         """
