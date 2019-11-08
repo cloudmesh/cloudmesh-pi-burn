@@ -75,10 +75,42 @@ class Image(object): # TODO
             self.url = 'https://downloads.raspberrypi.org/' + self.image_name.replace('.img', '')
 
 
-    def fetch(self):
+    def fetch(self,image = None):
         # if image is already there skip
         # else downlod from url using python requests
         # see cmburn.py you can copy form there
+        latest = "https://downloads.raspberrypi.org/raspbian_latest"
+        if image is None:
+            image = latest
+
+        if debug:
+            print("Image:", image)
+            print("Images dir:", self.cloudmesh_images)
+        if not os.path.exists(self.cloudmesh_images):
+            os.makedirs(self.cloudmesh_images)
+        if debug:
+            print(image)
+        os.chdir(self.cloudmesh_images)
+        # find redirectionlink
+        source = requests.head(image, allow_redirects=True).url
+        size = requests.get(image, stream=True).headers['Content-length']
+        destination = os.path.basename(source)
+        if debug:
+            print(image)
+            print(destination)
+        download = True
+        if os.path.exists(destination):
+            if int(os.path.getsize(destination)) == int(size):
+                WARNING("file already downloaded. Found at:",
+                        pathlib.Path(self.cloudmesh_images / destination))
+                download = False
+        if download:
+            wget.download(image)
+
+        # uncompressing
+
+        image_name = destination.replace(".zip", "") + ".img"
+        image_file = pathlib.Path(self.cloudmesh_images / image_name)
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
         if os.path.isfile(Path(self.directory / self.image_name)):
