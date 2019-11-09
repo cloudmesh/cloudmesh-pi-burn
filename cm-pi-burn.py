@@ -166,14 +166,6 @@ class Image(object): # TODO
         print('\n'.join(images))
         print()
 
-    def list(self):
-        """
-        lists the available images from raspberry pi.org
-
-        :return:
-        """
-        raise NotImplementedError
-
 class Burner(object):
 
     @staticmethod
