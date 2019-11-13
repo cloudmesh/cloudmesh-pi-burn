@@ -101,13 +101,31 @@ class Image(object):
 
         result = requests.get(repo)
         lines = result.text.split(' ')
+        d = []
         v = []
         for line in lines:
             if 'href="' in line and "</td>" in line:
                 line = line.split('href="')[1]
                 line = line.split('/')[0]
                 v.append(line)
-        return v
+                download = self.find_image_zip(line)
+                d.append(download)
+        return v, d
+
+    def find_image_zip(self, version):
+
+        url = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/"
+
+        result = requests.get(url)
+        lines = result.text.split(' ')
+        v = []
+        for line in lines:
+            if '.zip"' in line and "</td>" in line:
+                line = line.split('href="')[1]
+                line = line.split('"')[0]
+                link = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/{line}"
+                return link
+        return None
 
     def fetch(self,image = None):
         # if image is already there skip
@@ -321,12 +339,18 @@ def analyse(arguments):
         repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
 
         for repo in repos:
-            versions = image.versions(repo)
+            versions, downloads = image.versions(repo)
 
             print()
             print("These images are available at:", repo)
             print()
             print ("\n".join(versions))
+            print()
+
+            print()
+            print("These images are downloadable at:", repo)
+            print()
+            print ("\n".join(downloads))
             print()
 
 
