@@ -58,7 +58,7 @@ Description:
   cm-burn create [--image=IMAGE]
                  [--group=GROUP]
                  [--names=HOSTS]
-                 [--ips=IPS]
+                 [--ip=IPS]
                  [--key=PUBLICKEY]
                  [--ssid=SSID]
                  [--psk=PSK]
