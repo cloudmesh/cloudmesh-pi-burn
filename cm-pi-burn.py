@@ -55,7 +55,12 @@ import zipfile
 from glob import glob
 
 debug = True
-columns = 79
+
+try:
+    columns, lines = os.get_terminal_size()
+except:
+    columns = 80
+    lines = 24
 
 # noinspection PyPep8Naming
 def WARNING(*args, **kwargs):
