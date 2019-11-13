@@ -1,10 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-"""\
+"""
 Cloudmesh Raspberry Pi Image Burner.
+
 Usage:
-  cm-pi-burn create [--image=IMAGE] [--device=DEVICE]
-                    [--hostname=HOSTNAME] [--ipaddr=IP] [--sshkey=KEY]
+  cm-pi-burn create [--image=IMAGE] [--device=DEVICE] [--hostname=HOSTNAME] [--ipaddr=IP] [--sshkey=KEY]
   cm-pi-burn burn [IMAGE] [DEVICE]
   cm-pi-burn mount [DEVICE] [MOUNTPOINT]
   cm-pi-burn set hostname [HOSTNAME] [MOUNTPOINT]
@@ -12,9 +12,10 @@ Usage:
   cm-pi-burn set key [KEY] [MOUNTPOINT]
   cm-pi-burn enable ssh [MOUNTPOINT]
   cm-pi-burn unmount [DEVICE]
-  cm-pi-burn image get latest # TODO
-  cm-pi-burn image ls # TODO
-  cm-pi-burn image delete [IMAGE] # TODO
+  cm-pi-burn image get latest
+  cm-pi-burn image versions
+  cm-pi-burn image ls
+  cm-pi-burn image delete [IMAGE]
   cm-pi-burn (-h | --help)
   cm-pi-burn --version
 
@@ -53,6 +54,7 @@ from pathlib import Path
 import sys
 import zipfile
 from glob import glob
+import requests
 
 debug = True
 
@@ -66,8 +68,14 @@ except:
 def WARNING(*args, **kwargs):
     print("WARNING:", *args, file=sys.stderr, **kwargs)
 
-class Image(object): # TODO
-    def __init__(self, name):
+#
+# Example image link
+#
+# https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
+
+class Image(object):
+
+    def __init__(self, name="latest"):
         self.directory = '~/.cloudmesh/images'
         os.system('mkdir -p ' + self.directory)
 
@@ -81,6 +89,25 @@ class Image(object): # TODO
             self.image_name = name
             self.url = 'https://downloads.raspberrypi.org/' + self.image_name.replace('.img', '')
 
+    def versions(self, repo):
+
+        # image locations
+        #
+        # https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/
+
+        #
+        # versions can be found with https://downloads.raspberrypi.org/raspbian_lite/images/
+        #
+
+        result = requests.get(repo)
+        lines = result.text.split(' ')
+        v = []
+        for line in lines:
+            if 'href="' in line and "</td>" in line:
+                line = line.split('href="')[1]
+                line = line.split('/')[0]
+                v.append(line)
+        return v
 
     def fetch(self,image = None):
         # if image is already there skip
@@ -163,6 +190,8 @@ class Image(object): # TODO
 
     def ls(self):
         #Path(self.directory)
+
+
         images_search = Path(self.cloudmesh_images / "*")
         if debug:
             print("images search", images_search)
@@ -259,6 +288,7 @@ class Burner(object):
 
 
 def analyse(arguments):
+
     if arguments['burn']:
         image = arguments['IMAGE']
         device = arguments['DEVICE']
@@ -267,24 +297,39 @@ def analyse(arguments):
         device = arguments['DEVICE']
         mp = arguments['MOUNTPOINT']
         Burner.mount(device, mp)
-    elif arguments['set-hostname']:
+    elif arguments['set'] and arguments['hostname']:
         hostname = arguments['HOSTNAME']
         mp = arguments['MOUNTPOINT']
         Burner.set_hostname(hostname, mp)
-    elif arguments['set-ip']:
+    elif arguments['set'] and arguments['ip']:
         ip = arguments['IP']
         mp = arguments['MOUNTPOINT']
         Burner.set_static_ip(ip, mp)
-    elif arguments['set-key']:
+    elif arguments['set'] and arguments['key']:
         key = arguments['KEY']
         mp = arguments['MOUNTPOINT']
         Burner.set_key(key, mp)
-    elif arguments['enable-ssh']:
+    elif arguments['enable'] and arguments['ssh']:
         mp = arguments['MOUNTPOINT']
         Burner.enable_ssh(mp)
     elif arguments['unmount']:
         device = arguments['DEVICE']
         Burner.unmount(device)
+    elif arguments['ls']:
+        image = Image()
+
+        repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
+
+        for repo in repos:
+            versions = image.versions(repo)
+
+            print()
+            print("These images are available at:", repo)
+            print()
+            print ("\n".join(versions))
+            print()
+
+
     elif arguments['create']:
         image = arguments['--image']
         device = arguments['--device']
