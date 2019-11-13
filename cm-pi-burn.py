@@ -52,8 +52,10 @@ import requests
 from pathlib import Path
 import sys
 import zipfile
+from glob import glob
 
 debug = True
+columns = 79
 
 # noinspection PyPep8Naming
 def WARNING(*args, **kwargs):
@@ -102,7 +104,7 @@ class Image(object): # TODO
         if os.path.exists(destination):
             if int(os.path.getsize(destination)) == int(size):
                 WARNING("file already downloaded. Found at:",
-                        pathlib.Path(self.cloudmesh_images / destination))
+                        Path(self.cloudmesh_images / destination))
                 download = False
         if download:
             wget.download(image)
@@ -110,7 +112,7 @@ class Image(object): # TODO
         # uncompressing
 
         image_name = destination.replace(".zip", "") + ".img"
-        image_file = pathlib.Path(self.cloudmesh_images / image_name)
+        image_file = Path(self.cloudmesh_images / image_name)
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
         if os.path.isfile(Path(self.directory / self.image_name)):
@@ -156,10 +158,10 @@ class Image(object): # TODO
 
     def ls(self):
         #Path(self.directory)
-        images_search = pathlib.Path(self.cloudmesh_images / "*")
+        images_search = Path(self.cloudmesh_images / "*")
         if debug:
             print("images search", images_search)
-        images = glob.glob(str(images_search))
+        images = glob(str(images_search))
         print()
         print('Available images')
         print(columns * '=')
