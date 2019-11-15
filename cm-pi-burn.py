@@ -90,7 +90,6 @@ class Image(object):
             self.url = 'https://downloads.raspberrypi.org/' + self.image_name.replace('.img', '')
 
     def versions(self, repo):
-
         # image locations
         #
         # https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/
@@ -351,7 +350,12 @@ def analyse(arguments):
             print()
     elif arguments['delete']:
         Image(arguments['IMAGE']).rm()
-
+    elif arguments['versions']:
+        repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
+        for repo in repos:
+            versions, downloads = Image().versions(repo)
+            print("These images are available at:", repo)
+            print ("\n".join(versions))
 
     elif arguments['create']:
         image = arguments['--image']
