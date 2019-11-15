@@ -15,7 +15,7 @@ Usage:
   cm-pi-burn image versions
   cm-pi-burn image ls
   cm-pi-burn image delete [IMAGE]
-  cm-pi-burn image get [IMAGE]
+  cm-pi-burn image get [URL]
   cm-pi-burn (-h | --help)
   cm-pi-burn --version
 
@@ -37,11 +37,11 @@ Description:
   cm-pi-burn
 
 Example:
-  cm-pi-burn create --image=2019-09-26-raspbian-buster.img --device=/dev/mmcblk0
-                    --hostname=red1 --ipaddr=192.168.1.1 --key=id_rsa
-  cm-pi-burn create-many --image=2019-09-26-raspbian-buster.img --device=/dev/mmcblk0
-                         --hostname=red --ipaddr=192.168.1. --key=id_rsa
-                         --hostnamerange=5-7 --ipaddrrange=5-7
+  cm-pi-burn create --image=2019-09-26-raspbian-buster-lite --device=/dev/mmcblk0
+                    --hostname=red[5-7] --ipaddr=192.168.1.[5-7] --key=id_rsa
+  cm-pi-burn.py image get latest
+  cm-pi-burn.py image delete 2019-09-26-raspbian-buster-lite
+  cm-pi-burn.py image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
 """
 
 import os
@@ -78,16 +78,7 @@ class Image(object):
     def __init__(self, name="latest"):
         self.directory = os.path.expanduser('~/.cloudmesh/images')
         os.system('mkdir -p ' + self.directory)
-
-        if name == "latest":
-            self.image_name = 'raspbian-buster-lite.img'
-            self.url = 'https://downloads.raspberrypi.org/raspbian_lite_latest'
-        else:
-            #
-            # BUG: THIS SEEMS NOT RIGHT, see cm-burn
-            #
-            self.image_name = name
-            self.url = 'https://downloads.raspberrypi.org/' + self.image_name.replace('.img', '')
+        self.image_name = name
 
     def versions(self, repo):
         # image locations
@@ -126,76 +117,45 @@ class Image(object):
                 return link
         return None
 
-    def fetch(self,image = None):
-        # if image is already there skip
-        # else downlod from url using python requests
-        # see cmburn.py you can copy form there
-        latest = "https://downloads.raspberrypi.org/raspbian_latest"
-        if image is None:
-            image = latest
+    def fetch(self):
+        latest = False
+        if self.image_name == 'latest':
+            latest = True
+            self.image_name = "https://downloads.raspberrypi.org/raspbian_lite_latest"
+        debug = True
 
-        if debug:
-            print("Image:", image)
-            print("Images dir:", self.cloudmesh_images)
-        if not os.path.exists(self.cloudmesh_images):
-            os.makedirs(self.cloudmesh_images)
-        if debug:
-            print(image)
-        os.chdir(self.cloudmesh_images)
-        # find redirectionlink
-        source = requests.head(image, allow_redirects=True).url
-        size = requests.get(image, stream=True).headers['Content-length']
-        destination = os.path.basename(source)
-        if debug:
-            print(image)
-            print(destination)
-        download = True
-        if os.path.exists(destination):
-            if int(os.path.getsize(destination)) == int(size):
-                WARNING("file already downloaded. Found at:",
-                        Path(self.cloudmesh_images / destination))
-                download = False
-        if download:
-            wget.download(image)
-
-        # uncompressing
-
-        image_name = destination.replace(".zip", "") + ".img"
-        image_file = Path(self.cloudmesh_images / image_name)
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
-        if os.path.isfile(Path(self.directory / self.image_name)):
+        os.chdir(self.directory)
+        # find redirectionlink
+        source_url = requests.head(self.image_name, allow_redirects=True).url
+        size = requests.get(self.image_name, stream=True).headers['Content-length']
+        zip_filename = os.path.basename(source_url)
+        img_filename = zip_filename.replace('.zip', '.img')
+
+        if os.path.exists(img_filename):
+            WARNING("file already downloaded. Found at:",
+                    Path(Path(self.directory) / Path(zip_filename)))
             return
-        source = requests.head(self.url, allow_redirects=True).url
-        size = requests.get(self.url, stream=True).headers['Content-length']
-        destination = os.path.basename(source)
-        if debug:
-            print(self.url)
-            print(destination)
-        download = True
-        if os.path.exists(destination):
-            if int(os.path.getsize(destination)) == int(size):
-                WARNING("file already downloaded. Found at:", Path(self.directory / destination))
-                download = False
-        if download:
-            wget.download(self.url)
 
-        # uncompressing
-        image_name = destination.replace(".zip", "") + ".img"
-        image_file = Path(self.directory / image_name)
-        if not os.path.exists(image_file):
-            self.unzip_image(image_name)
-        else:
-            WARNING("file already downloaded. Found at:", Path(self.directory / image_name))
-        self.image = Path(self.directory / image_name)
-        return self.image
+        img_file = Path(Path(self.directory) / Path(img_filename))
+        if os.path.isfile(img_file):
+            WARNING("file already downloaded. Found at:",
+                    Path(Path(self.directory) / Path(zip_filename)))
+            return
 
-    def unzip_image(self, source):
-        tmp = Path(self.directory) / "."
-        os.chdir(tmp)
-        image_zip = str(Path(self.directory / source)).replace(".img", ".zip")
-        print("unzip image", image_zip)
-        zipfile.ZipFile(image_zip).extractall()
+        wget.download(self.image_name)
+        print()
+        if latest:
+            Path('raspbian_lite_latest').rename(zip_filename)
+
+        self.unzip_image(zip_filename)
+        Path(zip_filename).unlink()
+
+    def unzip_image(self, zip_filename):
+        os.chdir(self.directory)
+        img_filename = zip_filename.replace('.zip', '.img')
+        zipfile.ZipFile(zip_filename).extractall()
 
     def verify(self):
         # verify if the image is ok, use SHA
@@ -329,7 +289,7 @@ def analyse(arguments):
     elif arguments['delete']:
         Image(arguments['IMAGE']).rm()
     elif arguments['get']:
-        print(arguments['IMAGE'])
+        Image(arguments['URL']).fetch()
     elif arguments['versions']:
         repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
         for repo in repos:
