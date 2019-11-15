@@ -206,16 +206,11 @@ class Image(object):
         Path(Path(self.directory) / Path(self.image_name)).unlink()
 
     def ls(self):
-        #Path(self.directory)
-        images_search = Path(self.cloudmesh_images / "*")
-        if debug:
-            print("images search", images_search)
-        images = glob(str(images_search))
-        print()
+        images_dir = Path(self.directory)
+        images = [str(x).replace(self.directory + '/', '') for x in images_dir.glob('*')]
         print('Available images')
         print(columns * '=')
         print('\n'.join(images))
-        print()
 
 class Burner(object):
 
@@ -330,24 +325,7 @@ def analyse(arguments):
         device = arguments['DEVICE']
         Burner.unmount(device)
     elif arguments['ls']:
-        image = Image()
-
-        repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
-
-        for repo in repos:
-            versions, downloads = image.versions(repo)
-
-            print()
-            print("These images are available at:", repo)
-            print()
-            print ("\n".join(versions))
-            print()
-
-            print()
-            print("These images are downloadable at:", repo)
-            print()
-            print ("\n".join(downloads))
-            print()
+        Image().ls()
     elif arguments['delete']:
         Image(arguments['IMAGE']).rm()
     elif arguments['versions']:
