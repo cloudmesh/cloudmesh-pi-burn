@@ -207,7 +207,7 @@ class Image(object):
 
     def ls(self):
         images_dir = Path(self.directory)
-        images = [str(x).replace(self.directory + '/', '') for x in images_dir.glob('*')]
+        images = [str(x).replace(self.directory + '/', '').replace('.img', '') for x in images_dir.glob('*.img')]
         print('Available images')
         print(columns * '=')
         print('\n'.join(images))
