@@ -38,7 +38,7 @@ Description:
 
 Example:
   cm-pi-burn create --image=2019-09-26-raspbian-buster-lite --device=/dev/mmcblk0
-                    --hostname=red[5-7] --ipaddr=192.168.1.[5-7] --key=id_rsa
+                    --hostname=red[5-7] --ipaddr=192.168.1.[5-7] --sshkey=id_rsa
   cm-pi-burn.py image get latest
   cm-pi-burn.py image delete 2019-09-26-raspbian-buster-lite
   cm-pi-burn.py image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
@@ -79,6 +79,7 @@ class Image(object):
         self.directory = os.path.expanduser('~/.cloudmesh/images')
         os.system('mkdir -p ' + self.directory)
         self.image_name = name
+        self.fullpath = self.directory + '/' + self.image_name + '.img'
 
     def versions(self, repo):
         # image locations
@@ -180,7 +181,7 @@ class Burner(object):
         burns the SD Card
         :param image: name of the image
         """
-        os.system('sudo cat ' + image + ' >' + device)
+        os.system('sudo cat ' + Image(image).fullpath + ' >' + device)
 
     @staticmethod
     def set_hostname(hostname, mountpoint):
@@ -224,6 +225,7 @@ class Burner(object):
         copies the public key into the .ssh/authorized_keys file on the sd card
         """
         # name should be something like 'id_rsa'
+        os.system('mkdir ' + mountpoint + '/home/pi/.ssh/')
         os.system('cp ~/.ssh/' + name + '.pub ' + mountpoint + '/home/pi/.ssh/authorized_keys')
 
     @staticmethod
@@ -305,7 +307,8 @@ def analyse(arguments):
         key = arguments['--sshkey']
         mp = '/mount/pi'
 
-        for hostname, ip in zip(hostnames, ips):
+        # don't do the input() after burning the last card
+        for hostname, ip in zip(hostnames[:-1], ips[:-1]):
             Burner.burn(image, device)
             Burner.mount(device, mp)
             Burner.enable_ssh(mp)
@@ -313,7 +316,17 @@ def analyse(arguments):
             Burner.set_key(key, mp)
             Burner.set_static_ip(ip, mp)
             Burner.unmount(device)
+            os.system('tput bel') # ring the terminal bell
             input('Insert next card and press enter...')
+        for hostname, ip in zip(hostnames[-1:], ips[-1:]):
+            Burner.burn(image, device)
+            Burner.mount(device, mp)
+            Burner.enable_ssh(mp)
+            Burner.set_hostname(hostname, mp)
+            Burner.set_key(key, mp)
+            Burner.set_static_ip(ip, mp)
+            Burner.unmount(device)
+            os.system('tput bel') # ring the terminal bell
 
 
 def main():
