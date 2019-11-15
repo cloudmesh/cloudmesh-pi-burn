@@ -334,8 +334,9 @@ def analyse(arguments):
         repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
         for repo in repos:
             versions, downloads = Image().versions(repo)
-            print("These images are available at:", repo)
-            print ("\n".join(versions))
+            print("These images are available at")
+            for version, download in zip(versions, downloads):
+                print("{} at {}".format(version, download))
     elif arguments['create']:
         image = arguments['--image']
         device = arguments['--device']
