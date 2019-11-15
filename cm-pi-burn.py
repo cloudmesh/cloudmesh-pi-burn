@@ -12,10 +12,10 @@ Usage:
   cm-pi-burn set key [KEY] [MOUNTPOINT]
   cm-pi-burn enable ssh [MOUNTPOINT]
   cm-pi-burn unmount [DEVICE]
-  cm-pi-burn image get latest
   cm-pi-burn image versions
   cm-pi-burn image ls
   cm-pi-burn image delete [IMAGE]
+  cm-pi-burn image get [IMAGE]
   cm-pi-burn (-h | --help)
   cm-pi-burn --version
 
@@ -203,7 +203,7 @@ class Image(object):
 
     def rm(self):
         # remove the downloaded image
-        Path(Path(self.directory) / Path(self.image_name)).unlink()
+        Path(Path(self.directory) / Path(self.image_name + '.img')).unlink()
 
     def ls(self):
         images_dir = Path(self.directory)
@@ -328,13 +328,14 @@ def analyse(arguments):
         Image().ls()
     elif arguments['delete']:
         Image(arguments['IMAGE']).rm()
+    elif arguments['get']:
+        print(arguments['IMAGE'])
     elif arguments['versions']:
         repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
         for repo in repos:
             versions, downloads = Image().versions(repo)
             print("These images are available at:", repo)
             print ("\n".join(versions))
-
     elif arguments['create']:
         image = arguments['--image']
         device = arguments['--device']
