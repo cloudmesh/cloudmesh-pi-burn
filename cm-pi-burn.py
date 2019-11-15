@@ -310,23 +310,35 @@ def analyse(arguments):
         # don't do the input() after burning the last card
         for hostname, ip in zip(hostnames[:-1], ips[:-1]):
             Burner.burn(image, device)
+            os.system('sleep 3')
             Burner.mount(device, mp)
             Burner.enable_ssh(mp)
             Burner.set_hostname(hostname, mp)
             Burner.set_key(key, mp)
             Burner.set_static_ip(ip, mp)
+            os.system('sleep 3')
+            Burner.unmount(device)
+            os.system('sleep 3')
             Burner.unmount(device)
             os.system('tput bel') # ring the terminal bell
+            print()
             input('Insert next card and press enter...')
+            print('Burning next card...')
+            print()
         for hostname, ip in zip(hostnames[-1:], ips[-1:]):
             Burner.burn(image, device)
+            os.system('sleep 3')
             Burner.mount(device, mp)
             Burner.enable_ssh(mp)
             Burner.set_hostname(hostname, mp)
             Burner.set_key(key, mp)
             Burner.set_static_ip(ip, mp)
+            os.system('sleep 3')
             Burner.unmount(device)
-            os.system('tput bel') # ring the terminal bell
+            os.system('sleep 3')
+            Burner.unmount(device)
+            os.system('tput bel')
+            print('All done!')
 
 
 def main():
