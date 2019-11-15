@@ -76,7 +76,7 @@ def WARNING(*args, **kwargs):
 class Image(object):
 
     def __init__(self, name="latest"):
-        self.directory = '~/.cloudmesh/images'
+        self.directory = os.path.expanduser('~/.cloudmesh/images')
         os.system('mkdir -p ' + self.directory)
 
         if name == "latest":
@@ -204,12 +204,10 @@ class Image(object):
 
     def rm(self):
         # remove the downloaded image
-        Path(self.directory / self.image_name).unlink()
+        Path(Path(self.directory) / Path(self.image_name)).unlink()
 
     def ls(self):
         #Path(self.directory)
-
-
         images_search = Path(self.cloudmesh_images / "*")
         if debug:
             print("images search", images_search)
@@ -306,7 +304,6 @@ class Burner(object):
 
 
 def analyse(arguments):
-
     if arguments['burn']:
         image = arguments['IMAGE']
         device = arguments['DEVICE']
@@ -352,6 +349,8 @@ def analyse(arguments):
             print()
             print ("\n".join(downloads))
             print()
+    elif arguments['delete']:
+        Image(arguments['IMAGE']).rm()
 
 
     elif arguments['create']:
