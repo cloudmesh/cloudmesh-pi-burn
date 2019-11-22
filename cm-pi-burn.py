@@ -270,8 +270,15 @@ class Burner(object):
         # mount p2 (/) and then p1 (/boot)
         os.system('sudo rmdir ' + mountpoint)
         os.system('sudo mkdir ' + mountpoint)
-        os.system('sudo mount ' + device + 'p2 ' + mountpoint)
-        os.system('sudo mount ' + device + 'p1 ' + mountpoint + '/boot')
+        # depending on how SD card is interfaced to system:
+        # if /dev/mmcblkX, partitions will be /dev/mmcblkXp1 and /dev/mmcblkXp2
+        if 'mmc' in device:
+          os.system('sudo mount ' + device + 'p2 ' + mountpoint)
+          os.system('sudo mount ' + device + 'p1 ' + mountpoint + '/boot')
+        # if /dev/sdX, partitions will be /dev/sdX1 and /dev/sdX2
+        else:
+          os.system('sudo mount ' + device + '2 ' + mountpoint)
+          os.system('sudo mount ' + device + '1 ' + mountpoint + '/boot')
 
     @staticmethod
     def unmount(device):
