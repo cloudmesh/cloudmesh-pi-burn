@@ -257,7 +257,7 @@ class Burner(object):
         """
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
-        os.system('mkdir ' + mountpoint + '/home/pi/.ssh/')
+        os.system('mkdir -p ' + mountpoint + '/home/pi/.ssh/')
         os.system('cp ~/.ssh/' + name + '.pub ' + mountpoint + '/home/pi/.ssh/authorized_keys')
 
     @staticmethod
@@ -269,7 +269,7 @@ class Burner(object):
         """
         # mount p2 (/) and then p1 (/boot)
         os.system('sudo rmdir ' + mountpoint)
-        os.system('sudo mkdir ' + mountpoint)
+        os.system('sudo mkdir -p ' + mountpoint)
         # depending on how SD card is interfaced to system:
         # if /dev/mmcblkX, partitions will be /dev/mmcblkXp1 and /dev/mmcblkXp2
         if 'mmc' in device:
