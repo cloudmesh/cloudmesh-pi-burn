@@ -66,6 +66,12 @@ When you insert a second SD card to the Raspberry Pi, you can use the command
 
 # Usage
 
+You must create an empty `/media/pi` directory if it does not already exist:
+
+```
+# mkdir -p /media/pi
+```
+
 Download the latest Raspbian image:
 
 ```
