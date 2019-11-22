@@ -12,9 +12,57 @@ packages:
 
 Find the device the SD card appears as when plugged in (likely `/dev/mmcblk0`).
 
+Additionally, find the name for you SSH public key:
+
+| If your key is located at | its name is |
+|---------------------------|-------------|
+| ~/.ssh/id_ed25519.pub     | id_ed25519  |
+| ~/.ssh/id_rsa.pub         | id_rsa      |
+
+Skip to the 'Usage' section below to run cm-pi-burn.
+
 # Setup on Raspberry Pi
 
-TODO
+TODO verify this works with no errors
+
+Download the latest Raspbian Desktop image from <https://www.raspberrypi.org/downloads/raspbian/> and unzip it to get a `.img` file. Insert a SD card into your computer and burn it with this image using a program like `cat` or Etcher:
+
+```
+# cat raspbian-image-filename.img >/dev/mmcblk0
+```
+
+Insert the card into a Raspberry Pi and boot it up. Connect to WiFi via the GUI.
+
+Next, install git and pip with the following command in a terminal on the Pi:
+
+```
+$ sudo apt install git python3-pip
+```
+
+Install the cm-pi-burn python dependencies via pip:
+
+```
+$ pip3 install --user docopt pprint hostlist wget
+```
+
+Clone the cm-pi-burn git respository and enter it:
+
+```
+$ git clone https://github.com/cloudmesh/cm-burn.git
+$ cd cm-burn
+```
+
+Switch to the root user and then follow the instructions in the 'Usage' section
+below.
+
+```
+$ sudo su
+```
+
+When you insert a second SD card to the Raspberry Pi, you can use the command
+`sudo fdisk -l` to list storage devices and find the name of the second SD card
+(it may or may not be `/dev/mmcblk0`, which is used as an example in the
+'Usage' section below).
 
 # Usage
 
@@ -60,3 +108,10 @@ To burn many cards (only change is in hostname/ipaddr args):
                          --hostname=red[2-6] --ipaddr=192.168.1.[2-6]
                          --sshkey=id_ed25519
 ```
+
+You may see the program output some unmount errors during the burn process -
+this is normal.
+
+The program will ring the terminal bell when one card is done and the next
+needs to be inserted (this probably means you can work on other stuff and your
+terminal emulator will notify you when cards need to be swapped).
