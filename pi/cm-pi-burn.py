@@ -209,7 +209,6 @@ class Image(object):
     def ls(self):
         #Path(self.directory)
 
-
         images_search = Path(self.cloudmesh_images / "*")
         if debug:
             print("images search", images_search)
@@ -333,7 +332,7 @@ def analyse(arguments):
     elif arguments['unmount']:
         device = arguments['DEVICE']
         Burner.unmount(device)
-    elif arguments['ls']:
+    elif arguments['versions'] and arguments['image']:
         image = Image()
 
         repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
