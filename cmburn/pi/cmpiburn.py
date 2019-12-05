@@ -340,7 +340,7 @@ def analyse(arguments):
         Burner.unmount(device)
     #elif arguments['versions'] and arguments['image']:
     #    image = Image()
-   elif arguments['ls']:
+    elif arguments['ls']:
         Image().ls()
     elif arguments['delete']:
         Image(arguments['IMAGE']).rm()
