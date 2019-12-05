@@ -59,7 +59,7 @@ setup(
     entry_points={
         'console_scripts': [
             'cm-burn=cmburn.general.cmburn:main',
-            'cm-pi-burn=cmburn.pi.cm_pi_burn:main',
+            'cm-pi-burn=cmburn.pi.cmpiburn:main',
         ],
     },
     project_urls={
