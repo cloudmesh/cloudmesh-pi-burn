@@ -19,14 +19,14 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='cm-burn',
-    version='0.0.1',
+    version='0.0.2',
     description='A command to burn many SD cards for building PI clusters',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/cloudmesh/cm-burn.py',
     author='Cloudmesh Team',
     author_email='laszewski@gmail.comm',
-    scripts=['cmburn.py'],
+    # scripts=['cmburn.py'],
 
     classifiers=[
         # How mature is this project? Common values are
@@ -42,6 +42,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
 
     keywords='Raspberry PI SDcard cloudmesh',
@@ -79,7 +80,7 @@ setup(
     entry_points={
         'console_scripts': [
             'cm-burn=cmburn:main',
-            'cm-pi-burn=cm-pi-burn:main',
+            'cm-pi-burn=pi.cm-pi-burn:main',
         ],
     },
 
