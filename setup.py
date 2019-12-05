@@ -26,8 +26,6 @@ setup(
     url='https://github.com/cloudmesh/cm-burn.py',
     author='Cloudmesh Team',
     author_email='laszewski@gmail.comm',
-    # scripts=['cmburn.py'],
-
     classifiers=[
         # How mature is this project? Common values are
         #   3 - Alpha
@@ -44,20 +42,8 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-
     keywords='Raspberry PI SDcard cloudmesh',
-
-    # You can just specify package directories manually here if your project is
-    # simple. Or you can use find_packages().
-    #
-    # Alternatively, if you just want to distribute a single Python file, use
-    # the `py_modules` argument instead as follows, which will expect a file
-    # called `my_module.py` to exist:
-    #
-    #   py_modules=["my_module"],
-    #
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),  # Required
-
     install_requires=[
         "python-hostlist",
         "docopt",
@@ -66,25 +52,17 @@ setup(
         "wget",
         "pyyaml",
     ],
-
     extras_require={  # Optional
         'dev': ['check-manifest'],
         'test': ['coverage'],
     },
-
-    # package_data={  # Optional
-    #    'sample': ['package_data.dat'],
-    # },
-    # data_files=[('my_data', ['data/data_file'])],  # Optional
-
     entry_points={
         'console_scripts': [
-            'cm-burn=general.cmburn:main',
-            'cm-pi-burn=pi.cm-pi-burn:main',
+            'cm-burn=cmburn.general.cmburn:main',
+            'cm-pi-burn=cmburn.pi.cm_pi_burn:main',
         ],
     },
-
-    project_urls={  # Optional
+    project_urls={
         'Bug Reports': 'https://github.com/cloudmesh/cm-burn.py/issues',
         # 'Funding': 'https://donate.pypi.org',
         # 'Say Thanks!': 'http://saythanks.io/to/example',
