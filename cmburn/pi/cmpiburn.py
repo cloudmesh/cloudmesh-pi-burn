@@ -56,6 +56,25 @@ import zipfile
 from glob import glob
 import requests
 
+##############################################
+#
+# Ignore on pi:  DH KEY TOO SMALL
+#
+# see: https://stackoverflow.com/questions/38015537/python-requests-exceptions-sslerror-dh-key-too-small
+#
+import urllib3
+
+requests.packages.urllib3.disable_warnings()
+requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += 'HIGH:!DH:!aNULL'
+try:
+    requests.packages.urllib3.contrib.pyopenssl.DEFAULT_SSL_CIPHER_LIST += 'HIGH:!DH:!aNULL'
+except AttributeError:
+    # no pyopenssl support used / needed / available
+    pass
+#
+##############################################
+
+
 debug = True
 
 try:
@@ -97,7 +116,7 @@ class Image(object):
         # versions can be found with https://downloads.raspberrypi.org/raspbian_lite/images/
         #
 
-        result = requests.get(repo)
+        result = requests.get(repo, verify=False)
         lines = result.text.split(' ')
         d = []
         v = []
@@ -114,7 +133,7 @@ class Image(object):
 
         url = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/"
 
-        result = requests.get(url)
+        result = requests.get(url, verify=False)
         lines = result.text.split(' ')
         v = []
         for line in lines:
@@ -145,7 +164,7 @@ class Image(object):
         # get image URL metadata, including the name of the latest image after
         #   the 'latest' URL redirects to the URL of the actual image
         source_url = requests.head(self.image_name, allow_redirects=True).url
-        size = requests.get(self.image_name, stream=True).headers['Content-length']
+        size = requests.get(self.image_name, verify=False, stream=True).headers['Content-length']
         zip_filename = os.path.basename(source_url)
         img_filename = zip_filename.replace('.zip', '.img')
 
