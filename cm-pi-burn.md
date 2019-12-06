@@ -7,7 +7,7 @@ packages:
 
 - docopt
 - pprint
-- hostlist
+- python_hostlist
 - wget
 
 Find the device the SD card appears as when plugged in (likely `/dev/mmcblk0`).
@@ -42,7 +42,7 @@ $ sudo apt install git python3-pip
 Install the cm-pi-burn python dependencies via pip:
 
 ```
-$ pip3 install --user docopt pprint hostlist wget
+$ pip3 install --user docopt pprint python_hostlist wget
 ```
 
 Clone the cm-pi-burn git respository and enter it:
