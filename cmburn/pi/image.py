@@ -8,13 +8,16 @@ import os
 from pathlib import Path
 import zipfile
 import wget
+import oyaml as yaml
 
+from cmburn.pi.util import readfile, writefile
 from cmburn.pi import columns, lines
 
 from cmburn.pi.util import WARNING
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 class Image(object):
 
@@ -24,9 +27,37 @@ class Image(object):
 
     def __init__(self, name="latest"):
         self.directory = os.path.expanduser('~/.cloudmesh/cmburn/images')
+        self.cache = Path(
+            os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
         os.system('mkdir -p ' + self.directory)
         self.image_name = name
         self.fullpath = self.directory + '/' + self.image_name + '.img'
+
+    def version_cache_create(self, refresh=False):
+        data = []
+
+        if refresh or not self.cache.exists():
+            os.system("mkdir -p ~/.cloudmesh/cmburn")
+            print("finding repos ...", end="")
+            repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
+            for repo in repos:
+                versions, downloads = Image().versions(repo)
+                print("These images are available at")
+                for version, download in zip(versions, downloads):
+                    print(f"{version}: {download}")
+                    data.append({version: download})
+            writefile(self.cache, yaml.dump(data))
+        else:
+            data = yaml.load(readfile(self.cache), Loader=yaml.SafeLoader)
+            for entry in data:
+                version = list(entry.keys())[0]
+                download = entry[version]
+                print(f"{version}: {download}")
+
+
+    def version_cache_read(self):
+        data = yaml.load(readfile(self.cache), Loader=yaml.SafeLoader)
+        return data
 
     def versions(self, repo):
         """
@@ -68,7 +99,8 @@ class Image(object):
                 return link
         return None
 
-    def fetch(self):
+
+    def fetch(self, simple=True):
         """
         Download the image from the URL in self.image_name
         If it is 'latest', download the latest image - afterwards use
@@ -93,10 +125,12 @@ class Image(object):
         zip_filename = os.path.basename(source_url)
         img_filename = zip_filename.replace('.zip', '.img')
 
+        print (f"Downloading {zip_filename}")
+
         # cancel if image already downloaded
         if os.path.exists(img_filename):
             WARNING("file already downloaded. Found at:",
-                    Path(Path(self.directory) / Path(zip_filename)))
+                    Path(Path(self.directory) / Path(img_filename)))
             return
 
         # cancel if image already downloaded
@@ -107,10 +141,16 @@ class Image(object):
             return
 
         # download the image, unzip it, and delete the zip file
-        wget.download(self.image_name)
-        print()
-        if latest:  # rename filename from 'latest' to the actual image name
-            Path('raspbian_lite_latest').rename(zip_filename)
+        if simple:
+            print(self.image_name)
+            os.system(f"wget -O {zip_filename} {self.image_name}")
+        else:
+            wget.download(self.image_name)
+            print()
+            if latest:  # rename filename from 'latest' to the actual image name
+                Path('raspbian_lite_latest').rename(zip_filename)
+
+        print(f"Extracting {img_filename}")
         self.unzip_image(zip_filename)
         Path(zip_filename).unlink()
 
@@ -133,13 +173,6 @@ class Image(object):
         Path(Path(self.directory) / Path(self.image_name + '.img')).unlink()
 
     def ls(self):
-        # Path(self.directory)
-
-        # images_search = Path(self.cloudmesh_images / "*")
-        # if debug:
-        #    print("images search", images_search)
-        # images = glob(str(images_search))
-        # print()
         """
         List all downloaded images
         """
