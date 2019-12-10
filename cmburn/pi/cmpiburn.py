@@ -12,7 +12,7 @@ Usage:
   cm-pi-burn set key [KEY] [MOUNTPOINT]
   cm-pi-burn enable ssh [MOUNTPOINT]
   cm-pi-burn unmount [DEVICE]
-  cm-pi-burn image versions
+  cm-pi-burn image versions [--refresh]
   cm-pi-burn image ls
   cm-pi-burn image delete [IMAGE]
   cm-pi-burn image get [URL]
@@ -45,7 +45,6 @@ Example:
 """
 
 import os
-import wget
 import hostlist
 from docopt import docopt
 from pprint import pprint
@@ -55,175 +54,19 @@ import sys
 import zipfile
 from glob import glob
 import requests
-
-##############################################
-#
-# Ignore on pi:  DH KEY TOO SMALL
-#
-# see: https://stackoverflow.com/questions/38015537/python-requests-exceptions-sslerror-dh-key-too-small
-#
-import urllib3
-
-requests.packages.urllib3.disable_warnings()
-requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += 'HIGH:!DH:!aNULL'
-try:
-    requests.packages.urllib3.contrib.pyopenssl.DEFAULT_SSL_CIPHER_LIST += 'HIGH:!DH:!aNULL'
-except AttributeError:
-    # no pyopenssl support used / needed / available
-    pass
-#
-##############################################
-
+from cmburn.pi.util import WARNING, readfile, writefile
+from cmburn.pi.image import Image
+from cmburn.pi import columns, lines
+import oyaml as yaml
 
 debug = True
 
-try:
-    columns, lines = os.get_terminal_size()
-except:
-    columns = 80
-    lines = 24
 
 # noinspection PyPep8Naming
 def WARNING(*args, **kwargs):
     print("WARNING:", *args, file=sys.stderr, **kwargs)
 
-#
-# Example image link
-#
-# https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
 
-class Image(object):
-
-    # self.directory: the folder where downloaded images are kept
-    # self.image_name: the name of the image (or URL to fetch it from)
-    # self.fullpath: the full path of the image, e.g. /home/user/.cloudmesh/images/raspbian-2019.img
-
-    def __init__(self, name="latest"):
-        self.directory = os.path.expanduser('~/.cloudmesh/images')
-        os.system('mkdir -p ' + self.directory)
-        self.image_name = name
-        self.fullpath = self.directory + '/' + self.image_name + '.img'
-
-    def versions(self, repo):
-        """
-        Fetch and list available image versions and their download URLs
-        """
-        # image locations
-        #
-        # https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/
-
-        #
-        # versions can be found with https://downloads.raspberrypi.org/raspbian_lite/images/
-        #
-
-        result = requests.get(repo, verify=False)
-        lines = result.text.split(' ')
-        d = []
-        v = []
-        for line in lines:
-            if 'href="' in line and "</td>" in line:
-                line = line.split('href="')[1]
-                line = line.split('/')[0]
-                v.append(line)
-                download = self.find_image_zip(line)
-                d.append(download)
-        return v, d
-
-    def find_image_zip(self, version):
-
-        url = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/"
-
-        result = requests.get(url, verify=False)
-        lines = result.text.split(' ')
-        v = []
-        for line in lines:
-            if '.zip"' in line and "</td>" in line:
-                line = line.split('href="')[1]
-                line = line.split('"')[0]
-                link = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/{line}"
-                return link
-        return None
-
-    def fetch(self):
-        """
-        Download the image from the URL in self.image_name
-        If it is 'latest', download the latest image - afterwards use
-          cm-pi-burn image ls
-          to get the name of the downloaded latest image.
-        """
-
-        latest = False
-        if self.image_name == 'latest':
-            latest = True
-            self.image_name = "https://downloads.raspberrypi.org/raspbian_lite_latest"
-        debug = True
-
-        if not os.path.exists(self.directory):
-            os.makedirs(self.directory)
-        os.chdir(self.directory)
-        # get image URL metadata, including the name of the latest image after
-        #   the 'latest' URL redirects to the URL of the actual image
-        source_url = requests.head(self.image_name, allow_redirects=True).url
-        size = requests.get(self.image_name, verify=False, stream=True).headers['Content-length']
-        zip_filename = os.path.basename(source_url)
-        img_filename = zip_filename.replace('.zip', '.img')
-
-        # cancel if image already downloaded
-        if os.path.exists(img_filename):
-            WARNING("file already downloaded. Found at:",
-                    Path(Path(self.directory) / Path(zip_filename)))
-            return
-
-        # cancel if image already downloaded
-        img_file = Path(Path(self.directory) / Path(img_filename))
-        if os.path.isfile(img_file):
-            WARNING("file already downloaded. Found at:",
-                    Path(Path(self.directory) / Path(zip_filename)))
-            return
-
-        # download the image, unzip it, and delete the zip file
-        wget.download(self.image_name)
-        print()
-        if latest: # rename filename from 'latest' to the actual image name
-            Path('raspbian_lite_latest').rename(zip_filename)
-        self.unzip_image(zip_filename)
-        Path(zip_filename).unlink()
-
-    def unzip_image(self, zip_filename):
-        """
-        Unzip image.zip to image.img
-        """
-        os.chdir(self.directory)
-        img_filename = zip_filename.replace('.zip', '.img')
-        zipfile.ZipFile(zip_filename).extractall()
-
-    def verify(self):
-        # verify if the image is ok, use SHA
-        raise NotImplementedError
-
-    def rm(self):
-        """
-        Delete a downloaded image (the one named self.image_name)
-        """
-        Path(Path(self.directory) / Path(self.image_name + '.img')).unlink()
-
-    def ls(self):
-        #Path(self.directory)
-
-        #images_search = Path(self.cloudmesh_images / "*")
-        #if debug:
-        #    print("images search", images_search)
-        #images = glob(str(images_search))
-        #print()
-        """
-        List all downloaded images
-        """
-        images_dir = Path(self.directory)
-        images = [str(x).replace(self.directory + '/', '').replace('.img', '') for x in images_dir.glob('*.img')]
-
-        print('Available images')
-        print(columns * '=')
-        print('\n'.join(images))
 
 class Burner(object):
 
@@ -250,11 +93,12 @@ class Burner(object):
         # change last line of /etc/hosts to have the new hostname
         # 127.0.1.1 raspberrypi   # default
         # 127.0.1.1 red47         # new
-        with open(mountpoint + '/etc/hosts', 'r') as f: # read /etc/hosts
-            lines = [l for l in f.readlines()][:-1] # ignore the last line
+        with open(mountpoint + '/etc/hosts', 'r') as f:  # read /etc/hosts
+            lines = [l for l in f.readlines()][:-1]  # ignore the last line
             newlastline = '127.0.1.1 ' + hostname + '\n'
 
-        with open(mountpoint + '/etc/hosts', 'w') as f: # and write the modified version
+        with open(mountpoint + '/etc/hosts',
+                  'w') as f:  # and write the modified version
             for line in lines:
                 f.write(line)
             f.write(newlastline)
@@ -285,7 +129,8 @@ class Burner(object):
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
         os.system('mkdir -p ' + mountpoint + '/home/pi/.ssh/')
-        os.system('cp ~/.ssh/' + name + '.pub ' + mountpoint + '/home/pi/.ssh/authorized_keys')
+        os.system(
+            'cp ~/.ssh/' + name + '.pub ' + mountpoint + '/home/pi/.ssh/authorized_keys')
 
     @staticmethod
     def mount(device, mountpoint):
@@ -300,12 +145,12 @@ class Burner(object):
         # depending on how SD card is interfaced to system:
         # if /dev/mmcblkX, partitions will be /dev/mmcblkXp1 and /dev/mmcblkXp2
         if 'mmc' in device:
-          os.system('sudo mount ' + device + 'p2 ' + mountpoint)
-          os.system('sudo mount ' + device + 'p1 ' + mountpoint + '/boot')
+            os.system('sudo mount ' + device + 'p2 ' + mountpoint)
+            os.system('sudo mount ' + device + 'p1 ' + mountpoint + '/boot')
         # if /dev/sdX, partitions will be /dev/sdX1 and /dev/sdX2
         else:
-          os.system('sudo mount ' + device + '2 ' + mountpoint)
-          os.system('sudo mount ' + device + '1 ' + mountpoint + '/boot')
+            os.system('sudo mount ' + device + '2 ' + mountpoint)
+            os.system('sudo mount ' + device + '1 ' + mountpoint + '/boot')
 
     @staticmethod
     def unmount(device):
@@ -335,43 +180,68 @@ def analyse(arguments):
         image = arguments['IMAGE']
         device = arguments['DEVICE']
         Burner.burn(image, device)
+
     elif arguments['mount']:
         device = arguments['DEVICE']
         mp = arguments['MOUNTPOINT']
         Burner.mount(device, mp)
+
     elif arguments['set'] and arguments['hostname']:
         hostname = arguments['HOSTNAME']
         mp = arguments['MOUNTPOINT']
         Burner.set_hostname(hostname, mp)
+
     elif arguments['set'] and arguments['ip']:
         ip = arguments['IP']
         mp = arguments['MOUNTPOINT']
         Burner.set_static_ip(ip, mp)
+
     elif arguments['set'] and arguments['key']:
         key = arguments['KEY']
         mp = arguments['MOUNTPOINT']
         Burner.set_key(key, mp)
+
     elif arguments['enable'] and arguments['ssh']:
         mp = arguments['MOUNTPOINT']
         Burner.enable_ssh(mp)
+
     elif arguments['unmount']:
         device = arguments['DEVICE']
         Burner.unmount(device)
-    #elif arguments['versions'] and arguments['image']:
+    # elif arguments['versions'] and arguments['image']:
     #    image = Image()
+
     elif arguments['ls']:
         Image().ls()
+
     elif arguments['delete']:
         Image(arguments['IMAGE']).rm()
+
     elif arguments['get']:
         Image(arguments['URL']).fetch()
+
     elif arguments['versions']:
-        repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
-        for repo in repos:
-            versions, downloads = Image().versions(repo)
-            print("These images are available at")
-            for version, download in zip(versions, downloads):
-                print("{} at {}".format(version, download))
+
+        data = []
+        cache = Path(os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
+        if arguments["--refresh"] or not cache.exists():
+            os.system("mkdir -p ~/.cloudmesh/cmburn")
+            print ("finding repos ...", end="")
+            repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
+            for repo in repos:
+                versions, downloads = Image().versions(repo)
+                print("These images are available at")
+                for version, download in zip(versions, downloads):
+                    print(f"{version}: {download}")
+                    data.append({version: download})
+            writefile(cache, yaml.dump(data))
+        else:
+            data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)
+            for entry in data:
+                version = list(entry.keys())[0]
+                download = entry[version]
+                print(f"{version}: {download}")
+
     elif arguments['create']:
         image = arguments['--image']
         device = arguments['--device']
@@ -397,7 +267,7 @@ def analyse(arguments):
             # wait again before second unmount
             os.system('sleep 3')
             Burner.unmount(device)
-            os.system('tput bel') # ring the terminal bell to notify user
+            os.system('tput bel')  # ring the terminal bell to notify user
             print()
             input('Insert next card and press enter...')
             print('Burning next card...')
@@ -423,6 +293,7 @@ def main():
     VERSION = 1.0
     arguments = docopt(__doc__, version=VERSION)
     analyse(arguments)
+
 
 if __name__ == '__main__':
     main()
