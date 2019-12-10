@@ -16,7 +16,7 @@ class Burner(object):
             os.system(command)
 
     @staticmethod
-    def burn(image, device, dryrun=False):
+    def burn(image, device, blocksize="4M", dryrun=False):
         """
         Burns the SD Card with an image
         :param image: Image object to use for burning
@@ -24,7 +24,10 @@ class Burner(object):
         """
         # dd if=image.img of=/dev/mmcblk0
 
-        Burner.system('sudo dd if=' + Image(image).fullpath + ' of=' + device, dryrun=dryrun)
+        image_path = Image(image).fullpath
+
+        Burner.system(f'sudo dd bs={blocksize} if={image_path} of={device}',
+                      dryrun=dryrun)
 
     @staticmethod
     def set_hostname(hostname, mountpoint, dryrun=False):

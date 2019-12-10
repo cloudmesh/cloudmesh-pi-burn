@@ -8,7 +8,9 @@ Usage:
   cm-pi-burn image ls
   cm-pi-burn image delete [IMAGE]
   cm-pi-burn image get [URL]
-  cm-pi-burn create [--image=IMAGE] [--device=DEVICE] [--hostname=HOSTNAME] [--ipaddr=IP] [--sshkey=KEY] [--b=BLOCKSIZE] [--dryrun]
+  cm-pi-burn create [--image=IMAGE] [--device=DEVICE] [--hostname=HOSTNAME]
+                    [--ipaddr=IP] [--sshkey=KEY] [--blocksize=BLOCKSIZE]
+                    [--dryrun]
   cm-pi-burn burn [IMAGE] [DEVICE] --[dryrun]
   cm-pi-burn mount [DEVICE] [MOUNTPOINT]
   cm-pi-burn set hostname [HOSTNAME] [MOUNTPOINT]
