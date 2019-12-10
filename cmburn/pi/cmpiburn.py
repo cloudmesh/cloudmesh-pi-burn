@@ -63,6 +63,7 @@ from cmburn.pi.image import Image
 from cmburn.pi import columns, lines
 import oyaml as yaml
 from cmburn.pi.burner import Burner
+from cloudmesh.common.StopWatch import StopWatch
 
 debug = True
 
@@ -75,60 +76,85 @@ def analyse(arguments):
 
         image = arguments['IMAGE']
         device = arguments['DEVICE']
+        StopWatch.start("burn")
         Burner.burn(image, device)
+        StopWatch.stop("burn")
 
     elif arguments['mount']:
         check_root(dryrun=dryrun)
 
         device = arguments['DEVICE']
         mp = arguments['MOUNTPOINT']
+        StopWatch.start("mount")
         Burner.mount(device, mp)
+        StopWatch.stop("mount")
 
     elif arguments['set'] and arguments['hostname']:
         check_root(dryrun=dryrun)
 
         hostname = arguments['HOSTNAME']
         mp = arguments['MOUNTPOINT']
+        StopWatch.start("set hostname")
         Burner.set_hostname(hostname, mp)
+        StopWatch.stop("set hostname")
 
     elif arguments['set'] and arguments['ip']:
         check_root(dryrun=dryrun)
 
         ip = arguments['IP']
         mp = arguments['MOUNTPOINT']
+        StopWatch.start("set ip")
         Burner.set_static_ip(ip, mp)
+        StopWatch.stop("set ip")
 
     elif arguments['set'] and arguments['key']:
         check_root(dryrun=dryrun)
 
         key = arguments['KEY']
         mp = arguments['MOUNTPOINT']
+        StopWatch.start("set key")
         Burner.set_key(key, mp)
+        StopWatch.stop("set key")
 
     elif arguments['enable'] and arguments['ssh']:
         check_root(dryrun=dryrun)
 
         mp = arguments['MOUNTPOINT']
+        StopWatch.start("enable ssh")
         Burner.enable_ssh(mp)
+        StopWatch.stop("enable ssh")
 
     elif arguments['unmount']:
         check_root(dryrun=dryrun)
 
         device = arguments['DEVICE']
+        StopWatch.start("unmount")
         Burner.unmount(device)
+        StopWatch.stop("unmount")
+
     # elif arguments['versions'] and arguments['image']:
     #    image = Image()
 
     elif arguments['ls'] and arguments['image']:
+        StopWatch.start("image ls")
         Image().ls()
+        StopWatch.stop("image ls")
 
     elif arguments['delete'] and arguments['image']:
+        StopWatch.start("image rm")
         Image(arguments['IMAGE']).rm()
+        StopWatch.stop("image rm")
+
 
     elif arguments['get'] and arguments['image']:
+        StopWatch.start("image fetch")
+
         Image(arguments['URL']).fetch()
+        StopWatch.stop("image fetch")
 
     elif arguments['versions'] and arguments['image']:
+
+        StopWatch.start("image versions")
 
         data = []
         cache = Path(os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
@@ -149,8 +175,13 @@ def analyse(arguments):
                 version = list(entry.keys())[0]
                 download = entry[version]
                 print("{}: {}".format(version, download))
+        StopWatch.stop("image versions")
+
 
     elif arguments['create']:
+
+        StopWatch.start("create")
+
         check_root(dryrun=dryrun)
 
         image = arguments['--image']
@@ -163,7 +194,11 @@ def analyse(arguments):
 
         dryrun = arguments["--dryrun"]
         # don't do the input() after burning the last card
+        counter = 1
         for hostname, ip in zip(hostnames[:-1], ips[:-1]):
+
+            print ("counter", counter)
+            StopWatch.start("fcreate {hostname}")
             Burner.burn(image, device, blocksize=blocksize, dryrun=dryrun)
 
             if not dryrun:
@@ -183,11 +218,14 @@ def analyse(arguments):
             if not dryrun:
                 os.system('sleep 3')
             Burner.unmount(device, dryrun=dryrun)
+            StopWatch.start("fcreate {hostname}")
+
             os.system('tput bel')  # ring the terminal bell to notify user
             print()
             input('Insert next card and press enter...')
             print('Burning next card...')
             print()
+            counter = counter + 1
 
         for hostname, ip in zip(hostnames[-1:], ips[-1:]):
             Burner.burn(image, device, blocksize=blocksize, dryrun=dryrun)
@@ -207,6 +245,8 @@ def analyse(arguments):
             os.system('tput bel')
             print('All done!')
 
+
+    StopWatch.print()
 
 def main():
     """main entrypoint for setup.py"""
