@@ -100,7 +100,7 @@ class Image(object):
         return None
 
 
-    def fetch(self, simple=True):
+    def fetch(self):
         """
         Download the image from the URL in self.image_name
         If it is 'latest', download the latest image - afterwards use
@@ -141,14 +141,11 @@ class Image(object):
             return
 
         # download the image, unzip it, and delete the zip file
-        if simple:
-            print(self.image_name)
-            os.system(f"wget -O {zip_filename} {self.image_name}")
-        else:
-            wget.download(self.image_name)
-            print()
-            if latest:  # rename filename from 'latest' to the actual image name
-                Path('raspbian_lite_latest').rename(zip_filename)
+        print(self.image_name)
+        os.system(f"wget -O {zip_filename} {self.image_name}")
+
+        #   if latest:  # rename filename from 'latest' to the actual image name
+        #        Path('raspbian_lite_latest').rename(zip_filename)
 
         print(f"Extracting {img_filename}")
         self.unzip_image(zip_filename)
