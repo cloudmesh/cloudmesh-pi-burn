@@ -50,12 +50,13 @@ def readfile(filename, mode='r'):
     :return:
     """
     if mode != 'r' and mode != 'rb':
-        print("ERROR: incorrect mode : expected \'r\' or \'rb\' given {}\n".format(mode))
+        print(f"ERROR: incorrect mode : expected 'r' or 'rb' given {mode}\n")
     else:
         with open(Path(os.path.expanduser(filename)), mode)as f:
             content = f.read()
             f.close()
         return content
+
 
 def check_root(dryrun=False, terminate=True):
     uid = os.getuid()

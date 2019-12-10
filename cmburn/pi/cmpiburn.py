@@ -70,9 +70,7 @@ from cloudmesh.common.Shell import Shell
 debug = True
 
 
-
 def analyse(arguments):
-    
     dryrun = arguments["--dryrun"]
 
     burner = Burner(dryrun=dryrun)
@@ -157,7 +155,6 @@ def analyse(arguments):
         Image(arguments['IMAGE']).rm()
         StopWatch.stop("image rm")
 
-
     elif arguments['get'] and arguments['image']:
         StopWatch.start("image fetch")
 
@@ -169,10 +166,11 @@ def analyse(arguments):
         StopWatch.start("image versions")
 
         data = []
-        cache = Path(os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
+        cache = Path(
+            os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
         if arguments["--refresh"] or not cache.exists():
             os.system("mkdir -p ~/.cloudmesh/cmburn")
-            print ("finding repos ...", end="")
+            print("finding repos ...", end="")
             repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
             for repo in repos:
                 versions, downloads = Image().versions(repo)
@@ -188,7 +186,6 @@ def analyse(arguments):
                 download = entry[version]
                 print("{}: {}".format(version, download))
         StopWatch.stop("image versions")
-
 
     elif arguments['create']:
 
@@ -208,7 +205,7 @@ def analyse(arguments):
         counter = 1
         for hostname, ip in zip(hostnames[:-1], ips[:-1]):
 
-            print ("counter", counter)
+            print("counter", counter)
             StopWatch.start("fcreate {hostname}")
             burner.burn(image, device, blocksize=blocksize)
 
@@ -256,12 +253,13 @@ def analyse(arguments):
             os.system('tput bel')
             print('All done!')
 
-    StopWatch.benchmark(sysinfo=False,csv=False)
+    StopWatch.benchmark(sysinfo=False, csv=False)
+
 
 def main():
     """main entrypoint for setup.py"""
-    VERSION = 1.0
-    arguments = docopt(__doc__, version=VERSION)
+    version = 1.0
+    arguments = docopt(__doc__, version=version)
     analyse(arguments)
 
 
