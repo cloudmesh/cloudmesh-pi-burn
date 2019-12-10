@@ -5,3 +5,4 @@ requests
 wget
 pyyaml
 oyaml
+cloudmesh-common
