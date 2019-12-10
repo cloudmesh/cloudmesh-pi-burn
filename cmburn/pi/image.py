@@ -54,7 +54,6 @@ class Image(object):
                 download = entry[version]
                 print("{}: {}".format(version, download))
 
-
     def version_cache_read(self):
         data = yaml.load(readfile(self.cache), Loader=yaml.SafeLoader)
         return data
@@ -90,15 +89,13 @@ class Image(object):
 
         result = requests.get(url, verify=False)
         lines = result.text.split(' ')
-        v = []
         for line in lines:
             if '.zip"' in line and "</td>" in line:
                 line = line.split('href="')[1]
                 line = line.split('"')[0]
-                link = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/{}".format(version, line)
+                link = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/{line}"
                 return link
         return None
-
 
     def fetch(self):
         """
@@ -108,11 +105,8 @@ class Image(object):
           to get the name of the downloaded latest image.
         """
 
-        latest = False
         if self.image_name == 'latest':
-            latest = True
             self.image_name = "https://downloads.raspberrypi.org/raspbian_lite_latest"
-        debug = True
 
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
@@ -125,7 +119,7 @@ class Image(object):
         zip_filename = os.path.basename(source_url)
         img_filename = zip_filename.replace('.zip', '.img')
 
-        print ("Downloading {}".format(zip_filename))
+        print("Downloading {}".format(zip_filename))
 
         # cancel if image already downloaded
         if os.path.exists(img_filename):
@@ -156,7 +150,7 @@ class Image(object):
         Unzip image.zip to image.img
         """
         os.chdir(self.directory)
-        img_filename = zip_filename.replace('.zip', '.img')
+        # img_filename = zip_filename.replace('.zip', '.img')
         zipfile.ZipFile(zip_filename).extractall()
 
     def verify(self):
