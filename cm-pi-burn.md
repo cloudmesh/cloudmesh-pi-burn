@@ -90,6 +90,14 @@ In future we will remove the -e
 
     $ pip install .
 
+
+## ROOT
+
+    $ sudo su
+    # source /home/pi/ENV3/bin/activate
+
+notation # this is done un sudo su
+
 ## Finding Image Versions
 
 First you have to find the raspbian image you like to install. For this
@@ -98,13 +106,13 @@ in the Raspberry Pi repository. To see the versions, please use the command
 
 
 ```bash
-$ cm-pi-burn versions
+# cm-pi-burn versions
 ```
 
 Once in a while they come out with new versions. You can refersh the list with
 
 ```bash
-$ cm-pi-burn versions --refresh
+# cm-pi-burn versions --refresh
 ```
 
 ## Downloading an Image
@@ -112,7 +120,7 @@ $ cm-pi-burn versions --refresh
 To download the newest image, use the command
 
 ```bash
-$ cm-pi-burn get latest
+# cm-pi-burn get latest
 ```
 
 The image is downloaded into the folder
@@ -122,7 +130,7 @@ The image is downloaded into the folder
 To list the downloaded images you can use the command
 
 ```bash
-$ ./cm-pi-burn.py image ls
+# ./cm-pi-burn.py image ls
 ```
 
 
@@ -132,7 +140,7 @@ NOT YET IMPLEMENTED
 
 
 ```bash
-$ cm-pi-burn get raspbian_lite-2019-04-09
+# cm-pi-burn get raspbian_lite-2019-04-09
 ```
 
 where the label, is the label that you will get from the versions
@@ -142,11 +150,34 @@ command. You can also specify the exact URL with
 NOT YET IMPLEMENTED
 
 ```bash
-$ cm-pi-burn get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
+# cm-pi-burn get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
 ```
 
 
+## VERIFICATION
+
+
+Before burning we need to find out where the SD CARD reader is and what we do
+
+    # ls /media/pi/*/*
+     
+         file error
+         
+         Path.glob
+
+## FORMAT
+
+missing command
+
+1. check whats on it and prints useful stuff ???
+2. only erase if i approve
+
+
+
+
 ## Creating Cluster SD-Cards
+
+THIS ODES NOT WORK
 
 Next we describe how we create a number of SD-Cards to create a cluster.
 Each card will have a unique hostname, an ipaddress and you public key.
@@ -154,20 +185,24 @@ Each card will have a unique hostname, an ipaddress and you public key.
 To burn one card use:
 
 ```
-$ sudo cm-pi-burn create --image=2019-09-26-raspbian-buster-lite \
-                         --device=/dev/mmcblk0 \
-                         --hostname=red2 --ipaddr=192.168.1.2 \
-                         --sshkey=~/.ssh/id_rsa.pub
+# cm-pi-burn create \
+    --image=2019-09-26-raspbian-buster-lite \
+    --device=/dev/???? \
+    --hostname=red2 \
+    --ipaddr=192.168.1.2 \
+    --sshkey=/home/pi/.ssh/id_rsa.pub
 ```
 
 To burn many cards you can specify them conveniently in parameter
 notation in  the `--hostname` and `--ipaddr` arguments:
 
 ```
-$ sudo cm-pi-burn create --image=2019-09-26-raspbian-buster-lite \
-                         --device=/dev/mmcblk0 \
-                         --hostname=red[2-6] --ipaddr=192.168.1.[2-6]\
-                         --sshkey=~/.ssh/id_rsa.pub 
+# cm-pi-burn create \
+    --image=2019-09-26-raspbian-buster-lite \
+    --device=/dev/????? \
+    --hostname=red[2-6] \
+    --ipaddr=192.168.1.[2-6] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub 
 ```
 
 TODO: clarify this .... we can do this without errors and try except
