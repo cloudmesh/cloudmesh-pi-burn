@@ -22,9 +22,9 @@ class Burner(object):
         :param image: Image object to use for burning
         :param device: Device to burn to, e.g. /dev/mmcblk0
         """
-        # cat image.img >/dev/mmcblk0
+        # dd if=image.img of=/dev/mmcblk0
 
-        Burner.system('sudo cat ' + Image(image).fullpath + ' >' + device, dryrun=dryrun)
+        Burner.system('sudo dd if=' + Image(image).fullpath + ' of=' + device, dryrun=dryrun)
 
     @staticmethod
     def set_hostname(hostname, mountpoint, dryrun=False):
