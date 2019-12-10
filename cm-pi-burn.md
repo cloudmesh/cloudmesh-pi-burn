@@ -12,14 +12,6 @@ packages:
 
 Find the device the SD card appears as when plugged in (likely `/dev/mmcblk0`).
 
-Additionally, find the name for you SSH public key:
-
-| If your key is located at | its name is |
-|---------------------------|-------------|
-| ~/.ssh/id_ed25519.pub     | id_ed25519  |
-| ~/.ssh/id_rsa.pub         | id_rsa      |
-
-Skip to the 'Usage' section below to run cm-pi-burn.
 
 ## Setup a Master Raspberry Pi
 
@@ -47,7 +39,14 @@ Now, open a terminal and execute
     $sudo apt-get update
     $sudo apt-get full-upgrade
 
+Now you have to create an ssh key with the command
 
+    ssh-keygen
+    
+Keep the default location and use a strong passphrase. Using no
+passphrase is not recommended. You can use `ssh-add` in a terminal so
+you do not have to all the time type in your passphrase. Please consult
+with the manual aon `ssh-keygen` and `ssh-add`.
 
 ## Activate python 3
 
@@ -145,37 +144,33 @@ $ cm-pi-burn get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian
 ```
 
 
-## FIX FROM HERE ON 
+## Creating Cluster SD-Cards
 
+Next we describe how we create a number of SD-Cards to create a cluster.
+Each card will have a unique hostname, an ipaddress and you public key.
 
-The next commands 
-
-THIS SEEMS A BUG, images should be downloaded as regular user::
-
-Note that the download command is run as root, since images are by default
-saved inside the user's home folder and the burn process must be done as root -
-thus, the download must also be done as root to put the downloaded image into
-root's home folder.
-
-\
-
-To burn one card:
+To burn one card use:
 
 ```
-$ cm-pi-burn create --image=2019-09-26-raspbian-buster-lite \
-                    --device=/dev/mmcblk0 \
-                    --hostname=red2 --ipaddr=192.168.1.2 \
-                    --sshkey=id_ed25519
+$ sudo cm-pi-burn create --image=2019-09-26-raspbian-buster-lite \
+                         --device=/dev/mmcblk0 \
+                         --hostname=red2 --ipaddr=192.168.1.2 \
+                         --sshkey=~/.ssh/id_rsa.pub
 ```
 
-To burn many cards (only change is in hostname/ipaddr args):
+To burn many cards you can specify them conveniently in parameter
+notation in  the `--hostname` and `--ipaddr` arguments:
 
 ```
-$ cm-pi-burn create --image=2019-09-26-raspbian-buster-lite \
-                    --device=/dev/mmcblk0 \
-                    --hostname=red[2-6] --ipaddr=192.168.1.[2-6]\
-                    --sshkey=id_ed25519 
+$ sudo cm-pi-burn create --image=2019-09-26-raspbian-buster-lite \
+                         --device=/dev/mmcblk0 \
+                         --hostname=red[2-6] --ipaddr=192.168.1.[2-6]\
+                         --sshkey=~/.ssh/id_rsa.pub 
 ```
+
+TODO: clarify this .... we can do this without errors and try except
+then and only report the erros that are relevant.
+
 
 You may see the program output some unmount errors during the burn process -
 this is normal.
