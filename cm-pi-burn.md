@@ -240,3 +240,14 @@ LED control:
     
     See also 
     https://www.raspberrypi.org/forums/viewtopic.php?t=12530
+
+SSHFS:
+	add master to .ssh/config onlocal machine
+
+	Host master
+         HostName xxx.xxx.xxx.xxx
+         User pi
+         IdentityFile ~/.ssh/id_rsa.pub
+
+	mkdir master
+	sshfs master: master
