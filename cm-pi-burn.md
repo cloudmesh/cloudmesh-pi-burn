@@ -29,20 +29,26 @@ strong password) you need to update it after the customary reboot.
 
 Make sure your time is set up properly, which you can do with 
 
+```bash
 $ sudo date -s "Dec 2, 2019 14:03 EST"
+```
 
 and put in the appropriate time string corresponding to your date and
 time and time zone.
 
 Now, open a terminal and execute 
 
+```bash
     $sudo apt-get update
     $sudo apt-get full-upgrade
+```
 
 Now you have to create an ssh key with the command
 
+```bash
     ssh-keygen
-    
+```
+
 Keep the default location and use a strong passphrase. Using no
 passphrase is not recommended. You can use `ssh-add` in a terminal so
 you do not have to all the time type in your passphrase. Please consult
@@ -52,13 +58,17 @@ with the manual aon `ssh-keygen` and `ssh-add`.
 
 Next configure python 3 with the help of a virtual env
 
+```bash
     $python3 -venv ~/ENV3
     $ source ~/ENV3/bin/activate
+```
 
 Place at the end of your `.bashrc` file the line
 
-    source ~/ENV3/bin/activate
-    
+```
+source ~/ENV3/bin/activate
+```
+ 
 Now open a new terminal and see if it has the `(ENV3)` as a prefix to
 your command prompt.
 
