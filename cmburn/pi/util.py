@@ -26,13 +26,13 @@ def readfile(filename, mode='r'):
     :return:
     """
     if mode != 'r' and mode != 'rb':
-        print( f"ERROR: incorrect mode : expected \'r\' or \'rb\' given {mode}\n")
+        print("ERROR: incorrect mode : expected \'r\' or \'rb\' given {}\n".format(mode))
     else:
         with open(Path(os.path.expanduser(filename)), mode)as f:
             content = f.read()
             f.close()
         return content
-    
+
 def check_root(dryrun=False, terminate=True):
     uid = os.getuid()
     if uid == 0:
@@ -41,4 +41,3 @@ def check_root(dryrun=False, terminate=True):
         print("You do not run as root")
         if terminate and not dryrun:
             sys.exit()
-       

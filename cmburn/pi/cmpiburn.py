@@ -140,7 +140,7 @@ def analyse(arguments):
                 versions, downloads = Image().versions(repo)
                 print("These images are available at")
                 for version, download in zip(versions, downloads):
-                    print(f"{version}: {download}")
+                    print("{}: {}".format(version, download))
                     data.append({version: download})
             writefile(cache, yaml.dump(data))
         else:
@@ -148,7 +148,7 @@ def analyse(arguments):
             for entry in data:
                 version = list(entry.keys())[0]
                 download = entry[version]
-                print(f"{version}: {download}")
+                print("{}: {}".format(version, download))
 
     elif arguments['create']:
         check_root(dryrun=dryrun)
