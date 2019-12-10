@@ -135,7 +135,7 @@ class Image(object):
 
         # cancel if image already downloaded
         img_file = Path(Path(self.directory) / Path(img_filename))
-        if os.path.isfile(img_file):
+        if os.path.isfile(str(img_file)):
             WARNING("file already downloaded. Found at:",
                     Path(Path(self.directory) / Path(zip_filename)))
             return
