@@ -1,6 +1,7 @@
 import sys
 import os
 from pathlib import Path
+from time import sleep
 
 # noinspection PyPep8Naming
 def WARNING(*args, **kwargs):
@@ -32,11 +33,12 @@ def readfile(filename, mode='r'):
             f.close()
         return content
     
-def check_root():
-    
+def check_root(terminate=True):
     uid = os.getuid()
     if uid == 0:
-        print("you are executing a a root user")
+        print("You are executing a a root user")
     else:
-        print("you dont have root user permissions")
+        print("You do not run as root")
+        if terminate:
+            sys.exit()
        
