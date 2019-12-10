@@ -134,11 +134,8 @@ $ ./cm-pi-burn.py image ls
 
 ## FIX FROM HERE ON 
 
-You must create an empty `/media/pi` directory if it does not already exist:
 
-```bash
-$ mkdir -p /media/pi
-```
+The next commands 
 
 THIS SEEMS A BUG, images should be downloaded as regular user::
 
