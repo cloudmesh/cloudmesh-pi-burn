@@ -73,7 +73,9 @@ debug = True
 def analyse(arguments):
     dryrun = arguments["--dryrun"]
 
+    StopWatch.start("info")
     burner = Burner(dryrun=dryrun)
+    StopWatch.stop("info")
 
     if arguments['burn']:
 
