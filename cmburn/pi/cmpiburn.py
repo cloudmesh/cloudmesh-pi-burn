@@ -4,22 +4,22 @@
 Cloudmesh Raspberry Pi Image Burner.
 
 Usage:
-  cm-pi-burn info
-  cm-pi-burn detect
-  cm-pi-burn image versions [--refresh]
-  cm-pi-burn image ls
-  cm-pi-burn image delete [IMAGE]
-  cm-pi-burn image get [URL]
-  cm-pi-burn create [--image=IMAGE] [--device=DEVICE] [--hostname=HOSTNAME]
-                    [--ipaddr=IP] [--sshkey=KEY] [--blocksize=BLOCKSIZE]
-                    [--dryrun]
-  cm-pi-burn burn [IMAGE] [DEVICE] --[dryrun]
-  cm-pi-burn mount [DEVICE] [MOUNTPOINT]
-  cm-pi-burn set hostname [HOSTNAME] [MOUNTPOINT]
-  cm-pi-burn set ip [IP] [MOUNTPOINT]
-  cm-pi-burn set key [KEY] [MOUNTPOINT]
-  cm-pi-burn enable ssh [MOUNTPOINT]
-  cm-pi-burn unmount [DEVICE]
+  cm-pi-burn [-v] info
+  cm-pi-burn [-v] detect
+  cm-pi-burn [-v] image versions [--refresh]
+  cm-pi-burn [-v] image ls
+  cm-pi-burn [-v] image delete [IMAGE]
+  cm-pi-burn [-v] image get [URL]
+  cm-pi-burn [-v]create [--image=IMAGE] [--device=DEVICE] [--hostname=HOSTNAME]
+                        [--ipaddr=IP] [--sshkey=KEY] [--blocksize=BLOCKSIZE]
+                        [--dryrun]
+  cm-pi-burn [-v] burn [IMAGE] [DEVICE] --[dryrun]
+  cm-pi-burn [-v] mount [DEVICE] [MOUNTPOINT]
+  cm-pi-burn [-v] set hostname [HOSTNAME] [MOUNTPOINT]
+  cm-pi-burn [-v] set ip [IP] [MOUNTPOINT]
+  cm-pi-burn [-v] set key [KEY] [MOUNTPOINT]
+  cm-pi-burn [-v] enable ssh [MOUNTPOINT]
+  cm-pi-burn [-v] unmount [DEVICE]
   cm-pi-burn (-h | --help)
   cm-pi-burn --version
 
@@ -73,7 +73,8 @@ debug = True
 
 def analyse(arguments):
     dryrun = arguments["--dryrun"]
-
+    verbose = arguments["-v"]
+    
     StopWatch.start("info")
     burner = Burner(dryrun=dryrun)
     StopWatch.stop("info")
@@ -262,7 +263,8 @@ def analyse(arguments):
             os.system('tput bel')
             print('All done!')
 
-    StopWatch.benchmark(sysinfo=False, csv=False)
+    if verbose:
+        StopWatch.benchmark(sysinfo=False, csv=False)
 
 
 def main():
