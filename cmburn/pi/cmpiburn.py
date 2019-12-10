@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Cloudmesh Raspberry Pi Image Burner.
@@ -54,18 +54,13 @@ import sys
 import zipfile
 from glob import glob
 import requests
+
 from cmburn.pi.util import WARNING, readfile, writefile
 from cmburn.pi.image import Image
 from cmburn.pi import columns, lines
 import oyaml as yaml
 
 debug = True
-
-
-# noinspection PyPep8Naming
-def WARNING(*args, **kwargs):
-    print("WARNING:", *args, file=sys.stderr, **kwargs)
-
 
 
 class Burner(object):
