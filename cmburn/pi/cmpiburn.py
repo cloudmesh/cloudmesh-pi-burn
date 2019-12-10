@@ -8,7 +8,7 @@ Usage:
   cm-pi-burn image ls
   cm-pi-burn image delete [IMAGE]
   cm-pi-burn image get [URL]
-  cm-pi-burn create [--image=IMAGE] [--device=DEVICE] [--hostname=HOSTNAME] [--ipaddr=IP] [--sshkey=KEY] [--dryrun]
+  cm-pi-burn create [--image=IMAGE] [--device=DEVICE] [--hostname=HOSTNAME] [--ipaddr=IP] [--sshkey=KEY] [--b=BLOCKSIZE] [--dryrun]
   cm-pi-burn burn [IMAGE] [DEVICE] --[dryrun]
   cm-pi-burn mount [DEVICE] [MOUNTPOINT]
   cm-pi-burn set hostname [HOSTNAME] [MOUNTPOINT]
@@ -20,13 +20,14 @@ Usage:
   cm-pi-burn --version
 
 Options:
-  -h --help           Show this screen.
-  --version           Show version.
-  --image=IMAGE       The image filename, e.g. 2019-09-26-raspbian-buster.img
-  --device=DEVICE     The device, e.g. /dev/mmcblk0
-  --hostname=HOSTNAME The hostname
-  --ipaddr=IP         The IP address
-  --key=KEY           The name of the SSH key file [default: id_rsa]
+  -h --help              Show this screen.
+  --version              Show version.
+  --image=IMAGE          The image filename, e.g. 2019-09-26-raspbian-buster.img
+  --device=DEVICE        The device, e.g. /dev/mmcblk0
+  --hostname=HOSTNAME    The hostname
+  --ipaddr=IP            The IP address
+  --key=KEY              The name of the SSH key file [default: id_rsa]
+  --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
 
 Files:
   This is not fully thought through and needs to be documented
@@ -138,11 +139,12 @@ def analyse(arguments):
         ips = hostlist.expand_hostlist(arguments['--ipaddr'])
         key = arguments['--sshkey']
         mp = '/mount/pi'
+        blocksize = arguments["--blocksize"]
 
         dryrun = arguments["--dryrun"]
         # don't do the input() after burning the last card
         for hostname, ip in zip(hostnames[:-1], ips[:-1]):
-            Burner.burn(image, device, dryrun=dryrun)
+            Burner.burn(image, device, blocksize=blocksize, dryrun=dryrun)
 
             if not dryrun:
                 os.system('sleep 3')
@@ -168,7 +170,7 @@ def analyse(arguments):
             print()
 
         for hostname, ip in zip(hostnames[-1:], ips[-1:]):
-            Burner.burn(image, device, dryrun=dryrun)
+            Burner.burn(image, device, blocksize=blocksize, dryrun=dryrun)
             if not dryrun:
                 os.system('sleep 3')
             Burner.mount(device, mp, dryrun=dryrun)
