@@ -19,7 +19,7 @@ class Burner(object):
         self.dryrun = dryrun
 
     def info(self):
-        print("cm-pi-burn:", self._burn)
+        print("cm-pi-burn:", self.cm_burn)
         print("dryrun:    ", self.dryrun)
 
         banner("Operating System")
