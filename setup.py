@@ -51,6 +51,7 @@ setup(
         "requests",
         "wget",
         "pyyaml",
+        "oyaml"
     ],
     extras_require={  # Optional
         'dev': ['check-manifest'],
