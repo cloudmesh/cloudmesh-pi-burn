@@ -8,8 +8,8 @@ Usage:
   cm-pi-burn image ls
   cm-pi-burn image delete [IMAGE]
   cm-pi-burn image get [URL]
-  cm-pi-burn create [--image=IMAGE] [--device=DEVICE] [--hostname=HOSTNAME] [--ipaddr=IP] [--sshkey=KEY]
-  cm-pi-burn burn [IMAGE] [DEVICE]
+  cm-pi-burn create [--image=IMAGE] [--device=DEVICE] [--hostname=HOSTNAME] [--ipaddr=IP] [--sshkey=KEY] [--dryrun]
+  cm-pi-burn burn [IMAGE] [DEVICE] --[dryrun]
   cm-pi-burn mount [DEVICE] [MOUNTPOINT]
   cm-pi-burn set hostname [HOSTNAME] [MOUNTPOINT]
   cm-pi-burn set ip [IP] [MOUNTPOINT]
@@ -131,6 +131,7 @@ def analyse(arguments):
                 print(f"{version}: {download}")
 
     elif arguments['create']:
+
         image = arguments['--image']
         device = arguments['--device']
         hostnames = hostlist.expand_hostlist(arguments['--hostname'])
@@ -138,40 +139,49 @@ def analyse(arguments):
         key = arguments['--sshkey']
         mp = '/mount/pi'
 
+        dryrun = arguments["--dryrun"]
         # don't do the input() after burning the last card
         for hostname, ip in zip(hostnames[:-1], ips[:-1]):
-            Burner.burn(image, device)
-            os.system('sleep 3')
+            Burner.burn(image, device, dryrun=dryrun)
+
+            if not dryrun:
+                os.system('sleep 3')
             # wait to let the OS detect the filesystems on the newly burned card
-            Burner.mount(device, mp)
-            Burner.enable_ssh(mp)
-            Burner.set_hostname(hostname, mp)
-            Burner.set_key(key, mp)
-            Burner.set_static_ip(ip, mp)
+            Burner.mount(device, mp, dryrun=dryrun)
+            Burner.enable_ssh(mp, dryrun=dryrun)
+            Burner.set_hostname(hostname, mp, dryrun=dryrun)
+            Burner.set_key(key, mp, dryrun=dryrun)
+            Burner.set_static_ip(ip, mp, dryrun=dryrun)
             # wait before unmounting
-            os.system('sleep 3')
-            Burner.unmount(device)
+            if not dryrun:
+                os.system('sleep 3')
+            Burner.unmount(device, dryrun=dryrun)
             # for some reason, need to do unmount twice for it to work properly
             # wait again before second unmount
-            os.system('sleep 3')
-            Burner.unmount(device)
+            if not dryrun:
+                os.system('sleep 3')
+            Burner.unmount(device, dryrun=dryrun)
             os.system('tput bel')  # ring the terminal bell to notify user
             print()
             input('Insert next card and press enter...')
             print('Burning next card...')
             print()
+
         for hostname, ip in zip(hostnames[-1:], ips[-1:]):
-            Burner.burn(image, device)
-            os.system('sleep 3')
-            Burner.mount(device, mp)
-            Burner.enable_ssh(mp)
-            Burner.set_hostname(hostname, mp)
-            Burner.set_key(key, mp)
-            Burner.set_static_ip(ip, mp)
-            os.system('sleep 3')
-            Burner.unmount(device)
-            os.system('sleep 3')
-            Burner.unmount(device)
+            Burner.burn(image, device, dryrun=dryrun)
+            if not dryrun:
+                os.system('sleep 3')
+            Burner.mount(device, mp, dryrun=dryrun)
+            Burner.enable_ssh(mp, dryrun=dryrun)
+            Burner.set_hostname(hostname, mp, dryrun=dryrun)
+            Burner.set_key(key, mp, dryrun=dryrun)
+            Burner.set_static_ip(ip, mp, dryrun=dryrun)
+            if not dryrun:
+                os.system('sleep 3')
+            Burner.unmount(device, dryrun=dryrun)
+            if not dryrun:
+                os.system('sleep 3')
+            Burner.unmount(device, dryrun=dryrun)
             os.system('tput bel')
             print('All done!')
 
