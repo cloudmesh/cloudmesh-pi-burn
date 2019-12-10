@@ -6,7 +6,7 @@ from cmburn.pi.util import WARNING
 import os
 from cmburn.pi.image import Image
 from cloudmesh.common.Shell import Shell
-
+from cloudmesh.common.util import banner
 
 class Burner(object):
 
@@ -17,7 +17,20 @@ class Burner(object):
         self.cm_burn = Shell.which("/home/pi/ENV3/bin/cm-pi-burn")
         self.dryrun = dryrun
 
-    def system(self, command):
+    def info(self):
+        print("cm-pi-burn:", self._burn)
+        print("dryrun:    ", self.dryrun)
+
+        banner("Operating System")
+        os.system("fdisk -l /dev/mmcblk0")
+
+        banner("SD-Card")
+
+        sda = Shell.execute("fdisk", ["-l", "/dev/sda"])
+        print (sda)
+
+
+def system(self, command):
         if self.dryrun:
             print (command)
         else:
@@ -116,7 +129,7 @@ class Burner(object):
         if 'mmc' in device:
             self.system('sudo mount ' + device + 'p2 ' + mountpoint)
             self.system('sudo mount ' + device + 'p1 ' + mountpoint + '/boot')
-        # if /dev/sdX, partitions will be /dev/sdX1 and /dev/sdX2
+            # if /dev/sdX, partitions will be /dev/sdX1 and /dev/sdX2
         else:
             self.system('sudo mount ' + device + '2 ' + mountpoint)
             self.system('sudo mount ' + device + '1 ' + mountpoint + '/boot')
