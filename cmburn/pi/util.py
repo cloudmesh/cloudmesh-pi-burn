@@ -33,12 +33,12 @@ def readfile(filename, mode='r'):
             f.close()
         return content
     
-def check_root(terminate=True):
+def check_root(dryrun=False, terminate=True):
     uid = os.getuid()
     if uid == 0:
         print("You are executing a a root user")
     else:
         print("You do not run as root")
-        if terminate:
+        if terminate and not dryrun:
             sys.exit()
        
