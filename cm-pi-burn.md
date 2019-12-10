@@ -25,8 +25,8 @@ Skip to the 'Usage' section below to run cm-pi-burn.
 
 Download the latest Raspbian Desktop image from <https://www.raspberrypi.org/downloads/raspbian/> and unzip it to get a `.img` file. Insert a SD card into your computer and burn it with this image using a program like `cat` or Etcher:
 
-```
-# cat raspbian-image-filename.img >/dev/mmcblk0
+```bash
+$ cat raspbian-image-filename.img >/dev/mmcblk0
 ```
 
 Insert the card into a Raspberry Pi and boot it up. Connect to WiFi via the GUI.
@@ -35,21 +35,21 @@ All work should be done as root.
 
 Set the time so that SSL works properly:
 
-```
-# timedatectl set-time '2019-12-21 23:59:00'
+```bash
+$ timedatectl set-time '2019-12-21 23:59:00'
 ```
 
 Install the cm-pi-burn python dependencies via pip:
 
-```
-# pip3 install docopt pprint python_hostlist wget requests
+```bash
+$ pip3 install docopt pprint python_hostlist wget requests
 ```
 
 Clone the cm-pi-burn git respository and enter it:
 
-```
-# git clone https://github.com/cloudmesh/cm-burn.git
-# cd cm-burn
+```bash
+$ git clone https://github.com/cloudmesh/cm-burn.git
+$ cd cm-burn
 ```
 
 Follow the instructions in the 'Usage' section below.
@@ -61,16 +61,37 @@ When you insert a second SD card to the Raspberry Pi, you can use the command
 
 # Usage
 
+First you must install cm-pi-burn. In a future version this will be done with 
+
+```bash
+$ pip install cloudmesh-cmburn
+```
+   
+However in the meanwhile you do it as follows:
+
+```bash
+$ mkdir cm
+$ cd cm
+$ git clone git@github.com:cloudmesh/cm-burn.git
+$ cd cm-burn
+$ pip install -e .
+```    
+
+In future we will remove the -e
+
+    $ pip install .
+
+
 You must create an empty `/media/pi` directory if it does not already exist:
 
-```
-# mkdir -p /media/pi
+```bash
+$ mkdir -p /media/pi
 ```
 
 Download the latest Raspbian image:
 
-```
-# ./cm-pi-burn.py image get latest
+```bash
+$ ./cm-pi-burn.py image get latest
 ```
 
 Note that the download command is run as root, since images are by default
@@ -80,22 +101,22 @@ root's home folder.
 
 Find the name of the downloaded image:
 
-```
-# ./cm-pi-burn.py image ls
+```bash
+$ ./cm-pi-burn.py image ls
 ```
 
 Alternatively you can download an older image by first listing the available
 images and then providing a download URL:
 
-```
-# ./cm-pi-burn.py image versions
-# ./cm-pi-burn.py image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
+```bash
+$ ./cm-pi-burn.py image versions
+$ ./cm-pi-burn.py image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
 ```
 
 To burn one card:
 
 ```
-# ./cm-pi-burn.py create --image=2019-09-26-raspbian-buster-lite
+$ ./cm-pi-burn.py create --image=2019-09-26-raspbian-buster-lite
                          --device=/dev/mmcblk0
                          --hostname=red2 --ipaddr=192.168.1.2
                          --sshkey=id_ed25519
@@ -104,7 +125,7 @@ To burn one card:
 To burn many cards (only change is in hostname/ipaddr args):
 
 ```
-# ./cm-pi-burn.py create --image=2019-09-26-raspbian-buster-lite
+$ ./cm-pi-burn.py create --image=2019-09-26-raspbian-buster-lite
                          --device=/dev/mmcblk0
                          --hostname=red[2-6] --ipaddr=192.168.1.[2-6]
                          --sshkey=id_ed25519
