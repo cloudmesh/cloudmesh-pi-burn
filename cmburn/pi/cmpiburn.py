@@ -4,6 +4,10 @@
 Cloudmesh Raspberry Pi Image Burner.
 
 Usage:
+  cm-pi-burn image versions [--refresh]
+  cm-pi-burn image ls
+  cm-pi-burn image delete [IMAGE]
+  cm-pi-burn image get [URL]
   cm-pi-burn create [--image=IMAGE] [--device=DEVICE] [--hostname=HOSTNAME] [--ipaddr=IP] [--sshkey=KEY]
   cm-pi-burn burn [IMAGE] [DEVICE]
   cm-pi-burn mount [DEVICE] [MOUNTPOINT]
@@ -12,10 +16,6 @@ Usage:
   cm-pi-burn set key [KEY] [MOUNTPOINT]
   cm-pi-burn enable ssh [MOUNTPOINT]
   cm-pi-burn unmount [DEVICE]
-  cm-pi-burn image versions [--refresh]
-  cm-pi-burn image ls
-  cm-pi-burn image delete [IMAGE]
-  cm-pi-burn image get [URL]
   cm-pi-burn (-h | --help)
   cm-pi-burn --version
 
