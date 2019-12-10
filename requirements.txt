@@ -4,3 +4,4 @@ prompter
 requests
 wget
 pyyaml
+oyaml
