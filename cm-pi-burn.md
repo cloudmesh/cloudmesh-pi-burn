@@ -1,14 +1,6 @@
 # cm-pi-burn
 
-## Setup on 'normal' computer
-
-Make sure you have git and Python 3 installed. Use pip to install the following
-packages:
-
-- docopt
-- pprint
-- python_hostlist
-- wget
+THIS NEEDS TO BE MOVED ELSEWHERE
 
 Find the device the SD card appears as when plugged in (likely `/dev/mmcblk0`).
 
