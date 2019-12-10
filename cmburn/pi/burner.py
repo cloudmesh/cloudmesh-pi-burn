@@ -7,6 +7,7 @@ import os
 from cmburn.pi.image import Image
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import banner
+from cloudmesh.common.console import Console
 
 
 class Burner(object):
@@ -29,6 +30,10 @@ class Burner(object):
 
         sda = Shell.execute("fdisk", ["-l", "/dev/sda"])
         print(sda)
+        if "Linux" in sda:
+            Console.error("the SD-Card is not empty")
+
+
 
     def system(self, command):
         if self.dryrun:
