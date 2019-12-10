@@ -74,7 +74,7 @@ def analyse(arguments):
     
     dryrun = arguments["--dryrun"]
 
-    burner = Burner()
+    burner = Burner(dryrun=dryrun)
 
     if arguments['burn']:
         # check_root(dryrun=dryrun)
@@ -197,32 +197,31 @@ def analyse(arguments):
         mp = '/mount/pi'
         blocksize = arguments["--blocksize"]
 
-        dryrun = arguments["--dryrun"]
         # don't do the input() after burning the last card
         counter = 1
         for hostname, ip in zip(hostnames[:-1], ips[:-1]):
 
             print ("counter", counter)
             StopWatch.start("fcreate {hostname}")
-            burner.burn(image, device, blocksize=blocksize, dryrun=dryrun)
+            burner.burn(image, device, blocksize=blocksize)
 
             if not dryrun:
                 os.system('sleep 3')
             # wait to let the OS detect the filesystems on the newly burned card
-            burner.mount(device, mp, dryrun=dryrun)
-            burner.enable_ssh(mp, dryrun=dryrun)
-            burner.set_hostname(hostname, mp, dryrun=dryrun)
-            burner.set_key(key, mp, dryrun=dryrun)
-            burner.set_static_ip(ip, mp, dryrun=dryrun)
+            burner.mount(device, mp)
+            burner.enable_ssh(mp)
+            burner.set_hostname(hostname, mp)
+            burner.set_key(key, mp)
+            burner.set_static_ip(ip, mp)
             # wait before unmounting
             if not dryrun:
                 os.system('sleep 3')
-            burner.unmount(device, dryrun=dryrun)
+            burner.unmount(device)
             # for some reason, need to do unmount twice for it to work properly
             # wait again before second unmount
             if not dryrun:
                 os.system('sleep 3')
-            burner.unmount(device, dryrun=dryrun)
+            burner.unmount(device)
             StopWatch.start("fcreate {hostname}")
 
             os.system('tput bel')  # ring the terminal bell to notify user
@@ -233,20 +232,20 @@ def analyse(arguments):
             counter = counter + 1
 
         for hostname, ip in zip(hostnames[-1:], ips[-1:]):
-            burner.burn(image, device, blocksize=blocksize, dryrun=dryrun)
+            burner.burn(image, device, blocksize=blocksize)
             if not dryrun:
                 os.system('sleep 3')
-            burner.mount(device, mp, dryrun=dryrun)
-            burner.enable_ssh(mp, dryrun=dryrun)
-            burner.set_hostname(hostname, mp, dryrun=dryrun)
-            burner.set_key(key, mp, dryrun=dryrun)
-            burner.set_static_ip(ip, mp, dryrun=dryrun)
+            burner.mount(device, mp)
+            burner.enable_ssh(mp)
+            burner.set_hostname(hostname, mp)
+            burner.set_key(key, mp)
+            burner.set_static_ip(ip, mp)
             if not dryrun:
                 os.system('sleep 3')
-            burner.unmount(device, dryrun=dryrun)
+            burner.unmount(device)
             if not dryrun:
                 os.system('sleep 3')
-            burner.unmount(device, dryrun=dryrun)
+            burner.unmount(device)
             os.system('tput bel')
             print('All done!')
 
