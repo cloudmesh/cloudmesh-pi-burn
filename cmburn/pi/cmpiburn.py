@@ -64,12 +64,17 @@ from cmburn.pi import columns, lines
 import oyaml as yaml
 from cmburn.pi.burner import Burner
 from cloudmesh.common.StopWatch import StopWatch
+from cloudmesh.common.Shell import Shell
 
 debug = True
+
+
 
 def analyse(arguments):
     
     dryrun = arguments["--dryrun"]
+
+    burner = Burner()
 
     if arguments['burn']:
         check_root(dryrun=dryrun)
@@ -77,7 +82,7 @@ def analyse(arguments):
         image = arguments['IMAGE']
         device = arguments['DEVICE']
         StopWatch.start("burn")
-        Burner.burn(image, device)
+        burner.burn(image, device)
         StopWatch.stop("burn")
 
     elif arguments['mount']:
@@ -86,7 +91,7 @@ def analyse(arguments):
         device = arguments['DEVICE']
         mp = arguments['MOUNTPOINT']
         StopWatch.start("mount")
-        Burner.mount(device, mp)
+        burner.mount(device, mp)
         StopWatch.stop("mount")
 
     elif arguments['set'] and arguments['hostname']:
@@ -95,7 +100,7 @@ def analyse(arguments):
         hostname = arguments['HOSTNAME']
         mp = arguments['MOUNTPOINT']
         StopWatch.start("set hostname")
-        Burner.set_hostname(hostname, mp)
+        burner.set_hostname(hostname, mp)
         StopWatch.stop("set hostname")
 
     elif arguments['set'] and arguments['ip']:
@@ -104,7 +109,7 @@ def analyse(arguments):
         ip = arguments['IP']
         mp = arguments['MOUNTPOINT']
         StopWatch.start("set ip")
-        Burner.set_static_ip(ip, mp)
+        burner.set_static_ip(ip, mp)
         StopWatch.stop("set ip")
 
     elif arguments['set'] and arguments['key']:
@@ -113,7 +118,7 @@ def analyse(arguments):
         key = arguments['KEY']
         mp = arguments['MOUNTPOINT']
         StopWatch.start("set key")
-        Burner.set_key(key, mp)
+        burner.set_key(key, mp)
         StopWatch.stop("set key")
 
     elif arguments['enable'] and arguments['ssh']:
@@ -121,7 +126,7 @@ def analyse(arguments):
 
         mp = arguments['MOUNTPOINT']
         StopWatch.start("enable ssh")
-        Burner.enable_ssh(mp)
+        burner.enable_ssh(mp)
         StopWatch.stop("enable ssh")
 
     elif arguments['unmount']:
@@ -129,7 +134,7 @@ def analyse(arguments):
 
         device = arguments['DEVICE']
         StopWatch.start("unmount")
-        Burner.unmount(device)
+        burner.unmount(device)
         StopWatch.stop("unmount")
 
     # elif arguments['versions'] and arguments['image']:
@@ -199,25 +204,25 @@ def analyse(arguments):
 
             print ("counter", counter)
             StopWatch.start("fcreate {hostname}")
-            Burner.burn(image, device, blocksize=blocksize, dryrun=dryrun)
+            burner.burn(image, device, blocksize=blocksize, dryrun=dryrun)
 
             if not dryrun:
                 os.system('sleep 3')
             # wait to let the OS detect the filesystems on the newly burned card
-            Burner.mount(device, mp, dryrun=dryrun)
-            Burner.enable_ssh(mp, dryrun=dryrun)
-            Burner.set_hostname(hostname, mp, dryrun=dryrun)
-            Burner.set_key(key, mp, dryrun=dryrun)
-            Burner.set_static_ip(ip, mp, dryrun=dryrun)
+            burner.mount(device, mp, dryrun=dryrun)
+            burner.enable_ssh(mp, dryrun=dryrun)
+            burner.set_hostname(hostname, mp, dryrun=dryrun)
+            burner.set_key(key, mp, dryrun=dryrun)
+            burner.set_static_ip(ip, mp, dryrun=dryrun)
             # wait before unmounting
             if not dryrun:
                 os.system('sleep 3')
-            Burner.unmount(device, dryrun=dryrun)
+            burner.unmount(device, dryrun=dryrun)
             # for some reason, need to do unmount twice for it to work properly
             # wait again before second unmount
             if not dryrun:
                 os.system('sleep 3')
-            Burner.unmount(device, dryrun=dryrun)
+            burner.unmount(device, dryrun=dryrun)
             StopWatch.start("fcreate {hostname}")
 
             os.system('tput bel')  # ring the terminal bell to notify user
@@ -228,20 +233,20 @@ def analyse(arguments):
             counter = counter + 1
 
         for hostname, ip in zip(hostnames[-1:], ips[-1:]):
-            Burner.burn(image, device, blocksize=blocksize, dryrun=dryrun)
+            burner.burn(image, device, blocksize=blocksize, dryrun=dryrun)
             if not dryrun:
                 os.system('sleep 3')
-            Burner.mount(device, mp, dryrun=dryrun)
-            Burner.enable_ssh(mp, dryrun=dryrun)
-            Burner.set_hostname(hostname, mp, dryrun=dryrun)
-            Burner.set_key(key, mp, dryrun=dryrun)
-            Burner.set_static_ip(ip, mp, dryrun=dryrun)
+            burner.mount(device, mp, dryrun=dryrun)
+            burner.enable_ssh(mp, dryrun=dryrun)
+            burner.set_hostname(hostname, mp, dryrun=dryrun)
+            burner.set_key(key, mp, dryrun=dryrun)
+            burner.set_static_ip(ip, mp, dryrun=dryrun)
             if not dryrun:
                 os.system('sleep 3')
-            Burner.unmount(device, dryrun=dryrun)
+            burner.unmount(device, dryrun=dryrun)
             if not dryrun:
                 os.system('sleep 3')
-            Burner.unmount(device, dryrun=dryrun)
+            burner.unmount(device, dryrun=dryrun)
             os.system('tput bel')
             print('All done!')
 
