@@ -23,6 +23,9 @@ Skip to the 'Usage' section below to run cm-pi-burn.
 
 ## Setup on Raspberry Pi
 
+    $sudo apt-get update
+    $sudo apt-get full-upgrade
+
 Download the latest Raspbian Desktop image from <https://www.raspberrypi.org/downloads/raspbian/> and unzip it to get a `.img` file. Insert a SD card into your computer and burn it with this image using a program like `cat` or Etcher:
 
 ```bash
