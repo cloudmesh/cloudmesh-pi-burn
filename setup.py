@@ -51,7 +51,8 @@ setup(
         "requests",
         "wget",
         "pyyaml",
-        "oyaml"
+        "oyaml",
+        "cloudmesh-common"
     ],
     extras_require={  # Optional
         'dev': ['check-manifest'],

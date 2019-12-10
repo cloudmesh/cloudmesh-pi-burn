@@ -59,6 +59,12 @@ When you insert a second SD card to the Raspberry Pi, you can use the command
 (it may or may not be `/dev/mmcblk0`, which is used as an example in the
 'Usage' section below).
 
+## Activate python 3
+
+    $python3 -venv ~/ENV3
+    $ source ~/ENV3/bin/activate
+
+
 ## Instalation
 
 First you must install cm-pi-burn. In a future version this will be done with 
