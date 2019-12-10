@@ -40,16 +40,17 @@ class Burner(object):
 
     def burn(self, image, device, blocksize="4M"):
         """
-            Burns the SD Card with an image
-            :param image: Image object to use for burning
-            :param device: Device to burn to, e.g. /dev/mmcblk0
-            """
-        # dd if=image.img of=/dev/mmcblk0
+        Burns the SD Card with an image
+
+        :param image: Image object to use for burning
+        :param device: Device to burn to, e.g. /dev/sda
+        :param blocksize:
+        :return:
+        """
 
         image_path = Image(image).fullpath
 
-        self.system(
-            'sudo dd bs={} if={} of={}'.format(blocksize, image_path, device))
+        self.system('sudo dd bs={blocksize} if={image_path} of={device}')
 
 
     def set_hostname(self, hostname, mountpoint):

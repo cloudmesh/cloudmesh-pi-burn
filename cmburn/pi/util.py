@@ -45,6 +45,8 @@ def readfile(filename, mode='r'):
     """
     returns the content of a file
     :param filename: the filename
+    :param mode:
+
     :return:
     """
     if mode != 'r' and mode != 'rb':
