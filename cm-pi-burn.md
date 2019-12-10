@@ -23,8 +23,6 @@ Skip to the 'Usage' section below to run cm-pi-burn.
 
 # Setup on Raspberry Pi
 
-TODO verify this works with no errors
-
 Download the latest Raspbian Desktop image from <https://www.raspberrypi.org/downloads/raspbian/> and unzip it to get a `.img` file. Insert a SD card into your computer and burn it with this image using a program like `cat` or Etcher:
 
 ```
@@ -33,31 +31,28 @@ Download the latest Raspbian Desktop image from <https://www.raspberrypi.org/dow
 
 Insert the card into a Raspberry Pi and boot it up. Connect to WiFi via the GUI.
 
-Next, install git and pip with the following command in a terminal on the Pi:
+All work should be done as root.
+
+Set the time so that SSL works properly:
 
 ```
-$ sudo apt install git python3-pip
+# timedatectl set-time '2019-12-21 23:59:00'
 ```
 
 Install the cm-pi-burn python dependencies via pip:
 
 ```
-$ pip3 install --user docopt pprint python_hostlist wget
+# pip3 install docopt pprint python_hostlist wget requests
 ```
 
 Clone the cm-pi-burn git respository and enter it:
 
 ```
-$ git clone https://github.com/cloudmesh/cm-burn.git
-$ cd cm-burn
+# git clone https://github.com/cloudmesh/cm-burn.git
+# cd cm-burn
 ```
 
-Switch to the root user and then follow the instructions in the 'Usage' section
-below.
-
-```
-$ sudo su
-```
+Follow the instructions in the 'Usage' section below.
 
 When you insert a second SD card to the Raspberry Pi, you can use the command
 `sudo fdisk -l` to list storage devices and find the name of the second SD card

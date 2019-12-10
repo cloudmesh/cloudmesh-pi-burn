@@ -7,6 +7,8 @@ import requests
 import os
 from pathlib import Path
 import zipfile
+import wget
+
 from cmburn.pi import columns, lines
 
 from cmburn.pi.util import WARNING
