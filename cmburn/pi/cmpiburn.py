@@ -58,7 +58,7 @@ import zipfile
 from glob import glob
 import requests
 
-from cmburn.pi.util import WARNING, readfile, writefile
+from cmburn.pi.util import WARNING, readfile, writefile, check_root
 from cmburn.pi.image import Image
 from cmburn.pi import columns, lines
 import oyaml as yaml
@@ -67,51 +67,68 @@ from cmburn.pi.burner import Burner
 debug = True
 
 def analyse(arguments):
+    
+    dryrun = arguments["--dryrun"]
+
     if arguments['burn']:
+        check_root(dryrun=dryrun)
+
         image = arguments['IMAGE']
         device = arguments['DEVICE']
         Burner.burn(image, device)
 
     elif arguments['mount']:
+        check_root(dryrun=dryrun)
+
         device = arguments['DEVICE']
         mp = arguments['MOUNTPOINT']
         Burner.mount(device, mp)
 
     elif arguments['set'] and arguments['hostname']:
+        check_root(dryrun=dryrun)
+
         hostname = arguments['HOSTNAME']
         mp = arguments['MOUNTPOINT']
         Burner.set_hostname(hostname, mp)
 
     elif arguments['set'] and arguments['ip']:
+        check_root(dryrun=dryrun)
+
         ip = arguments['IP']
         mp = arguments['MOUNTPOINT']
         Burner.set_static_ip(ip, mp)
 
     elif arguments['set'] and arguments['key']:
+        check_root(dryrun=dryrun)
+
         key = arguments['KEY']
         mp = arguments['MOUNTPOINT']
         Burner.set_key(key, mp)
 
     elif arguments['enable'] and arguments['ssh']:
+        check_root(dryrun=dryrun)
+
         mp = arguments['MOUNTPOINT']
         Burner.enable_ssh(mp)
 
     elif arguments['unmount']:
+        check_root(dryrun=dryrun)
+
         device = arguments['DEVICE']
         Burner.unmount(device)
     # elif arguments['versions'] and arguments['image']:
     #    image = Image()
 
-    elif arguments['ls']:
+    elif arguments['ls'] and arguments['image']:
         Image().ls()
 
-    elif arguments['delete']:
+    elif arguments['delete'] and arguments['image']:
         Image(arguments['IMAGE']).rm()
 
-    elif arguments['get']:
+    elif arguments['get'] and arguments['image']:
         Image(arguments['URL']).fetch()
 
-    elif arguments['versions']:
+    elif arguments['versions'] and arguments['image']:
 
         data = []
         cache = Path(os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
@@ -134,6 +151,7 @@ def analyse(arguments):
                 print(f"{version}: {download}")
 
     elif arguments['create']:
+        check_root(dryrun=dryrun)
 
         image = arguments['--image']
         device = arguments['--device']
