@@ -77,7 +77,7 @@ def analyse(arguments):
     burner = Burner()
 
     if arguments['burn']:
-        check_root(dryrun=dryrun)
+        # check_root(dryrun=dryrun)
 
         image = arguments['IMAGE']
         device = arguments['DEVICE']
@@ -86,7 +86,7 @@ def analyse(arguments):
         StopWatch.stop("burn")
 
     elif arguments['mount']:
-        check_root(dryrun=dryrun)
+        # check_root(dryrun=dryrun)
 
         device = arguments['DEVICE']
         mp = arguments['MOUNTPOINT']
@@ -95,7 +95,7 @@ def analyse(arguments):
         StopWatch.stop("mount")
 
     elif arguments['set'] and arguments['hostname']:
-        check_root(dryrun=dryrun)
+        # check_root(dryrun=dryrun)
 
         hostname = arguments['HOSTNAME']
         mp = arguments['MOUNTPOINT']
@@ -104,7 +104,7 @@ def analyse(arguments):
         StopWatch.stop("set hostname")
 
     elif arguments['set'] and arguments['ip']:
-        check_root(dryrun=dryrun)
+        # check_root(dryrun=dryrun)
 
         ip = arguments['IP']
         mp = arguments['MOUNTPOINT']
@@ -113,7 +113,7 @@ def analyse(arguments):
         StopWatch.stop("set ip")
 
     elif arguments['set'] and arguments['key']:
-        check_root(dryrun=dryrun)
+        # check_root(dryrun=dryrun)
 
         key = arguments['KEY']
         mp = arguments['MOUNTPOINT']
@@ -122,7 +122,7 @@ def analyse(arguments):
         StopWatch.stop("set key")
 
     elif arguments['enable'] and arguments['ssh']:
-        check_root(dryrun=dryrun)
+        # check_root(dryrun=dryrun)
 
         mp = arguments['MOUNTPOINT']
         StopWatch.start("enable ssh")
@@ -130,7 +130,7 @@ def analyse(arguments):
         StopWatch.stop("enable ssh")
 
     elif arguments['unmount']:
-        check_root(dryrun=dryrun)
+        # check_root(dryrun=dryrun)
 
         device = arguments['DEVICE']
         StopWatch.start("unmount")
@@ -187,7 +187,7 @@ def analyse(arguments):
 
         StopWatch.start("create")
 
-        check_root(dryrun=dryrun)
+        # check_root(dryrun=dryrun)
 
         image = arguments['--image']
         device = arguments['--device']
