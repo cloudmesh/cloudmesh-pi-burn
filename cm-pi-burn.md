@@ -108,7 +108,12 @@ $ cm-pi-burn get raspbian_lite-2019-04-09
 
 where the label, is the label that you will get from the versions
 command. In case you like to use the latest download, you can use the
-command.
+command. You can also specify the exact URL with 
+
+```bash
+$ cm-pi-burn get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
+```
+
 
 ```bash
 $ cm-pi-burn get latest
