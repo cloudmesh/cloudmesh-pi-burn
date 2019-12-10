@@ -149,19 +149,19 @@ root's home folder.
 To burn one card:
 
 ```
-$ ./cm-pi-burn.py create --image=2019-09-26-raspbian-buster-lite
-                         --device=/dev/mmcblk0
-                         --hostname=red2 --ipaddr=192.168.1.2
-                         --sshkey=id_ed25519
+$ cm-pi-burn create --image=2019-09-26-raspbian-buster-lite \
+                    --device=/dev/mmcblk0 \
+                    --hostname=red2 --ipaddr=192.168.1.2 \
+                    --sshkey=id_ed25519
 ```
 
 To burn many cards (only change is in hostname/ipaddr args):
 
 ```
-$ ./cm-pi-burn.py create --image=2019-09-26-raspbian-buster-lite
-                         --device=/dev/mmcblk0
-                         --hostname=red[2-6] --ipaddr=192.168.1.[2-6]
-                         --sshkey=id_ed25519
+$ cm-pi-burn create --image=2019-09-26-raspbian-buster-lite \
+                    --device=/dev/mmcblk0 \
+                    --hostname=red[2-6] --ipaddr=192.168.1.[2-6]\
+                    --sshkey=id_ed25519 
 ```
 
 You may see the program output some unmount errors during the burn process -
