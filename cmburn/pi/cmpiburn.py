@@ -62,6 +62,24 @@ import oyaml as yaml
 
 debug = True
 
+##############################################
+#
+# Ignore on pi:  DH KEY TOO SMALL
+#
+# see: https://stackoverflow.com/questions/38015537/python-requests-exceptions-sslerror-dh-key-too-small
+#
+import urllib3
+
+requests.packages.urllib3.disable_warnings()
+requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'AES128-SHA'
+try:
+    requests.packages.urllib3.contrib.pyopenssl.DEFAULT_SSL_CIPHER_LIST = 'AES128-SHA'
+except AttributeError:
+    # no pyopenssl support used / needed / available
+    pass
+
+#
+##############################################
 
 class Burner(object):
 
@@ -213,7 +231,7 @@ def analyse(arguments):
         Image(arguments['IMAGE']).rm()
 
     elif arguments['get']:
-        Image(arguments['URL']).fetch()
+        Image(arguments['URL']).fetch(simple=True)
 
     elif arguments['versions']:
 
