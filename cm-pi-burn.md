@@ -1,6 +1,6 @@
 # cm-pi-burn
 
-# Setup on 'normal' computer
+## Setup on 'normal' computer
 
 Make sure you have git and Python 3 installed. Use pip to install the following
 packages:
@@ -21,7 +21,7 @@ Additionally, find the name for you SSH public key:
 
 Skip to the 'Usage' section below to run cm-pi-burn.
 
-# Setup on Raspberry Pi
+## Setup on Raspberry Pi
 
 Download the latest Raspbian Desktop image from <https://www.raspberrypi.org/downloads/raspbian/> and unzip it to get a `.img` file. Insert a SD card into your computer and burn it with this image using a program like `cat` or Etcher:
 
@@ -59,7 +59,7 @@ When you insert a second SD card to the Raspberry Pi, you can use the command
 (it may or may not be `/dev/mmcblk0`, which is used as an example in the
 'Usage' section below).
 
-# Usage
+## Instalation
 
 First you must install cm-pi-burn. In a future version this will be done with 
 
@@ -81,6 +81,53 @@ In future we will remove the -e
 
     $ pip install .
 
+## Finding Image Versions
+
+First you have to find the raspbian image you like to install. For this
+purpose we have developed a command that lists you the available images
+in the Raspberry Pi repository. To see the versions, please use the command
+
+
+```bash
+$ cm-pi-burn versions
+```
+
+Once in a while they come out with new versions. You can refersh the list with
+
+```bash
+$ cm-pi-burn versions --refresh
+```
+
+## Downloading an Image
+
+Once you decided which image you like to download your can use the command
+
+```bash
+$ cm-pi-burn get raspbian_lite-2019-04-09
+```
+
+where the label, is the label that you will get from the versions
+command. In case you like to use the latest download, you can use the
+command.
+
+```bash
+$ cm-pi-burn get latest
+```
+
+The image is downloaded into the folder
+
+* `~/.cloudmesh/cmburn/images`
+
+
+
+
+## FIX FROM HERE ON 
+
+
+
+
+
+
 
 You must create an empty `/media/pi` directory if it does not already exist:
 
@@ -93,6 +140,8 @@ Download the latest Raspbian image:
 ```bash
 $ ./cm-pi-burn.py image get latest
 ```
+
+THIS SEEMS A BUG, images should be downloaded as regular user::
 
 Note that the download command is run as root, since images are by default
 saved inside the user's home folder and the burn process must be done as root -
