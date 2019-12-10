@@ -23,7 +23,7 @@ class Image(object):
     # self.fullpath: the full path of the image, e.g. /home/user/.cloudmesh/images/raspbian-2019.img
 
     def __init__(self, name="latest"):
-        self.directory = os.path.expanduser('~/.cloudmesh/images')
+        self.directory = os.path.expanduser('~/.cloudmesh/cmburn/images')
         os.system('mkdir -p ' + self.directory)
         self.image_name = name
         self.fullpath = self.directory + '/' + self.image_name + '.img'
@@ -147,7 +147,7 @@ class Image(object):
         images = [str(x).replace(self.directory + '/', '').replace('.img', '')
                   for x in images_dir.glob('*.img')]
 
-        print('Available images')
+        print('Available images in', self.directory)
         print(columns * '=')
         print('\n'.join(images))
 
