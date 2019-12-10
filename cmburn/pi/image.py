@@ -44,7 +44,7 @@ class Image(object):
                 versions, downloads = Image().versions(repo)
                 print("These images are available at")
                 for version, download in zip(versions, downloads):
-                    print(f"{version}: {download}")
+                    print("{}: {}".format(version, download))
                     data.append({version: download})
             writefile(self.cache, yaml.dump(data))
         else:
@@ -52,7 +52,7 @@ class Image(object):
             for entry in data:
                 version = list(entry.keys())[0]
                 download = entry[version]
-                print(f"{version}: {download}")
+                print("{}: {}".format(version, download))
 
 
     def version_cache_read(self):
@@ -86,7 +86,7 @@ class Image(object):
 
     def find_image_zip(self, version):
 
-        url = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/"
+        url = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/".format(version)
 
         result = requests.get(url, verify=False)
         lines = result.text.split(' ')
@@ -95,7 +95,7 @@ class Image(object):
             if '.zip"' in line and "</td>" in line:
                 line = line.split('href="')[1]
                 line = line.split('"')[0]
-                link = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/{line}"
+                link = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/{}".format(version, line)
                 return link
         return None
 
@@ -125,7 +125,7 @@ class Image(object):
         zip_filename = os.path.basename(source_url)
         img_filename = zip_filename.replace('.zip', '.img')
 
-        print (f"Downloading {zip_filename}")
+        print ("Downloading {}".format(zip_filename))
 
         # cancel if image already downloaded
         if os.path.exists(img_filename):
@@ -142,12 +142,12 @@ class Image(object):
 
         # download the image, unzip it, and delete the zip file
         print(self.image_name)
-        os.system(f"wget -O {zip_filename} {self.image_name}")
+        os.system("wget -O {} {}".format(zip_filename, self.image_name))
 
         #   if latest:  # rename filename from 'latest' to the actual image name
         #        Path('raspbian_lite_latest').rename(zip_filename)
 
-        print(f"Extracting {img_filename}")
+        print("Extracting {}".format(img_filename))
         self.unzip_image(zip_filename)
         Path(zip_filename).unlink()
 

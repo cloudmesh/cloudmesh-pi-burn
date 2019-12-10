@@ -26,7 +26,7 @@ class Burner(object):
 
         image_path = Image(image).fullpath
 
-        Burner.system(f'sudo dd bs={blocksize} if={image_path} of={device}',
+        Burner.system('sudo dd bs={} if={} of={}'.format(blocksize, image_path, device),
                       dryrun=dryrun)
 
     @staticmethod
