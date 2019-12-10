@@ -21,51 +21,50 @@ Additionally, find the name for you SSH public key:
 
 Skip to the 'Usage' section below to run cm-pi-burn.
 
-## Setup on Raspberry Pi
+## Setup a Master Raspberry Pi
+
+We recommend that you install first on one Raspberry pi the full
+operating system. Please consult with the manuals on how to burn your SD
+card.
+
+Download the latest Raspbian Desktop image from
+<https://www.raspberrypi.org/downloads/raspbian/> and unzip it to get a
+`.img` file. Insert a SD card into your computer and burn it with this
+image using a program like Etcher.
+
+Once you have achieved that and configured the OS (dont forget to use a
+strong password) you need to update it after the customary reboot.
+
+Make sure your time is set up properly, which you can do with 
+
+$ sudo date -s "Dec 2, 2019 14:03 EST"
+
+and put in the appropriate time string corresponding to your date and
+time and time zone.
+
+Now, open a terminal and execute 
 
     $sudo apt-get update
     $sudo apt-get full-upgrade
 
-Download the latest Raspbian Desktop image from <https://www.raspberrypi.org/downloads/raspbian/> and unzip it to get a `.img` file. Insert a SD card into your computer and burn it with this image using a program like `cat` or Etcher:
 
-```bash
-$ cat raspbian-image-filename.img >/dev/mmcblk0
-```
-
-Insert the card into a Raspberry Pi and boot it up. Connect to WiFi via the GUI.
-
-All work should be done as root.
-
-Set the time so that SSL works properly:
-
-```bash
-$ timedatectl set-time '2019-12-21 23:59:00'
-```
-
-Install the cm-pi-burn python dependencies via pip:
-
-```bash
-$ pip3 install docopt pprint python_hostlist wget requests
-```
-
-Clone the cm-pi-burn git respository and enter it:
-
-```bash
-$ git clone https://github.com/cloudmesh/cm-burn.git
-$ cd cm-burn
-```
-
-Follow the instructions in the 'Usage' section below.
-
-When you insert a second SD card to the Raspberry Pi, you can use the command
-`sudo fdisk -l` to list storage devices and find the name of the second SD card
-(it may or may not be `/dev/mmcblk0`, which is used as an example in the
-'Usage' section below).
 
 ## Activate python 3
 
+Next configure python 3 with the help of a virtual env
+
     $python3 -venv ~/ENV3
     $ source ~/ENV3/bin/activate
+
+Place at the end of your `.bashrc` file the line
+
+    source ~/ENV3/bin/activate
+    
+Now open a new terminal and see if it has the `(ENV3)` as a prefix to
+your command prompt.
+
+If this is the case close all the other windows and use the terminal you
+just started.
 
 
 ## Instalation
@@ -109,20 +108,7 @@ $ cm-pi-burn versions --refresh
 
 ## Downloading an Image
 
-Once you decided which image you like to download your can use the command
-
-```bash
-$ cm-pi-burn get raspbian_lite-2019-04-09
-```
-
-where the label, is the label that you will get from the versions
-command. In case you like to use the latest download, you can use the
-command. You can also specify the exact URL with 
-
-```bash
-$ cm-pi-burn get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
-```
-
+To download the newest image, use the command
 
 ```bash
 $ cm-pi-burn get latest
@@ -134,11 +120,29 @@ The image is downloaded into the folder
 
 To list the downloaded images you can use the command
 
-
 ```bash
 $ ./cm-pi-burn.py image ls
 ```
 
+
+In case you need other images, you can downloead them while using the label:
+
+NOT YET IMPLEMENTED
+
+
+```bash
+$ cm-pi-burn get raspbian_lite-2019-04-09
+```
+
+where the label, is the label that you will get from the versions
+command. In case you like to use the latest download, you can use the
+command. You can also specify the exact URL with 
+
+NOT YET IMPLEMENTED
+
+```bash
+$ cm-pi-burn get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
+```
 
 
 ## FIX FROM HERE ON 
