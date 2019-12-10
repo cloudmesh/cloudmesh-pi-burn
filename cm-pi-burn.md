@@ -123,27 +123,21 @@ The image is downloaded into the folder
 
 * `~/.cloudmesh/cmburn/images`
 
+To list the downloaded images you can use the command
+
+
+```bash
+$ ./cm-pi-burn.py image ls
+```
 
 
 
 ## FIX FROM HERE ON 
 
-
-
-
-
-
-
 You must create an empty `/media/pi` directory if it does not already exist:
 
 ```bash
 $ mkdir -p /media/pi
-```
-
-Download the latest Raspbian image:
-
-```bash
-$ ./cm-pi-burn.py image get latest
 ```
 
 THIS SEEMS A BUG, images should be downloaded as regular user::
@@ -153,19 +147,7 @@ saved inside the user's home folder and the burn process must be done as root -
 thus, the download must also be done as root to put the downloaded image into
 root's home folder.
 
-Find the name of the downloaded image:
-
-```bash
-$ ./cm-pi-burn.py image ls
-```
-
-Alternatively you can download an older image by first listing the available
-images and then providing a download URL:
-
-```bash
-$ ./cm-pi-burn.py image versions
-$ ./cm-pi-burn.py image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
-```
+\
 
 To burn one card:
 
