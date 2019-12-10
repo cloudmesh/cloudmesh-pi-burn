@@ -23,23 +23,44 @@ class Burner(object):
         self.dryrun = dryrun
 
     def detect(self):
+        """
         banner("Detecting USB Card Reader")
 
         print ("Make sure the USB Reader is removed ...")
         if not yn_choice("Is the reader removed?"):
             sys.exit()
-        usb_out = Shell.run("lsusb").splitlines()
+        usb_out = set(Shell.execute("lsusb").splitlines())
         print ("Now plug in the Reader ...")
         if not yn_choice("Is the reader pluged in?"):
             sys.exit()
-        usb_in = Shell.run("lsusb").splitlines()
+        usb_in = set(Shell.execute("lsusb").splitlines())
+        
+        """
+        usb_out =  set(['Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub',
+                    'Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub',
+                    'Bus 001 Device 004: ID 413c:2113 Dell Computer Corp. ',
+                    'Bus 001 Device 003: ID 046d:c077 Logitech, Inc. M105 Optical Mouse',
+                    'Bus 001 Device 002: ID 2109:3431 VIA Labs, Inc. Hub',
+                    'Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub'])
+        usb_in  =  set(['Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub',
+                    'Bus 002 Device 005: ID 05e3:0749 Genesys Logic, Inc. ',
+                    'Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub',
+                    'Bus 001 Device 004: ID 413c:2113 Dell Computer Corp. ',
+                    'Bus 001 Device 003: ID 046d:c077 Logitech, Inc. M105 Optical Mouse',
+                    'Bus 001 Device 002: ID 2109:3431 VIA Labs, Inc. Hub',
+                    'Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub'])
 
-        pprint(usb_out)
-        pprint(usb_in)
+        writer = usb_in - usb_out
+        if len(writer) == 0:
+            print("ERROR: we did not detect the devise, make sure it is plugged.")
+            sys.exit()
+        else:
+            banner("Detected Card Writer")
 
-
-
-
+            print (" ".join(writer))
+            print()
+            
+        
     def info(self):
         print("cm-pi-burn:", self.cm_burn)
         print("dryrun:    ", self.dryrun)
