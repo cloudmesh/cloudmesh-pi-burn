@@ -31,3 +31,12 @@ def readfile(filename, mode='r'):
             content = f.read()
             f.close()
         return content
+    
+def check_root():
+    
+    uid = os.getuid()
+    if uid == 0:
+        print("you are executing a a root user")
+    else:
+        print("you dont have root user permissions")
+       
