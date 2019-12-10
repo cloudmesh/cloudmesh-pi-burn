@@ -245,8 +245,7 @@ def analyse(arguments):
             os.system('tput bel')
             print('All done!')
 
-
-    StopWatch.print()
+    StopWatch.benchmark(sysinfo=False,csv=False)
 
 def main():
     """main entrypoint for setup.py"""
