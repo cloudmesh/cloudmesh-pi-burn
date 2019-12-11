@@ -241,6 +241,7 @@ class Burner(object):
             """
         # BUG: figure out what you wait for wait before unmounting
         if not self.dryrun:
+            print(f"umount {device}")
             time.sleep(3) # TODO
 
         # unmount p1 (/boot) and then p1 (/)
@@ -258,6 +259,20 @@ class Burner(object):
         # touch mountpoint/boot/ssh
         command = f'sudo touch {mountpoint}/boot/ssh'
         self.system(command)
+
+
+    def format(self, devices=None):
+
+        if devices is None:
+            return
+        for device in devices:
+            self.umount(device)
+            command = f"sudo mkfs.vfat -F32 -v {device}"
+
+            if self.dryrun:
+                print(command)
+            else:
+                os.system(f"sudo mkfs.vfat -F32 -v {device}")
 
 
 class MultiBurner(object):
