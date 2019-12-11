@@ -240,7 +240,7 @@ def analyse(arguments):
                    device=devices,
                    blocksize=blocksize,
                    progress=True,
-                   hostname=hostnames,
+                   hostnames=hostnames,
                    # not difference between names and name, maybe we shoudl allign
                    ips=ips,
                    key=key)

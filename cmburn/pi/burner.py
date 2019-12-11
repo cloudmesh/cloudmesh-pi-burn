@@ -276,21 +276,22 @@ class MultiBurner(object):
 
     """
 
-    def __init__(self, prefix="/dev/sd", devices="abcdefgh"):
+    def burn_all(self,
+             image="latest",
+             device="dev/sda",
+             blocksize="4M",
+             progress=True,
+             hostnames=None,
+             ips=None,
+             key=None):
         """
-
-
         :param devices: string with device letters
         """
 
         #
         # define the dev
         #
-        self.devices = {}  # dict of {device_name: empty_status}
-        device_letters = devices.split()
-        #for device in device_letters:
-            #dev = f'{prefix}{device}'
-            #self.devices.append(dict({dev: None}))
+        devices = {}  # dict of {device_name: empty_status}
         #
         # probe the dev
         #
@@ -300,15 +301,15 @@ class MultiBurner(object):
             #print("call the info command on the device and "
             #      "figure out if an empty card is in it")
             # change the status based on what you found
-            self.devices[device] = info_statuses[device]['empty']
+            devices[device] = info_statuses[device]['empty']
 
         # if we detect a non empty card we interrupt and tell
         # which is not empty.
         # (print out status of the devices in a table)
-        device_statuses = self.devices.values()
+        device_statuses = devices.values()
         if False in device_statuses:
             print("\nEmpty status of devices:")
-            for dev, empty_status in self.devices.items():
+            for dev, empty_status in devices.items():
                 x = "" if empty_status else "not "
                 print(f"Device {dev} is {x}empty")
         print()
@@ -332,14 +333,14 @@ class MultiBurner(object):
         for device, status in self.devices.items():
             if status == "empty card":
                 raise NotImplementedError
-                # TODO burn the card, use the Burner class
+                self.burn(image, device, blocksize, progress, hostnames, ips, key)
 
     def burn(self,
              image="latest",
              device="dev/sda",
              blocksize="4M",
              progress=True,
-             hostname=None,
+             hostnames=None,
              ips=None,
              key=None):
         """
