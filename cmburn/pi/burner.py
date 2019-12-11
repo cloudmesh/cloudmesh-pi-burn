@@ -16,6 +16,10 @@ from pprint import pprint
 class Burner(object):
 
     def __init__(self, dryrun=False):
+        """
+
+        :param dryrun:
+        """
         #
         # BUG this is actually a bug ;-) we should do this differently ;-)
         #
@@ -23,6 +27,10 @@ class Burner(object):
         self.dryrun = dryrun
 
     def detect(self):
+        """
+
+        :return:
+        """
         banner("Detecting USB Card Reader")
 
         print("Make sure the USB Reader is removed ...")
@@ -46,6 +54,10 @@ class Burner(object):
             print()
 
     def info(self):
+        """
+
+        :return:
+        """
 
         print("cm-pi-burn:", self.cm_burn)
         print("dryrun:    ", self.dryrun)
@@ -121,6 +133,11 @@ class Burner(object):
         # this is for fedora, but should also work for rasbian
 
     def system(self, command):
+        """
+
+        :param command:
+        :return:
+        """
         if self.dryrun:
             print(command)
         else:
@@ -208,11 +225,12 @@ class Burner(object):
 
     def mount(self, device, mountpoint="/mount/pi"):
         """
-            Mounts the current SD card
-            :param device: Device to mount, e.g. /dev/mmcblk0
-            :param mountpoint: Mountpoint, e.g. /mount/pi - note no trailing
-                               slash
-            """
+        Mounts the current SD card
+
+        :param device: Device to mount, e.g. /dev/sda
+        :param mountpoint: Mountpoint, e.g. /mount/pi - note no trailing
+                           slash
+        """
         # mount p2 (/) and then p1 (/boot)
 
         #
@@ -236,9 +254,10 @@ class Burner(object):
 
     def unmount(self, device):
         """
-            Unmounts the current SD card
-            :param device: Device to unmount, e.g. /dev/mmcblk0
-            """
+        Unmounts the current SD card
+
+        :param device: Device to unmount, e.g. /dev/sda
+        """
         # BUG: figure out what you wait for wait before unmounting
         if not self.dryrun:
             print(f"umount {device}")
@@ -254,6 +273,11 @@ class Burner(object):
 
     def enable_ssh(self, mountpoint):
         """
+
+        :param mountpoint:
+        :return:
+        """
+        """
             Enables ssh on next boot of sd card
             """
         # touch mountpoint/boot/ssh
@@ -262,13 +286,16 @@ class Burner(object):
 
 
     def format(self, devices=None):
+        """
 
+        :param devices:
+        :return:
+        """
         if devices is None:
             return
         for device in devices:
             self.umount(device)
             command = f"sudo mkfs.vfat -F32 -v {device}"
-
             if self.dryrun:
                 print(command)
             else:
@@ -293,8 +320,17 @@ class MultiBurner(object):
              ips=None,
              key=None):
         """
-        :param devices: string with device letters
+        :param image:
+        :param device:
+        :param blocksize:
+        :param progress:
+        :param hostnames:
+        :param ips:
+        :param key:
+        :return:
         """
+
+        #:param devices: string with device letters
 
         #
         # define the dev
@@ -368,9 +404,17 @@ class MultiBurner(object):
              ip=None,
              key=None):
         """
-        Burns the image on the specific device
 
+        :param image:
+        :param device:
+        :param blocksize:
+        :param progress:
+        :param hostname:
+        :param ip:
+        :param key:
+        :return:
         """
+        # Burns the image on the specific device
 
         mp = '/mount/pi'
 
