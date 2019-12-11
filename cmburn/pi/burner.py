@@ -6,7 +6,7 @@ from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Printer import Printer
-
+# from pprint import pprint
 
 # noinspection PyPep8
 class Burner(object):
@@ -216,6 +216,19 @@ class Burner(object):
             """
         # mount p2 (/) and then p1 (/boot)
 
+        #
+        # what are you waiting for, chak that
+        #
+        #if not self.dryrun:
+        #  while counter < tries:
+        #      # check something
+        #      # detect the filesystems on the newly burned card
+        #      sleep (1)
+        #      counter = counter + 1
+            
+        # wait to let the OS detect the filesystems on the newly burned card
+     
+        
         self.system(f'sudo rmdir {mountpoint}')
         self.system(f'sudo mkdir -p {mountpoint}')
         # depending on how SD card is interfaced to system:
