@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+# noinspection PyPep8
 """
 Cloudmesh Raspberry Pi Image Burner.
 
@@ -52,21 +53,13 @@ Example:
 import os
 import hostlist
 from docopt import docopt
-from pprint import pprint
-import requests
 from pathlib import Path
-import sys
-import zipfile
-from glob import glob
-import requests
 
-from cmburn.pi.util import WARNING, readfile, writefile, check_root
+from cmburn.pi.util import readfile, writefile
 from cmburn.pi.image import Image
-from cmburn.pi import columns, lines
 import oyaml as yaml
 from cmburn.pi.burner import Burner
 from cloudmesh.common.StopWatch import StopWatch
-from cloudmesh.common.Shell import Shell
 
 debug = True
 

@@ -7,11 +7,10 @@ import requests
 import os
 from pathlib import Path
 import zipfile
-import wget
 import oyaml as yaml
 
 from cmburn.pi.util import readfile, writefile
-from cmburn.pi import columns, lines
+from cmburn.pi import columns
 
 from cmburn.pi.util import WARNING
 
@@ -19,6 +18,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
+# noinspection PyPep8
 class Image(object):
 
     # self.directory: the folder where downloaded images are kept

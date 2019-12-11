@@ -2,7 +2,6 @@ python-hostlist
 docopt
 prompter
 requests
-wget
 pyyaml
 oyaml
 cloudmesh-common
