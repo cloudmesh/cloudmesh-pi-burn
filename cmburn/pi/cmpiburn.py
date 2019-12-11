@@ -5,6 +5,7 @@ Cloudmesh Raspberry Pi Image Burner.
 
 Usage:
   cm-pi-burn info
+  cm-pi-burn detect
   cm-pi-burn image versions [--refresh]
   cm-pi-burn image ls
   cm-pi-burn image delete [IMAGE]
@@ -76,6 +77,12 @@ def analyse(arguments):
     StopWatch.start("info")
     burner = Burner(dryrun=dryrun)
     StopWatch.stop("info")
+
+    if arguments['detect']:
+
+        StopWatch.start("burn")
+        burner.detect()
+        StopWatch.stop("burn")
 
     if arguments['info']:
 
