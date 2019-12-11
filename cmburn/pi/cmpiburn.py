@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-# noinspection PyPep8
 """
 Cloudmesh Raspberry Pi Image Burner.
 
@@ -53,13 +52,21 @@ Example:
 import os
 import hostlist
 from docopt import docopt
+from pprint import pprint
+import requests
 from pathlib import Path
+import sys
+import zipfile
+from glob import glob
+import requests
 
-from cmburn.pi.util import readfile, writefile
+from cmburn.pi.util import WARNING, readfile, writefile, check_root
 from cmburn.pi.image import Image
+from cmburn.pi import columns, lines
 import oyaml as yaml
-from cmburn.pi.burner import Burner
+from cmburn.pi.burner import Burner, MultiBurner
 from cloudmesh.common.StopWatch import StopWatch
+from cloudmesh.common.Shell import Shell
 
 debug = True
 
@@ -78,7 +85,7 @@ def analyse(arguments):
         burner.detect()
         StopWatch.stop("burn")
 
-    if arguments['info']:
+    elif arguments['info']:
 
         StopWatch.start("burn")
         burner.info()
@@ -197,65 +204,27 @@ def analyse(arguments):
         # check_root(dryrun=dryrun)
 
         image = arguments['--image']
-        device = arguments['--device']
+        devices = None # use the info command to detect
+        
         hostnames = hostlist.expand_hostlist(arguments['--hostname'])
         ips = hostlist.expand_hostlist(arguments['--ipaddr'])
         key = arguments['--sshkey']
         mp = '/mount/pi'
         blocksize = arguments["--blocksize"]
 
-        # don't do the input() after burning the last card
-        counter = 1
-        for hostname, ip in zip(hostnames[:-1], ips[:-1]):
+        StopWatch.start("total")
 
-            print("counter", counter)
-            StopWatch.start("fcreate {hostname}")
-            burner.burn(image, device, blocksize=blocksize)
+        multi = MultiCardBurner()
 
-            if not dryrun:
-                os.system('sleep 3')
-            # wait to let the OS detect the filesystems on the newly burned card
-            burner.mount(device, mp)
-            burner.enable_ssh(mp)
-            burner.set_hostname(hostname, mp)
-            burner.set_key(key, mp)
-            burner.set_static_ip(ip, mp)
-            # wait before unmounting
-            if not dryrun:
-                os.system('sleep 3')
-            burner.unmount(device)
-            # for some reason, need to do unmount twice for it to work properly
-            # wait again before second unmount
-            if not dryrun:
-                os.system('sleep 3')
-            burner.unmount(device)
-            StopWatch.start("fcreate {hostname}")
-
-            os.system('tput bel')  # ring the terminal bell to notify user
-            print()
-            input('Insert next card and press enter...')
-            print('Burning next card...')
-            print()
-            counter = counter + 1
-
-        for hostname, ip in zip(hostnames[-1:], ips[-1:]):
-            burner.burn(image, device, blocksize=blocksize)
-            if not dryrun:
-                os.system('sleep 3')
-            burner.mount(device, mp)
-            burner.enable_ssh(mp)
-            burner.set_hostname(hostname, mp)
-            burner.set_key(key, mp)
-            burner.set_static_ip(ip, mp)
-            if not dryrun:
-                os.system('sleep 3')
-            burner.unmount(device)
-            if not dryrun:
-                os.system('sleep 3')
-            burner.unmount(device)
-            os.system('tput bel')
-            print('All done!')
-
+        multi.burn(image=image,
+                    device=devices,
+             blocksize=blocksize,
+             progress=True,
+             hostname=hostnames, # not difference between names and name, maybe we shoudl allign
+             ips=ips,
+             key=key):
+        StopWatch.stop("total")
+                
     if verbose:
         StopWatch.benchmark(sysinfo=False, csv=False)
 
