@@ -5,13 +5,14 @@ from cmburn.pi.util import WARNING
 
 import os
 import sys
+import glob
 from pprint import pprint
 from cmburn.pi.image import Image
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import banner
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import yn_choice
-
+from cloudmesh.common.Printer import Printer
 
 class Burner(object):
 
@@ -23,7 +24,6 @@ class Burner(object):
         self.dryrun = dryrun
 
     def detect(self):
-        """
         banner("Detecting USB Card Reader")
 
         print ("Make sure the USB Reader is removed ...")
@@ -35,21 +35,6 @@ class Burner(object):
             sys.exit()
         usb_in = set(Shell.execute("lsusb").splitlines())
         
-        """
-        usb_out =  set(['Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub',
-                    'Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub',
-                    'Bus 001 Device 004: ID 413c:2113 Dell Computer Corp. ',
-                    'Bus 001 Device 003: ID 046d:c077 Logitech, Inc. M105 Optical Mouse',
-                    'Bus 001 Device 002: ID 2109:3431 VIA Labs, Inc. Hub',
-                    'Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub'])
-        usb_in  =  set(['Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub',
-                    'Bus 002 Device 005: ID 05e3:0749 Genesys Logic, Inc. ',
-                    'Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub',
-                    'Bus 001 Device 004: ID 413c:2113 Dell Computer Corp. ',
-                    'Bus 001 Device 003: ID 046d:c077 Logitech, Inc. M105 Optical Mouse',
-                    'Bus 001 Device 002: ID 2109:3431 VIA Labs, Inc. Hub',
-                    'Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub'])
-
         writer = usb_in - usb_out
         if len(writer) == 0:
             print("ERROR: we did not detect the devise, make sure it is plugged.")
@@ -57,25 +42,73 @@ class Burner(object):
         else:
             banner("Detected Card Writer")
 
-            print (" ".join(writer))
+            print ("\n".join(writer))
             print()
             
         
     def info(self):
+
         print("cm-pi-burn:", self.cm_burn)
         print("dryrun:    ", self.dryrun)
 
         banner("Operating System")
-        os.system("fdisk -l /dev/mmcblk0")
+        os.system("sudo fdisk -l /dev/mmcblk0")
 
-        banner("SD-Card")
+        dmesg = Shell.run(f"dmesg").splitlines()
+        
+        # banner("SD-Card Search")
+        status = {} 
+        # devices = [f"/dev/sd{x}" for x in list("abcdefghijklm")]
+        devices = glob.glob("/dev/sd?")
 
-        sda = Shell.execute("fdisk", ["-l", "/dev/sda"])
-        print(sda)
-        if "Linux" in sda:
-            Console.error("the SD-Card is not empty")
-        if "FAT32" not in sda:
-            Console.error("the SD-Card is not properly formatted")
+        for device in devices:
+            status[device] = {}
+            # banner(device)
+            
+            sd = Shell.run(f"sudo fdisk -l {device}")
+            if "cannot open" in sd:
+              # Console.error(f"no SD Card Writer in device {device}")
+              status[device]["reader"] = False
+            else:
+                status[device]["reader"] = True
+                
+            if "Linux" in sd:
+                # Console.error("the SD-Card is not empty")
+                status[device]["empty"] = False
+            else:
+                status[device]["empty"] = True
+                
+            if "FAT32" not in sd:
+                # Console.error("the SD-Card is not properly formatted")
+                status[device]["formated"] = False
+            else:
+                status[device]["formated"] = True
+
+
+            sdx = device.replace("/dev/", "") 
+            msg = [i.split("]", 1)[1].strip() for i in dmesg if sdx in i and not "sdhci" in i and not "sdio" in i] 
+            if len(msg) > 0:
+                # print (sdx)
+                # pprint (msg)
+                information = '\n'.join(msg)
+                status[device].update(dict(
+                    {'name': sdx,
+                     'dev': device,
+                    'removable_disk': ' Attached SCSI removable disk' in information,
+                     'write_protection': "Write Protect is off" not in information,
+                     'size': information.split("blocks:", 1)[1].split("\n", 1)[0].replace("(", "").replace(")", "")
+                     }))
+                # pprint(information)
+        banner("SD Cards Found")
+
+        # pprint(status)
+        print (Printer.write(status,
+                             order=["name","dev", "reader", "formated", "empty",
+                                        "size", "removable_disk", "write_protection"],
+                             header=["Name","Device", "Reader", "Formated", "Empty",
+                                         "Size", "Removable", "Protected"]))
+        return status
+                
 
 
         #
