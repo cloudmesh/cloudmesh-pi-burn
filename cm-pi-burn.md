@@ -232,7 +232,11 @@ Quote:
     
 LED control:
     See Gregors pi book there is a section describing how to do it
+    
     See also https://www.jeffgeerling.com/blogs/jeff-geerling/controlling-pwr-act-leds-raspberry-pi    
     There may be more resources
     We can use this to test which node is which. E.g 
     develop a class that sets the leds on one or more from the master with ssh
+    
+    See also 
+    https://www.raspberrypi.org/forums/viewtopic.php?t=12530
