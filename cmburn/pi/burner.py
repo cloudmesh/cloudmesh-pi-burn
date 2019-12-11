@@ -166,3 +166,68 @@ class Burner(object):
         # touch mountpoint/boot/ssh
         command = f'sudo touch {mountpoint}/boot/ssh'
         self.system(command)
+
+class MultiCardBurner(object):
+    """pseudo code, please complete
+
+    This class uses a single or multicard burner to burn SD Cards. It detects
+    how many SD Cards are there and uses them. We assumom no other USB devices
+    are blugged in other than a keyboard or a mouse.
+
+    """
+
+
+
+    def __init__(self, prefix="/dev/sd", devices="abcdefgh"):
+        """
+
+
+        :param devices: string with device letters
+        """
+
+        #
+        # define the dev
+        #
+        self.devices = [] # dict of {name: status}
+        device_letters = devices.split()
+        for device in device_letters:
+            dev = f'{prefix}{device}'
+            self.devices.append(dict({dev, None}))
+        #
+        # probe the dev
+        #
+        for device, status in self.devices:
+            print ("call the info command on the device and "
+                   "figure out if an empty card is in it")
+            # change the status based on what you found
+
+        # print out the status of the devices in a table
+
+        # detect if tehre is an issue with the cards, readers
+
+        # if we detect a non empty card we interrupt and tell which is not empty.
+
+        # ask if this is ok to burn otherwise
+
+        # if yes burn all of them for which we have status "empty card"
+
+        for device, status in self.devices:
+            if status == "empty card":
+                raise NotImplementedError
+                # burn the card, use the Burner class
+
+    def burn(self,
+             image="latest",
+             device="dev/sda",
+             blocksize="4M",
+             progress=True):
+        """
+        Burns the image on the specific device
+
+        :param devive:
+        :param image:
+        :param blocksize:
+        :param progress:
+        :return:
+        """
+        raise NotImplementedError
