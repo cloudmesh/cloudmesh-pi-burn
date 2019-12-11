@@ -40,6 +40,9 @@ class Burner(object):
         # use also lsub -v
         #
 
+        # see also
+        # https://raspberry-pi-guide.readthedocs.io/en/latest/system.html
+        # this is for fedora, but should also work for rasbian
 
     def system(self, command):
         if self.dryrun:
