@@ -215,3 +215,24 @@ this is normal.
 The program will ring the terminal bell when one card is done and the next
 needs to be inserted (this probably means you can work on other stuff and your
 terminal emulator will notify you when cards need to be swapped).
+
+
+## from the RAspberry FAQ
+
+Quote:
+    There is no on/off switch! To switch on, just plug it in. To switch off,
+    if you are in the graphical environment, you can either log out from the
+    main menu, exit to the Bash prompt, or open the terminal. From the Bash
+    prompt or terminal you can shut down the Raspberry Pi by entering sudo
+    halt -h. Wait until all the LEDs except the power LED are off, then wait
+    an additional second to make sure the SD card can finish its
+    wear-levelling tasks and write actions. You can now safely unplug the
+    Raspberry Pi. Failure to shut the Raspberry Pi down properly may corrupt
+    your SD card, which would mean you would have to re-image it.
+    
+LED control:
+    See Gregors pi book there is a section describing how to do it
+    See also https://www.jeffgeerling.com/blogs/jeff-geerling/controlling-pwr-act-leds-raspberry-pi    
+    There may be more resources
+    We can use this to test which node is which. E.g 
+    develop a class that sets the leds on one or more from the master with ssh
