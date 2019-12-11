@@ -49,7 +49,6 @@ setup(
         "docopt",
         "prompter",
         "requests",
-        "wget",
         "pyyaml",
         "oyaml",
         "cloudmesh-common"

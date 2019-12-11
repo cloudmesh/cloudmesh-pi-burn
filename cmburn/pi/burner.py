@@ -1,19 +1,14 @@
-from cmburn.pi.util import readfile, writefile
-from cmburn.pi import columns, lines
-
-from cmburn.pi.util import WARNING
-
 import os
 import sys
 import glob
-from pprint import pprint
 from cmburn.pi.image import Image
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import banner
-from cloudmesh.common.console import Console
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Printer import Printer
 
+
+# noinspection PyPep8
 class Burner(object):
 
     def __init__(self, dryrun=False):
@@ -26,26 +21,26 @@ class Burner(object):
     def detect(self):
         banner("Detecting USB Card Reader")
 
-        print ("Make sure the USB Reader is removed ...")
+        print("Make sure the USB Reader is removed ...")
         if not yn_choice("Is the reader removed?"):
             sys.exit()
         usb_out = set(Shell.execute("lsusb").splitlines())
-        print ("Now plug in the Reader ...")
-        if not yn_choice("Is the reader pluged in?"):
+        print("Now plug in the Reader ...")
+        if not yn_choice("Is the reader plugged in?"):
             sys.exit()
         usb_in = set(Shell.execute("lsusb").splitlines())
-        
+
         writer = usb_in - usb_out
         if len(writer) == 0:
-            print("ERROR: we did not detect the devise, make sure it is plugged.")
+            print(
+                "ERROR: we did not detect the devise, make sure it is plugged.")
             sys.exit()
         else:
             banner("Detected Card Writer")
 
-            print ("\n".join(writer))
+            print("\n".join(writer))
             print()
-            
-        
+
     def info(self):
 
         print("cm-pi-burn:", self.cm_burn)
@@ -55,38 +50,38 @@ class Burner(object):
         os.system("sudo fdisk -l /dev/mmcblk0")
 
         dmesg = Shell.run(f"dmesg").splitlines()
-        
+
         # banner("SD-Card Search")
-        status = {} 
+        status = {}
         # devices = [f"/dev/sd{x}" for x in list("abcdefghijklm")]
         devices = glob.glob("/dev/sd?")
 
         for device in devices:
             status[device] = {}
             # banner(device)
-            
+
             sd = Shell.run(f"sudo fdisk -l {device}")
             if "cannot open" in sd:
-              # Console.error(f"no SD Card Writer in device {device}")
-              status[device]["reader"] = False
+                # Console.error(f"no SD Card Writer in device {device}")
+                status[device]["reader"] = False
             else:
                 status[device]["reader"] = True
-                
+
             if "Linux" in sd:
                 # Console.error("the SD-Card is not empty")
                 status[device]["empty"] = False
             else:
                 status[device]["empty"] = True
-                
+
             if "FAT32" not in sd:
                 # Console.error("the SD-Card is not properly formatted")
-                status[device]["formated"] = False
+                status[device]["formatted"] = False
             else:
-                status[device]["formated"] = True
+                status[device]["formatted"] = True
 
-
-            sdx = device.replace("/dev/", "") 
-            msg = [i.split("]", 1)[1].strip() for i in dmesg if sdx in i and not "sdhci" in i and not "sdio" in i] 
+            sdx = device.replace("/dev/", "")
+            msg = [i.split("]", 1)[1].strip() for i in dmesg if
+                   sdx in i and "sdhci" not in i and "sdio" not in i]
             if len(msg) > 0:
                 # print (sdx)
                 # pprint (msg)
@@ -94,22 +89,24 @@ class Burner(object):
                 status[device].update(dict(
                     {'name': sdx,
                      'dev': device,
-                    'removable_disk': ' Attached SCSI removable disk' in information,
+                     'removable_disk': 'Attached SCSI removable disk' in information,
                      'write_protection': "Write Protect is off" not in information,
-                     'size': information.split("blocks:", 1)[1].split("\n", 1)[0].replace("(", "").replace(")", "")
+                     'size': information.split("blocks:", 1)[1].split("\n", 1)[
+                         0].replace("(", "").replace(")", "")
                      }))
                 # pprint(information)
         banner("SD Cards Found")
 
         # pprint(status)
-        print (Printer.write(status,
-                             order=["name","dev", "reader", "formated", "empty",
-                                        "size", "removable_disk", "write_protection"],
-                             header=["Name","Device", "Reader", "Formated", "Empty",
-                                         "Size", "Removable", "Protected"]))
+        print(Printer.write(status,
+                            order=["name", "dev", "reader", "formatted",
+                                   "empty",
+                                   "size", "removable_disk",
+                                   "write_protection"],
+                            header=["Name", "Device", "Reader", "Formatted",
+                                    "Empty",
+                                    "Size", "Removable", "Protected"]))
         return status
-                
-
 
         #
         # use also lsub -v
@@ -183,7 +180,7 @@ class Burner(object):
         """
         # append to mountpoint/etc/dhcpcd.conf:
         #  interface eth0
-        #  static ip_addres=[IP]/24
+        #  static ip_address=[IP]/24
         if not self.dryrun:
 
             with open(f'{mountpoint}/etc/dhcpcd.conf') as f:
@@ -207,7 +204,8 @@ class Burner(object):
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
         self.system(f'mkdir -p {mountpoint} /home/pi/.ssh/')
-        self.system(f'cp ~/.ssh/{name}.pub {mountpoint} /home/pi/.ssh/authorized_keys')
+        self.system(
+            f'cp ~/.ssh/{name}.pub {mountpoint} /home/pi/.ssh/authorized_keys')
 
     def mount(self, device, mountpoint="/mount/pi"):
         """
@@ -251,16 +249,15 @@ class Burner(object):
         command = f'sudo touch {mountpoint}/boot/ssh'
         self.system(command)
 
+
 class MultiCardBurner(object):
     """pseudo code, please complete
 
     This class uses a single or multicard burner to burn SD Cards. It detects
-    how many SD Cards are there and uses them. We assumom no other USB devices
-    are blugged in other than a keyboard or a mouse.
+    how many SD Cards are there and uses them. We assume no other USB devices
+    are plugged in other than a keyboard or a mouse.
 
     """
-
-
 
     def __init__(self, prefix="/dev/sd", devices="abcdefgh"):
         """
@@ -272,24 +269,25 @@ class MultiCardBurner(object):
         #
         # define the dev
         #
-        self.devices = [] # dict of {name: status}
+        self.devices = []  # dict of {name: status}
         device_letters = devices.split()
         for device in device_letters:
             dev = f'{prefix}{device}'
-            self.devices.append(dict({dev, None}))
+            self.devices.append(dict({dev: None}))
         #
         # probe the dev
         #
         for device, status in self.devices:
-            print ("call the info command on the device and "
-                   "figure out if an empty card is in it")
+            print("call the info command on the device and "
+                  "figure out if an empty card is in it")
             # change the status based on what you found
 
         # print out the status of the devices in a table
 
-        # detect if tehre is an issue with the cards, readers
+        # detect if there is an issue with the cards, readers
 
-        # if we detect a non empty card we interrupt and tell which is not empty.
+        # if we detect a non empty card we interrupt and tell
+        # which is not empty.
 
         # ask if this is ok to burn otherwise
 
@@ -308,8 +306,8 @@ class MultiCardBurner(object):
         """
         Burns the image on the specific device
 
-        :param devive:
         :param image:
+        :param device:
         :param blocksize:
         :param progress:
         :return:
