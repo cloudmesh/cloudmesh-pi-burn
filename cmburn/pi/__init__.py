@@ -2,7 +2,6 @@ import os
 import sys
 
 if sys.version_info[0] < 3:
-    print ("AAAA", sys.version_info)
     print("ERROR: You must be using Python 3")
     sys.exit()
 if not 'pi' in sys.prefix:
