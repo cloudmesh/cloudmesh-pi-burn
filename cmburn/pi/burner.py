@@ -32,8 +32,8 @@ class Burner(object):
         print(sda)
         if "Linux" in sda:
             Console.error("the SD-Card is not empty")
-
-
+        if "FAT32" not in sda:
+            Console.error("the SD-Card is not properly formatted")
 
     def system(self, command):
         if self.dryrun:
