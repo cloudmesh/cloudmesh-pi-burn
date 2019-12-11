@@ -1,9 +1,11 @@
 import sys
 import os
 from pathlib import Path
-from time import sleep
-import requests
 
+import requests
+import urllib3
+
+# noinspection PyPep8
 if True:
     ##############################################
     #
@@ -11,11 +13,11 @@ if True:
     #
     # see: https://stackoverflow.com/questions/38015537/python-requests-exceptions-sslerror-dh-key-too-small
     #
-    import urllib3
 
     requests.packages.urllib3.disable_warnings()
     requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = 'AES128-SHA'
     try:
+        # noinspection PyPep8
         requests.packages.urllib3.contrib.pyopenssl.DEFAULT_SSL_CIPHER_LIST = 'AES128-SHA'
     except AttributeError:
         # no pyopenssl support used / needed / available
