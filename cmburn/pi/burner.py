@@ -6,7 +6,7 @@ from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Printer import Printer
-
+# from pprint import pprint
 
 # noinspection PyPep8
 class Burner(object):
@@ -216,6 +216,19 @@ class Burner(object):
             """
         # mount p2 (/) and then p1 (/boot)
 
+        #
+        # what are you waiting for, chak that
+        #
+        #if not self.dryrun:
+        #  while counter < tries:
+        #      # check something
+        #      # detect the filesystems on the newly burned card
+        #      sleep (1)
+        #      counter = counter + 1
+            
+        # wait to let the OS detect the filesystems on the newly burned card
+     
+        
         self.system(f'sudo rmdir {mountpoint}')
         self.system(f'sudo mkdir -p {mountpoint}')
         # depending on how SD card is interfaced to system:
@@ -233,6 +246,10 @@ class Burner(object):
             Unmounts the current SD card
             :param device: Device to unmount, e.g. /dev/mmcblk0
             """
+        # BUG: figure out what you wait for wait before unmounting
+        if not dryrun:
+            os.system('sleep 3')
+
         # unmount p1 (/boot) and then p1 (/)
         self.system(f'sudo umount {device}p1')
         try:
@@ -250,7 +267,7 @@ class Burner(object):
         self.system(command)
 
 
-class MultiCardBurner(object):
+class MultiBurner(object):
     """pseudo code, please complete
 
     This class uses a single or multicard burner to burn SD Cards. It detects
@@ -302,14 +319,45 @@ class MultiCardBurner(object):
              image="latest",
              device="dev/sda",
              blocksize="4M",
-             progress=True):
+             progress=True,
+             hostname=None,
+             ips=None,
+             key=None):
         """
         Burns the image on the specific device
 
-        :param image:
-        :param device:
-        :param blocksize:
-        :param progress:
-        :return:
         """
-        raise NotImplementedError
+
+        mp = '/mount/pi'
+
+        # don't do the input() after burning the last card
+        # use a counter to check this
+        
+        counter = 0
+        for hostname, ip in zip(hostnames, ips):
+
+            print("counter", counter)
+            StopWatch.start("fcreate {hostname}")
+
+            burner.burn(image, device, blocksize=blocksize)
+            
+            burner.mount(device, mp)
+            
+            burner.enable_ssh(mp)
+            burner.set_hostname(hostname, mp)
+            burner.set_key(key, mp)
+            burner.set_static_ip(ip, mp)
+            burner.unmount(device)
+            # for some reason, need to do unmount twice for it to work properly
+            burner.unmount(device)
+            StopWatch.start("fcreate {hostname}")
+
+            os.system('tput bel')  # ring the terminal bell to notify user
+            print()
+            if counter < len(hostnames) -1:
+                input('Insert next card and press enter...')
+                print('Burning next card...')
+                print()
+
+        print(f"You burned {counter} SD Cards")
+        print("Done.")
