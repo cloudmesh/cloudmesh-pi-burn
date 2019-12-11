@@ -6,7 +6,7 @@ from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Printer import Printer
-# from pprint import pprint
+from pprint import pprint
 
 # noinspection PyPep8
 class Burner(object):
@@ -286,34 +286,53 @@ class MultiBurner(object):
         #
         # define the dev
         #
-        self.devices = []  # dict of {name: status}
+        self.devices = {}  # dict of {device_name: empty_status}
         device_letters = devices.split()
-        for device in device_letters:
-            dev = f'{prefix}{device}'
-            self.devices.append(dict({dev: None}))
+        #for device in device_letters:
+            #dev = f'{prefix}{device}'
+            #self.devices.append(dict({dev: None}))
         #
         # probe the dev
         #
-        for device, status in self.devices:
-            print("call the info command on the device and "
-                  "figure out if an empty card is in it")
+        #pprint(Burner().info())
+        info_statuses = Burner().info()
+        for device in info_statuses.keys():
+            #print("call the info command on the device and "
+            #      "figure out if an empty card is in it")
             # change the status based on what you found
-
-        # print out the status of the devices in a table
-
-        # detect if there is an issue with the cards, readers
+            self.devices[device] = info_statuses[device]['empty']
 
         # if we detect a non empty card we interrupt and tell
         # which is not empty.
+        # (print out status of the devices in a table)
+        device_statuses = self.devices.values()
+        if False in device_statuses:
+            print("\nEmpty status of devices:")
+            for dev, empty_status in self.devices.items():
+                x = "" if empty_status else "not "
+                print(f"Device {dev} is {x}empty")
+        print()
+
+        # detect if there is an issue with the cards, readers
+        # TODO what exactly should be done here?
 
         # ask if this is ok to burn otherwise
+        burn_all = yn_choice("Burn non-empty devices too?")
 
         # if yes burn all of them for which we have status "empty card"
+        if not burn_all:
+            # delete from devices dict any non-empty devices
+            devices_to_delete = []
+            for device in self.devices.keys():
+                if self.devices[device] == False:
+                    devices_to_delete.append(device) # can't delete while iterating
+            for device in devices_to_delete:
+                del self.devices[device]
 
-        for device, status in self.devices:
+        for device, status in self.devices.items():
             if status == "empty card":
                 raise NotImplementedError
-                # burn the card, use the Burner class
+                # TODO burn the card, use the Burner class
 
     def burn(self,
              image="latest",
