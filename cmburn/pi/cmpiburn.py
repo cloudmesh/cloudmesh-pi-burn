@@ -4,7 +4,7 @@
 Cloudmesh Raspberry Pi Image Burner.
 
 Usage:
-  cm-pi-burn [-v] info
+  cm-pi-burn [-v] info [DEVICE]
   cm-pi-burn [-v] detect
   cm-pi-burn [-v] image versions [--refresh]
   cm-pi-burn [-v] image ls

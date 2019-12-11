@@ -1,9 +1,7 @@
 # cm-pi-burn
 
-THIS NEEDS TO BE MOVED ELSEWHERE
-
-Find the device the SD card appears as when plugged in (likely `/dev/mmcblk0`).
-
+WARNING: This program is designed fro a rasperry pi and must not be
+executed on your laptop
 
 ## Setup a Master Raspberry Pi
 
@@ -90,13 +88,123 @@ In future we will remove the -e
 
     $ pip install .
 
+## Information about the SD Cards and Card Writer
+
+You will need at least one SD Card writer. However, cm-pi-burn is
+supposed to work also with an USB hub in which you can plug in
+multiple SD Cards and burn one card at a time. Once done you can add a
+new batch and you can continue writing. This is done for all specified
+hosts so that you can minimize the interaction with the SD cards.
+
+To fin out more about the Card writers and the SD Cards, you can use
+the command
+
+```bash
+cm-pi-burn detect
+```
+
+It will fist ask you to not plug in the SDCard writer to probe the
+system in empty status. Then you need to plug in the SD Card writer
+and with the cards in it. After you have said yes once you plugged
+them in, you will see an output similar to: 
+
+
+```
+# ----------------------------------------------------------------------
+# Detecting USB Card Reader
+# ----------------------------------------------------------------------
+
+Make sure the USB Reader is removed ...
+Is the reader removed? (Y/n) 
+Now plug in the Reader ...
+Is the reader pluged in? (Y/n) 
+
+# ----------------------------------------------------------------------
+# Detected Card Writer
+# ----------------------------------------------------------------------
+
+Bus 002 Device 020: ID 045b:0210 Hitachi, Ltd 
+Bus 002 Device 024: ID 05e3:0749 Genesys Logic, Inc. 
+Bus 001 Device 014: ID 045b:0209 Hitachi, Ltd 
+Bus 001 Device 015: ID 045b:0209 Hitachi, Ltd 
+Bus 001 Device 016: ID 05e3:0749 Genesys Logic, Inc. 
+Bus 002 Device 023: ID 05e3:0749 Genesys Logic, Inc. 
+Bus 002 Device 019: ID 045b:0210 Hitachi, Ltd 
+Bus 002 Device 021: ID 05e3:0749 Genesys Logic, Inc. 
+Bus 002 Device 022: ID 05e3:0749 Genesys Logic, Inc. 
+```
+
+Note that in this case we will see two devices, one for the USB hub in
+which the card is plugged in, and one for the SD Card itself.
+
+Next we like to show you a bit more useful information while probing
+the operating system when the SD Crad  Writers are plugged in. Please
+call the command:
+
+```bash
+$ cm-pi-burn info
+```
+
+You will see an output similar to 
+
+```
+# ----------------------------------------------------------------------
+# Operating System
+# ----------------------------------------------------------------------
+
+Disk /dev/mmcblk0: 29.7 GiB, 31914983424 bytes, 62333952 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x5e3da3da
+
+Device         Boot  Start      End  Sectors  Size Id Type
+/dev/mmcblk0p1        8192   532479   524288  256M  c W95 FAT32 (LBA)
+/dev/mmcblk0p2      532480 62333951 61801472 29.5G 83 Linux
+
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++------+----------+--------+----------+-------+-------------------+-----------+-----------+
+| Name | Device   | Reader | Formated | Empty | Size              | Removable | Protected |
++------+----------+--------+----------+-------+-------------------+-----------+-----------+
+| sde  | /dev/sde | True   | True     | True  |  31.9 GB/29.7 GiB | True      | False     |
+| sdd  | /dev/sdd | True   | True     | False |  31.9 GB/29.7 GiB | True      | False     |
+| sdc  | /dev/sdc | True   | True     | True  |  31.9 GB/29.7 GiB | True      | False     |
+| sdb  | /dev/sdb | True   | True     | False |  31.9 GB/29.7 GiB | True      | False     |
+| sda  | /dev/sda | True   | True     | False |  31.9 GB/29.7 GiB | True      | False     |
++------+----------+--------+----------+-------+-------------------+-----------+-----------+
+```
+
+Under Operating system you will see the block device you will see
+information about your operating system. This it the card plugged into
+the back of your PI.
+
+Under SDCards found you will see the list of SD Crads and some
+information about the cards that are plugged into the writers.
+
+Make sure that you only include cards that you truly want to
+overwrite. We have give an example where this is not the case while
+indicating it in the Empty column. We recommend that you only use
+formatted cards so you are sure you do not by accident delete infprmation.
+
 
 ## ROOT
 
-    $ sudo su
-    # source /home/pi/ENV3/bin/activate
+For the burn process you need to use root priviledges. To achive thsi
+you need to execute the following commands. The source command
+activates the python virtual env that you have created where you
+installed the cm-pi-burn command
 
-notation # this is done un sudo su
+```bash
+$ sudo su
+# source /home/pi/ENV3/bin/activate
+```
+
+Please note that for our notation a `#` indicates this command is
+executed in root.
 
 ## Finding Image Versions
 
