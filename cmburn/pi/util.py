@@ -68,3 +68,4 @@ def check_root(dryrun=False, terminate=True):
         print("You do not run as root")
         if terminate and not dryrun:
             sys.exit()
+
