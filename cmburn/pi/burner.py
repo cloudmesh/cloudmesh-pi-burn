@@ -35,6 +35,12 @@ class Burner(object):
         if "FAT32" not in sda:
             Console.error("the SD-Card is not properly formatted")
 
+
+        #
+        # use also lsub -v
+        #
+
+
     def system(self, command):
         if self.dryrun:
             print(command)
