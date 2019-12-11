@@ -21,6 +21,7 @@ Usage:
   cm-pi-burn [-v] set key [KEY] [MOUNTPOINT]
   cm-pi-burn [-v] enable ssh [MOUNTPOINT]
   cm-pi-burn [-v] unmount [DEVICE]
+  cm-pi-burn [-v] wifi SSID [PASSWD] [-ni]
   cm-pi-burn (-h | --help)
   cm-pi-burn --version
 
@@ -54,6 +55,7 @@ import os
 import hostlist
 from docopt import docopt
 from pathlib import Path
+from getpass import getpass
 
 from cmburn.pi.util import readfile, writefile
 from cmburn.pi.image import Image
@@ -72,13 +74,28 @@ def analyse(arguments):
     burner = Burner(dryrun=dryrun)
     StopWatch.stop("info")
 
-    if arguments['detect']:
+
+    if arguments['wifi']:
+
+        password = arguments.PASSWD
+        ssid = arguments.SSID
+
+        if password is None:
+            password = getpass("Please enter the Wifi password; ")
+
+        raise NotImplementedError
+
+        StopWatch.stop("wifi")
+        burner.wifi()
+        StopWatch.stop("wifi")
+
+    elif arguments['detect']:
 
         StopWatch.start("burn")
         burner.detect()
         StopWatch.stop("burn")
 
-    if arguments['info']:
+    elif arguments['info']:
 
         StopWatch.start("burn")
         burner.info()
