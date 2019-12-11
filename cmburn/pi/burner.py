@@ -4,10 +4,13 @@ from cmburn.pi import columns, lines
 from cmburn.pi.util import WARNING
 
 import os
+import sys
+from pprint import pprint
 from cmburn.pi.image import Image
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import banner
 from cloudmesh.common.console import Console
+from cloudmesh.common.util import yn_choice
 
 
 class Burner(object):
@@ -18,6 +21,24 @@ class Burner(object):
         #
         self.cm_burn = Shell.which("/home/pi/ENV3/bin/cm-pi-burn")
         self.dryrun = dryrun
+
+    def detect(self):
+        banner("Detecting USB Card Reader")
+
+        print ("Make sure the USB Reader is removed ...")
+        if not yn_choice("Is the reader removed?"):
+            sys.exit()
+        usb_out = Shell.run("lsusb").splitlines()
+        print ("Now plug in the Reader ...")
+        if not yn_choice("Is the reader pluged in?"):
+            sys.exit()
+        usb_in = Shell.run("lsusb").splitlines()
+
+        pprint(usb_out)
+        pprint(usb_in)
+
+
+
 
     def info(self):
         print("cm-pi-burn:", self.cm_burn)
