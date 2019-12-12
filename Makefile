@@ -74,11 +74,7 @@ patch: clean
 	git push origin master --tags
 	twine check dist/*
 	twine upload --repository testpypi  dist/*
-	# $(call banner, "install")
-	# pip search "cloudmesh" | fgrep $(package)
-	# sleep 10
-	# pip install --index-url https://test.pypi.org/simple/ $(package) -U
-
+	
 minor: clean
 	$(call banner, "minor")
 	bump2version minor --allow-dirty
