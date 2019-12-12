@@ -68,10 +68,4 @@ def check_root(dryrun=False, terminate=True):
         print("You do not run as root")
         if terminate and not dryrun:
             sys.exit()
-            
-def format(devices):
-    for device in devices:
-        Shell.run(f"sudo umount {device}")
-        Shell.run(f"sudo mkfs.vfat -F32 -v {device})
-                  
-    
+
