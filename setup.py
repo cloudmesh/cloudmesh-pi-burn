@@ -19,7 +19,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='cm-burn',
-    version='0.0.2',
+    version='0.3.0',
     description='A command to burn many SD cards for building PI clusters',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -32,15 +32,20 @@ setup(
         #   4 - Beta
         #   5 - Production/Stable
         'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
-
-        'License :: OSI Approved :: Apache 2.0',
-
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 2.6',
+        "License :: OSI Approved :: Apache Software License",
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "Intended Audience :: System Administrators",
+        "Intended Audience :: Information Technology",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "Topic :: System",
+        "Topic :: System :: Distributed Computing",
+        "Topic :: System :: Shells",
+        "Topic :: Utilities",
     ],
     keywords='Raspberry PI SDcard cloudmesh',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),  # Required
