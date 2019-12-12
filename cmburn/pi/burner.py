@@ -1,12 +1,16 @@
 import os
 import sys
+import time
 import glob
 from cmburn.pi.image import Image
-from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Printer import Printer
+from cloudmesh.common.Shell import Shell
+from cloudmesh.common.StopWatch import StopWatch
 from pprint import pprint
+
+# TODO: make sure everything is compatible with --dryrun
 
 # noinspection PyPep8
 class Burner(object):
@@ -162,8 +166,7 @@ class Burner(object):
         """
         # write the new hostname to /etc/hostname
         if not self.dryrun:
-            with open(f'{mountpoint}/etc/hostname', 'w') as f:
-                f.write(hostname + '\n')
+            self.system(f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
         else:
             print()
             print("Write to /etc/hostname")
@@ -178,11 +181,8 @@ class Burner(object):
                 newlastline = '127.0.1.1 ' + hostname + '\n'
 
         if not self.dryrun:
-            with open(mountpoint + '/etc/hosts',
-                      'w') as f:  # and write the modified version
-                for line in lines:
-                    f.write(line)
-                f.write(newlastline)
+            new_hostsfile_contents = ''.join(lines) + newlastline
+            self.system(f'echo "{new_hostsfile_contents}" | sudo cp /dev/stdin {mountpoint}/etc/hosts')
         else:
             print()
             print("Write to /etc/hosts")
@@ -202,11 +202,10 @@ class Burner(object):
 
             with open(f'{mountpoint}/etc/dhcpcd.conf') as f:
                 lines = [l for l in f.readlines()]
-            with open(f'{mountpoint}/etc/dhcpcd.conf', 'w') as f:
-                for line in lines:
-                    f.write(line)
-                f.write('interface eth0\n')
-                f.write(f'static ip_address={ip}/24')
+            new_dhcpcd_contents = ''.join(lines)
+            new_dhcpcd_contents += 'interface eth0\n'
+            new_dhcpcd_contents += f'static ip_address={ip}/24\n'
+            self.system(f'echo "{new_dhcpcd_contents}" | sudo cp /dev/stdin {mountpoint}/etc/dhcpcd.conf')
         else:
             print('interface eth0\n')
             print(f'static ip_address={ip}/24')
@@ -220,9 +219,9 @@ class Burner(object):
         """
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
-        self.system(f'mkdir -p {mountpoint} /home/pi/.ssh/')
+        self.system(f'mkdir -p {mountpoint}/home/pi/.ssh/')
         self.system(
-            f'cp ~/.ssh/{name}.pub {mountpoint} /home/pi/.ssh/authorized_keys')
+            f'cp ~/.ssh/{name}.pub {mountpoint}/home/pi/.ssh/authorized_keys')
 
     def mount(self, device, mountpoint="/mount/pi"):
         """
@@ -247,17 +246,11 @@ class Burner(object):
         # wait to let the OS detect the filesystems on the newly burned card
      
         
-        self.system(f'sudo rmdir {mountpoint}')
+        if not self.dryrun:
+            time.sleep(3) # TODO
         self.system(f'sudo mkdir -p {mountpoint}')
-        # depending on how SD card is interfaced to system:
-        # if /dev/sdaX, partitions will be /dev/sdX1 and /dev/sdX2
-        if 'mmc' in device:
-            self.system(f'sudo mount {device}p2 {mountpoint}')
-            self.system(f'sudo mount {device}p1 {mountpoint}/boot')
-            # if /dev/sdX, partitions will be /dev/sdX1 and /dev/sdX2
-        else:
-            self.system(f'sudo mount {device}2 {mountpoint}')
-            self.system(f'sudo mount {device}1 {mountpoint}/boot')
+        self.system(f'sudo mount {device}2 {mountpoint}')
+        self.system(f'sudo mount {device}1 {mountpoint}/boot')
 
     def unmount(self, device):
         """
@@ -268,15 +261,15 @@ class Burner(object):
         # BUG: figure out what you wait for wait before unmounting
         if not self.dryrun:
             print(f"umount {device}")
-            os.system('sleep 3')
+            time.sleep(3) # TODO
 
         # unmount p1 (/boot) and then p1 (/)
-        self.system(f'sudo umount {device}p1')
+        self.system(f'sudo umount {device}1')
         try:
-            self.system(f'sudo umount {device}p1')
+            self.system(f'sudo umount {device}1')
         except:
             pass
-        self.system(f'sudo umount {device}p2')
+        self.system(f'sudo umount {device}2')
 
     def enable_ssh(self, mountpoint):
         """
@@ -298,13 +291,15 @@ class Burner(object):
         :param devices:
         :return:
         """
-
         if devices is None:
             return
         for device in devices:
             self.umount(device)
             command = f"sudo mkfs.vfat -F32 -v {device}"
-            self.system(command)
+            if self.dryrun:
+                print(command)
+            else:
+                os.system(f"sudo mkfs.vfat -F32 -v {device}")
 
 
 class MultiBurner(object):
@@ -325,7 +320,6 @@ class MultiBurner(object):
              ips=None,
              key=None):
         """
-
         :param image:
         :param device:
         :param blocksize:
@@ -374,24 +368,40 @@ class MultiBurner(object):
         if not burn_all:
             # delete from devices dict any non-empty devices
             devices_to_delete = []
-            for device in self.devices.keys():
-                if self.devices[device] == False:
+            for device in devices.keys():
+                if devices[device] == False:
                     devices_to_delete.append(device) # can't delete while iterating
             for device in devices_to_delete:
-                del self.devices[device]
+                del devices[device]
 
-        for device, status in self.devices.items():
-            if status == "empty card":
-                raise NotImplementedError
-                self.burn(image, device, blocksize, progress, hostnames, ips, key)
+        print("Burning these devices:")
+        print(' '.join(devices.keys()))
+
+        keys = list(devices.keys())
+        for i in range(len(keys)):
+        #for device, status in devices.items():
+            device = keys[i]
+            status = devices[device]
+            hostname = hostnames[i]
+            ip = ips[i]
+            self.burn(image, device, blocksize, progress, hostname, ip, key)
+
+            os.system('tput bel')  # ring the terminal bell to notify user
+            print()
+            if i < len(keys) - 1:
+                input('Insert next card and press enter...')
+                print('Burning next card...')
+                print()
+        print(f"You burned {i} SD Cards")
+        print("Done.")
 
     def burn(self,
              image="latest",
-             device="dev/sda",
+             device="/dev/sda",
              blocksize="4M",
              progress=True,
-             hostnames=None,
-             ips=None,
+             hostname=None,
+             ip=None,
              key=None):
         """
 
@@ -399,8 +409,8 @@ class MultiBurner(object):
         :param device:
         :param blocksize:
         :param progress:
-        :param hostnames:
-        :param ips:
+        :param hostname:
+        :param ip:
         :param key:
         :return:
         """
@@ -412,7 +422,8 @@ class MultiBurner(object):
         # use a counter to check this
         
         counter = 0
-        for hostname, ip in zip(hostnames, ips):
+        burner = Burner()
+        for i in range(1):
 
             print("counter", counter)
             StopWatch.start("fcreate {hostname}")
@@ -430,12 +441,3 @@ class MultiBurner(object):
             burner.unmount(device)
             StopWatch.start("fcreate {hostname}")
 
-            os.system('tput bel')  # ring the terminal bell to notify user
-            print()
-            if counter < len(hostnames) -1:
-                input('Insert next card and press enter...')
-                print('Burning next card...')
-                print()
-
-        print(f"You burned {counter} SD Cards")
-        print("Done.")
