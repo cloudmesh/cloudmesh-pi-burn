@@ -236,14 +236,15 @@ def analyse(arguments):
 
         multi = MultiBurner()
 
-        multi.burn(image=image,
-                   device=devices,
-                   blocksize=blocksize,
-                   progress=True,
-                   hostnames=hostnames,
-                   # not difference between names and name, maybe we shoudl allign
-                   ips=ips,
-                   key=key)
+        multi.burn_all(
+            image=image,
+            device=devices,
+            blocksize=blocksize,
+            progress=True,
+            hostnames=hostnames,
+            # not difference between names and name, maybe we shoudl allign
+            ips=ips,
+            key=key)
         StopWatch.stop("total")
 
     if verbose:
