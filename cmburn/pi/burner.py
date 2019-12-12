@@ -392,6 +392,7 @@ class MultiBurner(object):
                 input('Insert next card and press enter...')
                 print('Burning next card...')
                 print()
+        i += 1
         print(f"You burned {i} SD Cards")
         print("Done.")
 
