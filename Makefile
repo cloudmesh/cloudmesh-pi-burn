@@ -74,7 +74,7 @@ patch: clean
 	git push origin master --tags
 	twine check dist/*
 	twine upload --repository testpypi  dist/*
-	
+
 minor: clean
 	$(call banner, "minor")
 	bump2version minor --allow-dirty
