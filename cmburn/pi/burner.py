@@ -114,10 +114,10 @@ class Burner(object):
                          0].replace("(", "").replace(")", "")
                      }))
                 # pprint(information)
-        banner("SD Cards Found")
 
-        # pprint(status)
         if print_stdout:
+            # pprint(status)
+            banner("SD Cards Found")
             print(Printer.write(status,
                                 order=["name", "dev", "reader", "formatted",
                                        "empty",
@@ -263,10 +263,8 @@ class Burner(object):
 
         :param device: Device to unmount, e.g. /dev/sda
         """
-        # BUG: figure out what you wait for wait before unmounting
         if not self.dryrun:
-            print(f"umount {device}")
-            time.sleep(3) # TODO
+            self.system('sudo sync') # flush any pending/in-process writes
 
         # unmount p1 (/boot) and then p1 (/)
         self.system(f'sudo umount {device}1')
