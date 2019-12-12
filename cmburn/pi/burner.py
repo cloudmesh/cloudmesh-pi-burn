@@ -53,7 +53,7 @@ class Burner(object):
             print("\n".join(writer))
             print()
 
-    def info(self):
+    def info(self, print_stdout=True):
         """
 
         :return:
@@ -63,7 +63,10 @@ class Burner(object):
         print("dryrun:    ", self.dryrun)
 
         banner("Operating System")
-        os.system("sudo fdisk -l /dev/mmcblk0")
+        if print_stdout:
+            os.system("sudo fdisk -l /dev/mmcblk0")
+        else:
+            os.system("sudo fdisk -l /dev/mmcblk0 &>/dev/null")
 
         dmesg = Shell.run(f"dmesg").splitlines()
 
@@ -114,14 +117,15 @@ class Burner(object):
         banner("SD Cards Found")
 
         # pprint(status)
-        print(Printer.write(status,
-                            order=["name", "dev", "reader", "formatted",
-                                   "empty",
-                                   "size", "removable_disk",
-                                   "write_protection"],
-                            header=["Name", "Device", "Reader", "Formatted",
-                                    "Empty",
-                                    "Size", "Removable", "Protected"]))
+        if print_stdout:
+            print(Printer.write(status,
+                                order=["name", "dev", "reader", "formatted",
+                                       "empty",
+                                       "size", "removable_disk",
+                                       "write_protection"],
+                                header=["Name", "Device", "Reader", "Formatted",
+                                        "Empty",
+                                        "Size", "Removable", "Protected"]))
         return status
 
         #
@@ -233,21 +237,22 @@ class Burner(object):
         """
         # mount p2 (/) and then p1 (/boot)
 
-        #
-        # what are you waiting for, chak that
-        #
-        #if not self.dryrun:
-        #  while counter < tries:
-        #      # check something
-        #      # detect the filesystems on the newly burned card
-        #      sleep (1)
-        #      counter = counter + 1
-            
-        # wait to let the OS detect the filesystems on the newly burned card
-     
-        
         if not self.dryrun:
-            time.sleep(3) # TODO
+            # wait for the OS to detect the filesystems
+            # in burner.info(), formatted will be true if the card has FAT32
+            #   filesystems on it
+            counter = 0
+            max_tries = 5
+            b = Burner()
+            while counter < max_tries:
+                time.sleep(1)
+                formatted = b.info(print_stdout=False)[device]['formatted']
+                if formatted:
+                    break
+                counter += 1
+                if counter == max_tries:
+                    print("Timed out waiting for OS to detect filesystem on burned card")
+                    sys.exit(1)
         self.system(f'sudo mkdir -p {mountpoint}')
         self.system(f'sudo mount {device}2 {mountpoint}')
         self.system(f'sudo mount {device}1 {mountpoint}/boot')
