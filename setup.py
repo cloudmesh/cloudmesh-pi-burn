@@ -19,7 +19,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='cm-burn',
-    version='0.3.1',
+    version='0.3.2',
     description='A command to burn many SD cards for building PI clusters',
     long_description=long_description,
     long_description_content_type='text/markdown',
