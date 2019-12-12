@@ -18,8 +18,8 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='cm-burn',
-    version='0.3.0',
+    name='cloudmesh-pi-burn',
+    version='0.3.2',
     description='A command to burn many SD cards for building PI clusters',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -47,7 +47,7 @@ setup(
         "Topic :: System :: Shells",
         "Topic :: Utilities",
     ],
-    keywords='Raspberry PI SDcard cloudmesh',
+    keywords='Raspberry PI SD Card Cloudmesh',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),  # Required
     install_requires=[
         "python-hostlist",
@@ -69,9 +69,9 @@ setup(
         ],
     },
     project_urls={
-        'Bug Reports': 'https://github.com/cloudmesh/cm-burn.py/issues',
+        'Bug Reports': 'https://github.com/cloudmesh/cloudmesh_pi_burn/issues',
         # 'Funding': 'https://donate.pypi.org',
         # 'Say Thanks!': 'http://saythanks.io/to/example',
-        'Source': 'https://github.com/cloudmesh/cm-burn.py/',
+        'Source': 'https://github.com/cloudmesh/cloudmesh_pi_burn',
     },
 )
