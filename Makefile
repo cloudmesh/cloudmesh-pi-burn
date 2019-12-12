@@ -1,6 +1,6 @@
 .PHONY: paper
 
-package=cloudmesh_cmburn
+package=cloudmesh_pi_burn
 UNAME=$(shell uname)
 VERSION=`head -1 VERSION`
 
