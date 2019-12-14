@@ -79,7 +79,7 @@ However in the meanwhile you do it as follows:
 ```bash
 $ mkdir cm
 $ cd cm
-$ git clone git@github.com:cloudmesh/cm-burn.git
+$ git clone https://github.com/cloudmesh/cloudmesh_pi_burn.git
 $ cd cm-burn
 $ pip install -e .
 ```    
@@ -96,14 +96,14 @@ multiple SD Cards and burn one card at a time. Once done you can add a
 new batch and you can continue writing. This is done for all specified
 hosts so that you can minimize the interaction with the SD cards.
 
-To fin out more about the Card writers and the SD Cards, you can use
+To find out more about the Card writers and the SD Cards, you can use
 the command
 
 ```bash
 cm-pi-burn detect
 ```
 
-It will fist ask you to not plug in the SDCard writer to probe the
+It will first ask you to not plug in the SDCard writer to probe the
 system in empty status. Then you need to plug in the SD Card writer
 and with the cards in it. After you have said yes once you plugged
 them in, you will see an output similar to: 
@@ -241,7 +241,6 @@ To list the downloaded images you can use the command
 # ./cm-pi-burn.py image ls
 ```
 
-
 In case you need other images, you can downloead them while using the label:
 
 NOT YET IMPLEMENTED
@@ -254,8 +253,6 @@ NOT YET IMPLEMENTED
 where the label, is the label that you will get from the versions
 command. In case you like to use the latest download, you can use the
 command. You can also specify the exact URL with 
-
-NOT YET IMPLEMENTED
 
 ```bash
 # cm-pi-burn get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
@@ -284,8 +281,6 @@ missing command
 
 
 ## Creating Cluster SD-Cards
-
-THIS ODES NOT WORK
 
 Next we describe how we create a number of SD-Cards to create a cluster.
 Each card will have a unique hostname, an ipaddress and you public key.
