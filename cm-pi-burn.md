@@ -241,17 +241,7 @@ To list the downloaded images you can use the command
 # ./cm-pi-burn.py image ls
 ```
 
-In case you need other images, you can downloead them while using the label:
-
-NOT YET IMPLEMENTED
-
-
-```bash
-# cm-pi-burn get raspbian_lite-2019-04-09
-```
-
-where the label, is the label that you will get from the versions
-command. In case you like to use the latest download, you can use the
+In case you like to use the latest download, you can use the
 command. You can also specify the exact URL with 
 
 ```bash
@@ -270,20 +260,12 @@ Before burning we need to find out where the SD CARD reader is and what we do
          
          Path.glob
 
-## FORMAT
-
-missing command
-
-1. check whats on it and prints useful stuff ???
-2. only erase if i approve
-
-
-
-
 ## Creating Cluster SD-Cards
 
 Next we describe how we create a number of SD-Cards to create a cluster.
 Each card will have a unique hostname, an ipaddress and you public key.
+
+##
 
 To burn one card use:
 
