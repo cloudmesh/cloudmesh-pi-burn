@@ -50,7 +50,7 @@ Next configure python 3 with the help of a virtual env
 
 ```bash
     $python3 -venv ~/ENV3
-    $ source ~/ENV3/bin/activate
+    $source ~/ENV3/bin/activate
 ```
 
 Place at the end of your `.bashrc` file the line
@@ -66,7 +66,7 @@ If this is the case close all the other windows and use the terminal you
 just started.
 
 
-## Instalation
+## Installation
 
 First you must install cm-pi-burn. In a future version this will be done with 
 
