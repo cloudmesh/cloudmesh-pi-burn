@@ -182,7 +182,7 @@ Under Operating system you will see the block device you will see
 information about your operating system. This it the card plugged into
 the back of your PI.
 
-Under SDCards found you will see the list of SD Crads and some
+Under SDCards found you will see the list of SD Cards and some
 information about the cards that are plugged into the writers.
 
 Make sure that you only include cards that you truly want to
@@ -311,10 +311,10 @@ Here again since the device names start with sda,sdb,sdc etc. We can give it as 
 You may see the program output some unmount errors during the burn process -
 this is normal.
 
-The program will ring the terminal bell when one card is done and the next
-needs to be inserted (this probably means you can work on other stuff and your
-terminal emulator will notify you when cards need to be swapped).
+After the process is completed,a message will appear on your terminal stating the number of cards you have burnt.
 
+You can verify if the burn process is completed or not by plugging in one of the SD cards to a raspberry Pi and starting it. Raspberry Pi terminal appears asking your login and password. After the sucessfull authentication,Now you can use your raspberry pi just like any
+other.
 
 ## from the RAspberry FAQ
 
