@@ -284,6 +284,7 @@ To burn one card use:
     --hostname=red2 \
     --ipaddr=192.168.1.2 \
     --sshkey=/home/pi/.ssh/id_rsa.pub
+    --blocksize=4M
 ```
 
 Here we are assuming that your device name is sda but its very important to verify it once before executing the above command.
@@ -298,6 +299,7 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --hostname=red[2-6] \
     --ipaddr=192.168.1.[2-6] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
+    --blocksize=4M
 ```
 
 Here again since the device names start with sda,sdb,sdc etc. We can give it as sd*. Again we have to check the device info before executing this command
