@@ -273,7 +273,7 @@ $sudo fdisk-l
 or the more convinient option would be to use the
 
 ```
-$cm-pi-burn info command 
+$cm-pi-burn info  
 ```
 
 You can look at the names of your devices under the device column. Eg /dev/sda,/dev/sdb,etc
