@@ -316,7 +316,7 @@ After the process is completed,a message will appear on your terminal stating th
 You can verify if the burn process is completed or not by plugging in one of the SD cards to a raspberry Pi and starting it. Raspberry Pi terminal appears asking your login and password. After the sucessfull authentication,Now you can use your raspberry pi just like any
 other.
 
-## from the RAspberry FAQ
+## From the raspberry FAQ
 
 Quote:
     There is no on/off switch! To switch on, just plug it in. To switch off,
