@@ -263,7 +263,20 @@ Before burning we need to find out where the SD CARD reader is and what we do
 ## Creating Cluster SD-Cards
 
 Next we describe how we create a number of SD-Cards to create a cluster.
-Each card will have a unique hostname, an ipaddress and you public key.
+Each card will have a unique hostname, an ipaddress and you public key. 
+To locate your device you can use:
+
+```
+$sudo fdisk-l
+
+```
+or the more convinient option would be to use the
+
+```
+$cm-pi-burn info command 
+```
+
+You can look at the names of your devices under the device column. Eg /dev/sda,/dev/sdb,etc
 
 ##
 
@@ -272,11 +285,13 @@ To burn one card use:
 ```
 # cm-pi-burn create \
     --image=2019-09-26-raspbian-buster-lite \
-    --device=/dev/???? \
+    --device=/dev/sda \
     --hostname=red2 \
     --ipaddr=192.168.1.2 \
     --sshkey=/home/pi/.ssh/id_rsa.pub
 ```
+
+Here we are assuming that your device name is sda but its very important to verify it once before executing the above command.
 
 To burn many cards you can specify them conveniently in parameter
 notation in  the `--hostname` and `--ipaddr` arguments:
@@ -284,14 +299,13 @@ notation in  the `--hostname` and `--ipaddr` arguments:
 ```
 # cm-pi-burn create \
     --image=2019-09-26-raspbian-buster-lite \
-    --device=/dev/????? \
+    --device=/dev/sd* \
     --hostname=red[2-6] \
     --ipaddr=192.168.1.[2-6] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
 ```
 
-TODO: clarify this .... we can do this without errors and try except
-then and only report the erros that are relevant.
+Here again since the device names start with sda,sdb,sdc etc. We can give it as sd*. Again we have to check the device info before executing this command
 
 
 You may see the program output some unmount errors during the burn process -
