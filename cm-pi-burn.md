@@ -1,6 +1,6 @@
 # cm-pi-burn
 
-WARNING: This program is designed fro a rasperry pi and must not be
+WARNING: This program is designed for a Raspberry Pi and must not be
 executed on your laptop
 
 ## Setup a Master Raspberry Pi
@@ -42,7 +42,7 @@ Now you have to create an ssh key with the command
 Keep the default location and use a strong passphrase. Using no
 passphrase is not recommended. You can use `ssh-add` in a terminal so
 you do not have to all the time type in your passphrase. Please consult
-with the manual aon `ssh-keygen` and `ssh-add`.
+with the manual on `ssh-keygen` and `ssh-add`.
 
 ## Activate python 3
 
@@ -100,14 +100,13 @@ To find out more about the Card writers and the SD Cards, you can use
 the command
 
 ```bash
-cm-pi-burn detect
+$ cm-pi-burn detect
 ```
 
 It will first ask you to not plug in the SDCard writer to probe the
 system in empty status. Then you need to plug in the SD Card writer
 and with the cards in it. After you have said yes once you plugged
 them in, you will see an output similar to: 
-
 
 ```
 # ----------------------------------------------------------------------
@@ -138,7 +137,7 @@ Note that in this case we will see two devices, one for the USB hub in
 which the card is plugged in, and one for the SD Card itself.
 
 Next we like to show you a bit more useful information while probing
-the operating system when the SD Crad  Writers are plugged in. Please
+the operating system when the SD Card  Writers are plugged in. Please
 call the command:
 
 ```bash
@@ -190,10 +189,9 @@ overwrite. We have give an example where this is not the case while
 indicating it in the Empty column. We recommend that you only use
 formatted cards so you are sure you do not by accident delete infprmation.
 
-
 ## ROOT
 
-For the burn process you need to use root priviledges. To achive thsi
+For the burn process you need to use root priviledges. To achieve this
 you need to execute the following commands. The source command
 activates the python virtual env that you have created where you
 installed the cm-pi-burn command
@@ -212,9 +210,8 @@ First you have to find the raspbian image you like to install. For this
 purpose we have developed a command that lists you the available images
 in the Raspberry Pi repository. To see the versions, please use the command
 
-
 ```bash
-# cm-pi-burn versions
+# cm-pi-burn image versions
 ```
 
 Once in a while they come out with new versions. You can refersh the list with
@@ -248,9 +245,7 @@ command. You can also specify the exact URL with
 # cm-pi-burn get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
 ```
 
-
 ## VERIFICATION
-
 
 Before burning we need to find out where the SD CARD reader is and what we do
 
@@ -267,7 +262,7 @@ Each card will have a unique hostname, an ipaddress and you public key.
 To locate your device you can use:
 
 ```
-$sudo fdisk-l
+$sudo fdisk -l
 
 ```
 or the more convinient option would be to use the
@@ -278,7 +273,7 @@ $cm-pi-burn info
 
 You can look at the names of your devices under the device column. Eg /dev/sda,/dev/sdb,etc
 
-##
+## Burning SD-Cards
 
 To burn one card use:
 
@@ -307,13 +302,12 @@ notation in  the `--hostname` and `--ipaddr` arguments:
 
 Here again since the device names start with sda,sdb,sdc etc. We can give it as sd*. Again we have to check the device info before executing this command
 
-
 You may see the program output some unmount errors during the burn process -
 this is normal.
 
-After the process is completed,a message will appear on your terminal stating the number of cards you have burnt.
+After the process is completed, a message will appear on your terminal stating the number of cards you have burnt.
 
-You can verify if the burn process is completed or not by plugging in one of the SD cards to a raspberry Pi and starting it. Raspberry Pi terminal appears asking your login and password. After the sucessfull authentication,Now you can use your raspberry pi just like any
+You can verify if the burn process is completed or not by plugging in one of the SD cards to a raspberry pi and starting it. Raspberry Pi terminal appears asking your login and password. After the sucessfull authentication, now you can use your raspberry pi just like any
 other.
 
 ## From the raspberry FAQ
