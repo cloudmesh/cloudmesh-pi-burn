@@ -1,3 +1,5 @@
+# Notes
+
 full + software
 
 wget -O raspbian_full_latest.zip https://downloads.raspberrypi.org/raspbian_full_latest
