@@ -3,7 +3,8 @@ import sys
 from cmburn.pi.hardware import Hardware
 
 if not Hardware.is_pi():
-    print("ERROR: You must ron this on a Raspberry Pi. Dangerous things can happen if not!")
+    print("ERROR: You must ron this on a Raspberry Pi. "
+          "Dangerous things can happen if not!")
     sys.exit()
 if sys.version_info[0] < 3:
     print("ERROR: You must be using Python 3")
