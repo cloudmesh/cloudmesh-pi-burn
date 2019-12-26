@@ -7,11 +7,12 @@
 7. Check cm-burn
 """
 
+
 class Image(object):
 
     def __init__(self, name):
         if name == "latest":
-            self.url ="abc"
+            self.url = "abc"
 
     def fetch(self):
         # if image is already there skip
@@ -26,6 +27,7 @@ class Image(object):
     def rm(self):
         # remove the downloaded image
         raise NotImplementedError
+
 
 class Burner(object):
 
@@ -67,7 +69,6 @@ class Burner(object):
         """
         raise NotImplementedError
 
-
     def mount(self):
         """
         mounts the current SD card
@@ -90,15 +91,15 @@ class Burner(object):
         # touch /media/pi/boot/ssh
         raise NotImplementedError
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     device = "FINDME"
 
     image = Image(name="latest")
     image.fetch()
     image.verify()
 
-    sdcard = Burner(device="TBD", name = "red01")
+    sdcard = Burner(device="TBD", name="red01")
     sdcard.burn(image)
     sdcard.mount()
     sdcard.enable_ssh()
@@ -106,5 +107,3 @@ if __name__ == "__main__":
     sdcard.set_keys()
     sdcard.set_static_ip()
     sdcard.unmount()
-
-

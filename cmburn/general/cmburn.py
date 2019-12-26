@@ -152,6 +152,7 @@ def truncate_file(pathlib_obj):
         f.write("#")
         f.flush()
 
+
 try:
     columns, lines = os.get_terminal_size()
 except:
@@ -276,7 +277,8 @@ class PiBurner(object):
         :return:
         """
         if os_is_windows():
-            # TODO: Remove drive in windows, why can you not use the mount function build into windows?
+            # TODO: Remove drive in windows, why can you not use the mount
+            #  function build into windows?
             # TODO: Why do you need RemoveDrive?
             # script =  "mountvol {drive} /p".format(drive = self.root_drive)
             script = "RemoveDrive {drive}:".format(drive=self.root_drive)
@@ -312,7 +314,8 @@ class PiBurner(object):
             # create volume mount pount as volume
             # volume = ...
             # remember to escape \ in volume
-            # script = "mount {drive} {volume}:".format(drive=self.root_drive, volume=volume)
+            # script = "mount {drive} {volume}:".format(drive=self.root_drive,
+            #           volume=volume)
             # why remove, should we not mount?
             # script = "RemoveDrive {drive}:".format(drive = self.root_drive)
             # execute(script)
@@ -785,7 +788,8 @@ class PiBurner(object):
             "domain": self.domain,
             "ip": self.ip,
         }
-        # TODO: why are eth0 and wlan0 differnt? should they not be the same as eth0?
+        # TODO: why are eth0 and wlan0 differnt? should they not be
+        #  the same as eth0?
         # OLD:
         #    interface wlan0
         #    static ip_address={ip}/24
@@ -832,7 +836,8 @@ class PiBurner(object):
         :return:
         """
         if device is None:
-            # activate an image and create a yaml file cmburn.yaml with parameter
+            # activate an image and create a yaml file cmburn.yaml
+            # with parameter
             # that is read upon start in __init___
             output = run(["sudo", "ls", "-ltr", "/dev/*"])
             # TODO BUG this is not how run works
