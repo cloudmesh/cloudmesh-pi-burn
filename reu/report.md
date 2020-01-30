@@ -2,6 +2,32 @@
 
 Gregor von Laszewski, laszewski@gmail.com
 
+## Abstract
+
+TBD
+
+## Introduction
+
+
+## Setting up a Cluster with Raspbian
+
+### cm-pi-burn
+
+describe high level what it does nad how we use it
+
+### Alternatives to cm-pi-burn
+
+PXE booting. we will focus first on cmpi burn
+
+## Setting up Kubernetes on the Cluster
+
+## Example use of the Kubernetes Cluster
+
+## Benchmark
+
+## Conclusion
+
+
 ## Tasks
 
 * send info to Gregor
