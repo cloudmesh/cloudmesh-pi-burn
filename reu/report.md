@@ -36,6 +36,7 @@ PXE booting. we will focus first on cmpi burn
 * get familiar with sdcard burn from a pi, you may have to burn one on your laptop first, remember to change passwd before setting it on network
 * get familiar with cm-pi-brn
 * read Subs report
+* make sure to use branches when working on the code. 
 
 * start building a cluster
 
