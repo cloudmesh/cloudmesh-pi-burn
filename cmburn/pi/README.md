@@ -6,6 +6,9 @@ Please add content here
 
 :o2: address also the issue of the default password, that should be changed or disabled via an option, or a readline. the way how to do this is included in general/cmburn.py see disable password ... it woudl be enough to disable it. i think
 
+# Addressing Issue ... Disabling Default Password
+
+
 ## Quicksatrt
 
 ```bash
