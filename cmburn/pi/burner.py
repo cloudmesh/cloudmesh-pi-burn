@@ -304,6 +304,13 @@ class Burner(object):
             else:
                 os.system(f"sudo mkfs.vfat -F32 -v {device}")
 
+    def disable_password(self):
+        """
+        
+        
+        :return:
+        """
+
 
 class MultiBurner(object):
     """pseudo code, please complete
