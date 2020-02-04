@@ -304,12 +304,22 @@ class Burner(object):
             else:
                 os.system(f"sudo mkfs.vfat -F32 -v {device}")
 
-    def disable_password(self):
+    def disable_password(self, mountpoint):
         """
-        
-        
+        disables and replaces the password with a random string so that by
+        accident the pi can not be logged into. The only way to login is via the
+        ssh key
+
         :return:
         """
+        # TODO: Do we want to keep this? (One-way hash)
+        pswd = '$6$fLFBSZL/ZaOZX4Qi$bZtPfcEzXt5DwyS1iSSUC5nMMrR2o/YTA6xnhTH4/9nZsTNlaeV/IbUN/4qjf8gyYscRQrUNkDlXiBpqbTGAi/'
+
+        command = f'sudo touch {mountpoint}/home/pi/test.txt'
+        print(f"Trying command: {command}")
+        self.system(command)
+        print("Finished")
+
 
 
 class MultiBurner(object):
@@ -443,6 +453,7 @@ class MultiBurner(object):
             
             burner.mount(device, mp)
             
+            burner.disable_password(mp)
             burner.enable_ssh(mp)
             burner.set_hostname(hostname, mp)
             burner.set_key(key, mp)
