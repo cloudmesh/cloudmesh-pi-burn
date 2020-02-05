@@ -367,6 +367,8 @@ class Burner(object):
         # yesno we can take form cloudmesh.common
         #
 
+        raise NotImplementedError
+
         # set the keypath
         self.keypath = public_key
         if debug:
@@ -472,9 +474,6 @@ class Burner(object):
         :return:
         """
 
-        # interactive not defined
-        # yes
-
         wifi = textwrap.dedent("""\
                 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
                 update_config=1 
@@ -493,7 +492,7 @@ class Burner(object):
                                                              psk, path))
             return
         elif interactive:
-            if not yesno("About write wifi info. Please confirm:"):
+            if not yn_choice("About write wifi info. Please confirm:"):
                 return
         pathlib.Path(self.filename(path)).write_text(wifi)
 
