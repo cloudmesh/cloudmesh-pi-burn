@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import glob
+import platform
 from cmburn.pi.image import Image
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import yn_choice
@@ -24,6 +25,21 @@ def WARNING(*args, **kwargs):
 # noinspection PyPep8Naming
 def ERROR(*args, **kwargs):
     print("ERROR:", *args, file=sys.stderr, **kwargs)
+
+def os_is_windows():
+    return platform.system() == "Windows"
+
+
+def os_is_linux():
+    return platform.system() == "Linux" and "raspberry" not in platform.uname()
+
+
+def os_is_mac():
+    return platform.system() == "Darwin"
+
+
+def os_is_pi():
+    return "raspberry" in platform.uname()
 
 
 # noinspection PyPep8
@@ -300,6 +316,51 @@ class Burner(object):
         # touch mountpoint/boot/ssh
         command = f'sudo touch {mountpoint}/boot/ssh'
         self.system(command)
+
+    def filename(self, path):
+        """
+        creates the proper path for the file by using the proper file systyem
+        prefix. This method is supposed to universally work, so that we simply
+        can use the filesystem name without worrying about the location it it is
+        in the boot or root file system of the SD Card.
+
+        :param path:
+        :return:
+        """
+        # print(path)
+        if os_is_mac() or os_is_linux():
+            if path in ["/etc/hostname",
+                        "/etc/hosts",
+                        "/etc/rc.local",
+                        "/etc/ssh/sshd_config",
+                        "/home/pi/.ssh/authorized_keys",
+                        "/home/pi/.ssh",
+                        "/etc/wpa_supplicant/wpa_supplicant.conf",
+                        "/etc/dhcpcd.conf"]:
+                volume = self.root_drive
+            elif path in ["/ssh"]:
+                volume = self.boot_drive
+            else:
+                ERROR("path not defined in cm-burn", path)
+            location = pathlib.Path(
+                "{volume}/{path}".format(volume=volume, path=path))
+        elif os_is_windows():
+            if path in ["/etc/hostname",
+                        "/etc/rc.local",
+                        "/etc/ssh/sshd_config",
+                        "/home/pi/.ssh/authorized_keys",
+                        "/home/pi/.ssh",
+                        "/etc/wpa_supplicant/wpa_supplicant.conf",
+                        "/etc/dhcpcd.conf"]:
+                volume = self.root_drive
+            elif path in ["/ssh"]:
+                volume = self.boot_drive
+            else:
+                ERROR("path not defined in cm-burn", path)
+            print("{volume}:{path}".format(volume=volume, path=path))
+            location = pathlib.Path(
+                "{volume}:{path}".format(volume=volume, path=path))
+        return location
 
     # IMPROVE
     def disable_password_ssh(self):
