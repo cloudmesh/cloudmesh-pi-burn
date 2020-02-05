@@ -334,7 +334,7 @@ class Burner(object):
                 dat[1] = pswd
                 data[i] = ':'.join(dat)
 
-        with open(f'{mountpoint}/etc/shadow', 'r') as f:
+        with open(f'{mountpoint}/etc/shadow', 'w') as f:
             f.writelines(data)
 
 
