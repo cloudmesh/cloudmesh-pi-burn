@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import re
 import glob
 import platform
 from cmburn.pi.image import Image
@@ -255,7 +256,7 @@ class Burner(object):
         #   mountpoint/home/pi/.ssh/authorized_keys
         self.system(f'mkdir -p {mountpoint}/home/pi/.ssh/')
         self.system(
-            f'cp ~/.ssh/{name}.pub {mountpoint}/home/pi/.ssh/authorized_keys')
+            f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
     def mount(self, device, mountpoint="/mount/pi"):
         """
@@ -386,7 +387,7 @@ class Burner(object):
             ("PermitRootLogin", "no"),
         ]
 
-        found_params = set()
+        found_params = set(force_params)
         with sshd_config.open() as f:
             for line in f:
                 found_a_param = False
@@ -705,7 +706,6 @@ class MultiBurner(object):
             burner.burn(image, device, blocksize=blocksize)
             
             burner.mount(device, mp)
-            
             burner.enable_ssh(mp)
             burner.set_hostname(hostname, mp)
             burner.set_key(key, mp)
