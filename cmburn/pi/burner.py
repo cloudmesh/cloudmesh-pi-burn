@@ -145,6 +145,7 @@ class Burner(object):
         if self.dryrun:
             print(command)
         else:
+            print(command)
             os.system(command)
 
     def burn(self, image, device, blocksize="4M"):
@@ -253,6 +254,11 @@ class Burner(object):
                 if counter == max_tries:
                     print("Timed out waiting for OS to detect filesystem on burned card")
                     sys.exit(1)
+        # DEBUG            
+        print(f'sudo mkdir -p {mountpoint}')
+        print(f'sudo mount {device}2 {mountpoint}')
+        print(f'sudo mount {device}1 {mountpoint}/boot')
+        
         self.system(f'sudo mkdir -p {mountpoint}')
         self.system(f'sudo mount {device}2 {mountpoint}')
         self.system(f'sudo mount {device}1 {mountpoint}/boot')
@@ -313,12 +319,25 @@ class Burner(object):
         :return:
         """
         # TODO: Do we want to keep this? (One-way hash)
-        pswd = '$6$fLFBSZL/ZaOZX4Qi$bZtPfcEzXt5DwyS1iSSUC5nMMrR2o/YTA6xnhTH4/9nZsTNlaeV/IbUN/4qjf8gyYscRQrUNkDlXiBpqbTGAi/'
-
+        pswd = '$6$qRn8uP08NKvx8v/T$8XcXsA0P/Bpdmy6SSfjR5nJGgna90GACYczIBMRm8FJK0z4ZH7dcD3qbvk.XBjg4DfhZ74nDWGXF/jVZ7Vui9/'
+        """
         command = f'sudo touch {mountpoint}/home/pi/test.txt'
         print(f"Trying command: {command}")
         self.system(command)
         print("Finished")
+        """
+        with open(f'{mountpoint}/etc/shadow', 'r') as f:
+            data = [l for l in f.readlines()]
+        for i in range(len(data)):
+            dat = data[i].split(":")
+            if dat[0] == 'pi':
+                dat[1] = pswd
+                data[i] = ':'.join(dat)
+
+        with open(f'{mountpoint}/etc/shadow', 'r') as f:
+            f.writelines(data)
+
+
 
 
 
