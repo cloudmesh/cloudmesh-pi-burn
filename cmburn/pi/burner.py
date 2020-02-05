@@ -9,8 +9,22 @@ from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.StopWatch import StopWatch
 from pprint import pprint
+import pathlib
+import textwrap
+
+
 
 # TODO: make sure everything is compatible with --dryrun
+
+# noinspection PyPep8Naming
+def WARNING(*args, **kwargs):
+    print("WARNING:", *args, file=sys.stderr, **kwargs)
+
+
+# noinspection PyPep8Naming
+def ERROR(*args, **kwargs):
+    print("ERROR:", *args, file=sys.stderr, **kwargs)
+
 
 # noinspection PyPep8
 class Burner(object):
@@ -287,8 +301,203 @@ class Burner(object):
         command = f'sudo touch {mountpoint}/boot/ssh'
         self.system(command)
 
+    # IMPROVE
+    def disable_password_ssh(self):
+        sshd_config = self.filename("/etc/ssh/sshd_config")
+        new_sshd_config = ""
+        updated_params = False
 
-    def format(self, devices=None):
+        def sets_param(param, line):
+            """See if a config line sets this parameter to something."""
+            # front is only whitespace maybe a comment
+            front = r'^\s*#?\s*'
+            # only whitespace between param and value
+            middle = r'\s+'
+            # end can include a comment
+            end = r'\s*(?:#.*)?$'
+            re_sets_param = front + param + middle + r'.*' + end
+            return re.search(re_sets_param, line) is not None
+
+        force_params = [
+            ("ChallengeResponseAuthentication", "no"),
+            ("PasswordAuthentication", "no"),
+            ("UsePAM", "no"),
+            ("PermitRootLogin", "no"),
+        ]
+
+        found_params = set()
+        with sshd_config.open() as f:
+            for line in f:
+                found_a_param = False
+                for param, value in force_params:
+                    if sets_param(param, line):
+                        # Only set the parameter once
+                        if param not in found_params:
+                            new_sshd_config += param + " " + value + "\n"
+                            updated_params = True
+                        found_a_param = True
+                        found_params.add(param)
+                if not found_a_param:
+                    new_sshd_config += line
+        # Check if any params not found
+        for param, value in force_params:
+            if param not in found_params:
+                new_sshd_config += param + " " + value + "\n"
+                updated_params = True
+        if updated_params:
+            # NOTE: This is actually necessary, see comment in method
+            #
+            # as we no longer do it on osx, we need to identify if this is still needed
+            #
+            self.truncate_file(sshd_config)
+            with sshd_config.open("w") as f:
+                f.write(new_sshd_config)
+
+    # IMPROVE
+    # ok osx
+    def activate_ssh(self, public_key, debug=False, interactive=False):
+        """
+        sets the public key path and copies the it to the SD card
+        :param public_key: the public key location
+        :return: True if successful
+        """
+
+        #
+        # this has bugs as we have not yet thought about debug, interactive, yesno
+        # yesno we can take form cloudmesh.common
+        #
+
+        # set the keypath
+        self.keypath = public_key
+        if debug:
+            print(self.keypath)
+        if not os.path.isfile(self.keypath):
+            ERROR("key does not exist", self.keypath)
+            sys.exit()
+
+        if self.dryrun:
+            print("DRY RUN - skipping:")
+            print("Activate ssh authorized_keys pkey:{}".format(public_key))
+            return
+        elif interactive:
+            if not yn_choice("About to write ssh config. Please confirm:"):
+                return
+
+        # activate ssh by creating an empty ssh file in the boot drive
+        pathlib.Path(self.filename("/ssh")).touch()
+        # Write the content of the ssh rsa to the authorized_keys file
+        key = pathlib.Path(public_key).read_text()
+        ssh_dir = self.filename("/home/pi/.ssh")
+        print(ssh_dir)
+        if not os.path.isdir(ssh_dir):
+            os.makedirs(ssh_dir)
+        auth_keys = ssh_dir / "authorized_keys"
+        auth_keys.write_text(key)
+
+        # We need to fix the permissions on the .ssh folder but it is hard to
+        # get this working from a host OS because the host OS must have a user
+        # and group with the same pid and gid as the raspberry pi OS. On the PI
+        # the pi uid and gid are both 1000.
+
+        # All of the following do not work on OS X:
+        # execute("chown 1000:1000 {ssh_dir}".format(ssh_dir=ssh_dir))
+        # shutil.chown(ssh_dir, user=1000, group=1000)
+        # shutil.chown(ssh_dir, user=1000, group=1000)
+        # execute("sudo chown 1000:1000 {ssh_dir}".format(ssh_dir=ssh_dir))
+
+        # Changing the modification attributes does work, but we can just handle
+        # this the same way as the previous chown issue for consistency.
+        # os.chmod(ssh_dir, 0o700)
+        # os.chmod(auth_keys, 0o600)
+
+        # /etc/rc.local runs at boot with root permissions - since the file
+        # already exists modifying it shouldn't change ownership or permissions
+        # so it should run correctly. One lingering question is: should we clean
+        # this up later?
+
+        new_lines = textwrap.dedent('''
+                    # FIX298-START: Fix permissions for .ssh directory 
+                    if [ -d "/home/pi/.ssh" ]; then
+                        chown pi:pi /home/pi/.ssh
+                        chmod 700 /home/pi/.ssh
+                        if [ -f "/home/pi/.ssh/authorized_keys" ]; then
+                            chown pi:pi /home/pi/.ssh/authorized_keys
+                            chmod 600 /home/pi/.ssh/authorized_keys
+                        fi
+                    fi
+                    # FIX298-END
+                    ''')
+        rc_local = self.filename("/etc/rc.local")
+        new_rc_local = ""
+        already_updated = False
+        with rc_local.open() as f:
+            for line in f:
+                if "FIX298" in line:
+                    already_updated = True
+                    break
+                if line == "exit 0\n":
+                    new_rc_local += new_lines
+                    new_rc_local += line
+                else:
+                    new_rc_local += line
+        if not already_updated:
+            with rc_local.open("w") as f:
+                f.write(new_rc_local)
+        self.disable_password_ssh()
+
+    def truncate_file(pathlib_obj):
+        """Truncate a file on disk before writing.
+
+        This is strange, but was found to be necessary when mounting the newly
+        burned image with extFS on OS X.
+        """
+        # NOTE (jobranam 2018-10-04): I'm not sure why, but on my OS X with
+        # extFS overwriting the file with a shorter version was not working.
+        # There were extra bytes at the end where the file was truncated. Adding
+        # this next section fixed the problem. Maybe there is a better solution.
+        # This problem only shows up the *first* time after burning the image.
+        # Touching the file at all fixes it (e.g. just editing with vim fixes
+        # it)
+        with pathlib_obj.open("w") as f:
+            f.truncate(0)
+            f.flush()
+            f.write("#")
+            f.flush()
+
+    def configure_wifi(self, ssid, psk, interactive=False):
+        """
+        sets the wifi. ONly works for psk based wifi
+        :param ssid: the ssid
+        :param psk: the psk
+        :return:
+        """
+
+        # interactive not defined
+        # yes
+
+        wifi = textwrap.dedent("""\
+                ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
+                update_config=1 
+                country=US
+
+                network={{
+                        ssid=\"{network}\"
+                        psk=\"{pwd}\"
+                        key_mgmt=WPA-PSK
+                }}""".format(network=ssid, pwd=psk))
+        print(wifi)
+        path = "/etc/wpa_supplicant/wpa_supplicant.conf"
+        if self.dryrun:
+            print("DRY RUN - skipping:")
+            print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
+                                                             psk, path))
+            return
+        elif interactive:
+            if not yesno("About write wifi info. Please confirm:"):
+                return
+        pathlib.Path(self.filename(path)).write_text(wifi)
+
+    def format_device(self, devices=None):
         """
 
         :param devices:
@@ -398,6 +607,7 @@ class MultiBurner(object):
         i += 1
         print(f"You burned {i} SD Cards")
         print("Done.")
+
 
     def burn(self,
              image="latest",
