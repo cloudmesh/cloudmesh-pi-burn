@@ -319,66 +319,11 @@ class Burner(object):
         command = f'sudo touch {mountpoint}/boot/ssh'
         self.system(command)
 
-    def filename(self, path):
-        """
-        creates the proper path for the file by using the proper file systyem
-        prefix. This method is supposed to universally work, so that we simply
-        can use the filesystem name without worrying about the location it it is
-        in the boot or root file system of the SD Card.
-
-        :param path:
-        :return:
-        """
-        # print(path)
-        if os_is_mac() or os_is_linux():
-            root_drive = None
-            boot_drive = None
-            if os_is_linux():
-                boot_drive = "/media/{user}/boot".format(
-                    user=getpass.getuser())
-                root_drive = "/media/{user}/rootfs".format(
-                    user=getpass.getuser())
-            else:
-                boot_drive = "/Volumes/boot"
-                root_drive = "/Volumes/rootfs"
-            if path in ["/etc/hostname",
-                        "/etc/hosts",
-                        "/etc/rc.local",
-                        "/etc/ssh/sshd_config",
-                        "/home/pi/.ssh/authorized_keys",
-                        "/home/pi/.ssh",
-                        "/etc/wpa_supplicant/wpa_supplicant.conf",
-                        "/etc/dhcpcd.conf"]:
-                volume = root_drive
-            elif path in ["/ssh"]:
-                volume = boot_drive
-            else:
-                ERROR("path not defined in cm-burn", path)
-            location = pathlib.Path(
-                "{volume}/{path}".format(volume=volume, path=path))
-        elif os_is_windows():
-            # TODO root_drive and boot_drive not yet defined for windows
-            raise NotImplementedError
-            if path in ["/etc/hostname",
-                        "/etc/rc.local",
-                        "/etc/ssh/sshd_config",
-                        "/home/pi/.ssh/authorized_keys",
-                        "/home/pi/.ssh",
-                        "/etc/wpa_supplicant/wpa_supplicant.conf",
-                        "/etc/dhcpcd.conf"]:
-                volume = self.root_drive
-            elif path in ["/ssh"]:
-                volume = self.boot_drive
-            else:
-                ERROR("path not defined in cm-burn", path)
-            print("{volume}:{path}".format(volume=volume, path=path))
-            location = pathlib.Path(
-                "{volume}:{path}".format(volume=volume, path=path))
-        return location
 
     # IMPROVE
-    def disable_password_ssh(self):
-        sshd_config = self.filename("/etc/ssh/sshd_config")
+    def disable_password_ssh(self, mountpoint):
+        # sshd_config = self.filename("/etc/ssh/sshd_config")
+        sshd_config = f'{mountpoint}/etc/ssh/sshd_config'
         new_sshd_config = ""
         updated_params = False
 
@@ -548,7 +493,8 @@ class Burner(object):
         :param psk: the psk
         :return:
         """
-
+        # TODO Implement without self.filename()
+        raise NotImplementedError
         wifi = textwrap.dedent("""\
                 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
                 update_config=1 
@@ -739,7 +685,7 @@ class MultiBurner(object):
             
             burner.mount(device, mp)
             burner.enable_ssh(mp)
-            burner.disable_password_ssh()
+            burner.disable_password_ssh(mp)
             burner.set_hostname(hostname, mp)
             burner.set_key(key, mp)
             burner.set_static_ip(ip, mp)
