@@ -4,6 +4,7 @@ import time
 import re
 import glob
 import platform
+import getpass
 from cmburn.pi.image import Image
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import yn_choice
@@ -330,6 +331,16 @@ class Burner(object):
         """
         # print(path)
         if os_is_mac() or os_is_linux():
+            root_drive = None
+            boot_drive = None
+            if os_is_linux():
+                boot_drive = "/media/{user}/boot".format(
+                    user=getpass.getuser())
+                root_drive = "/media/{user}/rootfs".format(
+                    user=getpass.getuser())
+            else:
+                boot_drive = "/Volumes/boot"
+                root_drive = "/Volumes/rootfs"
             if path in ["/etc/hostname",
                         "/etc/hosts",
                         "/etc/rc.local",
@@ -338,14 +349,16 @@ class Burner(object):
                         "/home/pi/.ssh",
                         "/etc/wpa_supplicant/wpa_supplicant.conf",
                         "/etc/dhcpcd.conf"]:
-                volume = self.root_drive
+                volume = root_drive
             elif path in ["/ssh"]:
-                volume = self.boot_drive
+                volume = boot_drive
             else:
                 ERROR("path not defined in cm-burn", path)
             location = pathlib.Path(
                 "{volume}/{path}".format(volume=volume, path=path))
         elif os_is_windows():
+            # TODO root_drive and boot_drive not yet defined for windows
+            raise NotImplementedError
             if path in ["/etc/hostname",
                         "/etc/rc.local",
                         "/etc/ssh/sshd_config",
@@ -573,6 +586,25 @@ class Burner(object):
                 print(command)
             else:
                 os.system(f"sudo mkfs.vfat -F32 -v {device}")
+    
+    # TODO I think we still need this
+    # Let's call it scramble password now. Comes up with a random "password" so that
+    # the only way the pi can be accessed is with a ssh key.
+    # 
+    # This is to prevent desktop access of th pi (directly plugging monitor, keyboard, mouse into pi, etc.)
+    # 
+    # Currently, ssh login is only possible with an authorized key. (No passwords)
+    # Plugging pi directly into desktop, however, will still prompt for a user and password.
+    # I can't figure out how to disable it
+    def scramble_password(self):
+        """
+        disables and replaces the password with a random string so that by
+        accident the pi can not be logged into. The only way to login is via the
+        ssh key
+
+        :return:
+        """
+        raise NotImplementedError()
 
 
 class MultiBurner(object):
@@ -707,6 +739,7 @@ class MultiBurner(object):
             
             burner.mount(device, mp)
             burner.enable_ssh(mp)
+            burner.disable_password_ssh()
             burner.set_hostname(hostname, mp)
             burner.set_key(key, mp)
             burner.set_static_ip(ip, mp)
