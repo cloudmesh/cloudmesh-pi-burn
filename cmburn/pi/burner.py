@@ -352,7 +352,7 @@ class Burner(object):
         ]
 
         found_params = set()
-        with sshd_config.open() as f:
+        with open(sshd_config, 'r') as f:
             for line in f:
                 found_a_param = False
                 for param, value in force_params:
@@ -375,8 +375,8 @@ class Burner(object):
             #
             # as we no longer do it on osx, we need to identify if this is still needed
             #
-            self.truncate_file(sshd_config)
-            with sshd_config.open("w") as f:
+            # self.truncate_file(sshd_config)
+            with open(sshd_config, "w") as f:
                 f.write(new_sshd_config)
 
     # IMPROVE
@@ -473,24 +473,6 @@ class Burner(object):
                 f.write(new_rc_local)
         self.disable_password_ssh()
 
-    def truncate_file(pathlib_obj):
-        """Truncate a file on disk before writing.
-
-        This is strange, but was found to be necessary when mounting the newly
-        burned image with extFS on OS X.
-        """
-        # NOTE (jobranam 2018-10-04): I'm not sure why, but on my OS X with
-        # extFS overwriting the file with a shorter version was not working.
-        # There were extra bytes at the end where the file was truncated. Adding
-        # this next section fixed the problem. Maybe there is a better solution.
-        # This problem only shows up the *first* time after burning the image.
-        # Touching the file at all fixes it (e.g. just editing with vim fixes
-        # it)
-        with pathlib_obj.open("w") as f:
-            f.truncate(0)
-            f.flush()
-            f.write("#")
-            f.flush()
 
     def configure_wifi(self, ssid, psk, interactive=False):
         """
