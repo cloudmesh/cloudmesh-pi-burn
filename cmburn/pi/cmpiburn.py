@@ -75,6 +75,8 @@ import sys
 import zipfile
 from glob import glob
 import requests
+import string
+import random
 
 from cmburn.pi.util import WARNING, readfile, writefile, check_root
 from cmburn.pi.image import Image
@@ -230,7 +232,13 @@ def analyse(arguments):
     elif arguments['create']:
 
         if arguments["--passwd"]:
-            raise NotImplementedError("changeing the passwd is not yet supported")
+            passwd = arguments["--passwd"]
+        elif "PASSWD" in os.environ:
+            passwd = os.environ["PASSWD"]
+        else:
+            # Shouldn't go here...
+            passwd = Burner.gen_strong_pass()
+        
 
         StopWatch.start("create")
 
@@ -257,7 +265,8 @@ def analyse(arguments):
             hostnames=hostnames,
             # not difference between names and name, maybe we shoudl allign
             ips=ips,
-            key=key)
+            key=key,
+            password=passwd)
         StopWatch.stop("total")
 
     if verbose:

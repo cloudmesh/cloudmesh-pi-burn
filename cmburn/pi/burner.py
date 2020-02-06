@@ -1,10 +1,15 @@
 import os
+import crypt
 import sys
 import time
 import re
 import glob
 import platform
 import getpass
+import string
+import random
+import pathlib
+import textwrap
 from cmburn.pi.image import Image
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import yn_choice
@@ -12,8 +17,6 @@ from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.StopWatch import StopWatch
 from pprint import pprint
-import pathlib
-import textwrap
 
 
 
@@ -43,6 +46,10 @@ def os_is_mac():
 def os_is_pi():
     return "raspberry" in platform.uname()
 
+
+def gen_strong_pass(length=15):
+    password_characters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(password_characters) for i in range(length))
 
 # noinspection PyPep8
 class Burner(object):
@@ -530,7 +537,7 @@ class Burner(object):
     # Currently, ssh login is only possible with an authorized key. (No passwords)
     # Plugging pi directly into desktop, however, will still prompt for a user and password.
     # I can't figure out how to disable it
-    def scramble_password(self, mountpoint):
+    def disable_terminal_login(self, mountpoint, password):
         """
         disables and replaces the password with a random string so that by
         accident the pi can not be logged into. The only way to login is via the
@@ -538,18 +545,34 @@ class Burner(object):
 
         :return:
         """
-        raise NotImplementedError()
+        # Generates random salt for password generation
+        def random_salt(length=10):
+            lettersAndDigits = string.ascii_letters + string.digits
+            return ''.join(random.choice(lettersAndDigits) for i in range(length))
+        
+        salt = random_salt()
+        if password is not None:
+            pswd = crypt.crypt(password, f'$6${salt}')
+        else:
+            raise NotImplementedError()
 
-        # TODO: Do we want to keep this? (One-way hash)
-        # pswd = '...'
-        """
-        command = f'sudo touch {mountpoint}/home/pi/test.txt'
-        print(f"Trying command: {command}")
-        self.system(command)
-        print("Finished")
-        """
+        # Make sure there's an 'x' in /etc/passwd
+        with open(f'{mountpoint}/etc/passwd', 'r') as f:
+            info = [l for l in f.readlines()]
+
+        for i in range(len(info)):
+            inf = info[i].split(":")
+            if inf[0] == 'pi':
+                inf[1] = 'x'
+                info[i] = ':'.join(inf)
+
+        with open(f'{mountpoint}/etc/passwd', 'w') as f:
+            f.writelines(info)
+
+        # Add it to shadow file
         with open(f'{mountpoint}/etc/shadow', 'r') as f:
             data = [l for l in f.readlines()]
+
         for i in range(len(data)):
             dat = data[i].split(":")
             if dat[0] == 'pi':
@@ -577,7 +600,8 @@ class MultiBurner(object):
              progress=True,
              hostnames=None,
              ips=None,
-             key=None):
+             key=None,
+             password=None):
         """
         :param image:
         :param device:
@@ -643,7 +667,7 @@ class MultiBurner(object):
             status = devices[device]
             hostname = hostnames[i]
             ip = ips[i]
-            self.burn(image, device, blocksize, progress, hostname, ip, key)
+            self.burn(image, device, blocksize, progress, hostname, ip, key, password)
 
             os.system('tput bel')  # ring the terminal bell to notify user
             print()
@@ -663,7 +687,8 @@ class MultiBurner(object):
              progress=True,
              hostname=None,
              ip=None,
-             key=None):
+             key=None,
+             password=None):
         """
 
         :param image:
@@ -692,7 +717,7 @@ class MultiBurner(object):
             burner.burn(image, device, blocksize=blocksize)
             
             burner.mount(device, mp)
-            # burner.scramble_password(mp)
+            burner.disable_terminal_login(mp, password)
             burner.enable_ssh(mp)
             burner.disable_password_ssh(mp)
             burner.set_hostname(hostname, mp)
