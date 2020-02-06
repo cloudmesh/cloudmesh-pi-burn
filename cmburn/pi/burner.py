@@ -47,7 +47,8 @@ def os_is_pi():
     return "raspberry" in platform.uname()
 
 
-def gen_strong_pass(length=15):
+def gen_strong_pass():
+    length = random.randint(10, 15)
     password_characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(password_characters) for i in range(length))
 
