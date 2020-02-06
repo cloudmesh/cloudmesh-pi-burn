@@ -530,7 +530,7 @@ class Burner(object):
     # Currently, ssh login is only possible with an authorized key. (No passwords)
     # Plugging pi directly into desktop, however, will still prompt for a user and password.
     # I can't figure out how to disable it
-    def scramble_password(self):
+    def scramble_password(self, mountpoint):
         """
         disables and replaces the password with a random string so that by
         accident the pi can not be logged into. The only way to login is via the
@@ -540,17 +540,8 @@ class Burner(object):
         """
         raise NotImplementedError()
 
-    def disable_password(self, mountpoint):
-        """
-        disables and replaces the password with a random string so that by
-        accident the pi can not be logged into. The only way to login is via the
-        ssh key
-
-        :return:
-        """
-        raise NotImplementedError()
         # TODO: Do we want to keep this? (One-way hash)
-        pswd = '$6$qRn8uP08NKvx8v/T$8XcXsA0P/Bpdmy6SSfjR5nJGgna90GACYczIBMRm8FJK0z4ZH7dcD3qbvk.XBjg4DfhZ74nDWGXF/jVZ7Vui9/'
+        # pswd = '...'
         """
         command = f'sudo touch {mountpoint}/home/pi/test.txt'
         print(f"Trying command: {command}")
@@ -567,8 +558,6 @@ class Burner(object):
 
         with open(f'{mountpoint}/etc/shadow', 'w') as f:
             f.writelines(data)
-
-
 
 
 
@@ -703,7 +692,7 @@ class MultiBurner(object):
             burner.burn(image, device, blocksize=blocksize)
             
             burner.mount(device, mp)
-            # burner.disable_password(mp)
+            # burner.scramble_password(mp)
             burner.enable_ssh(mp)
             burner.disable_password_ssh(mp)
             burner.set_hostname(hostname, mp)
