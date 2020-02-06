@@ -387,7 +387,7 @@ class Burner(object):
             ("PermitRootLogin", "no"),
         ]
 
-        found_params = set(force_params)
+        found_params = set()
         with sshd_config.open() as f:
             for line in f:
                 found_a_param = False
