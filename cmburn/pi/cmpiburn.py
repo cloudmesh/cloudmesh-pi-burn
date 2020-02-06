@@ -17,6 +17,7 @@ Usage:
                          [--sshkey=KEY]
                          [--blocksize=BLOCKSIZE]
                          [--dryrun]
+                         [--passwd]
   cm-pi-burn [-v] burn [IMAGE] [DEVICE] --[dryrun]
   cm-pi-burn [-v] mount [DEVICE] [MOUNTPOINT]
   cm-pi-burn [-v] set hostname [HOSTNAME] [MOUNTPOINT]
@@ -44,7 +45,16 @@ Files:
     Location where the images will be stored for reuse
 
 Description:
-  cm-pi-burn
+  cm-pi-burn create
+
+     --passwd
+
+         if the passwd flag is added the default password is
+         queried from the commandline and added to all SDCards
+
+         if the flag is ommitted login via the password is disabled and
+         only login via the sshkey is allowed
+
 
 Example:
   cm-pi-burn create --image=2019-09-26-raspbian-buster-lite --device=/dev/mmcblk0
@@ -218,6 +228,9 @@ def analyse(arguments):
         StopWatch.stop("image versions")
 
     elif arguments['create']:
+
+        if arguments["--passwd"]:
+            raise NotImplementedError("changeing the passwd is not yet supported")
 
         StopWatch.start("create")
 
