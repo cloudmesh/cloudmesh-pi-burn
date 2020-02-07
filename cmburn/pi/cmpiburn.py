@@ -82,7 +82,7 @@ from cmburn.pi.util import WARNING, readfile, writefile, check_root
 from cmburn.pi.image import Image
 from cmburn.pi import columns, lines
 import oyaml as yaml
-from cmburn.pi.burner import Burner, MultiBurner
+from cmburn.pi.burner import Burner, MultiBurner, gen_strong_pass
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Shell import Shell
 
@@ -237,7 +237,7 @@ def analyse(arguments):
             passwd = os.environ["PASSWD"]
         else:
             # Shouldn't go here...
-            passwd = Burner.gen_strong_pass()
+            passwd = gen_strong_pass()
         
 
         StopWatch.start("create")
