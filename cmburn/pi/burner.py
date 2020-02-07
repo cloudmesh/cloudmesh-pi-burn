@@ -481,15 +481,21 @@ class Burner(object):
         self.disable_password_ssh()
 
 
-    def configure_wifi(self, ssid, psk, interactive=False):
+    def getMAC(self, interface='wlan0'):
+        try:
+            addr = open(f'/sys/class/net/{interface}/address').read()
+        except:
+            addr = "00:00:00:00:00:00"
+        return addr[0:17]
+
+    # TODO Doesn't explicitly need psk
+    def configure_wifi(self, ssid, psk=None, mp='/mount/pi', interactive=False):
         """
         sets the wifi. ONly works for psk based wifi
         :param ssid: the ssid
         :param psk: the psk
         :return:
         """
-        # TODO Implement without self.filename()
-        raise NotImplementedError
         wifi = textwrap.dedent("""\
                 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
                 update_config=1 
@@ -501,7 +507,7 @@ class Burner(object):
                         key_mgmt=WPA-PSK
                 }}""".format(network=ssid, pwd=psk))
         print(wifi)
-        path = "/etc/wpa_supplicant/wpa_supplicant.conf"
+        path = f"{mp}/etc/wpa_supplicant/wpa_supplicant.conf"
         if self.dryrun:
             print("DRY RUN - skipping:")
             print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
@@ -510,7 +516,12 @@ class Burner(object):
         elif interactive:
             if not yn_choice("About write wifi info. Please confirm:"):
                 return
-        pathlib.Path(self.filename(path)).write_text(wifi)
+        # pathlib.Path(self.filename(path)).write_text(wifi)
+        with open(path, 'w') as f:
+            f.write(wifi)
+
+
+
 
     def format_device(self, devices=None):
         """
@@ -601,7 +612,9 @@ class MultiBurner(object):
              hostnames=None,
              ips=None,
              key=None,
-             password=None):
+             password=None,
+             ssid=None,
+             psk=None):
         """
         :param image:
         :param device:
@@ -667,7 +680,7 @@ class MultiBurner(object):
             status = devices[device]
             hostname = hostnames[i]
             ip = ips[i]
-            self.burn(image, device, blocksize, progress, hostname, ip, key, password)
+            self.burn(image, device, blocksize, progress, hostname, ip, key, password, ssid, psk)
 
             os.system('tput bel')  # ring the terminal bell to notify user
             print()
@@ -688,7 +701,9 @@ class MultiBurner(object):
              hostname=None,
              ip=None,
              key=None,
-             password=None):
+             password=None,
+             ssid=None,
+             psk=None):
         """
 
         :param image:
@@ -718,6 +733,9 @@ class MultiBurner(object):
             
             burner.mount(device, mp)
             burner.disable_terminal_login(mp, password)
+            print("MAC ADDRESS: " , burner.getMAC())
+            if ssid is not None:
+                burner.configure_wifi(ssid, psk, mp)
             burner.enable_ssh(mp)
             burner.disable_password_ssh(mp)
             burner.set_hostname(hostname, mp)
