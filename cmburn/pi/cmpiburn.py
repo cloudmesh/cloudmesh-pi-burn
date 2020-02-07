@@ -17,7 +17,7 @@ Usage:
                          [--sshkey=KEY]
                          [--blocksize=BLOCKSIZE]
                          [--dryrun]
-                         [--passwd]
+                         [--passwd=PASSWD]
   cm-pi-burn [-v] burn [IMAGE] [DEVICE] --[dryrun]
   cm-pi-burn [-v] mount [DEVICE] [MOUNTPOINT]
   cm-pi-burn [-v] set hostname [HOSTNAME] [MOUNTPOINT]
@@ -47,7 +47,7 @@ Files:
 Description:
   cm-pi-burn create
 
-     --passwd
+     --passwd=PASSWD
 
          if the passwd flag is added the default password is
          queried from the commandline and added to all SDCards
