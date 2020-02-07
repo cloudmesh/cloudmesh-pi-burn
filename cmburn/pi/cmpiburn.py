@@ -18,6 +18,8 @@ Usage:
                          [--blocksize=BLOCKSIZE]
                          [--dryrun]
                          [--passwd=PASSWD]
+                         [--ssid=SSID]
+                         [--wifipsk=PSK]
   cm-pi-burn [-v] burn [IMAGE] [DEVICE] --[dryrun]
   cm-pi-burn [-v] mount [DEVICE] [MOUNTPOINT]
   cm-pi-burn [-v] set hostname [HOSTNAME] [MOUNTPOINT]
@@ -99,16 +101,15 @@ def analyse(arguments):
 
     if arguments['wifi']:
 
-        password = arguments.PASSWD
-        ssid = arguments.SSID
+        password = arguments['PASSWD']
+        ssid = arguments['SSID']
 
         if password is None:
             password = getpass("Please enter the Wifi password; ")
 
-        raise NotImplementedError
 
         StopWatch.stop("wifi")
-        burner.wifi()
+        # burner.configure_wifi(ssid, password)
         StopWatch.stop("wifi")
 
     elif arguments['detect']:
@@ -238,7 +239,20 @@ def analyse(arguments):
         else:
             # Shouldn't go here...
             passwd = gen_strong_pass()
-        
+
+        if arguments["--ssid"]:
+            ssid=arguments["--ssid"]
+            if arguments["--wifipsk"]:
+                psk=arguments["--wifipsk"]
+            else:
+                psk=None
+        else:
+            if arguments["--wifipsk"]:
+                print("Can't have wifi password with no ssid")
+                return
+            else:
+                ssid=None
+            
 
         StopWatch.start("create")
 
@@ -266,7 +280,9 @@ def analyse(arguments):
             # not difference between names and name, maybe we shoudl allign
             ips=ips,
             key=key,
-            password=passwd)
+            password=passwd,
+            ssid=ssid,
+            psk=psk)
         StopWatch.stop("total")
 
     if verbose:
