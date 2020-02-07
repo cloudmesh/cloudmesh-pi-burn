@@ -80,6 +80,7 @@ import requests
 import string
 import random
 
+
 from cmburn.pi.util import WARNING, readfile, writefile, check_root
 from cmburn.pi.image import Image
 from cmburn.pi import columns, lines
