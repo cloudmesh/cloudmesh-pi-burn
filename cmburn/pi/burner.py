@@ -185,7 +185,6 @@ class Burner(object):
         if self.dryrun:
             print(command)
         else:
-            print(command)
             os.system(command)
 
     def burn(self, image, device, blocksize="4M"):
