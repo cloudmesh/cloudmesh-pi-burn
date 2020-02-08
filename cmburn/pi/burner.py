@@ -516,6 +516,7 @@ class Burner(object):
 
                     network={{
                             ssid=\"{network}\"
+                            key_mgmt=NONE
                     }}""".format(network=ssid))
 
         print(wifi)
