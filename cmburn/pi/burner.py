@@ -489,7 +489,7 @@ class Burner(object):
             addr = "00:00:00:00:00:00"
         return addr[0:17]
 
-    # TODO Doesn't explicitly need psk
+
     def configure_wifi(self, ssid, psk=None, mp='/mount/pi', interactive=False):
         """
         sets the wifi. ONly works for psk based wifi
@@ -497,16 +497,27 @@ class Burner(object):
         :param psk: the psk
         :return:
         """
-        wifi = textwrap.dedent("""\
-                ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
-                update_config=1 
-                country=US
+        if psk is not None:
+            wifi = textwrap.dedent("""\
+                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
+                    update_config=1 
+                    country=US
 
-                network={{
-                        ssid=\"{network}\"
-                        psk=\"{pwd}\"
-                        key_mgmt=WPA-PSK
-                }}""".format(network=ssid, pwd=psk))
+                    network={{
+                            ssid=\"{network}\"
+                            psk=\"{pwd}\"
+                            key_mgmt=WPA-PSK
+                    }}""".format(network=ssid, pwd=psk))
+        else:
+            wifi = textwrap.dedent("""\
+                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
+                    update_config=1 
+                    country=US
+
+                    network={{
+                            ssid=\"{network}\"
+                    }}""".format(network=ssid))
+
         print(wifi)
         path = f"{mp}/etc/wpa_supplicant/wpa_supplicant.conf"
         if self.dryrun:
