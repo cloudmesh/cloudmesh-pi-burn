@@ -201,6 +201,8 @@ class Burner(object):
         image_path = Image(image).fullpath
 
         self.system(f'sudo dd bs={blocksize} if={image_path} of={device}')
+        print('DEBUG: ')
+        self.system('ls /dev/sd*')
 
     def set_hostname(self, hostname, mountpoint):
         """
@@ -534,23 +536,33 @@ class Burner(object):
             f.write(wifi)
 
 
-
-
-    def format_device(self, devices=None):
+    # TODO Formats device with one FAT32 partition
+    # WARNING: This is a very unreliable way of automating the process using fdisk
+    def format_device(self, devices='dev/sda'):
         """
 
         :param devices:
         :return:
         """
-        if devices is None:
-            return
-        for device in devices:
-            self.umount(device)
-            command = f"sudo mkfs.vfat -F32 -v {device}"
-            if self.dryrun:
-                print(command)
-            else:
-                os.system(f"sudo mkfs.vfat -F32 -v {device}")
+
+        pipeline = textwrap.dedent("""d
+
+                                    d
+                                    n
+                                    p
+                                    1
+
+
+                                    t
+                                    b
+                                    w
+                                    """)
+
+        os.system(f'echo {pipeline} | sudo fdisk {devices}')
+
+    
+            
+                   
     
     # TODO I think we still need this
     # Let's call it scramble password now. Comes up with a random "password" so that
