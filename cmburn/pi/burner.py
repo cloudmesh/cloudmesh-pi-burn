@@ -484,9 +484,9 @@ class Burner(object):
         self.disable_password_ssh()
 
 
-    def getMAC(self, interface='wlan0'):
+    def getMAC(self, mp='/mount/pi', interface='wlan0'):
         try:
-            addr = open(f'/sys/class/net/{interface}/address').read()
+            addr = open(f'{mp}/sys/class/net/{interface}/address').read()
         except:
             addr = "00:00:00:00:00:00"
         return addr[0:17]
