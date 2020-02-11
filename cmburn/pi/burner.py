@@ -53,6 +53,7 @@ def gen_strong_pass():
     password_characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(password_characters) for i in range(length))
 
+
 # noinspection PyPep8
 class Burner(object):
 
@@ -235,24 +236,29 @@ class Burner(object):
             print("Write to /etc/hosts")
             print('127.0.1.1 ' + hostname + '\n')
 
-    def set_static_ip(self, ip, mountpoint):
+    def set_static_ip(self, ip, mp, dns):
         """
         Sets the static ip on the sd card
 
         :param ip: IP address
         :param mountpoint: TBD
         """
-        # append to mountpoint/etc/dhcpcd.conf:
-        #  interface eth0
-        #  static ip_address=[IP]/24
-        if not self.dryrun:
 
-            with open(f'{mountpoint}/etc/dhcpcd.conf') as f:
-                lines = [l for l in f.readlines()]
-            new_dhcpcd_contents = ''.join(lines)
-            new_dhcpcd_contents += 'interface eth0\n'
-            new_dhcpcd_contents += f'static ip_address={ip}/24\n'
-            self.system(f'echo "{new_dhcpcd_contents}" | sudo cp /dev/stdin {mountpoint}/etc/dhcpcd.conf')
+        if not self.dryrun:
+            # TODO Implement ability to set routers and domain_name_servers
+            dhcp_conf = textwrap.dedent(f"""
+                    interface eth0
+                    static ip_address={ip}/24
+                    static routers={dns}
+                    static domain_name_servers={dns}
+
+                    interface wlan0
+                    static ip_address={ip}
+                    static routers={dns}
+                    static domain_name_servers={dns}
+                    """)
+            with open(f'{mp}/etc/dhcpcd.conf', 'a') as config:
+                config.write(dhcp_conf)
         else:
             print('interface eth0\n')
             print(f'static ip_address={ip}/24')
@@ -484,14 +490,6 @@ class Burner(object):
         self.disable_password_ssh()
 
 
-    def getMAC(self, mp='/mount/pi', interface='wlan0'):
-        try:
-            addr = open(f'{mp}/sys/class/net/{interface}/address').read()
-        except:
-            addr = "00:00:00:00:00:00"
-        return addr[0:17]
-
-
     def configure_wifi(self, ssid, psk=None, mp='/mount/pi', interactive=False):
         """
         sets the wifi. ONly works for psk based wifi
@@ -538,13 +536,15 @@ class Burner(object):
 
     # TODO Formats device with one FAT32 partition
     # WARNING: This is a very unreliable way of automating the process using fdisk
-    def format_device(self, devices='dev/sda'):
+    def format_device(self, device='dev/sda'):
         """
 
         :param devices:
         :return:
         """
 
+        
+        self.umount(devices)
         pipeline = textwrap.dedent("""d
 
                                     d
@@ -639,7 +639,9 @@ class MultiBurner(object):
              key=None,
              password=None,
              ssid=None,
-             psk=None):
+             psk=None,
+             dns=None,
+             formatSD=False):
         """
         :param image:
         :param device:
@@ -705,7 +707,7 @@ class MultiBurner(object):
             status = devices[device]
             hostname = hostnames[i]
             ip = ips[i]
-            self.burn(image, device, blocksize, progress, hostname, ip, key, password, ssid, psk)
+            self.burn(image, device, blocksize, progress, hostname, ip, key, password, ssid, psk, dns, formatSD)
 
             os.system('tput bel')  # ring the terminal bell to notify user
             print()
@@ -728,7 +730,9 @@ class MultiBurner(object):
              key=None,
              password=None,
              ssid=None,
-             psk=None):
+             psk=None,
+             dns=None,
+             formatSD=False):
         """
 
         :param image:
@@ -754,18 +758,23 @@ class MultiBurner(object):
             print("counter", counter)
             StopWatch.start("fcreate {hostname}")
 
+            if formatSD:
+                burner.format_device(device)
+                
             burner.burn(image, device, blocksize=blocksize)
             
             burner.mount(device, mp)
             burner.disable_terminal_login(mp, password)
-            print("MAC ADDRESS: " , burner.getMAC())
-            if ssid is not None:
+            if ssid:
                 burner.configure_wifi(ssid, psk, mp)
             burner.enable_ssh(mp)
             burner.disable_password_ssh(mp)
             burner.set_hostname(hostname, mp)
             burner.set_key(key, mp)
-            burner.set_static_ip(ip, mp)
+            # Both options need to be defined for static ip
+            if (ip and dns):
+                burner.set_static_ip(ip, mp, dns)
+
             burner.unmount(device)
             # for some reason, need to do unmount twice for it to work properly
             burner.unmount(device)
