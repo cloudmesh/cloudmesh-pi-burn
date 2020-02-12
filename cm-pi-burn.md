@@ -49,7 +49,7 @@ with the manual on `ssh-keygen` and `ssh-add`.
 Next configure python 3 with the help of a virtual env
 
 ```bash
-    $python3 -venv ~/ENV3
+    $python3 -m venv ~/ENV3
     $source ~/ENV3/bin/activate
 ```
 
@@ -275,16 +275,33 @@ You can look at the names of your devices under the device column. Eg /dev/sda,/
 
 ## Burning SD-Cards
 
-To burn one card use:
+To burn one card, we will use ` cm-pi-burn create ` with several important options:
+`--image` specifies the name of the image to burn
+`--device` is the path to the SD card
+`--hostname` is the name for the pi
+`--sshkey` is the path to your SSH PUBLIC key
+`--blocksize` specified to 4M for our purposes
+`--ssid` specifies the name of the wireless network you may wish to connect to
+`--wifipsk` is the password (if one is needed) for the network specified by --ssid
+
+If you want to specify a password for desktop login (for debugging purposes), you can use the option
+`--passwd` to set a password. In the future, you should not use this option as we do not want to login through the terminal. We only want to SSH from the master Pi
+
+If we want to configure a static ip address, we need to do some more steps to get the information needed. It is not needed to connect to the internet, so I will finish this section soon.
+
+For more information on options, see `/cmburn/pi/cmpiburn.py`
+
+Here is an example call of the command create
 
 ```
 # cm-pi-burn create \
     --image=2019-09-26-raspbian-buster-lite \
     --device=/dev/sda \
     --hostname=red2 \
-    --ipaddr=192.168.1.2 \
-    --sshkey=/home/pi/.ssh/id_rsa.pub
-    --blocksize=4M
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
+    --ssid=HomeNetwork \
+    --wifipsk=MyWifiPasswd \
 ```
 
 Here we are assuming that your device name is sda but its very important to verify it once before executing the above command.
