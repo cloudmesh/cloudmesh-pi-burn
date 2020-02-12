@@ -285,7 +285,9 @@ To burn one card, we will use ` cm-pi-burn create ` with several important optio
 * `--wifipsk` is the password (if one is needed) for the network specified by --ssid
 
 If you want to specify a password for desktop login (for debugging purposes), you can use the option
-`--passwd` to set a password. In the future, you should not use this option as we do not want to login through the terminal. We only want to SSH from the master Pi
+* `--passwd=PASSWD` 
+to set a password. 
+In the future, you should not use this option as we do not want to login through the terminal. We only want to SSH from the master Pi
 
 If we want to configure a static ip address, we need to do some more steps to get the information needed. It is not needed to connect to the internet, so I will finish this section soon.
 
