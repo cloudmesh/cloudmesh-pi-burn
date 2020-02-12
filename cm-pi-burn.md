@@ -276,13 +276,13 @@ You can look at the names of your devices under the device column. Eg /dev/sda,/
 ## Burning SD-Cards
 
 To burn one card, we will use ` cm-pi-burn create ` with several important options:
-`--image` specifies the name of the image to burn
-`--device` is the path to the SD card
-`--hostname` is the name for the pi
-`--sshkey` is the path to your SSH PUBLIC key
-`--blocksize` specified to 4M for our purposes
-`--ssid` specifies the name of the wireless network you may wish to connect to
-`--wifipsk` is the password (if one is needed) for the network specified by --ssid
+*`--image` specifies the name of the image to burn
+*`--device` is the path to the SD card
+*`--hostname` is the name for the pi
+*`--sshkey` is the path to your SSH PUBLIC key
+*`--blocksize` specified to 4M for our purposes
+*`--ssid` specifies the name of the wireless network you may wish to connect to
+*`--wifipsk` is the password (if one is needed) for the network specified by --ssid
 
 If you want to specify a password for desktop login (for debugging purposes), you can use the option
 `--passwd` to set a password. In the future, you should not use this option as we do not want to login through the terminal. We only want to SSH from the master Pi
