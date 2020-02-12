@@ -20,6 +20,7 @@ Usage:
                          [--passwd=PASSWD]
                          [--ssid=SSID]
                          [--wifipsk=PSK]
+                         [--domain=DOMAIN]
   cm-pi-burn [-v] burn [IMAGE] [DEVICE] --[dryrun]
   cm-pi-burn [-v] mount [DEVICE] [MOUNTPOINT]
   cm-pi-burn [-v] set hostname [HOSTNAME] [MOUNTPOINT]
@@ -254,6 +255,9 @@ def analyse(arguments):
             else:
                 ssid=None
             
+        dns = "10.0.0.1" if not arguments["--domain"] else arguments["--domain"]
+        # formatSD = True if arguments["--format"] else False
+        formatSD = False
 
         StopWatch.start("create")
 
@@ -283,7 +287,9 @@ def analyse(arguments):
             key=key,
             password=passwd,
             ssid=ssid,
-            psk=psk)
+            psk=psk,
+            dns=dns,
+            formatSD=formatSD)
         StopWatch.stop("total")
 
     if verbose:
