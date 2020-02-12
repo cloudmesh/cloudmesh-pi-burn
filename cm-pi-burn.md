@@ -310,6 +310,7 @@ Here is an example call of the command create
 
 Here we are assuming that your device name is sda but its very important to verify it once before executing the above command.
 
+(Skip this part for now. `--ipaddr` is part of static ip configuration which remains to be documented)
 To burn many cards you can specify them conveniently in parameter
 notation in  the `--hostname` and `--ipaddr` arguments:
 
@@ -321,6 +322,8 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --ipaddr=192.168.1.[2-6] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
+    --ssid=HomeNetwork \
+    --wifipsk=MyWifiPasswd \
 ```
 
 Here again since the device names start with sda,sdb,sdc etc. We can give it as sd*. Again we have to check the device info before executing this command
