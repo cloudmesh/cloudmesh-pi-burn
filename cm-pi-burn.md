@@ -338,7 +338,7 @@ The options passed to `cm-pi-burn create` are then:
 For more information on options, see `/cmburn/pi/cmpiburn.py`
 
 Here is an example call of the command create using a static IP address connecting to a home wifi network with the IP address information
-of the example above.
+of the example above. Again, you do not need to set a static IP to connect to the internet.
 
 ```
 # cm-pi-burn create \
@@ -364,11 +364,12 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --image=2019-09-26-raspbian-buster-lite \
     --device=/dev/sd* \
     --hostname=red[2-6] \
-    --ipaddr=192.168.1.[2-6] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
     --ssid=HomeNetwork \
     --wifipsk=MyWifiPasswd \
+    --ipaddr=10.1.1.[32-36] \
+    --domain=10.1.1.1
 ```
 
 Here again since the device names start with sda,sdb,sdc etc. We can give it as sd*. Again we have to check the device info before executing this command
