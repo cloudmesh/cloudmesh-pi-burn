@@ -21,6 +21,7 @@ Usage:
                          [--ssid=SSID]
                          [--wifipsk=PSK]
                          [--domain=DOMAIN]
+                         [--format]
   cm-pi-burn [-v] burn [IMAGE] [DEVICE] --[dryrun]
   cm-pi-burn [-v] mount [DEVICE] [MOUNTPOINT]
   cm-pi-burn [-v] set hostname [HOSTNAME] [MOUNTPOINT]
@@ -256,8 +257,8 @@ def analyse(arguments):
                 ssid=None
             
         dns = "10.0.0.1" if not arguments["--domain"] else arguments["--domain"]
-        # formatSD = True if arguments["--format"] else False
-        formatSD = False
+        formatSD = True if arguments["--format"] else False
+        # formatSD = False
 
         StopWatch.start("create")
 
@@ -267,7 +268,7 @@ def analyse(arguments):
         devices = None  # use the info command to detect
 
         hostnames = hostlist.expand_hostlist(arguments['--hostname'])
-        ips = hostlist.expand_hostlist(arguments['--ipaddr'])
+        ips = None if not arguments['--ipaddr'] else hostlist.expand_hostlist(arguments['--ipaddr'])
         key = arguments['--sshkey']
         mp = '/mount/pi'
         blocksize = arguments["--blocksize"]
