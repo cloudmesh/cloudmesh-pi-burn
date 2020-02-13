@@ -246,14 +246,20 @@ class Burner(object):
 
         if not self.dryrun:
             # TODO Implement ability to set routers and domain_name_servers
-            dhcp_conf = textwrap.dedent(f"""
-                    interface eth0
-                    static ip_address={ip}/24
-                    static routers={dns}
-                    static domain_name_servers={dns}
+            # dhcp_conf = textwrap.dedent(f"""
+            #         interface eth0
+            #         static ip_address={ip}/24
+            #         static routers={dns}
+            #         static domain_name_servers={dns}
 
+            #         interface wlan0
+            #         static ip_address={ip}/24
+            #         static routers={dns}
+            #         static domain_name_servers={dns}
+            #         """)
+            dhcp_conf = textwrap.dedent(f"""
                     interface wlan0
-                    static ip_address={ip}
+                    static ip_address={ip}/24
                     static routers={dns}
                     static domain_name_servers={dns}
                     """)
@@ -544,7 +550,7 @@ class Burner(object):
         """
 
         
-        self.umount(devices)
+        self.unmount(device)
         pipeline = textwrap.dedent("""d
 
                                     d
@@ -555,10 +561,9 @@ class Burner(object):
 
                                     t
                                     b
-                                    w
-                                    """)
+                                    w""")
 
-        os.system(f'echo {pipeline} | sudo fdisk {devices}')
+        os.system(f'echo "{pipeline}" | sudo fdisk {device}')
 
     
             
