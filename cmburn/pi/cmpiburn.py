@@ -267,7 +267,7 @@ def analyse(arguments):
         devices = None  # use the info command to detect
 
         hostnames = hostlist.expand_hostlist(arguments['--hostname'])
-        ips = hostlist.expand_hostlist(arguments['--ipaddr'])
+        ips = None if not arguments['--ipaddr'] else hostlist.expand_hostlist(arguments['--ipaddr'])
         key = arguments['--sshkey']
         mp = '/mount/pi'
         blocksize = arguments["--blocksize"]
