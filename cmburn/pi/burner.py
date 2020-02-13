@@ -54,6 +54,29 @@ def gen_strong_pass():
     return ''.join(random.choice(password_characters) for i in range(length))
 
 
+def format_device(self, device='dev/sda'):
+    """
+
+    :param devices:
+    :return:
+    """
+
+    
+    self.unmount(device)
+    pipeline = textwrap.dedent("""d
+
+                                d
+                                n
+                                p
+                                1
+
+
+                                t
+                                b
+                                w""")
+
+    os.system(f'echo "{pipeline}" | sudo fdisk {device}')
+
 # noinspection PyPep8
 class Burner(object):
 
@@ -544,7 +567,7 @@ class Burner(object):
         """
 
         
-        self.umount(devices)
+        self.unmount(device)
         pipeline = textwrap.dedent("""d
 
                                     d
@@ -555,10 +578,9 @@ class Burner(object):
 
                                     t
                                     b
-                                    w
-                                    """)
+                                    w""")
 
-        os.system(f'echo {pipeline} | sudo fdisk {devices}')
+        os.system(f'echo "{pipeline}" | sudo fdisk {device}')
 
     
             
@@ -706,7 +728,7 @@ class MultiBurner(object):
             device = keys[i]
             status = devices[device]
             hostname = hostnames[i]
-            ip = ips[i]
+            ip = None if not ips else ips[i]
             self.burn(image, device, blocksize, progress, hostname, ip, key, password, ssid, psk, dns, formatSD)
 
             os.system('tput bel')  # ring the terminal bell to notify user
