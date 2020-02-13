@@ -706,7 +706,7 @@ class MultiBurner(object):
             device = keys[i]
             status = devices[device]
             hostname = hostnames[i]
-            ip = ips[i]
+            ip = None if not ips else ips[i]
             self.burn(image, device, blocksize, progress, hostname, ip, key, password, ssid, psk, dns, formatSD)
 
             os.system('tput bel')  # ring the terminal bell to notify user
