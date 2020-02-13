@@ -54,29 +54,6 @@ def gen_strong_pass():
     return ''.join(random.choice(password_characters) for i in range(length))
 
 
-def format_device(device='/dev/sda'):
-    """
-
-    :param devices:
-    :return:
-    """
-
-    
-    os.system(f'sudo umount {device[:-1]}*')
-    pipeline = textwrap.dedent("""d
-
-                                d
-                                n
-                                p
-                                1
-
-
-                                t
-                                b
-                                w""")
-
-    os.system(f'echo "{pipeline}" | sudo fdisk {device}')
-
 # noinspection PyPep8
 class Burner(object):
 
