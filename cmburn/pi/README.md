@@ -291,14 +291,21 @@ If you want to specify a password for desktop login (for debugging purposes), yo
 to set a password. 
 In the future, you should not use this option as we do not want to login through the terminal. We only want to SSH from the master Pi
 
+### Auto Format to FAT32
+The `--format` is an option that can be used to automatically format your SD card to FAT32. The current implementation is quite unstable as it
+makes several assumptions. If this option is used, it will most likely work. 
+
+Do not worry if you see the message `No partition is defined yet!`
+
 ### Using a static IP address
 To use a static IP address when connecting to the internet, there is some information we must first provide to cm-pi-burn using options
 * `--ipaddr=IP' is the static IP address you wish to assign to the Pi
-* `--domain=DOMAIN` is an option to specify necessary informatino about your network.
+* `--dns=DOMAIN` is an option to specify necessary information about your network.
+* `--routers=ROUTERS` is an option to specify necessary information about your network.
 
 Keep in mind a static IP address is not needed to connect to the internet
 
-To figure out what to pass into `--domain`, type the following into your master Pi that is connected to the network you will be using
+To figure out what to pass into `--dns` and `--routers`, type the following into your master Pi that is connected to the network you will be using
 for the burned Pi.
 
 ```
@@ -311,7 +318,7 @@ You should get an output that looks something like this
 10.1.1.1
 ```
 
-Note this number. For good measure, also execute the following command on your master pi
+You will pass this result into  `--routers`
 
 ```
 # sudo cat /etc/resolv.conf
@@ -324,21 +331,22 @@ You should get an output like this:
 nameserver 10.1.1.1
 ```
 
-If the number from nameserver does not match what you got from the previous command, then you will need to do more steps to get this working.
-This is not documented yet.
+You will pass this result into  `--dns`
+Notice how in this example, the values for `--dns` and `--routers` are the same. This may not always be the case. Use what you network tells you.
 
 Now, choose a static ip address for your Pi that is unused on the network. Let's say you choose `10.1.1.30`
 
 The options passed to `cm-pi-burn create` are then:
 
 * `--ipaddr=10.1.1.30`
-* `--domain=10.1.1.1`
+* `--dns=10.1.1.1`
+* `--routers=10.1.1.1`
 
 
 For more information on options, see `/cmburn/pi/cmpiburn.py`
 
 Here is an example call of the command create using a static IP address connecting to a home wifi network with the IP address information
-of the example above. Again, you do not need to set a static IP to connect to the internet.
+of the example above. Again, you do not need to set a static IP to connect to the internet. We are also using the `--format` option
 
 ```
 # cm-pi-burn create \
@@ -350,7 +358,9 @@ of the example above. Again, you do not need to set a static IP to connect to th
     --ssid=HomeNetwork \
     --wifipsk=MyWifiPasswd \
     --ipaddr=10.1.1.30 \
-    --domain=10.1.1.1
+    --dns=10.1.1.1 \
+    --routers=10.1.1.1 \
+    --format
 ```
 
 Here we are assuming that your device name is sda but its very important to verify it once before executing the above command.
@@ -369,7 +379,9 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --ssid=HomeNetwork \
     --wifipsk=MyWifiPasswd \
     --ipaddr=10.1.1.[32-36] \
-    --domain=10.1.1.1
+    --dns=10.1.1.1
+    --routers=10.1.1.1
+    --format
 ```
 
 Here again since the device names start with sda,sdb,sdc etc. We can give it as sd*. Again we have to check the device info before executing this command
@@ -416,4 +428,3 @@ SSHFS:
 
 	mkdir master
 	sshfs master: master
-
