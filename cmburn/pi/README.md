@@ -299,7 +299,7 @@ Do not worry if you see the message `No partition is defined yet!`
 
 ### Using a static IP address
 To use a static IP address when connecting to the internet, there is some information we must first provide to cm-pi-burn using options
-* `--ipaddr=IP' is the static IP address you wish to assign to the Pi
+* `--ipaddr=IP` is the static IP address you wish to assign to the Pi
 * `--dns=DOMAIN` is an option to specify necessary information about your network.
 * `--routers=ROUTERS` is an option to specify necessary information about your network.
 
