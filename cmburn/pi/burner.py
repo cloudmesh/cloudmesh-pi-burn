@@ -262,6 +262,11 @@ class Burner(object):
                     static ip_address={ip}/24
                     static routers={routers}
                     static domain_name_servers={dns}
+
+                    interface eth0
+                    static ip_address={ip}/24
+                    static routers={routers}
+                    static domain_name_servers={dns}
                     """)
             with open(f'{mp}/etc/dhcpcd.conf', 'a') as config:
                 config.write(dhcp_conf)
