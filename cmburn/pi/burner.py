@@ -326,12 +326,14 @@ class Burner(object):
         if not self.dryrun:
             self.system('sudo sync') # flush any pending/in-process writes
 
-        # unmount p1 (/boot) and then p1 (/)
+        # unmount p1 (/boot) and then p2 (/)
+        print(f'sudo umount {device}1')
         self.system(f'sudo umount {device}1')
         try:
             self.system(f'sudo umount {device}1')
         except:
             pass
+        print(f'sudo umount {device}2')
         self.system(f'sudo umount {device}2')
 
     def enable_ssh(self, mountpoint):
@@ -553,20 +555,25 @@ class Burner(object):
 
         
         print("Formatting device")
-        self.unmount(device)
+        # self.unmount(device)
+        os.system(f'sudo umount {device}*')
         pipeline = textwrap.dedent("""d
 
                                     d
+                                    
+                                    d
+
+                                    d
+
                                     n
                                     p
                                     1
 
 
                                     t
-                                    b
-                                    w""")
+                                    b""")
 
-        os.system(f'echo "{pipeline}" | sudo fdisk {device}')
+        os.system(f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}')
         print("Done formatting :)")
 
     
