@@ -567,6 +567,7 @@ class Burner(object):
                                     w""")
 
         os.system(f'echo "{pipeline}" | sudo fdisk {device}')
+        print("Done formatting :)")
 
     
             
@@ -726,7 +727,7 @@ class MultiBurner(object):
                 print()
         i += 1
         print(f"You burned {i} SD Cards")
-        print("Done.")
+        print("Done :)")
 
 
     def burn(self,
