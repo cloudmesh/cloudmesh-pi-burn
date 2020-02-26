@@ -350,7 +350,7 @@ of the example above. Again, you do not need to set a static IP to connect to th
 
 ```
 # cm-pi-burn create \
-    --image=2020-02-05-raspbian-buster-lite.img \
+    --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sda \
     --hostname=red2 \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
@@ -371,7 +371,7 @@ notation in  the `--hostname` and `--ipaddr` arguments:
 
 ```
 # cm-pi-burn create \
-    --image=2020-02-05-raspbian-buster-lite.img \
+    --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sd[a-e]
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
@@ -388,7 +388,7 @@ Alternatively, we can ommit the --device option and allow cm-pi-burn to detect t
 
 ```
 # cm-pi-burn create \
-    --image=2020-02-05-raspbian-buster-lite.img \
+    --image=2020-02-05-raspbian-buster-lite \
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
@@ -414,7 +414,7 @@ Here is an alternative version to the command above with a different --device op
 
 ```
 # cm-pi-burn create \
-    --image=2020-02-05-raspbian-buster-lite.img \
+    --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sda \
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
@@ -442,7 +442,7 @@ If the only device listed uner `cm-pi-burn info` is /dev/sda, then the above com
 ```
 
 # cm-pi-burn create \
-    --image=2020-02-05-raspbian-buster-lite.img \
+    --image=2020-02-05-raspbian-buster-lite \
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
