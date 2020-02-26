@@ -277,7 +277,7 @@ You can look at the names of your devices under the device column. Eg /dev/sda,/
 
 To burn one card, we will use ` cm-pi-burn create ` with several important options:
 * `--image` specifies the name of the image to burn
-* `--device` is the path to the SD card
+* `--device` is the path to the SD card. If this option is ommitted, then `cm-pi-burn` will use the devices listed under `cm-pi-burn info`
 * `--hostname` is the name for the pi
 * `--sshkey` is the path to your SSH PUBLIC key
 * `--blocksize` specified to 4M for our purposes
@@ -364,8 +364,8 @@ of the example above. Again, you do not need to set a static IP to connect to th
 ```
 
 Here we are assuming that your device name is sda but its very important to verify it once before executing the above command.
+Note that if we omit the `--device` option, then `cm-pi-burn` will refer to the devices listed using `cm-pi-burn info`
 
-(Skip this part for now. `--ipaddr` is part of static ip configuration which remains to be documented)
 To burn many cards you can specify them conveniently in parameter
 notation in  the `--hostname` and `--ipaddr` arguments:
 
@@ -384,6 +384,7 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --format
 ```
 
+
 Here again since the device names start with sda,sdb,sdc etc. We can give it as sd*. Again we have to check the device info before executing this command
 
 You may see the program output some unmount errors during the burn process -
@@ -393,6 +394,52 @@ After the process is completed, a message will appear on your terminal stating t
 
 You can verify if the burn process is completed or not by plugging in one of the SD cards to a raspberry pi and starting it. Raspberry Pi terminal appears asking your login and password. After the sucessfull authentication, now you can use your raspberry pi just like any
 other.
+
+Here is an alternative version fo the command above with a differ --device option.
+
+```
+# cm-pi-burn create \
+    --image=2019-09-26-raspbian-buster-lite \
+    --device=/dev/sda \
+    --hostname=red[2-6] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub 
+    --blocksize=4M
+    --ssid=HomeNetwork \
+    --wifipsk=MyWifiPasswd \
+    --ipaddr=10.1.1.[32-36] \
+    --dns=10.1.1.1
+    --routers=10.1.1.1
+    --format
+```
+Notice here how we have only listed one port in the --device option. This would be in the case that we only have one SD card writer, but we don't want to
+rerun the command each time. That would be quite tedious. Instead, the command will burn to /dev/sda with hostname red2, then a prompt will come up 
+asking the user if we want to reuse /dev/sda. 
+```
+Slot /dev/sda needs to be reused. Do you wish to continue? [y/n] 
+# y
+Insert next card and press enter...
+# [enter]
+Burning next card...
+
+```
+In this way, we avoid having to rerun the command while providing enough safeguards so we don't accidentally overwrite the last SD card. This prompt will also appear if the number of hosts (in this example there are 4 hosts) exceeds the number of available devices (1 in this example). 
+
+If the only device listed uner `cm-pi-burn info` is /dev/sda, then the above command is equivalent to: 
+```
+
+# cm-pi-burn create \
+    --image=2019-09-26-raspbian-buster-lite \
+    --device=/dev/sda \
+    --hostname=red[2-6] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub 
+    --blocksize=4M
+    --ssid=HomeNetwork \
+    --wifipsk=MyWifiPasswd \
+    --ipaddr=10.1.1.[32-36] \
+    --dns=10.1.1.1
+    --routers=10.1.1.1
+    --format
+```
 
 ## From the raspberry FAQ
 
