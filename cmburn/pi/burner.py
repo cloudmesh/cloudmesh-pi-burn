@@ -202,8 +202,6 @@ class Burner(object):
         image_path = Image(image).fullpath
 
         self.system(f'sudo dd bs={blocksize} if={image_path} of={device}')
-        print('DEBUG: ')
-        self.system('ls /dev/sd*')
 
     def set_hostname(self, hostname, mountpoint):
         """
@@ -258,12 +256,12 @@ class Burner(object):
             #         static domain_name_servers={dns}
             #         """)
             dhcp_conf = textwrap.dedent(f"""
-                    interface wlan0
+                    interface eth0
                     static ip_address={ip}/24
                     static routers={routers}
                     static domain_name_servers={dns}
 
-                    interface eth0
+                    interface wlan0
                     static ip_address={ip}/24
                     static routers={routers}
                     static domain_name_servers={dns}
@@ -580,15 +578,12 @@ class Burner(object):
 
         os.system(f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}')
         print("Done formatting :)")
+        print("Wait while card burns...")
 
     
             
                    
     
-    # TODO I think we still need this
-    # Let's call it scramble password now. Comes up with a random "password" so that
-    # the only way the pi can be accessed is with a ssh key.
-    # 
     # This is to prevent desktop access of th pi (directly plugging monitor, keyboard, mouse into pi, etc.)
     # 
     # Currently, ssh login is only possible with an authorized key. (No passwords)
@@ -652,7 +647,7 @@ class MultiBurner(object):
 
     def burn_all(self,
              image="latest",
-             device="dev/sda",
+             device=None,
              blocksize="4M",
              progress=True,
              hostnames=None,
@@ -686,6 +681,12 @@ class MultiBurner(object):
         #
         #pprint(Burner().info())
         info_statuses = Burner().info()
+
+        # If the user specifies a particular device, we only care about that device
+        if device is not None:
+            devices[device] = info_statuses[device]['empty']
+            info_statuses = {} 
+
         for device in info_statuses.keys():
             #print("call the info command on the device and "
             #      "figure out if an empty card is in it")
@@ -723,17 +724,20 @@ class MultiBurner(object):
         print(' '.join(devices.keys()))
 
         keys = list(devices.keys())
-        for i in range(len(keys)):
+        for i in range(len(hostnames)):
         #for device, status in devices.items():
-            device = keys[i]
+            device = keys[i % len(keys)] # We might be using one device slot to burn multiple cards
             status = devices[device]
             hostname = hostnames[i]
             ip = None if not ips else ips[i]
             self.burn(image, device, blocksize, progress, hostname, ip, key, password, ssid, psk, dns, routers, formatSD)
 
             os.system('tput bel')  # ring the terminal bell to notify user
-            print()
-            if i < len(keys) - 1:
+            if i < len(hostnames) - 1:
+                if (i + 1) != ((i + 1) % len(keys)):
+                    choice = input(f"Slot {keys[(i + 1) % len(keys)]} needs to be reused. Do you wish to continue? [y/n] ")
+                    if choice == 'n':
+                        break
                 input('Insert next card and press enter...')
                 print('Burning next card...')
                 print()

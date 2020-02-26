@@ -268,7 +268,10 @@ def analyse(arguments):
         # check_root(dryrun=dryrun)
 
         image = arguments['--image']
-        devices = None  # use the info command to detect
+
+        # devices = None  # use the info command to detect
+        # We should be more specific with our devices
+        devices = arguments['--device']
 
         # hostnames = hostlist.expand_hostlist(arguments['--hostname'])
         hostnames = Parameter.expand(arguments['--hostname'])
