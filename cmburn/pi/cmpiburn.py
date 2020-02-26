@@ -95,6 +95,16 @@ from cloudmesh.common.parameter import Parameter
 
 debug = True
 
+def device_parser(expr):
+    left = expr.find("[")
+    if left < 0:
+        return [expr]
+    bounds = expr[left+1:expr.find("]")].split("-")
+    partial_expr = expr[:left]
+    results = []
+    for i in range(ord(bounds[0]), ord(bounds[1])+1):
+            results.append(partial_expr + chr(i))
+    return results
 
 def analyse(arguments):
     dryrun = arguments["--dryrun"]
@@ -270,12 +280,10 @@ def analyse(arguments):
         image = arguments['--image']
 
         # devices = None  # use the info command to detect
-        # We should be more specific with our devices
-        devices = arguments['--device']
+        # ^^ We should be more specific with our devices
+        devices = device_parser(arguments['--device'])
 
-        # hostnames = hostlist.expand_hostlist(arguments['--hostname'])
         hostnames = Parameter.expand(arguments['--hostname'])
-        # ips = None if not arguments['--ipaddr'] else hostlist.expand_hostlist(arguments['--ipaddr'])
         ips = None if not arguments['--ipaddr'] else Parameter.expand(arguments['--ipaddr'])
         key = arguments['--sshkey']
         mp = '/mount/pi'
