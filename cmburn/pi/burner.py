@@ -234,7 +234,7 @@ class Burner(object):
             print("Write to /etc/hosts")
             print('127.0.1.1 ' + hostname + '\n')
 
-    def set_static_ip(self, ip, mp, dns, routers):
+    def set_static_ip(self, ip, mp):
         """
         Sets the static ip on the sd card
 
@@ -243,28 +243,19 @@ class Burner(object):
         """
 
         if not self.dryrun:
-            # TODO Implement ability to set routers and domain_name_servers
-            # dhcp_conf = textwrap.dedent(f"""
-            #         interface eth0
-            #         static ip_address={ip}/24
-            #         static routers={dns}
-            #         static domain_name_servers={dns}
 
-            #         interface wlan0
-            #         static ip_address={ip}/24
-            #         static routers={dns}
-            #         static domain_name_servers={dns}
-            #         """)
+            dnss = os.popen("cat /etc/resolv.conf | grep nameserver").read().split()[1] # nameserver 10.1.1.1
+            routerss = os.popen("ip route | grep default | awk '{print $3}'").read()[:-1] # omit the \n at the end
             dhcp_conf = textwrap.dedent(f"""
                     interface eth0
                     static ip_address={ip}/24
-                    static routers={routers}
-                    static domain_name_servers={dns}
+                    static routers={routerss}
+                    static domain_name_servers={dnss}
 
                     interface wlan0
                     static ip_address={ip}/24
-                    static routers={routers}
-                    static domain_name_servers={dns}
+                    static routers={routerss}
+                    static domain_name_servers={dnss}
                     """)
             with open(f'{mp}/etc/dhcpcd.conf', 'a') as config:
                 config.write(dhcp_conf)
@@ -655,8 +646,6 @@ class MultiBurner(object):
              password=None,
              ssid=None,
              psk=None,
-             dns=None,
-             routers=None,
              formatSD=False):
         """
         :param image:
@@ -730,7 +719,8 @@ class MultiBurner(object):
             status = devices[device]
             hostname = hostnames[i]
             ip = None if not ips else ips[i]
-            self.burn(image, device, blocksize, progress, hostname, ip, key, password, ssid, psk, dns, routers, formatSD)
+
+            self.burn(image, device, blocksize, progress, hostname, ip, key, password, ssid, psk, formatSD)
 
             os.system('tput bel')  # ring the terminal bell to notify user
             if i < len(hostnames) - 1:
@@ -758,8 +748,6 @@ class MultiBurner(object):
              key=None,
              password=None,
              ssid=None,
-             psk=None,
-             dns=None,
              routers=None,
              formatSD=False):
         """
@@ -801,9 +789,8 @@ class MultiBurner(object):
             burner.disable_password_ssh(mp)
             burner.set_hostname(hostname, mp)
             burner.set_key(key, mp)
-            # Both options need to be defined for static ip
-            if (ip and dns and routers):
-                burner.set_static_ip(ip, mp, dns, routers)
+            if ip:
+                burner.set_static_ip(ip, mp)
 
             burner.unmount(device)
             # for some reason, need to do unmount twice for it to work properly
