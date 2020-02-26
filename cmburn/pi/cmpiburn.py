@@ -255,6 +255,7 @@ def analyse(arguments):
             # Shouldn't go here...
             passwd = gen_strong_pass()
 
+        psk=None
         if arguments["--ssid"]:
             ssid=arguments["--ssid"]
             if arguments["--wifipsk"]:

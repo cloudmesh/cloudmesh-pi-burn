@@ -736,6 +736,8 @@ class MultiBurner(object):
             if i < len(hostnames) - 1:
                 if (i + 1) != ((i + 1) % len(keys)):
                     choice = input(f"Slot {keys[(i + 1) % len(keys)]} needs to be reused. Do you wish to continue? [y/n] ")
+                    while (choice != 'y') and (choice != 'n'):
+                        choice = input("Please use [y/n] ")
                     if choice == 'n':
                         break
                 input('Insert next card and press enter...')
