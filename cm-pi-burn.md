@@ -383,7 +383,7 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --format
 ```
 
-Notice how here we did not specify a --device option. As stated, cm-pi-burn will default to the devices listed under `cm-pi-burn info`
+Notice how here we did not specify a --device option. As stated, cm-pi-burn will default to the devices listed under `cm-pi-burn info` (ie. /dev/sd*)
 
 You may see the program output some unmount errors during the burn process -
 this is normal.
@@ -393,7 +393,7 @@ After the process is completed, a message will appear on your terminal stating t
 You can verify if the burn process is completed or not by plugging in one of the SD cards to a raspberry pi and starting it. Raspberry Pi terminal appears asking your login and password. After the sucessfull authentication, now you can use your raspberry pi just like any
 other.
 
-Here is an alternative version fo the command above with a differ --device option.
+Here is an alternative version to the command above with a differ --device option.
 
 ```
 # cm-pi-burn create \
@@ -427,7 +427,6 @@ If the only device listed uner `cm-pi-burn info` is /dev/sda, then the above com
 
 # cm-pi-burn create \
     --image=2019-09-26-raspbian-buster-lite \
-    --device=/dev/sda \
     --hostname=red[2-6] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
