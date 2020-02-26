@@ -91,6 +91,7 @@ import oyaml as yaml
 from cmburn.pi.burner import Burner, MultiBurner, gen_strong_pass
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Shell import Shell
+from cloudmesh.common.parameter import Parameter
 
 debug = True
 
@@ -269,8 +270,10 @@ def analyse(arguments):
         image = arguments['--image']
         devices = None  # use the info command to detect
 
-        hostnames = hostlist.expand_hostlist(arguments['--hostname'])
-        ips = None if not arguments['--ipaddr'] else hostlist.expand_hostlist(arguments['--ipaddr'])
+        # hostnames = hostlist.expand_hostlist(arguments['--hostname'])
+        hostnames = Parameter.expand(arguments['--hostname'])
+        # ips = None if not arguments['--ipaddr'] else hostlist.expand_hostlist(arguments['--ipaddr'])
+        ips = None if not arguments['--ipaddr'] else Parameter.expand(arguments['--ipaddr'])
         key = arguments['--sshkey']
         mp = '/mount/pi'
         blocksize = arguments["--blocksize"]
