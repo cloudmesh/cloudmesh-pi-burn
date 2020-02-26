@@ -530,7 +530,6 @@ class Burner(object):
                             key_mgmt=NONE
                     }}""".format(network=ssid))
 
-        print(wifi)
         # Per fix provided by Gregor, we use this path to get around rfkill block on boot
         path = f"{mp}/boot/wpa_supplicant.conf"
         # path = f"{mp}/etc/wpa_supplicant/wpa_supplicant.conf"
@@ -557,7 +556,7 @@ class Burner(object):
         """
 
         
-        print("Formatting device")
+        print("Formatting device...")
         # self.unmount(device)
         os.system(f'sudo umount {device}*')
         pipeline = textwrap.dedent("""d
@@ -684,7 +683,8 @@ class MultiBurner(object):
 
         # If the user specifies a particular device, we only care about that device
         if device is not None:
-            devices[device] = info_statuses[device]['empty']
+            for dev in device:
+                devices[dev] = info_statuses[dev]['empty']
             info_statuses = {} 
 
         for device in info_statuses.keys():

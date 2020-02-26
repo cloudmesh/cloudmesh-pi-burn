@@ -350,7 +350,7 @@ of the example above. Again, you do not need to set a static IP to connect to th
 
 ```
 # cm-pi-burn create \
-    --image=2019-09-26-raspbian-buster-lite \
+    --image=2020-02-05-raspbian-buster-lite.img \
     --device=/dev/sda \
     --hostname=red2 \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
@@ -371,47 +371,63 @@ notation in  the `--hostname` and `--ipaddr` arguments:
 
 ```
 # cm-pi-burn create \
-    --image=2019-09-26-raspbian-buster-lite \
-    --hostname=red[2-6] \
+    --image=2020-02-05-raspbian-buster-lite.img \
+    --device=/dev/sd[a-e]
+    --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
     --ssid=HomeNetwork \
     --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-36] \
+    --ipaddr=10.1.1.[32-37] \
     --dns=10.1.1.1
     --routers=10.1.1.1
     --format
 ```
 
-Notice how here we did not specify a --device option. As stated, cm-pi-burn will default to the devices listed under `cm-pi-burn info` (ie. /dev/sd*)
+Alternatively, we can ommit the --device option and allow cm-pi-burn to detect the devices from `cm-pi-burn info`:
+
+```
+# cm-pi-burn create \
+    --image=2020-02-05-raspbian-buster-lite.img \
+    --hostname=red[2-7] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub 
+    --blocksize=4M
+    --ssid=HomeNetwork \
+    --wifipsk=MyWifiPasswd \
+    --ipaddr=10.1.1.[32-37] \
+    --dns=10.1.1.1
+    --routers=10.1.1.1
+    --format
+```
+
 
 You may see the program output some unmount errors during the burn process -
 this is normal.
 
 After the process is completed, a message will appear on your terminal stating the number of cards you have burnt.
 
-You can verify if the burn process is completed or not by plugging in one of the SD cards to a raspberry pi and starting it. Raspberry Pi terminal appears asking your login and password. After the sucessfull authentication, now you can use your raspberry pi just like any
-other.
+You can verify if the burn process is completed or not by plugging in one of the SD cards to a raspberry pi and starting it. Raspberry Pi terminal appears asking your login and password. After the sucessfull authentication, now you can use your raspberry pi just like any other.
 
-Here is an alternative version to the command above with a differ --device option.
+
+Here is an alternative version to the command above with a different --device option.
+
 
 ```
 # cm-pi-burn create \
-    --image=2019-09-26-raspbian-buster-lite \
+    --image=2020-02-05-raspbian-buster-lite.img \
     --device=/dev/sda \
-    --hostname=red[2-6] \
+    --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
     --ssid=HomeNetwork \
     --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-36] \
+    --ipaddr=10.1.1.[32-37] \
     --dns=10.1.1.1
     --routers=10.1.1.1
     --format
 ```
 Notice here how we have only listed one port in the --device option. This would be in the case that we only have one SD card writer, but we don't want to
-rerun the command each time. That would be quite tedious. Instead, the command will burn to /dev/sda with hostname red2, then a prompt will come up 
-asking the user if we want to reuse /dev/sda. 
+rerun the command each time. That would be quite tedious. Instead, the command will burn to /dev/sda with hostname red2, then a prompt will come up asking the user if we want to reuse /dev/sda. 
 ```
 Slot /dev/sda needs to be reused. Do you wish to continue? [y/n] 
 # y
@@ -426,13 +442,13 @@ If the only device listed uner `cm-pi-burn info` is /dev/sda, then the above com
 ```
 
 # cm-pi-burn create \
-    --image=2019-09-26-raspbian-buster-lite \
-    --hostname=red[2-6] \
+    --image=2020-02-05-raspbian-buster-lite.img \
+    --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
     --ssid=HomeNetwork \
     --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-36] \
+    --ipaddr=10.1.1.[32-37] \
     --dns=10.1.1.1
     --routers=10.1.1.1
     --format
