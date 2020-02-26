@@ -372,7 +372,6 @@ notation in  the `--hostname` and `--ipaddr` arguments:
 ```
 # cm-pi-burn create \
     --image=2019-09-26-raspbian-buster-lite \
-    --device=/dev/sd* \
     --hostname=red[2-6] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
@@ -384,8 +383,7 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --format
 ```
 
-
-Here again since the device names start with sda,sdb,sdc etc. We can give it as sd*. Again we have to check the device info before executing this command
+Notice how here we did not specify a --device option. As stated, cm-pi-burn will default to the devices listed under `cm-pi-burn info`
 
 You may see the program output some unmount errors during the burn process -
 this is normal.
