@@ -748,7 +748,7 @@ class MultiBurner(object):
              key=None,
              password=None,
              ssid=None,
-             routers=None,
+             psk=None,
              formatSD=False):
         """
 
