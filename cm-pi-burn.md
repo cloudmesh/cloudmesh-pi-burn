@@ -339,7 +339,7 @@ notation in  the `--hostname` and `--ipaddr` arguments:
 ```
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
-    --device=/dev/sd[a-e]
+    --device=/dev/sd[a-f]
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
