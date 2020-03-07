@@ -217,7 +217,7 @@ in the Raspberry Pi repository. To see the versions, please use the command
 Once in a while they come out with new versions. You can refersh the list with
 
 ```bash
-# cm-pi-burn versions --refresh
+# cm-pi-burn image versions --refresh
 ```
 
 ## Downloading an Image
@@ -225,7 +225,7 @@ Once in a while they come out with new versions. You can refersh the list with
 To download the newest image, use the command
 
 ```bash
-# cm-pi-burn get latest
+# cm-pi-burn image get latest
 ```
 
 The image is downloaded into the folder
@@ -235,25 +235,15 @@ The image is downloaded into the folder
 To list the downloaded images you can use the command
 
 ```bash
-# ./cm-pi-burn.py image ls
+# cm-pi-burn image ls
 ```
 
 In case you like to use the latest download, you can use the
 command. You can also specify the exact URL with 
 
 ```bash
-# cm-pi-burn get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
+# cm-pi-burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
 ```
-
-## VERIFICATION
-
-Before burning we need to find out where the SD CARD reader is and what we do
-
-    # ls /media/pi/*/*
-     
-         file error
-         
-         Path.glob
 
 ## Creating Cluster SD-Cards
 
