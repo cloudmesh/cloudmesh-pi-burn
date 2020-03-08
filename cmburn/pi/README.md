@@ -338,15 +338,15 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --ipaddr=10.1.1.[32-37] \
     --format
 ```
-
+Note the ranges are inclusive.
 Alternatively, we can ommit the --device option and allow cm-pi-burn to detect the devices from `cm-pi-burn info`:
 
 ```
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --hostname=red[2-7] \
-    --sshkey=/home/pi/.ssh/id_rsa.pub 
-    --blocksize=4M
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
     --ssid=HomeNetwork \
     --wifipsk=MyWifiPasswd \
     --ipaddr=10.1.1.[32-37] \
@@ -370,8 +370,8 @@ Here is an alternative version to the command above with a different --device op
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sda \
     --hostname=red[2-7] \
-    --sshkey=/home/pi/.ssh/id_rsa.pub 
-    --blocksize=4M
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
     --ssid=HomeNetwork \
     --wifipsk=MyWifiPasswd \
     --ipaddr=10.1.1.[32-37] \
@@ -395,8 +395,8 @@ If the only device listed uner `cm-pi-burn info` is /dev/sda, then the above com
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --hostname=red[2-7] \
-    --sshkey=/home/pi/.ssh/id_rsa.pub 
-    --blocksize=4M
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
     --ssid=HomeNetwork \
     --wifipsk=MyWifiPasswd \
     --ipaddr=10.1.1.[32-37] \
