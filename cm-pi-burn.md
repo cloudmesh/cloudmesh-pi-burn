@@ -80,7 +80,7 @@ However in the meanwhile you do it as follows:
 $ mkdir cm
 $ cd cm
 $ git clone https://github.com/cloudmesh/cloudmesh_pi_burn.git
-$ cd cm-burn
+$ cd cloudmesh_pi_burn
 $ pip install -e .
 ```    
 
