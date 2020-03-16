@@ -271,8 +271,6 @@ To burn one card, we will use ` cm-pi-burn create ` with several important optio
 * `--hostname` is the name for the pi
 * `--sshkey` is the path to your SSH PUBLIC key
 * `--blocksize` specified to 4M for our purposes
-* `--ssid` specifies the name of the wireless network you may wish to connect to
-* `--wifipsk` is the password (if one is needed) for the network specified by --ssid
 
 If you want to specify a password for desktop login (for debugging purposes), you can use the option
 
@@ -301,9 +299,7 @@ Here is an example call of the command `create` using a static IP address connec
     --hostname=red2 \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
     --blocksize=4M \
-    --ssid=HomeNetwork \
-    --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.30 \
+    --ipaddr=169.254.10.30 \
     --format
 ```
 
@@ -319,7 +315,7 @@ If your Pis are going to use ethernet connection, then the command is as simple 
     --hostname=red2 \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
     --blocksize=4M \
-    --ipaddr=10.1.1.30 \
+    --ipaddr=169.254.10.32 \
     --format
 ```
 
@@ -333,9 +329,7 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
-    --ssid=HomeNetwork \
-    --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-37] \
+    --ipaddr=169.254.10.[32-37] \
     --format
 ```
 Note the ranges are inclusive.
@@ -347,9 +341,7 @@ Alternatively, we can ommit the --device option and allow cm-pi-burn to detect t
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
     --blocksize=4M \
-    --ssid=HomeNetwork \
-    --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-37] \
+    --ipaddr=169.254.10.[32-37] \
     --format
 ```
 
@@ -372,9 +364,7 @@ Here is an alternative version to the command above with a different --device op
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
     --blocksize=4M \
-    --ssid=HomeNetwork \
-    --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-37] \
+    --ipaddr=169.254.10.[32-37] \
     --format
 ```
 Notice here how we have only listed one port in the --device option. This would be in the case that we only have one SD card writer, but we don't want to
@@ -397,9 +387,7 @@ If the only device listed uner `cm-pi-burn info` is /dev/sda, then the above com
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
     --blocksize=4M \
-    --ssid=HomeNetwork \
-    --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-37] \
+    --ipaddr=169.254.10.[32-37] \
     --format
 ```
 
