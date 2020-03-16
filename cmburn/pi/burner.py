@@ -234,34 +234,31 @@ class Burner(object):
             print("Write to /etc/hosts")
             print('127.0.1.1 ' + hostname + '\n')
 
-    def set_static_ip(self, ip, mp):
+    def set_static_ip(self, ip, mp, iface="eth0", mask="16"):
         """
-        Sets the static ip on the sd card
+        Sets the static ip on the sd card for the specified interface
 
         :param ip: IP address
         :param mountpoint: TBD
+        :param iface: Network Interface
+        :param mask: Subnet Mask 
         """
-
         if not self.dryrun:
 
-            dnss = os.popen("cat /etc/resolv.conf | grep nameserver").read().split()[1] # nameserver 10.1.1.1
-            routerss = os.popen("ip route | grep default | awk '{print $3}'").read()[:-1] # omit the \n at the end
-            dhcp_conf = textwrap.dedent(f"""
-                    interface eth0
-                    static ip_address={ip}/24
-                    static routers={routerss}
-                    static domain_name_servers={dnss}
+            interfaces_conf = textwrap.dedent(f"""
+            auto {iface}
+            iface {iface} inet static
+                address {ip}/{mask}
+            """)
+            
+            with open (f'{mp}/etc/network/interfaces', 'a') as config:
+                config.write(interfaces_conf)
 
-                    interface wlan0
-                    static ip_address={ip}/24
-                    static routers={routerss}
-                    static domain_name_servers={dnss}
-                    """)
-            with open(f'{mp}/etc/dhcpcd.conf', 'a') as config:
-                config.write(dhcp_conf)
         else:
             print('interface eth0\n')
-            print(f'static ip_address={ip}/24')
+            print(f'static ip_address={ip}/{mask}')
+
+
 
     def set_key(self, name, mountpoint):
         """
@@ -321,13 +318,11 @@ class Burner(object):
             self.system('sudo sync') # flush any pending/in-process writes
 
         # unmount p1 (/boot) and then p2 (/)
-        print(f'sudo umount {device}1')
         self.system(f'sudo umount {device}1')
         try:
             self.system(f'sudo umount {device}1')
         except:
             pass
-        print(f'sudo umount {device}2')
         self.system(f'sudo umount {device}2')
 
     def enable_ssh(self, mountpoint):
