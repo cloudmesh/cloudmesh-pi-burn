@@ -20,7 +20,6 @@ from cloudmesh.common.StopWatch import StopWatch
 from pprint import pprint
 
 
-
 # TODO: make sure everything is compatible with --dryrun
 
 # noinspection PyPep8Naming
@@ -31,6 +30,7 @@ def WARNING(*args, **kwargs):
 # noinspection PyPep8Naming
 def ERROR(*args, **kwargs):
     print("ERROR:", *args, file=sys.stderr, **kwargs)
+
 
 def os_is_windows():
     return platform.system() == "Windows"
@@ -212,7 +212,8 @@ class Burner(object):
         """
         # write the new hostname to /etc/hostname
         if not self.dryrun:
-            self.system(f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
+            self.system(
+                f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
         else:
             print()
             print("Write to /etc/hostname")
@@ -228,7 +229,8 @@ class Burner(object):
 
         if not self.dryrun:
             new_hostsfile_contents = ''.join(lines) + newlastline
-            self.system(f'echo "{new_hostsfile_contents}" | sudo cp /dev/stdin {mountpoint}/etc/hosts')
+            self.system(
+                f'echo "{new_hostsfile_contents}" | sudo cp /dev/stdin {mountpoint}/etc/hosts')
         else:
             print()
             print("Write to /etc/hosts")
@@ -250,15 +252,13 @@ class Burner(object):
             iface {iface} inet static
                 address {ip}/{mask}
             """)
-            
-            with open (f'{mp}/etc/network/interfaces', 'a') as config:
+
+            with open(f'{mp}/etc/network/interfaces', 'a') as config:
                 config.write(interfaces_conf)
 
         else:
             print('interface eth0\n')
             print(f'static ip_address={ip}/{mask}')
-
-
 
     def set_key(self, name, mountpoint):
         """
@@ -297,13 +297,14 @@ class Burner(object):
                     break
                 counter += 1
                 if counter == max_tries:
-                    print("Timed out waiting for OS to detect filesystem on burned card")
+                    print(
+                        "Timed out waiting for OS to detect filesystem on burned card")
                     sys.exit(1)
-        # DEBUG            
+        # DEBUG
         print(f'sudo mkdir -p {mountpoint}')
         print(f'sudo mount {device}2 {mountpoint}')
         print(f'sudo mount {device}1 {mountpoint}/boot')
-        
+
         self.system(f'sudo mkdir -p {mountpoint}')
         self.system(f'sudo mount {device}2 {mountpoint}')
         self.system(f'sudo mount {device}1 {mountpoint}/boot')
@@ -315,7 +316,7 @@ class Burner(object):
         :param device: Device to unmount, e.g. /dev/sda
         """
         if not self.dryrun:
-            self.system('sudo sync') # flush any pending/in-process writes
+            self.system('sudo sync')  # flush any pending/in-process writes
 
         # unmount p1 (/boot) and then p2 (/)
         self.system(f'sudo umount {device}1')
@@ -338,8 +339,8 @@ class Burner(object):
         command = f'sudo touch {mountpoint}/boot/ssh'
         self.system(command)
 
-
     # IMPROVE
+
     def disable_password_ssh(self, mountpoint):
         # sshd_config = self.filename("/etc/ssh/sshd_config")
         sshd_config = f'{mountpoint}/etc/ssh/sshd_config'
@@ -486,7 +487,6 @@ class Burner(object):
                 f.write(new_rc_local)
         self.disable_password_ssh()
 
-
     def configure_wifi(self, ssid, psk=None, mp='/mount/pi', interactive=False):
         """
         sets the wifi. ONly works for psk based wifi
@@ -531,9 +531,9 @@ class Burner(object):
         with open(path, 'w') as f:
             f.write(wifi)
 
-
     # TODO Formats device with one FAT32 partition
     # WARNING: This is a very unreliable way of automating the process using fdisk
+
     def format_device(self, device='dev/sda'):
         """
 
@@ -541,7 +541,6 @@ class Burner(object):
         :return:
         """
 
-        
         print("Formatting device...")
         # self.unmount(device)
         os.system(f'sudo umount {device}*')
@@ -561,19 +560,17 @@ class Burner(object):
                                     t
                                     b""")
 
-        os.system(f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}')
+        os.system(
+            f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}')
         print("Done formatting :)")
         print("Wait while card burns...")
 
-    
-            
-                   
-    
     # This is to prevent desktop access of th pi (directly plugging monitor, keyboard, mouse into pi, etc.)
-    # 
+    #
     # Currently, ssh login is only possible with an authorized key. (No passwords)
     # Plugging pi directly into desktop, however, will still prompt for a user and password.
     # I can't figure out how to disable it
+
     def disable_terminal_login(self, mountpoint, password):
         """
         disables and replaces the password with a random string so that by
@@ -586,7 +583,7 @@ class Burner(object):
         def random_salt(length=10):
             lettersAndDigits = string.ascii_letters + string.digits
             return ''.join(random.choice(lettersAndDigits) for i in range(length))
-        
+
         salt = random_salt()
         if password is not None:
             pswd = crypt.crypt(password, f'$6${salt}')
@@ -620,7 +617,6 @@ class Burner(object):
             f.writelines(data)
 
 
-
 class MultiBurner(object):
     """pseudo code, please complete
 
@@ -631,17 +627,17 @@ class MultiBurner(object):
     """
 
     def burn_all(self,
-             image="latest",
-             device=None,
-             blocksize="4M",
-             progress=True,
-             hostnames=None,
-             ips=None,
-             key=None,
-             password=None,
-             ssid=None,
-             psk=None,
-             formatSD=False):
+                 image="latest",
+                 device=None,
+                 blocksize="4M",
+                 progress=True,
+                 hostnames=None,
+                 ips=None,
+                 key=None,
+                 password=None,
+                 ssid=None,
+                 psk=None,
+                 formatSD=False):
         """
         :param image:
         :param device:
@@ -662,17 +658,17 @@ class MultiBurner(object):
         #
         # probe the dev
         #
-        #pprint(Burner().info())
+        # pprint(Burner().info())
         info_statuses = Burner().info()
 
         # If the user specifies a particular device, we only care about that device
         if device is not None:
             for dev in device:
                 devices[dev] = info_statuses[dev]['empty']
-            info_statuses = {} 
+            info_statuses = {}
 
         for device in info_statuses.keys():
-            #print("call the info command on the device and "
+            # print("call the info command on the device and "
             #      "figure out if an empty card is in it")
             # change the status based on what you found
             devices[device] = info_statuses[device]['empty']
@@ -700,7 +696,8 @@ class MultiBurner(object):
             devices_to_delete = []
             for device in devices.keys():
                 if devices[device] == False:
-                    devices_to_delete.append(device) # can't delete while iterating
+                    # can't delete while iterating
+                    devices_to_delete.append(device)
             for device in devices_to_delete:
                 del devices[device]
 
@@ -709,18 +706,21 @@ class MultiBurner(object):
 
         keys = list(devices.keys())
         for i in range(len(hostnames)):
-        #for device, status in devices.items():
-            device = keys[i % len(keys)] # We might be using one device slot to burn multiple cards
+            # for device, status in devices.items():
+            # We might be using one device slot to burn multiple cards
+            device = keys[i % len(keys)]
             status = devices[device]
             hostname = hostnames[i]
             ip = None if not ips else ips[i]
 
-            self.burn(image, device, blocksize, progress, hostname, ip, key, password, ssid, psk, formatSD)
+            self.burn(image, device, blocksize, progress, hostname,
+                      ip, key, password, ssid, psk, formatSD)
 
             os.system('tput bel')  # ring the terminal bell to notify user
             if i < len(hostnames) - 1:
                 if (i + 1) != ((i + 1) % len(keys)):
-                    choice = input(f"Slot {keys[(i + 1) % len(keys)]} needs to be reused. Do you wish to continue? [y/n] ")
+                    choice = input(
+                        f"Slot {keys[(i + 1) % len(keys)]} needs to be reused. Do you wish to continue? [y/n] ")
                     while (choice != 'y') and (choice != 'n'):
                         choice = input("Please use [y/n] ")
                     if choice == 'n':
@@ -731,7 +731,6 @@ class MultiBurner(object):
         i += 1
         print(f"You burned {i} SD Cards")
         print("Done :)")
-
 
     def burn(self,
              image="latest",
@@ -762,7 +761,7 @@ class MultiBurner(object):
 
         # don't do the input() after burning the last card
         # use a counter to check this
-        
+
         counter = 0
         burner = Burner()
         for i in range(1):
@@ -773,9 +772,9 @@ class MultiBurner(object):
             print(formatSD)
             if formatSD:
                 burner.format_device(device)
-                
+
             burner.burn(image, device, blocksize=blocksize)
-            
+
             burner.mount(device, mp)
             burner.disable_terminal_login(mp, password)
             if ssid:
@@ -791,4 +790,3 @@ class MultiBurner(object):
             # for some reason, need to do unmount twice for it to work properly
             burner.unmount(device)
             StopWatch.start("fcreate {hostname}")
-
