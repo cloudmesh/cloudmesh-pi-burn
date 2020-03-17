@@ -210,6 +210,7 @@ class Burner(object):
         :param hostname: hostname
         :param mountpoint: TBD
         """
+        self.hostname = hostname
         # write the new hostname to /etc/hostname
         if not self.dryrun:
             self.system(
@@ -239,14 +240,47 @@ class Burner(object):
     def set_static_ip(self, ip, mp, iface="eth0", mask="16"):
         """
         Sets the static ip on the sd card for the specified interface
+        Also writes to master hosts file for easy access
 
         :param ip: IP address
         :param mountpoint: TBD
         :param iface: Network Interface
         :param mask: Subnet Mask 
         """
-        if not self.dryrun:
 
+        # Adds the ip and hostname to /etc/hosts if it isn't already there.
+        def add_to_hosts(ip, hostname)
+            with open('/etc/hosts', 'r') as host_file:
+                hosts = host_file.readlines()
+
+            # Check if we are reassinging a hostname/ip
+            replaced = False
+            for i in range(len(hosts)):
+                ipHost= hosts[i].split()
+
+                if len(ipHost) > 1:
+                    if ipHost[0] == ip:
+                        ipHost[1] = self.hostname
+                        hosts[i] = f"{ipHost[0]}\t{ipHost[1]}\n"
+                        replaced = True
+
+                    elif ipHost[1] == self.hostname
+                        ipHost[0] = self.ip
+                        hosts[i] = f"{ipHost[0]}\t{ipHost[1]}\n"
+                        replaced = True
+
+            if not replaced:
+                hosts.append(f"{ip}\t{self.hostname}\n")
+
+            with open('/etc/hosts', 'w') as host_file:
+                host_file.writelines(hosts)
+
+
+        # Add static IP and hostname to master's hosts file and configure worker with static IP
+        if not self.dryrun:
+            add_to_hosts(ip, self.hostname)
+
+            # Configure static LAN IP
             interfaces_conf = textwrap.dedent(f"""
             auto {iface}
             iface {iface} inet static
