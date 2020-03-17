@@ -252,7 +252,7 @@ class Burner(object):
             with open('/etc/hosts', 'r') as host_file:
                 hosts = host_file.readlines()
 
-            replace = False
+            replaced = False
             for i in range(len(hosts)):
                 ipHost = hosts[i].split()
 
@@ -260,12 +260,12 @@ class Burner(object):
                     if ipHost[0] == ip:
                         ipHost[1] = self.hostname
                         hosts[i] = f"{ipHost[0]}\t{ipHost[1]}\n"
-                        replace = True
+                        replaced = True
 
                     elif ipHost[1] == self.hostname:
-                        ipHost[0] = self.ip
+                        ipHost[0] = ip
                         hosts[i] = f"{ipHost[0]}\t{ipHost[1]}\n"
-                        replace = True
+                        replaced = True
             if not replaced:
                 hosts.append(f"{ip}\t{self.hostname}\n")
 
