@@ -247,14 +247,12 @@ class Burner(object):
         :param iface: Network Interface
         :param mask: Subnet Mask
         """
-
         # Adds the ip and hostname to /etc/hosts if it isn't already there.
-        def add_to_hosts(ip, hostname)
-           with open('/etc/hosts', 'r') as host_file:
+        def add_to_hosts(ip, hostname):
+            with open('/etc/hosts', 'r') as host_file:
                 hosts = host_file.readlines()
 
-            # Check if we are reassinging a hostname/ip
-            replaced = False
+            replace = False
             for i in range(len(hosts)):
                 ipHost = hosts[i].split()
 
@@ -262,13 +260,12 @@ class Burner(object):
                     if ipHost[0] == ip:
                         ipHost[1] = self.hostname
                         hosts[i] = f"{ipHost[0]}\t{ipHost[1]}\n"
-                        replaced = True
+                        replace = True
 
-                    elif ipHost[1] == self.hostname
-                       ipHost[0] = self.ip
+                    elif ipHost[1] == self.hostname:
+                        ipHost[0] = self.ip
                         hosts[i] = f"{ipHost[0]}\t{ipHost[1]}\n"
-                        replaced = True
-
+                        replace = True
             if not replaced:
                 hosts.append(f"{ip}\t{self.hostname}\n")
 
