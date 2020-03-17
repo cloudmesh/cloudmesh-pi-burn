@@ -290,7 +290,6 @@ You can use the `--ipaddr=IP` option to set a static IP address for your Pis. To
 
 For more information on options, see `/cmburn/pi/cmpiburn.py`
 
-Here is an example call of the command `create` using a static IP address connecting to a home wifi network
 
 ```
 # cm-pi-burn create \
