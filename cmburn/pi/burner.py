@@ -245,18 +245,18 @@ class Burner(object):
         :param ip: IP address
         :param mountpoint: TBD
         :param iface: Network Interface
-        :param mask: Subnet Mask 
+        :param mask: Subnet Mask
         """
 
         # Adds the ip and hostname to /etc/hosts if it isn't already there.
         def add_to_hosts(ip, hostname)
-            with open('/etc/hosts', 'r') as host_file:
+           with open('/etc/hosts', 'r') as host_file:
                 hosts = host_file.readlines()
 
             # Check if we are reassinging a hostname/ip
             replaced = False
             for i in range(len(hosts)):
-                ipHost= hosts[i].split()
+                ipHost = hosts[i].split()
 
                 if len(ipHost) > 1:
                     if ipHost[0] == ip:
@@ -265,7 +265,7 @@ class Burner(object):
                         replaced = True
 
                     elif ipHost[1] == self.hostname
-                        ipHost[0] = self.ip
+                       ipHost[0] = self.ip
                         hosts[i] = f"{ipHost[0]}\t{ipHost[1]}\n"
                         replaced = True
 
@@ -274,7 +274,6 @@ class Burner(object):
 
             with open('/etc/hosts', 'w') as host_file:
                 host_file.writelines(hosts)
-
 
         # Add static IP and hostname to master's hosts file and configure worker with static IP
         if not self.dryrun:
