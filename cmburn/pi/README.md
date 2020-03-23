@@ -29,14 +29,14 @@ time and time zone.
 Now, open a terminal and execute 
 
 ```bash
-    $sudo apt-get update
-    $sudo apt-get full-upgrade
+$ sudo apt-get update
+$ sudo apt-get full-upgrade
 ```
 
 Now you have to create an ssh key with the command
 
 ```bash
-    ssh-keygen
+$ ssh-keygen
 ```
 
 Keep the default location and use a strong passphrase. Using no
@@ -49,14 +49,14 @@ with the manual on `ssh-keygen` and `ssh-add`.
 Next configure python 3 with the help of a virtual env
 
 ```bash
-    $python3 -m venv ~/ENV3
-    $source ~/ENV3/bin/activate
+$ python3 -m venv ~/ENV3
+$ source ~/ENV3/bin/activate
 ```
 
 Place at the end of your `.bashrc` file the line
 
 ```
-source ~/ENV3/bin/activate
+$ source ~/ENV3/bin/activate
 ```
  
 Now open a new terminal and see if it has the `(ENV3)` as a prefix to
@@ -86,7 +86,9 @@ $ pip install -e .
 
 In future we will remove the -e
 
-    $ pip install .
+```bash
+$ pip install .
+```
 
 ## Information about the SD Cards and Card Writer
 
@@ -251,14 +253,14 @@ Next we describe how we create a number of SD-Cards to create a cluster.
 Each card will have a unique hostname, an ipaddress and you public key. 
 To locate your device you can use:
 
-```
-$sudo fdisk -l
+```bash
+$ sudo fdisk -l
 
 ```
 or the more convinient option would be to use the
 
-```
-$cm-pi-burn info  
+```bash
+$ cm-pi-burn info  
 ```
 
 You can look at the names of your devices under the device column. Eg /dev/sda,/dev/sdb,etc
@@ -292,7 +294,7 @@ For more information on options, see `/cmburn/pi/cmpiburn.py`
 
 Here is an example call of the command `create` using a static IP address connecting to a home wifi network
 
-```
+```bash
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sda \
@@ -308,7 +310,7 @@ Note that if we omit the `--device` option, then `cm-pi-burn` will refer to the 
 
 If your Pis are going to use ethernet connection, then the command is as simple as:
 
-```
+```bash
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sda \
@@ -322,7 +324,7 @@ If your Pis are going to use ethernet connection, then the command is as simple 
 To burn many cards you can specify them conveniently in parameter
 notation in  the `--hostname` and `--ipaddr` arguments:
 
-```
+```bash
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sd[a-f]
@@ -335,7 +337,7 @@ notation in  the `--hostname` and `--ipaddr` arguments:
 Note the ranges are inclusive.
 Alternatively, we can ommit the --device option and allow cm-pi-burn to detect the devices from `cm-pi-burn info`:
 
-```
+```bash
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --hostname=red[2-7] \
@@ -357,7 +359,7 @@ You can verify if the burn process is completed or not by plugging in one of the
 Here is an alternative version to the command above with a different --device option.
 
 
-```
+```bash
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sda \
@@ -367,21 +369,23 @@ Here is an alternative version to the command above with a different --device op
     --ipaddr=169.254.10.[32-37] \
     --format
 ```
+
 Notice here how we have only listed one port in the --device option. This would be in the case that we only have one SD card writer, but we don't want to
 rerun the command each time. That would be quite tedious. Instead, the command will burn to /dev/sda with hostname red2, then a prompt will come up asking the user if we want to reuse /dev/sda. 
+
 ```
 Slot /dev/sda needs to be reused. Do you wish to continue? [y/n] 
 # y
 Insert next card and press enter...
 # [enter]
 Burning next card...
-
 ```
+
 In this way, we avoid having to rerun the command while providing enough safeguards so we don't accidentally overwrite the last SD card. This prompt will also appear if the number of hosts (in this example there are 4 hosts) exceeds the number of available devices (1 in this example). 
 
 If the only device listed uner `cm-pi-burn info` is /dev/sda, then the above command is equivalent to: 
-```
 
+```bash
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --hostname=red[2-7] \
