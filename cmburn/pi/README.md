@@ -5,7 +5,8 @@ executed on your laptop
 
 ## Setup a Master Raspberry Pi
 
-We recommend that you install first on one Raspberry pi. The process is documented at 
+We recommend that you install first on one Raspberry pi. The process is
+documented at
 
 * <https://www.raspberrypi.org/downloads/>
 
@@ -19,9 +20,22 @@ the official supported OS. We use this OS on the master.
 Please follow the instructions carefully.
 
 Download the latest Raspbian Desktop image from
-<https://www.raspberrypi.org/downloads/raspbian/> and unzip it to get a
-`.img` file. Insert an SD card into your computer and burn it with this
-image using a program like Etcher.
+
+* <https://www.raspberrypi.org/downloads/raspbian/> 
+
+and unzip it to get a `.img` file. Insert an SD card into your computer
+and burn it with this image using a program like Etcher.
+
+Once you have downloded imager and installed in your OS, and started it will look like:
+
+![Imager](images/imager.png)
+ 
+You can now chose the image and the SD Crad where you want to burn it.
+Make sure you select the card correctly as to avoid destroying the OS on the 
+computer that starts imager.
+ 
+## Starting the Pi
+
 
 Once you have achieved that and configured the OS (do not forget to use
 a strong password), you need to update it after the customary reboot. 
