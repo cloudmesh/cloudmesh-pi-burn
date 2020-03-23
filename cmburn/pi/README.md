@@ -68,7 +68,8 @@ just started.
 
 ## Installation
 
-First you must install cm-pi-burn. In a future version this will be done with 
+First you must install cm-pi-burn. In a future version this will be done
+with
 
 ```bash
 $ pip install cloudmesh-cmburn
@@ -186,10 +187,10 @@ the back of your PI.
 Under SDCards found you will see the list of SD Cards and some
 information about the cards that are plugged into the writers.
 
-Make sure that you only include cards that you truly want to
-overwrite. We have give an example where this is not the case while
-indicating it in the Empty column. We recommend that you only use
-formatted cards so you are sure you do not by accident delete infprmation.
+Make sure that you only include cards that you truly want to overwrite.
+We have give an example where this is not the case while indicating it
+in the Empty column. We recommend that you only use formatted cards so
+you are sure you do not by accident delete infprmation.
 
 ## ROOT
 
@@ -210,13 +211,15 @@ executed in root.
 
 First you have to find the raspbian image you like to install. For this
 purpose we have developed a command that lists you the available images
-in the Raspberry Pi repository. To see the versions, please use the command
+in the Raspberry Pi repository. To see the versions, please use the
+command
 
 ```bash
 # cm-pi-burn image versions
 ```
 
-Once in a while they come out with new versions. You can refersh the list with
+Once in a while they come out with new versions. You can refersh the
+list with
 
 ```bash
 # cm-pi-burn image versions --refresh
@@ -263,36 +266,50 @@ or the more convinient option would be to use the
 $ cm-pi-burn info  
 ```
 
-You can look at the names of your devices under the device column. Eg /dev/sda,/dev/sdb,etc
+You can look at the names of your devices under the device column. Eg
+/dev/sda,/dev/sdb,etc
 
 ## Burning SD-Cards
 
-To burn one card, we will use ` cm-pi-burn create ` with several important options:
+To burn one card, we will use ` cm-pi-burn create ` with several
+important options:
+
 * `--image` specifies the name of the image to burn
-* `--device` is the path to the SD card. If this option is ommitted, then `cm-pi-burn` will use the devices listed under `cm-pi-burn info`
+* `--device` is the path to the SD card. If this option is ommitted,
+  then `cm-pi-burn` will use the devices listed under `cm-pi-burn info`
 * `--hostname` is the name for the pi
 * `--sshkey` is the path to your SSH PUBLIC key
 * `--blocksize` specified to 4M for our purposes
 
-If you want to specify a password for desktop login (for debugging purposes), you can use the option
+If you want to specify a password for desktop login (for debugging
+purposes), you can use the option
 
 * `--passwd=PASSWD` 
 
-to set a password. 
-In the future, you should not use this option as we do not want to login through the terminal. We only want to SSH from the master Pi
+to set a password. In the future, you should not use this option as we
+do not want to login through the terminal. We only want to SSH from the
+master Pi
 
 ### Auto Format to FAT32
-The `--format` is an option that can be used to automatically format your SD card to FAT32. The current implementation is quite unstable as it
-makes several assumptions. If this option is used, it will most likely work. 
+
+The `--format` is an option that can be used to automatically format
+your SD card to FAT32. The current implementation is quite unstable as
+it makes several assumptions. If this option is used, it will most
+likely work.
 
 Do not worry if you see the message `No partition is defined yet!`
 
 ### Note on using a static IP address
-You can use the `--ipaddr=IP` option to set a static IP address for your Pis. To make sure this works, ensure that your master Pi is connected to the network as cm-pi-burn will pull information from the network to configure static IP usage.
+
+You can use the `--ipaddr=IP` option to set a static IP address for your
+Pis. To make sure this works, ensure that your master Pi is connected to
+the network as cm-pi-burn will pull information from the network to
+configure static IP usage.
 
 For more information on options, see `/cmburn/pi/cmpiburn.py`
 
-Here is an example call of the command `create` using a static IP address connecting to a home wifi network
+Here is an example call of the command `create` using a static IP
+address connecting to a home wifi network
 
 ```bash
 # cm-pi-burn create \
@@ -305,10 +322,13 @@ Here is an example call of the command `create` using a static IP address connec
     --format
 ```
 
-Here we are assuming that your device name is sda but its very important to verify it once before executing the above command.
-Note that if we omit the `--device` option, then `cm-pi-burn` will refer to the devices listed using `cm-pi-burn info`
+Here we are assuming that your device name is sda but its very important
+to verify it once before executing the above command. Note that if we
+omit the `--device` option, then `cm-pi-burn` will refer to the devices
+listed using `cm-pi-burn info`
 
-If your Pis are going to use ethernet connection, then the command is as simple as:
+If your Pis are going to use ethernet connection, then the command is as
+simple as:
 
 ```bash
 # cm-pi-burn create \
@@ -334,8 +354,10 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --ipaddr=169.254.10.[32-37] \
     --format
 ```
-Note the ranges are inclusive.
-Alternatively, we can ommit the --device option and allow cm-pi-burn to detect the devices from `cm-pi-burn info`:
+
+Note the ranges are inclusive. Alternatively, we can ommit the --device
+option and allow cm-pi-burn to detect the devices from `cm-pi-burn
+info`:
 
 ```bash
 # cm-pi-burn create \
@@ -348,15 +370,20 @@ Alternatively, we can ommit the --device option and allow cm-pi-burn to detect t
 ```
 
 
-You may see the program output some unmount errors during the burn process -
-this is normal.
+You may see the program output some unmount errors during the burn
+process - this is normal.
 
-After the process is completed, a message will appear on your terminal stating the number of cards you have burnt.
+After the process is completed, a message will appear on your terminal
+stating the number of cards you have burnt.
 
-You can verify if the burn process is completed or not by plugging in one of the SD cards to a raspberry pi and starting it. Raspberry Pi terminal appears asking your login and password. After the sucessfull authentication, now you can use your raspberry pi just like any other.
+You can verify if the burn process is completed or not by plugging in
+one of the SD cards to a raspberry pi and starting it. Raspberry Pi
+terminal appears asking your login and password. After the sucessfull
+authentication, now you can use your raspberry pi just like any other.
 
 
-Here is an alternative version to the command above with a different --device option.
+Here is an alternative version to the command above with a different
+`--device` option.
 
 
 ```bash
@@ -370,8 +397,11 @@ Here is an alternative version to the command above with a different --device op
     --format
 ```
 
-Notice here how we have only listed one port in the --device option. This would be in the case that we only have one SD card writer, but we don't want to
-rerun the command each time. That would be quite tedious. Instead, the command will burn to /dev/sda with hostname red2, then a prompt will come up asking the user if we want to reuse /dev/sda. 
+Notice here how we have only listed one port in the `--device` option.
+This would be in the case that we only have one SD card writer, but we
+don't want to rerun the command each time. That would be quite tedious.
+Instead, the command will burn to `/dev/sda` with hostname red2, then a
+prompt will come up asking the user if we want to reuse `/dev/sda`.
 
 ```
 Slot /dev/sda needs to be reused. Do you wish to continue? [y/n] 
@@ -381,9 +411,14 @@ Insert next card and press enter...
 Burning next card...
 ```
 
-In this way, we avoid having to rerun the command while providing enough safeguards so we don't accidentally overwrite the last SD card. This prompt will also appear if the number of hosts (in this example there are 4 hosts) exceeds the number of available devices (1 in this example). 
+In this way, we avoid having to rerun the command while providing enough
+safeguards so we don't accidentally overwrite the last SD card. This
+prompt will also appear if the number of hosts (in this example there
+are 4 hosts) exceeds the number of available devices (1 in this
+example).
 
-If the only device listed uner `cm-pi-burn info` is /dev/sda, then the above command is equivalent to: 
+If the only device listed uner `cm-pi-burn info` is `/dev/sda`, then the
+above command is equivalent to:
 
 ```bash
 # cm-pi-burn create \
@@ -399,30 +434,33 @@ If the only device listed uner `cm-pi-burn info` is /dev/sda, then the above com
 ## From the raspberry FAQ
 
 Quote:
-    There is no on/off switch! To switch on, just plug it in. To switch off,
-    if you are in the graphical environment, you can either log out from the
-    main menu, exit to the Bash prompt, or open the terminal. From the Bash
-    prompt or terminal you can shut down the Raspberry Pi by entering sudo
-    halt -h. Wait until all the LEDs except the power LED are off, then wait
-    an additional second to make sure the SD card can finish its
-    wear-levelling tasks and write actions. You can now safely unplug the
-    Raspberry Pi. Failure to shut the Raspberry Pi down properly may corrupt
-    your SD card, which would mean you would have to re-image it.
+    There is no on/off switch! To switch on, just plug it in. To switch
+    off, if you are in the graphical environment, you can either log out
+    from the main menu, exit to the Bash prompt, or open the terminal.
+    From the Bash prompt or terminal you can shut down the Raspberry Pi
+    by entering sudo halt `-h`. Wait until all the LEDs except the power
+    LED are off, then wait an additional second to make sure the SD card
+    can finish its wear-levelling tasks and write actions. You can now
+    safely unplug the Raspberry Pi. Failure to shut the Raspberry Pi
+    down properly may corrupt your SD card, which would mean you would
+    have to re-image it.
     
 LED control:
     See Gregors pi book there is a section describing how to do it
     
-    See also https://www.jeffgeerling.com/blogs/jeff-geerling/controlling-pwr-act-leds-raspberry-pi    
-    There may be more resources
-    We can use this to test which node is which. E.g 
-    develop a class that sets the leds on one or more from the master with ssh
+    See also: <https://www.jeffgeerling.com/blogs/jeff-geerling/controlling-pwr-act-leds-raspberry-pi>
     
-    See also 
-    https://www.raspberrypi.org/forums/viewtopic.php?t=12530
+    There may be more resources We can use this to test which node is
+    which. E.g develop a class that sets the leds on one or more from
+    the master with ssh
+    
+    See also:
+    <https://www.raspberrypi.org/forums/viewtopic.php?t=12530>
 
 SSHFS:
-	add master to .ssh/config onlocal machine
+	add master to `.ssh/config` onlocal machine
 
+    ```
 	Host master
          HostName xxx.xxx.xxx.xxx
          User pi
@@ -430,3 +468,4 @@ SSHFS:
 
 	mkdir master
 	sshfs master: master
+    ```
