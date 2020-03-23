@@ -469,3 +469,5 @@ SSHFS:
 	mkdir master
 	sshfs master: master
     ```
+
+    See also: <https://github.com/libfuse/sshfs>
