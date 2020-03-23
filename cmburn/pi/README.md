@@ -75,7 +75,20 @@ it is best to use a basename such as `red`.
 This way our workers can be called `red[001-100]` or whatever number of
 Pis you want to dedicate as workers. The master we call `red`
 
+The easiset to change your hostname is form the commandline with 
 
+```bash
+pi$ sudo raspi-config
+```
+
+* Goto `2 Network Options`
+* Goto `N1 Change Hostname`
+
+Reboot when you are done with 
+
+```bash
+pi$ sudo shutdown -r now
+```
 
 ## Activate python 3
 
