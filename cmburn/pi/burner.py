@@ -251,7 +251,7 @@ class Burner(object):
         """
 
         # Adds the ip and hostname to /etc/hosts if it isn't already there.
-        def add_to_hosts(ip, hostname):
+        def add_to_hosts(ip):
             with open('/etc/hosts', 'r') as host_file:
                 hosts = host_file.readlines()
 
@@ -760,7 +760,7 @@ class MultiBurner(object):
             # for device, status in devices.items():
             # We might be using one device slot to burn multiple cards
             device = keys[i % len(keys)]
-            status = devices[device]
+            # status = devices[device]
             hostname = hostnames[i]
             ip = None if not ips else ips[i]
 
