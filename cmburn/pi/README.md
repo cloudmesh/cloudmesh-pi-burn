@@ -5,22 +5,31 @@ executed on your laptop
 
 ## Setup a Master Raspberry Pi
 
-We recommend that you install first on one Raspberry pi the full
-operating system. Please consult with the manuals on how to burn your SD
-card.
+We recommend that you install first on one Raspberry pi. The process is documented at 
+
+* <https://www.raspberrypi.org/downloads/>
+
+The first thing you need to do is install a regular image burning
+program. We recommend you use Raspberry PI Imager, but you can also
+choose Etcher.
+
+As for the image, we want to use Raspbian and not Noobs, as Raspbian is
+the official supported OS. We use this OS on the master.
+
+Please follow the instructions carefully.
 
 Download the latest Raspbian Desktop image from
 <https://www.raspberrypi.org/downloads/raspbian/> and unzip it to get a
-`.img` file. Insert a SD card into your computer and burn it with this
+`.img` file. Insert an SD card into your computer and burn it with this
 image using a program like Etcher.
 
-Once you have achieved that and configured the OS (dont forget to use a
-strong password) you need to update it after the customary reboot.
+Once you have achieved that and configured the OS (do not forget to use
+a strong password), you need to update it after the customary reboot. 
 
 Make sure your time is set up properly, which you can do with 
 
 ```bash
-$ sudo date -s "Dec 2, 2019 14:03 EST"
+$ sudo date -s "Jan 2, 2020 14:03 EST"
 ```
 
 and put in the appropriate time string corresponding to your date and
@@ -33,20 +42,21 @@ $ sudo apt-get update
 $ sudo apt-get full-upgrade
 ```
 
-Now you have to create an ssh key with the command
+Now you have to create an ssh key with the command.
 
 ```bash
 $ ssh-keygen
 ```
 
-Keep the default location and use a strong passphrase. Using no
-passphrase is not recommended. You can use `ssh-add` in a terminal so
-you do not have to all the time type in your passphrase. Please consult
-with the manual on `ssh-keygen` and `ssh-add`.
+Keep the default location and use a strong passphrase but do not use the
+same as you have used for your login. Using no passphrase is not
+recommended. You can use `ssh-add` in a terminal, so you do not have to
+all the time type in your passphrase. Please consult with the manual on
+`ssh-keygen` and `ssh-add`.
 
 ## Activate python 3
 
-Next configure python 3 with the help of a virtual env
+Next, configure python 3 with the help of a virtual env
 
 ```bash
 $ python3 -m venv ~/ENV3
@@ -68,14 +78,14 @@ just started.
 
 ## Installation
 
-First you must install cm-pi-burn. In a future version this will be done
+First, you must install cm-pi-burn. In a future version, this will be done
 with
 
 ```bash
 $ pip install cloudmesh-cmburn
 ```
    
-However in the meanwhile you do it as follows:
+However, in the meanwhile, you do it as follows:
 
 ```bash
 $ mkdir cm
@@ -85,7 +95,7 @@ $ cd cloudmesh_pi_burn
 $ pip install -e .
 ```    
 
-In future we will remove the -e
+In the future, we will remove the -e
 
 ```bash
 $ pip install .
@@ -93,10 +103,10 @@ $ pip install .
 
 ## Information about the SD Cards and Card Writer
 
-You will need at least one SD Card writer. However, cm-pi-burn is
-supposed to work also with an USB hub in which you can plug in
-multiple SD Cards and burn one card at a time. Once done you can add a
-new batch and you can continue writing. This is done for all specified
+You need at least one SD Card writer. However, cm-pi-burn is
+supposed to work also with a USB hub in which you can plug in
+multiple SD Cards and burn one card at a time. Once done, you can add a
+new batch, and you can continue writing. This is done for all specified
 hosts so that you can minimize the interaction with the SD cards.
 
 To find out more about the Card writers and the SD Cards, you can use
@@ -136,10 +146,10 @@ Bus 002 Device 021: ID 05e3:0749 Genesys Logic, Inc.
 Bus 002 Device 022: ID 05e3:0749 Genesys Logic, Inc. 
 ```
 
-Note that in this case we will see two devices, one for the USB hub in
+Note that in this case, we will see two devices, one for the USB hub in
 which the card is plugged in, and one for the SD Card itself.
 
-Next we like to show you a bit more useful information while probing
+Next, we like to show you a bit more useful information while probing
 the operating system when the SD Card  Writers are plugged in. Please
 call the command:
 
@@ -180,21 +190,21 @@ Device         Boot  Start      End  Sectors  Size Id Type
 +------+----------+--------+----------+-------+-------------------+-----------+-----------+
 ```
 
-Under Operating system you will see the block device you will see
-information about your operating system. This it the card plugged into
+Under `Operating System` you will see the block device you will see
+information about your operating system. This is the card plugged into
 the back of your PI.
 
 Under SDCards found you will see the list of SD Cards and some
 information about the cards that are plugged into the writers.
 
 Make sure that you only include cards that you truly want to overwrite.
-We have give an example where this is not the case while indicating it
-in the Empty column. We recommend that you only use formatted cards so
-you are sure you do not by accident delete infprmation.
+We have given an example where this is not the case while indicating it
+in the Empty column. We recommend that you only use formatted cards, so
+you are sure you do not by accident delete information.
 
 ## ROOT
 
-For the burn process you need to use root priviledges. To achieve this
+For the burn process, you need to use root privileges. To achieve this,
 you need to execute the following commands. The source command
 activates the python virtual env that you have created where you
 installed the cm-pi-burn command
@@ -209,8 +219,8 @@ executed in root.
 
 ## Finding Image Versions
 
-First you have to find the raspbian image you like to install. For this
-purpose we have developed a command that lists you the available images
+First, you have to find the raspbian image you like to install. For this
+purpose, we have developed a command that lists you the available images
 in the Raspberry Pi repository. To see the versions, please use the
 command
 
@@ -218,7 +228,7 @@ command
 # cm-pi-burn image versions
 ```
 
-Once in a while they come out with new versions. You can refersh the
+Once in a while, they come out with new versions. You can refresh the
 list with
 
 ```bash
@@ -237,7 +247,7 @@ The image is downloaded into the folder
 
 * `~/.cloudmesh/cmburn/images`
 
-To list the downloaded images you can use the command
+To list the downloaded images, you can use the command
 
 ```bash
 # cm-pi-burn image ls
@@ -252,15 +262,15 @@ command. You can also specify the exact URL with
 
 ## Creating Cluster SD-Cards
 
-Next we describe how we create a number of SD-Cards to create a cluster.
-Each card will have a unique hostname, an ipaddress and you public key. 
-To locate your device you can use:
+Next, we describe how we create a number of SD-Cards to create a cluster.
+Each card will have a unique hostname, an IP address and your public key. 
+To locate your device, you can use:
 
 ```bash
 $ sudo fdisk -l
 
 ```
-or the more convinient option would be to use the
+or the more convenient option would be to use the
 
 ```bash
 $ cm-pi-burn info  
@@ -275,7 +285,7 @@ To burn one card, we will use ` cm-pi-burn create ` with several
 important options:
 
 * `--image` specifies the name of the image to burn
-* `--device` is the path to the SD card. If this option is ommitted,
+* `--device` is the path to the SD card. If this option is omitted,
   then `cm-pi-burn` will use the devices listed under `cm-pi-burn info`
 * `--hostname` is the name for the pi
 * `--sshkey` is the path to your SSH PUBLIC key
@@ -288,7 +298,7 @@ purposes), you can use the option
 
 to set a password. In the future, you should not use this option as we
 do not want to login through the terminal. We only want to SSH from the
-master Pi
+master Pi.
 
 ### Auto Format to FAT32
 
@@ -322,7 +332,7 @@ address connecting to a home wifi network
     --format
 ```
 
-Here we are assuming that your device name is sda but its very important
+Here we are assuming that your device name is sda, but its very important
 to verify it once before executing the above command. Note that if we
 omit the `--device` option, then `cm-pi-burn` will refer to the devices
 listed using `cm-pi-burn info`
@@ -341,7 +351,7 @@ simple as:
     --format
 ```
 
-To burn many cards you can specify them conveniently in parameter
+To burn many cards, you can specify them conveniently in parameter
 notation in  the `--hostname` and `--ipaddr` arguments:
 
 ```bash
@@ -355,7 +365,7 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --format
 ```
 
-Note the ranges are inclusive. Alternatively, we can ommit the --device
+Note the ranges are inclusive. Alternatively, we can omit the --device
 option and allow cm-pi-burn to detect the devices from `cm-pi-burn
 info`:
 
@@ -377,8 +387,8 @@ After the process is completed, a message will appear on your terminal
 stating the number of cards you have burnt.
 
 You can verify if the burn process is completed or not by plugging in
-one of the SD cards to a raspberry pi and starting it. Raspberry Pi
-terminal appears asking your login and password. After the sucessfull
+one of the SD cards to a Raspberry Pi and starting it. Raspberry Pi
+terminal appears asking your login and password. After the successful
 authentication, now you can use your raspberry pi just like any other.
 
 
@@ -417,7 +427,7 @@ prompt will also appear if the number of hosts (in this example there
 are 4 hosts) exceeds the number of available devices (1 in this
 example).
 
-If the only device listed uner `cm-pi-burn info` is `/dev/sda`, then the
+If the only device listed under `cm-pi-burn info` is `/dev/sda`, then the
 above command is equivalent to:
 
 ```bash
@@ -437,37 +447,37 @@ Quote:
     There is no on/off switch! To switch on, just plug it in. To switch
     off, if you are in the graphical environment, you can either log out
     from the main menu, exit to the Bash prompt, or open the terminal.
-    From the Bash prompt or terminal you can shut down the Raspberry Pi
+    From the Bash prompt or terminal, you can shut down the Raspberry Pi
     by entering sudo halt `-h`. Wait until all the LEDs except the power
     LED are off, then wait an additional second to make sure the SD card
-    can finish its wear-levelling tasks and write actions. You can now
+    can finish its wear-leveling tasks and write actions. You can now
     safely unplug the Raspberry Pi. Failure to shut the Raspberry Pi
     down properly may corrupt your SD card, which would mean you would
     have to re-image it.
     
 LED control:
-    See Gregors pi book there is a section describing how to do it
+    See Gregor's pi book there is a section describing how to do it
     
     See also: <https://www.jeffgeerling.com/blogs/jeff-geerling/controlling-pwr-act-leds-raspberry-pi>
     
-    There may be more resources We can use this to test which node is
-    which. E.g develop a class that sets the leds on one or more from
+    There may be more resources. We can use this to test which node is
+    which. E.g develop a class that sets the LEDs on one or more from
     the master with ssh
     
     See also:
     <https://www.raspberrypi.org/forums/viewtopic.php?t=12530>
 
 SSHFS:
-	add master to `.ssh/config` onlocal machine
+   add master to `.ssh/config` onlocal machine
 
     ```
-	Host master
+   Host master
          HostName xxx.xxx.xxx.xxx
          User pi
          IdentityFile ~/.ssh/id_rsa.pub
 
-	mkdir master
-	sshfs master: master
+   mkdir master
+   sshfs master: master
     ```
 
     See also: <https://github.com/libfuse/sshfs>
