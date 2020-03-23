@@ -69,6 +69,14 @@ recommended. You can use `ssh-add` in a terminal, so you do not have to
 all the time type in your passphrase. Please consult with the manual on
 `ssh-keygen` and `ssh-add`.
 
+Next make sure to rename the master node. As we will have many workers
+it is best to use a basename such as `red`.
+
+This way our workers can be called `red[001-100]` or whatever number of
+Pis you want to dedicate as workers. The master we call `red`
+
+
+
 ## Activate python 3
 
 Next, configure python 3 with the help of a virtual env
