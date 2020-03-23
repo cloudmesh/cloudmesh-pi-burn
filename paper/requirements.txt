@@ -2,4 +2,4 @@ certifi==2018.11.29
 pandoc-eqnos==1.3.0
 pandoc-xnos==1.1.1
 pandocfilters==1.4.2
-psutil==5.5.0
+psutil==5.6.6
