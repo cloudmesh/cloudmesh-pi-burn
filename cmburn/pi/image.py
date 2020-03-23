@@ -24,7 +24,8 @@ class Image(object):
 
     # self.directory: the folder where downloaded images are kept
     # self.image_name: the name of the image (or URL to fetch it from)
-    # self.fullpath: the full path of the image, e.g. /home/user/.cloudmesh/images/raspbian-2019.img
+    # self.fullpath: the full path of the image, e.g.
+    # /home/user/.cloudmesh/images/raspbian-2019.img
 
     def __init__(self, name="latest"):
         self.directory = os.path.expanduser('~/.cloudmesh/cmburn/images')

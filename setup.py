@@ -8,22 +8,24 @@
 
 """
 
-from setuptools import setup, find_packages
-from os import path
-from io import open
+from setuptools import find_packages, setup
+import io
 
-here = path.abspath(path.dirname(__file__))
+def readfile(filename):
+    with io.open(filename, encoding="utf-8") as stream:
+        return stream.read().split()
 
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open('README.md') as f:
     long_description = f.read()
 
 setup(
-    name='cloudmesh-pi-burn',
+#    name='cloudmesh-pi-burn',
+    name='cmburn',
     version='0.3.2',
     description='A command to burn many SD cards for building PI clusters',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/cloudmesh/cm-burn.py',
+    url='https://github.com/cloudmesh/cloudmesh_cm_burn',
     author='Cloudmesh Team',
     author_email='laszewski@gmail.comm',
     classifiers=[
