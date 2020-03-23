@@ -6,8 +6,8 @@ executed on your laptop
 ## Setup a Master Raspberry Pi
 
 We recommend that you install first on one Raspberry pi the full
-operating system. Please consult with the manuals on how to burn your
-SD card.
+operating system. Please consult with the manuals on how to burn your SD
+card.
 
 Download the latest Raspbian Desktop image from
 <https://www.raspberrypi.org/downloads/raspbian/> and unzip it to get a
@@ -29,14 +29,14 @@ time and time zone.
 Now, open a terminal and execute 
 
 ```bash
-$sudo apt-get update
-$sudo apt-get full-upgrade
+    $sudo apt-get update
+    $sudo apt-get full-upgrade
 ```
 
 Now you have to create an ssh key with the command
 
 ```bash
-$ ssh-keygen
+    ssh-keygen
 ```
 
 Keep the default location and use a strong passphrase. Using no
@@ -49,14 +49,14 @@ with the manual on `ssh-keygen` and `ssh-add`.
 Next configure python 3 with the help of a virtual env
 
 ```bash
-$python3 -m venv ~/ENV3
-$source ~/ENV3/bin/activate
+    $python3 -m venv ~/ENV3
+    $source ~/ENV3/bin/activate
 ```
 
 Place at the end of your `.bashrc` file the line
 
 ```
-$ source ~/ENV3/bin/activate
+source ~/ENV3/bin/activate
 ```
  
 Now open a new terminal and see if it has the `(ENV3)` as a prefix to
@@ -80,15 +80,13 @@ However in the meanwhile you do it as follows:
 $ mkdir cm
 $ cd cm
 $ git clone https://github.com/cloudmesh/cloudmesh_pi_burn.git
-$ cd cm-burn
+$ cd cloudmesh_pi_burn
 $ pip install -e .
 ```    
 
 In future we will remove the -e
 
-```bash
-$ pip install .
-```
+    $ pip install .
 
 ## Information about the SD Cards and Card Writer
 
@@ -255,59 +253,44 @@ To locate your device you can use:
 
 ```
 $sudo fdisk -l
+
 ```
 or the more convinient option would be to use the
 
 ```
-$cm-pi-burn info
+$cm-pi-burn info  
 ```
 
-You can look at the names of your devices under the device column. Eg
-/dev/sda,/dev/sdb,etc
+You can look at the names of your devices under the device column. Eg /dev/sda,/dev/sdb,etc
 
 ## Burning SD-Cards
 
-To burn one card, we will use `cm-pi-burn create` with several
-important options:
-
+To burn one card, we will use ` cm-pi-burn create ` with several important options:
 * `--image` specifies the name of the image to burn
-* `--device` is the path to the SD card. If this option is ommitted,
-  then `cm-pi-burn` will use the devices listed under `cm-pi-burn info`
+* `--device` is the path to the SD card. If this option is ommitted, then `cm-pi-burn` will use the devices listed under `cm-pi-burn info`
 * `--hostname` is the name for the pi
 * `--sshkey` is the path to your SSH PUBLIC key
 * `--blocksize` specified to 4M for our purposes
-* `--ssid` specifies the name of the wireless network you may wish to connect to
-* `--wifipsk` is the password (if one is needed) for the network specified by --ssid
 
-If you want to specify a password for desktop login (for debugging
-purposes), you can use the option
+If you want to specify a password for desktop login (for debugging purposes), you can use the option
 
 * `--passwd=PASSWD` 
 
-to set a password.  In the future, you should not use this option as
-we do not want to login through the terminal. We only want to SSH from
-the master Pi
+to set a password. 
+In the future, you should not use this option as we do not want to login through the terminal. We only want to SSH from the master Pi
 
 ### Auto Format to FAT32
-
-The `--format` is an option that can be used to automatically format
-your SD card to FAT32. The current implementation is quite unstable as
-it makes several assumptions. If this option is used, it will most
-likely work.
+The `--format` is an option that can be used to automatically format your SD card to FAT32. The current implementation is quite unstable as it
+makes several assumptions. If this option is used, it will most likely work. 
 
 Do not worry if you see the message `No partition is defined yet!`
 
 ### Note on using a static IP address
-
-You can use the `--ipaddr=IP` option to set a static IP address for
-your Pis. To make sure this works, ensure that your master Pi is
-connected to the network as cm-pi-burn will pull information from the
-network to configure static IP usage.
+You can use the `--ipaddr=IP` option to set a static IP address for your Pis. To make sure this works, ensure that your master Pi is connected to the network as cm-pi-burn will pull information from the network to configure static IP usage.
 
 For more information on options, see `/cmburn/pi/cmpiburn.py`
 
-Here is an example call of the command `create` using a static IP
-address connecting to a home wifi network
+Here is an example call of the command `create` using a static IP address connecting to a home wifi network
 
 ```
 # cm-pi-burn create \
@@ -316,19 +299,14 @@ address connecting to a home wifi network
     --hostname=red2 \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
     --blocksize=4M \
-    --ssid=HomeNetwork \
-    --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.30 \
+    --ipaddr=169.254.10.30 \
     --format
 ```
 
-Here we are assuming that your device name is sda but its very
-important to verify it once before executing the above command.  Note
-that if we omit the `--device` option, then `cm-pi-burn` will refer to
-the devices listed using `cm-pi-burn info`
+Here we are assuming that your device name is sda but its very important to verify it once before executing the above command.
+Note that if we omit the `--device` option, then `cm-pi-burn` will refer to the devices listed using `cm-pi-burn info`
 
-If your Pis are going to use ethernet connection, then the command is
-as simple as:
+If your Pis are going to use ethernet connection, then the command is as simple as:
 
 ```
 # cm-pi-burn create \
@@ -337,7 +315,7 @@ as simple as:
     --hostname=red2 \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
     --blocksize=4M \
-    --ipaddr=10.1.1.30 \
+    --ipaddr=169.254.10.32 \
     --format
 ```
 
@@ -351,24 +329,19 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub 
     --blocksize=4M
-    --ssid=HomeNetwork \
-    --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-37] \
+    --ipaddr=169.254.10.[32-37] \
     --format
 ```
-
-Alternatively, we can ommit the --device option and allow cm-pi-burn
-to detect the devices from `cm-pi-burn info`:
+Note the ranges are inclusive.
+Alternatively, we can ommit the --device option and allow cm-pi-burn to detect the devices from `cm-pi-burn info`:
 
 ```
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --hostname=red[2-7] \
-    --sshkey=/home/pi/.ssh/id_rsa.pub 
-    --blocksize=4M
-    --ssid=HomeNetwork \
-    --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-37] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
+    --ipaddr=169.254.10.[32-37] \
     --format
 ```
 
@@ -376,17 +349,12 @@ to detect the devices from `cm-pi-burn info`:
 You may see the program output some unmount errors during the burn process -
 this is normal.
 
-After the process is completed, a message will appear on your terminal
-stating the number of cards you have burnt.
+After the process is completed, a message will appear on your terminal stating the number of cards you have burnt.
 
-You can verify if the burn process is completed or not by plugging in
-one of the SD cards to a raspberry pi and starting it. Raspberry Pi
-terminal appears asking your login and password. After the sucessfull
-authentication, now you can use your raspberry pi just like any other.
+You can verify if the burn process is completed or not by plugging in one of the SD cards to a raspberry pi and starting it. Raspberry Pi terminal appears asking your login and password. After the sucessfull authentication, now you can use your raspberry pi just like any other.
 
 
-Here is an alternative version to the command above with a different
---device option.
+Here is an alternative version to the command above with a different --device option.
 
 
 ```
@@ -394,48 +362,32 @@ Here is an alternative version to the command above with a different
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sda \
     --hostname=red[2-7] \
-    --sshkey=/home/pi/.ssh/id_rsa.pub 
-    --blocksize=4M
-    --ssid=HomeNetwork \
-    --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-37] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
+    --ipaddr=169.254.10.[32-37] \
     --format
 ```
-	
-Notice here how we have only listed one port in the `--device`
-option. This would be in the case that we only have one SD card
-writer, but we do not want to rerun the command each time. That would
-be quite tedious. Instead, the command will burn to `/dev/sda` with
-hostname red2, then a prompt will come up asking the user if we want
-to reuse `/dev/sda`.
-
+Notice here how we have only listed one port in the --device option. This would be in the case that we only have one SD card writer, but we don't want to
+rerun the command each time. That would be quite tedious. Instead, the command will burn to /dev/sda with hostname red2, then a prompt will come up asking the user if we want to reuse /dev/sda. 
 ```
 Slot /dev/sda needs to be reused. Do you wish to continue? [y/n] 
 # y
 Insert next card and press enter...
 # [enter]
 Burning next card...
+
 ```
+In this way, we avoid having to rerun the command while providing enough safeguards so we don't accidentally overwrite the last SD card. This prompt will also appear if the number of hosts (in this example there are 4 hosts) exceeds the number of available devices (1 in this example). 
 
-In this way, we avoid having to rerun the command while providing
-enough safeguards so we don't accidentally overwrite the last SD
-card. This prompt will also appear if the number of hosts (in this
-example there are 4 hosts) exceeds the number of available devices (1
-in this example).
-
-If the only device listed uner `cm-pi-burn info` is /dev/sda, then the
-above command is equivalent to:
-
+If the only device listed uner `cm-pi-burn info` is /dev/sda, then the above command is equivalent to: 
 ```
 
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --hostname=red[2-7] \
-    --sshkey=/home/pi/.ssh/id_rsa.pub 
-    --blocksize=4M
-    --ssid=HomeNetwork \
-    --wifipsk=MyWifiPasswd \
-    --ipaddr=10.1.1.[32-37] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
+    --ipaddr=169.254.10.[32-37] \
     --format
 ```
 
