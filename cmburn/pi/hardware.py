@@ -38,9 +38,11 @@ class Hardware(object):
 
         return str
 
+    @staticmethod
     def hostname():
         return socket.gethostname()
 
+    @staticmethod
     def fqdn():
         return socket.getfqdn()
 

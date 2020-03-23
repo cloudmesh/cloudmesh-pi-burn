@@ -809,10 +809,6 @@ class MultiBurner(object):
         :param fromatting:
         :return:
         """
-
-
-
-
         # Burns the image on the specific device
 
         mp = '/mount/pi'
