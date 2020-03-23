@@ -15,6 +15,7 @@ from cmburn.pi import columns
 from cmburn.pi.util import WARNING
 
 import urllib3
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -85,7 +86,8 @@ class Image(object):
 
     def find_image_zip(self, version):
 
-        url = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/".format(version)
+        url = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/".format(
+            version)
 
         result = requests.get(url, verify=False)
         lines = result.text.split(' ')
@@ -174,4 +176,3 @@ class Image(object):
         print('Available images in', self.directory)
         print(columns * '=')
         print('\n'.join(images))
-

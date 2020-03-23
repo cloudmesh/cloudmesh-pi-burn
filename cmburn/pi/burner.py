@@ -1,4 +1,3 @@
-
 import os
 import crypt
 import sys
@@ -50,7 +49,10 @@ def os_is_pi():
 
 def gen_strong_pass():
     length = random.randint(10, 15)
-    password_characters = string.ascii_letters + string.digits + string.punctuation
+    password_characters = \
+        string.ascii_letters + \
+        string.digits + \
+        string.punctuation
     return ''.join(random.choice(password_characters) for i in range(length))
 
 
@@ -176,7 +178,7 @@ class Burner(object):
 
         # see also
         # https://raspberry-pi-guide.readthedocs.io/en/latest/system.html
-        # this is for fedora, but should also work for rasbian
+        # this is for fedora, but should also work for raspbian
 
     def system(self, command):
         """
@@ -237,7 +239,7 @@ class Burner(object):
             print("Write to /etc/hosts")
             print('127.0.1.1 ' + hostname + '\n')
 
-    def set_static_ip(self, ip, mp, iface="eth0", mask="16"):
+    def set_static_ip(self, ip, mountpoint, iface="eth0", mask="16"):
         """
         Sets the static ip on the sd card for the specified interface
         Also writes to master hosts file for easy access
@@ -247,6 +249,7 @@ class Burner(object):
         :param iface: Network Interface
         :param mask: Subnet Mask
         """
+
         # Adds the ip and hostname to /etc/hosts if it isn't already there.
         def add_to_hosts(ip, hostname):
             with open('/etc/hosts', 'r') as host_file:
@@ -254,17 +257,17 @@ class Burner(object):
 
             replaced = False
             for i in range(len(hosts)):
-                ipHost = hosts[i].split()
+                ip_host = hosts[i].split()
 
-                if len(ipHost) > 1:
-                    if ipHost[0] == ip:
-                        ipHost[1] = self.hostname
-                        hosts[i] = f"{ipHost[0]}\t{ipHost[1]}\n"
+                if len(ip_host) > 1:
+                    if ip_host[0] == ip:
+                        ip_host[1] = self.hostname
+                        hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
                         replaced = True
 
-                    elif ipHost[1] == self.hostname:
-                        ipHost[0] = ip
-                        hosts[i] = f"{ipHost[0]}\t{ipHost[1]}\n"
+                    elif ip_host[1] == self.hostname:
+                        ip_host[0] = ip
+                        hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
                         replaced = True
             if not replaced:
                 hosts.append(f"{ip}\t{self.hostname}\n")
@@ -283,7 +286,7 @@ class Burner(object):
                 address {ip}/{mask}
             """)
 
-            with open(f'{mp}/etc/network/interfaces', 'a') as config:
+            with open(f'{mountpoint}/etc/network/interfaces', 'a') as config:
                 config.write(interfaces_conf)
 
         else:
@@ -428,7 +431,10 @@ class Burner(object):
     def activate_ssh(self, public_key, debug=False, interactive=False):
         """
         sets the public key path and copies the it to the SD card
+
         :param public_key: the public key location
+        :param debug:
+        :param interactive:
         :return: True if successful
         """
 
@@ -517,13 +523,17 @@ class Burner(object):
                 f.write(new_rc_local)
         self.disable_password_ssh()
 
-    def configure_wifi(self, ssid, psk=None, mp='/mount/pi', interactive=False):
+    def configure_wifi(self, ssid, psk=None, mountpoint='/mount/pi', interactive=False):
         """
         sets the wifi. ONly works for psk based wifi
+
         :param ssid: the ssid
         :param psk: the psk
+        :param mountpoint:
+        :param interactive:
         :return:
         """
+
         if psk is not None:
             wifi = textwrap.dedent("""\
                     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
@@ -547,7 +557,7 @@ class Burner(object):
                     }}""".format(network=ssid))
 
         # Per fix provided by Gregor, we use this path to get around rfkill block on boot
-        path = f"{mp}/boot/wpa_supplicant.conf"
+        path = f"{mountpoint}/boot/wpa_supplicant.conf"
         # path = f"{mp}/etc/wpa_supplicant/wpa_supplicant.conf"
         if self.dryrun:
             print("DRY RUN - skipping:")
@@ -567,7 +577,7 @@ class Burner(object):
     def format_device(self, device='dev/sda'):
         """
 
-        :param devices:
+        :param device:
         :return:
         """
 
@@ -609,10 +619,12 @@ class Burner(object):
 
         :return:
         """
+
         # Generates random salt for password generation
         def random_salt(length=10):
-            lettersAndDigits = string.ascii_letters + string.digits
-            return ''.join(random.choice(lettersAndDigits) for i in range(length))
+            letters_and_digits = string.ascii_letters + string.digits
+            return ''.join(
+                random.choice(letters_and_digits) for i in range(length))
 
         salt = random_salt()
         if password is not None:
@@ -667,8 +679,9 @@ class MultiBurner(object):
                  password=None,
                  ssid=None,
                  psk=None,
-                 formatSD=False):
+                 fromatting=False):
         """
+
         :param image:
         :param device:
         :param blocksize:
@@ -676,10 +689,14 @@ class MultiBurner(object):
         :param hostnames:
         :param ips:
         :param key:
+        :param password:
+        :param ssid:
+        :param psk:
+        :param fromatting:
         :return:
         """
 
-        #:param devices: string with device letters
+        # :param devices: string with device letters
 
         #
         # define the dev
@@ -691,7 +708,9 @@ class MultiBurner(object):
         # pprint(Burner().info())
         info_statuses = Burner().info()
 
-        # If the user specifies a particular device, we only care about that device
+        # If the user specifies a particular device, we only care about that
+        # device
+
         if device is not None:
             for dev in device:
                 devices[dev] = info_statuses[dev]['empty']
@@ -725,7 +744,7 @@ class MultiBurner(object):
             # delete from devices dict any non-empty devices
             devices_to_delete = []
             for device in devices.keys():
-                if devices[device] == False:
+                if devices[device]:
                     # can't delete while iterating
                     devices_to_delete.append(device)
             for device in devices_to_delete:
@@ -744,13 +763,14 @@ class MultiBurner(object):
             ip = None if not ips else ips[i]
 
             self.burn(image, device, blocksize, progress, hostname,
-                      ip, key, password, ssid, psk, formatSD)
+                      ip, key, password, ssid, psk, fromatting)
 
             os.system('tput bel')  # ring the terminal bell to notify user
             if i < len(hostnames) - 1:
                 if (i + 1) != ((i + 1) % len(keys)):
                     choice = input(
-                        f"Slot {keys[(i + 1) % len(keys)]} needs to be reused. Do you wish to continue? [y/n] ")
+                        f"Slot {keys[(i + 1) % len(keys)]} "
+                        "needs to be reused. Do you wish to continue? [y/n] ")
                     while (choice != 'y') and (choice != 'n'):
                         choice = input("Please use [y/n] ")
                     if choice == 'n':
@@ -773,7 +793,7 @@ class MultiBurner(object):
              password=None,
              ssid=None,
              psk=None,
-             formatSD=False):
+             fromatting=False):
         """
 
         :param image:
@@ -783,8 +803,16 @@ class MultiBurner(object):
         :param hostname:
         :param ip:
         :param key:
+        :param password:
+        :param ssid:
+        :param psk:
+        :param fromatting:
         :return:
         """
+
+
+
+
         # Burns the image on the specific device
 
         mp = '/mount/pi'
@@ -799,8 +827,8 @@ class MultiBurner(object):
             print("counter", counter)
             StopWatch.start("fcreate {hostname}")
 
-            print(formatSD)
-            if formatSD:
+            print(fromatting)
+            if fromatting:
                 burner.format_device(device)
 
             burner.burn(image, device, blocksize=blocksize)

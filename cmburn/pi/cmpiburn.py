@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+# noinspection PyPep8
 """
 Cloudmesh Raspberry Pi Image Burner.
 
@@ -81,7 +82,6 @@ import requests
 import string
 import random
 
-
 from cmburn.pi.util import WARNING, readfile, writefile, check_root
 from cmburn.pi.image import Image
 from cmburn.pi import columns, lines
@@ -93,16 +93,18 @@ from cloudmesh.common.parameter import Parameter
 
 debug = True
 
+
 def device_parser(expr):
     left = expr.find("[")
     if left < 0:
         return [expr]
-    bounds = expr[left+1:expr.find("]")].split("-")
+    bounds = expr[left + 1:expr.find("]")].split("-")
     partial_expr = expr[:left]
     results = []
-    for i in range(ord(bounds[0]), ord(bounds[1])+1):
-            results.append(partial_expr + chr(i))
+    for i in range(ord(bounds[0]), ord(bounds[1]) + 1):
+        results.append(partial_expr + chr(i))
     return results
+
 
 def analyse(arguments):
     dryrun = arguments["--dryrun"]
@@ -119,7 +121,6 @@ def analyse(arguments):
 
         if password is None:
             password = getpass("Please enter the Wifi password; ")
-
 
         StopWatch.stop("wifi")
         # burner.configure_wifi(ssid, password)
@@ -253,22 +254,22 @@ def analyse(arguments):
             # Shouldn't go here...
             passwd = gen_strong_pass()
 
-        psk=None
+        psk = None
         if arguments["--ssid"]:
-            ssid=arguments["--ssid"]
+            ssid = arguments["--ssid"]
             if arguments["--wifipsk"]:
-                psk=arguments["--wifipsk"]
+                psk = arguments["--wifipsk"]
             else:
-                psk=None
+                psk = None
         else:
             if arguments["--wifipsk"]:
                 print("Can't have wifi password with no ssid")
                 return
             else:
-                ssid=None
-            
+                ssid = None
+
         # TODO Improve
-        formatSD = True if arguments["--format"] else False
+        fromatting = True if arguments["--format"] else False
 
         StopWatch.start("create")
 
@@ -281,7 +282,8 @@ def analyse(arguments):
         devices = device_parser(arguments['--device'])
 
         hostnames = Parameter.expand(arguments['--hostname'])
-        ips = None if not arguments['--ipaddr'] else Parameter.expand(arguments['--ipaddr'])
+        ips = None if not arguments['--ipaddr'] else Parameter.expand(
+            arguments['--ipaddr'])
         key = arguments['--sshkey']
         mp = '/mount/pi'
         blocksize = arguments["--blocksize"]
@@ -302,7 +304,7 @@ def analyse(arguments):
             password=passwd,
             ssid=ssid,
             psk=psk,
-            formatSD=formatSD)
+            fromatting=fromatting)
         StopWatch.stop("total")
 
     if verbose:

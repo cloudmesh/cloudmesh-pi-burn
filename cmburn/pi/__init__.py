@@ -18,4 +18,3 @@ try:
 except:
     columns = 80
     lines = 24
-
