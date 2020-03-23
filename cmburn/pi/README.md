@@ -11,29 +11,24 @@ documented at
 * <https://www.raspberrypi.org/downloads/>
 
 The first thing you need to do is install a regular image burning
-program. We recommend you use Raspberry PI Imager, but you can also
-choose Etcher.
+program. We recommend you use Raspberry PI Imager. As for the image, we
+want to use 
 
-As for the image, we want to use Raspbian and not Noobs, as Raspbian is
-the official supported OS. We use this OS on the master.
+* Raspbian
 
-Please follow the instructions carefully.
-
-Download the latest Raspbian Desktop image from
-
-* <https://www.raspberrypi.org/downloads/raspbian/> 
-
-and unzip it to get a `.img` file. Insert an SD card into your computer
-and burn it with this image using a program like Etcher.
-
-Once you have downloded imager and installed in your OS, and started it will look like:
+as Raspbian is the official supported OS. We use
+this OS on the master. Once you have downloded imager and installed in
+your OS, and started it will look like:
 
 ![Imager](images/imager.png)
  
 You can now chose the image and the SD Crad where you want to burn it.
 Make sure you select the card correctly as to avoid destroying the OS on the 
-computer that starts imager.
+computer that starts imager. We rcommend That you use an SD Card with 32GB.
  
+Time to burn an image with USB # on a MAC is
+
+
 ## Starting the Pi
 
 
@@ -49,11 +44,17 @@ $ sudo date -s "Jan 2, 2020 14:03 EST"
 and put in the appropriate time string corresponding to your date and
 time and time zone.
 
+In case you like a simplified time setup, please visit
+
+* <https://www.google.com>
+
+It will have a button that will ask you to update the time. 
+
 Now, open a terminal and execute 
 
 ```bash
 $ sudo apt-get update
-$ sudo apt-get full-upgrade
+$ sudo apt-get -y full-upgrade
 ```
 
 Now you have to create an ssh key with the command.
