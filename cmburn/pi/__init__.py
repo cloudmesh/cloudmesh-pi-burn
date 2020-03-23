@@ -13,6 +13,7 @@ if 'pi' not in sys.prefix:
     print("ERROR: You must be using a virtual env that is in the user pi")
     sys.exit()
 
+# noinspection PyBroadException
 try:
     columns, lines = os.get_terminal_size()
 except:

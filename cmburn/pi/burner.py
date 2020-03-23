@@ -353,6 +353,7 @@ class Burner(object):
 
         # unmount p1 (/boot) and then p2 (/)
         self.system(f'sudo umount {device}1')
+        # noinspection PyBroadException
         try:
             self.system(f'sudo umount {device}1')
         except:
@@ -668,6 +669,7 @@ class MultiBurner(object):
 
     """
 
+    # noinspection PyUnboundLocalVariable
     def burn_all(self,
                  image="latest",
                  device=None,

@@ -12,31 +12,35 @@ class Hardware(object):
 
     @staticmethod
     def get_mac(interface='eth0'):
+        # noinspection PyBroadException
         try:
-            str = open('/sys/class/net/%s/address' % interface).read()
+            address = open('/sys/class/net/%s/address' % interface).read()
         except:
-            str = "00:00:00:00:00:00"
-        return str[0:17]
+            address = "00:00:00:00:00:00"
+        return address[0:17]
 
     @staticmethod
     def get_ethernet():
+        interface = None
+        # noinspection PyBroadException
         try:
             for root, dirs, files in os.walk('/sys/class/net'):
-                for dir in dirs:
-                    if dir[:3] == 'enx' or dir[:3] == 'eth':
-                        interface = dir
+                for directory in dirs:
+                    if directory[:3] == 'enx' or directory[:3] == 'eth':
+                        interface = directory
         except:
             interface = "None"
         return interface
 
     @staticmethod
     def model():
+        # noinspection PyBroadException
         try:
-            str = open('/sys/firmware/devicetree/base/model').read()
+            model_str = open('/sys/firmware/devicetree/base/model').read()
         except:
-            str = "unkown"
+            model_str = "unkown"
 
-        return str
+        return model_str
 
     @staticmethod
     def hostname():
