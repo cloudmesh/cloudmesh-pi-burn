@@ -277,7 +277,7 @@ class Burner(object):
 
         # Add static IP and hostname to master's hosts file and configure worker with static IP
         if not self.dryrun:
-            add_to_hosts(ip, self.hostname)
+            add_to_hosts(ip)
 
             # Configure static LAN IP
             interfaces_conf = textwrap.dedent(f"""
