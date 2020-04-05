@@ -31,11 +31,11 @@ Time to burn an image with USB # on a MAC is
 
 ## Starting the Pi
 
-
 Once you have achieved that and configured the OS (do not forget to use
 a strong password), you need to update it after the customary reboot. 
 
-Make sure your time is set up properly, which you can do with 
+In case you do not have the master initially on a network, 
+make sure your time is set up properly, which you can do with 
 
 ```bash
 $ sudo date -s "Jan 2, 2020 14:03 EST"
@@ -290,7 +290,11 @@ To list the downloaded images, you can use the command
 ```
 
 In case you like to use the latest download, you can use the
-command. You can also specify the exact URL with 
+command.
+
+TODO: MISSING
+
+You can also specify the exact URL with
 
 ```bash
 # cm-pi-burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
@@ -492,16 +496,10 @@ Quote:
     have to re-image it.
     
 LED control:
-    See Gregor's pi book there is a section describing how to do it
+
+    see:
     
-    See also: <https://www.jeffgeerling.com/blogs/jeff-geerling/controlling-pwr-act-leds-raspberry-pi>
-    
-    There may be more resources. We can use this to test which node is
-    which. E.g develop a class that sets the LEDs on one or more from
-    the master with ssh
-    
-    See also:
-    <https://www.raspberrypi.org/forums/viewtopic.php?t=12530>
+    cms pi led red off HOSTNAME
 
 SSHFS:
    add master to `.ssh/config` onlocal machine
