@@ -238,20 +238,6 @@ We have given an example where this is not the case while indicating it
 in the Empty column. We recommend that you only use formatted cards, so
 you are sure you do not by accident delete information.
 
-## ROOT
-
-For the burn process, you need to use root privileges. To achieve this,
-you need to execute the following commands. The source command
-activates the python virtual env that you have created where you
-installed the cm-pi-burn command
-
-```bash
-$ sudo su
-# source /home/pi/ENV3/bin/activate
-```
-
-Please note that for our notation a `#` indicates this command is
-executed in root.
 
 ## Finding Image Versions
 
@@ -300,17 +286,26 @@ You can also specify the exact URL with
 # cm-pi-burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
 ```
 
+## ROOT
+
+For the burn process, you need to use root privileges. To achieve this,
+you need to execute the following commands. The source command
+activates the python virtual env that you have created where you
+installed the cm-pi-burn command
+
+```bash
+$ sudo su
+# source /home/pi/ENV3/bin/activate
+```
+
+Please note that for our notation a `#` indicates this command is
+executed in root.
+
 ## Creating Cluster SD-Cards
 
 Next, we describe how we create a number of SD-Cards to create a cluster.
 Each card will have a unique hostname, an IP address and your public key. 
 To locate your device, you can use:
-
-```bash
-$ sudo fdisk -l
-
-```
-or the more convenient option would be to use the
 
 ```bash
 $ cm-pi-burn info  

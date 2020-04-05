@@ -5,6 +5,8 @@
 Cloudmesh Raspberry Pi Image Burner.
 
 Usage:
+  cm-pi-burn network list [--ip=IP] [--used]
+  cm-pi-burn network address
   cm-pi-burn [-v] info [DEVICE]
   cm-pi-burn [-v] detect
   cm-pi-burn [-v] image versions [--refresh]
@@ -59,6 +61,44 @@ Description:
          if the flag is ommitted login via the password is disabled and
          only login via the sshkey is allowed
 
+  Network
+
+    cm-pi-burn network list
+
+        Lists the ip addresses that are on the same network
+
+        +------------+---------------+----------+-----------+
+        | Name       | IP            | Status   | Latency   |
+        |------------+---------------+----------+-----------|
+        | Router     | 192.168.1.1   | up       | 0.0092s   |
+        | iPhone     | 192.168.1.4   | up       | 0.061s    |
+        | red01      | 192.168.1.46  | up       | 0.0077s   |
+        | laptop     | 192.168.1.78  | up       | 0.058s    |
+        | unkown     | 192.168.1.126 | up       | 0.14s     |
+        | red03      | 192.168.1.158 | up       | 0.0037s   |
+        | red02      | 192.168.1.199 | up       | 0.0046s   |
+        | red        | 192.168.1.249 | up       | 0.00021s  |
+        +------------+----------------+----------+-----------+
+
+    cm-pi-burn network list [--used]
+
+        Lists the used ip addresses as a comma separated parameter list
+
+           192.168.50.1,192.168.50.4,...
+
+    cm-pi-burn network address
+
+        Lists the own network address
+
+        +---------+----------------+----------------+
+        | Label   | Local          | Broadcast      |
+        |---------+----------------+----------------|
+        | wlan0   | 192.168.1.12   | 192.168.1.255  |
+        +---------+----------------+----------------+
+
+
+
+
 
 Example:
   cm-pi-burn create --image=2019-09-26-raspbian-buster-lite --device=/dev/mmcblk0
@@ -69,27 +109,18 @@ Example:
 """
 
 import os
-import hostlist
 from docopt import docopt
-from pprint import pprint
-import requests
 from pathlib import Path
 from getpass import getpass
-import sys
-import zipfile
-from glob import glob
-import requests
-import string
-import random
 
-from cmburn.pi.util import WARNING, readfile, writefile, check_root
+from cmburn.pi.util import readfile, writefile
 from cmburn.pi.image import Image
-from cmburn.pi import columns, lines
+from cmburn.pi.network import Network
 import oyaml as yaml
 from cmburn.pi.burner import Burner, MultiBurner, gen_strong_pass
 from cloudmesh.common.StopWatch import StopWatch
-from cloudmesh.common.Shell import Shell
 from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.Tabulate import Printer
 
 debug = True
 
@@ -114,7 +145,56 @@ def analyse(arguments):
     burner = Burner(dryrun=dryrun)
     StopWatch.stop("info")
 
-    if arguments['wifi']:
+
+    if arguments["network"]  and arguments["list"]:
+
+        ip = arguments["ip"] or Network.address()[0]['local']
+
+        details = Network.nmap(ip=ip)
+
+        if arguments["--used"]:
+
+            print(','.join([x['ip'] for x in details]))
+
+        else:
+            print(Printer.write(
+                details,
+                order=[
+                    'name',
+                    "ip",
+                    "status",
+                    "latency",
+                ],
+                header=[
+                    'Name',
+                    "IP",
+                    "Status",
+                    "Latency",
+                ]
+                )
+            )
+        return ""
+
+    if arguments["network"] and arguments["address"]:
+
+        # print (Network.nmap())
+        details = Network.address()
+
+        print(Printer.write(
+            details,
+            order=[
+                'label',
+                "local",
+                "broadcast"],
+            header=["Label",
+                    "Local",
+                    "Broadcast"]
+            )
+        )
+        return ""
+
+
+    elif arguments['wifi']:
 
         password = arguments['PASSWD']
         ssid = arguments['SSID']
