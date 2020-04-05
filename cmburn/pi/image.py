@@ -184,3 +184,4 @@ class Image(object):
         banner('Available Images')
 
         print(textwrap.indent('\n'.join(images), prefix="    * "))
+        print()
