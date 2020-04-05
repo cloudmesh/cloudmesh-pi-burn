@@ -4,6 +4,7 @@
 # https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
 
 import os
+import textwrap
 import zipfile
 from pathlib import Path
 
@@ -11,7 +12,7 @@ import oyaml as yaml
 import requests
 import urllib3
 from cloudmesh.common.console import Console
-from cmburn.pi import columns
+from cloudmesh.common.util import banner
 from cmburn.pi.util import readfile, writefile
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -178,5 +179,8 @@ class Image(object):
                   for x in images_dir.glob('*.img')]
 
         print('Available images in', self.directory)
-        print(columns * '=')
-        print('\n'.join(images))
+        # print(columns * '=')
+
+        banner('Available Images')
+
+        print(textwrap.indent('\n'.join(images), prefix="    * "))
