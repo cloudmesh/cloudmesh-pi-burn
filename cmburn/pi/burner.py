@@ -1,3 +1,4 @@
+import usb
 import os
 import crypt
 import sys
@@ -17,6 +18,7 @@ from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.StopWatch import StopWatch
 from pprint import pprint
+import subprocess
 
 
 # TODO: make sure everything is compatible with --dryrun
@@ -46,6 +48,11 @@ def os_is_mac():
 def os_is_pi():
     return "raspberry" in platform.uname()
 
+def fdisk(dev):
+    return subprocess.getoutput(f"sudo fdisk -l {dev}")
+
+# def dmesg():
+#    return subprocess.getoutput(f"dmesg")
 
 def gen_strong_pass():
     length = random.randint(10, 15)
@@ -107,62 +114,67 @@ class Burner(object):
         print("dryrun:    ", self.dryrun)
 
         banner("Operating System")
+        result = fdisk("/dev/mmcblk0")
         if print_stdout:
-            os.system("sudo fdisk -l /dev/mmcblk0")
-        else:
-            os.system("sudo fdisk -l /dev/mmcblk0 &>/dev/null")
+            print(result)
 
         dmesg = Shell.run(f"dmesg").splitlines()
 
         # banner("SD-Card Search")
         status = {}
-        # devices = [f"/dev/sd{x}" for x in list("abcdefghijklm")]
+        # devices = [f"/dev/sd{x}" for x in list("abcdefghijklmnopqrstufvxyz")]
         devices = glob.glob("/dev/sd?")
 
+        banner("Devices found")
+
+        print ('\n'.join(sorted(devices)))
+
+        banner("Devices details")
+
+        def _get_attribute(attribute, lines):
+            for line in result:
+                if attribute in line:
+                    return line.split(attribute, 1)[1].strip()
+            return None
+            
+        # print (devices)
+        details = []
         for device in devices:
-            status[device] = {}
-            # banner(device)
+            name = os.path.basename(device)
+            command = f"dmesg | fgrep [{name}]"
+            # print (f"{name}:")
+            dmesg = result = subprocess.getoutput(command)
+            _fdisk = fdisk(name)
+            # print (result)
+            result = result.replace("Write Protect is", "write_protection:")
+            result = result.replace("Attached SCSI removable disk", "removable_disk: True")
+            result = result.replace("(", "")
+            result = result.replace(")", "")
+            result = result.splitlines()
+            _dmesg = [x.split(f"[{name}]",1)[1].strip() for x in result]                    
+            size = _get_attribute("logical blocks:", _dmesg)
+            if size is not None:
+                details.append({
+                    'dmesg': dmesg,
+                    'fdisk': _fdisk,
+                    'name': name,
+                    'dev': device,
+                    'removable_disk': _get_attribute("removable_disk:", _dmesg),
+                    'write_protection': \
+                        _get_attribute("write_protection:", _dmesg) is not "off",
+                    'size': size,
+                    'reader': "cannot open" in _fdisk,
+                    'empty': "linux" in _fdisk,
+                    'formatted': "FAT32" not in _fdisk
+                })
 
-            sd = Shell.run(f"sudo fdisk -l {device}")
-            if "cannot open" in sd:
-                # Console.error(f"no SD Card Writer in device {device}")
-                status[device]["reader"] = False
-            else:
-                status[device]["reader"] = True
+            #pprint (details)
 
-            if "Linux" in sd:
-                # Console.error("the SD-Card is not empty")
-                status[device]["empty"] = False
-            else:
-                status[device]["empty"] = True
-
-            if "FAT32" not in sd:
-                # Console.error("the SD-Card is not properly formatted")
-                status[device]["formatted"] = False
-            else:
-                status[device]["formatted"] = True
-
-            sdx = device.replace("/dev/", "")
-            msg = [i.split("]", 1)[1].strip() for i in dmesg if
-                   sdx in i and "sdhci" not in i and "sdio" not in i]
-            if len(msg) > 0:
-                # print (sdx)
-                # pprint (msg)
-                information = '\n'.join(msg)
-                status[device].update(dict(
-                    {'name': sdx,
-                     'dev': device,
-                     'removable_disk': 'Attached SCSI removable disk' in information,
-                     'write_protection': "Write Protect is off" not in information,
-                     'size': information.split("blocks:", 1)[1].split("\n", 1)[
-                         0].replace("(", "").replace(")", "")
-                     }))
-                # pprint(information)
+        banner("Device Anaylse")
 
         if print_stdout:
-            # pprint(status)
             banner("SD Cards Found")
-            print(Printer.write(status,
+            print(Printer.write(details,
                                 order=["name", "dev", "reader", "formatted",
                                        "empty",
                                        "size", "removable_disk",
@@ -170,7 +182,69 @@ class Burner(object):
                                 header=["Name", "Device", "Reader", "Formatted",
                                         "Empty",
                                         "Size", "Removable", "Protected"]))
-        return status
+
+            lsusb = subprocess.getoutput("lsusb").splitlines()
+            all = {}
+            for line in lsusb:
+                  line = line.replace("Bus ", "")
+                  line = line.replace("Device ", "")
+                  line = line.replace("ID ", "")
+                  line = line.replace(":", "", 1)
+                  line = line.replace(":", " ", 1)
+                  content = line.split(" ")
+                  bus= int(content[0])
+                  addr= int(content[1])
+
+                  data = {
+                    'bus': bus,
+                    'addr': addr,
+                    'vendor': int(content[2], 16),
+                    'product': int(content[3], 16),
+                    'comment': ' '.join(content[4:])
+                    }
+                  all[f"{bus}-{addr}"] = data
+            lsusb = all
+                  
+          
+        banner("pyusb")
+
+        busses = usb.busses()
+        details = []
+        for bus in busses:
+              devices = bus.devices
+              # print(dir(devices))
+              for dev in devices:
+                    data = dev.__dict__
+                    data.update(dev.dev.__dict__)
+                    data['comment'] = lsusb[f"{dev.bus}-{dev.address}"]["comment"]
+                    del data['configurations']
+                    details.append(data)
+
+      
+        
+        print(Printer.write(
+          details,
+          order=["address",
+                   "bus",
+                   "idVendor",
+                   "idProduct",
+                   "iManufacturer",
+                   "iSerialNumber",
+                   "usbVersion",
+                   "comment"],
+          header=["Adr.",
+                  "bus",
+                  "Vendor",
+                  "Prod.",
+                  "Man.",
+                  "Ser.Num.",
+                  "USB Ver.",
+                  "Comment"]
+          )
+      )
+        
+            
+        return details
 
         #
         # use also lsub -v

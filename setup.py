@@ -61,7 +61,8 @@ setup(
         "requests",
         "pyyaml",
         "oyaml",
-        "cloudmesh-common"
+        "cloudmesh-common",
+        "pyusb"
     ],
     extras_require={  # Optional
         'dev': ['check-manifest'],

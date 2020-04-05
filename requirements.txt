@@ -6,3 +6,4 @@ requests
 pyyaml
 oyaml
 cloudmesh-common
+pyusb

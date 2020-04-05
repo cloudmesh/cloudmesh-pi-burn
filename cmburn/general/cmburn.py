@@ -202,8 +202,10 @@ def run(command):
 
 
 def cat(path):
-    with open(path, 'r') as file:
-        content = file.read()
+    try:
+        with open(path, 'r') as file:
+            content = file.read()
+    except FileNotFoundError :
     return content
 
 
