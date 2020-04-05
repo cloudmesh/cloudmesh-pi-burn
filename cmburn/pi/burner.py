@@ -298,7 +298,7 @@ class Burner(object):
                     :-1]  # omit the \n at the end
                 dhcp_conf = textwrap.dedent(f"""
                         interface wlan0
-                        static ip_address={ip}/24
+                        static ip_address={ip}
                         static routers={routerss}
                         static domain_name_servers={dnss}
                         """)
