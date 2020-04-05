@@ -280,15 +280,31 @@ class Burner(object):
             add_to_hosts(ip)
 
             # Configure static LAN IP
-            interfaces_conf = textwrap.dedent(f"""
-            auto {iface}
-            iface {iface} inet static
-                address {ip}/{mask}
-            """)
+            if iface == "eth0":
+                interfaces_conf = textwrap.dedent(f"""
+                auto {iface}
+                iface {iface} inet static
+                    address {ip}/{mask}
+                """)
+                with open(f'{mountpoint}/etc/network/interfaces', 'a') as config:
+                    config.write(interfaces_conf)
 
-            with open(f'{mountpoint}/etc/network/interfaces', 'a') as config:
-                config.write(interfaces_conf)
-
+            # Configure static wifi IP
+            elif iface == "wlan0":
+                # nameserver 10.1.1.1
+                dnss = os.popen(
+                    "cat /etc/resolv.conf | grep nameserver").read().split()[1]
+                routerss = os.popen("ip route | grep default | awk '{print $3}'").read()[
+                    :-1]  # omit the \n at the end
+                dhcp_conf = textwrap.dedent(f"""
+                        interface wlan0
+                        static ip_address={ip}/24
+                        static routers={routerss}
+                        static domain_name_servers={dnss}
+                        """)
+                with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
+                    config.write(dhcp_conf)
+                
         else:
             print('interface eth0\n')
             print(f'static ip_address={ip}/{mask}')
@@ -840,7 +856,8 @@ class MultiBurner(object):
             burner.set_hostname(hostname, mp)
             burner.set_key(key, mp)
             if ip:
-                burner.set_static_ip(ip, mp)
+                interface = "wlan0" if ssid is not None else "eth0"
+                burner.set_static_ip(ip, mp, iface=interface)
 
             burner.unmount(device)
             # for some reason, need to do unmount twice for it to work properly
