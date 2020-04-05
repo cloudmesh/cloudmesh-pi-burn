@@ -16,22 +16,14 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
+from cloudmesh.common.console import Console
 from cloudmesh.common.StopWatch import StopWatch
 from pprint import pprint
 import subprocess
+from cmburn.pi.usb import USB
 
 
 # TODO: make sure everything is compatible with --dryrun
-
-# noinspection PyPep8Naming
-def WARNING(*args, **kwargs):
-    print("WARNING:", *args, file=sys.stderr, **kwargs)
-
-
-# noinspection PyPep8Naming
-def ERROR(*args, **kwargs):
-    print("ERROR:", *args, file=sys.stderr, **kwargs)
-
 
 def os_is_windows():
     return platform.system() == "Windows"
@@ -47,9 +39,6 @@ def os_is_mac():
 
 def os_is_pi():
     return "raspberry" in platform.uname()
-
-def fdisk(dev):
-    return subprocess.getoutput(f"sudo fdisk -l {dev}")
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
@@ -76,6 +65,8 @@ class Burner(object):
         #
         self.cm_burn = Shell.which("/home/pi/ENV3/bin/cm-pi-burn")
         self.dryrun = dryrun
+        self.hostname = None
+        self.keypath = None
 
     def detect(self):
         """
@@ -113,64 +104,47 @@ class Burner(object):
         print("cm-pi-burn:", self.cm_burn)
         print("dryrun:    ", self.dryrun)
 
-        banner("Operating System")
-        result = fdisk("/dev/mmcblk0")
+        banner("Operating System SD Card")
+        result = USB.fdisk("/dev/mmcblk0")
         if print_stdout:
             print(result)
 
-        dmesg = Shell.run(f"dmesg").splitlines()
+        banner("USB Device Probe")
 
-        # banner("SD-Card Search")
-        status = {}
-        # devices = [f"/dev/sd{x}" for x in list("abcdefghijklmnopqrstufvxyz")]
-        devices = glob.glob("/dev/sd?")
+        details = USB.get_from_usb()
 
-        banner("Devices found")
+        print(Printer.write(
+            details,
+            order=["address",
+                   "bus",
+                   "idVendor",
+                   "idProduct",
+                   "hVendor",
+                   "hProduct",
+                   "iManufacturer",
+                   "iSerialNumber",
+                   "usbVersion",
+                   "comment"],
+            header=["Adr.",
+                    "bus",
+                    "Vendor",
+                    "Prod.",
+                    "H Vendor",
+                    "H Prod.",
+                    "Man.",
+                    "Ser.Num.",
+                    "USB Ver.",
+                    "Comment"]
+        )
+        )
 
-        print ('\n'.join(sorted(devices)))
+        devices = USB.get_devices()
 
-        banner("Devices details")
+        # banner("Devices found")
 
-        def _get_attribute(attribute, lines):
-            for line in result:
-                if attribute in line:
-                    return line.split(attribute, 1)[1].strip()
-            return None
-            
-        # print (devices)
-        details = []
-        for device in devices:
-            name = os.path.basename(device)
-            command = f"dmesg | fgrep [{name}]"
-            # print (f"{name}:")
-            dmesg = result = subprocess.getoutput(command)
-            _fdisk = fdisk(name)
-            # print (result)
-            result = result.replace("Write Protect is", "write_protection:")
-            result = result.replace("Attached SCSI removable disk", "removable_disk: True")
-            result = result.replace("(", "")
-            result = result.replace(")", "")
-            result = result.splitlines()
-            _dmesg = [x.split(f"[{name}]",1)[1].strip() for x in result]                    
-            size = _get_attribute("logical blocks:", _dmesg)
-            if size is not None:
-                details.append({
-                    'dmesg': dmesg,
-                    'fdisk': _fdisk,
-                    'name': name,
-                    'dev': device,
-                    'removable_disk': _get_attribute("removable_disk:", _dmesg),
-                    'write_protection': \
-                        _get_attribute("write_protection:", _dmesg) is not "off",
-                    'size': size,
-                    'reader': "cannot open" in _fdisk,
-                    'empty': "linux" in _fdisk,
-                    'formatted': "FAT32" not in _fdisk
-                })
+        # print ('\n'.join(sorted(devices)))
 
-            #pprint (details)
-
-        banner("Device Anaylse")
+        details = USB.get_from_dmesg(devices)
 
         if print_stdout:
             banner("SD Cards Found")
@@ -183,67 +157,13 @@ class Burner(object):
                                         "Empty",
                                         "Size", "Removable", "Protected"]))
 
-            lsusb = subprocess.getoutput("lsusb").splitlines()
-            all = {}
-            for line in lsusb:
-                  line = line.replace("Bus ", "")
-                  line = line.replace("Device ", "")
-                  line = line.replace("ID ", "")
-                  line = line.replace(":", "", 1)
-                  line = line.replace(":", " ", 1)
-                  content = line.split(" ")
-                  bus= int(content[0])
-                  addr= int(content[1])
 
-                  data = {
-                    'bus': bus,
-                    'addr': addr,
-                    'vendor': int(content[2], 16),
-                    'product': int(content[3], 16),
-                    'comment': ' '.join(content[4:])
-                    }
-                  all[f"{bus}-{addr}"] = data
-            lsusb = all
-                  
-          
-        banner("pyusb")
+            lsusb = USB.get_from_lsusb()
 
-        busses = usb.busses()
-        details = []
-        for bus in busses:
-              devices = bus.devices
-              # print(dir(devices))
-              for dev in devices:
-                    data = dev.__dict__
-                    data.update(dev.dev.__dict__)
-                    data['comment'] = lsusb[f"{dev.bus}-{dev.address}"]["comment"]
-                    del data['configurations']
-                    details.append(data)
 
-      
-        
-        print(Printer.write(
-          details,
-          order=["address",
-                   "bus",
-                   "idVendor",
-                   "idProduct",
-                   "iManufacturer",
-                   "iSerialNumber",
-                   "usbVersion",
-                   "comment"],
-          header=["Adr.",
-                  "bus",
-                  "Vendor",
-                  "Prod.",
-                  "Man.",
-                  "Ser.Num.",
-                  "USB Ver.",
-                  "Comment"]
-          )
-      )
-        
-            
+            #endors = USB.get_vendor()
+            #print(vendors)
+
         return details
 
         #
@@ -360,7 +280,8 @@ class Burner(object):
                 iface {iface} inet static
                     address {ip}/{mask}
                 """)
-                with open(f'{mountpoint}/etc/network/interfaces', 'a') as config:
+                with open(f'{mountpoint}/etc/network/interfaces',
+                          'a') as config:
                     config.write(interfaces_conf)
 
             # Configure static wifi IP
@@ -368,8 +289,9 @@ class Burner(object):
                 # nameserver 10.1.1.1
                 dnss = os.popen(
                     "cat /etc/resolv.conf | grep nameserver").read().split()[1]
-                routerss = os.popen("ip route | grep default | awk '{print $3}'").read()[
-                    :-1]  # omit the \n at the end
+                routerss = os.popen(
+                    "ip route | grep default | awk '{print $3}'").read()[
+                           :-1]  # omit the \n at the end
                 dhcp_conf = textwrap.dedent(f"""
                         interface wlan0
                         static ip_address={ip}
@@ -378,7 +300,7 @@ class Burner(object):
                         """)
                 with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
                     config.write(dhcp_conf)
-                
+
         else:
             print('interface eth0\n')
             print(f'static ip_address={ip}/{mask}')
@@ -541,7 +463,7 @@ class Burner(object):
         if debug:
             print(self.keypath)
         if not os.path.isfile(self.keypath):
-            ERROR("key does not exist", self.keypath)
+            Console.error("key does not exist", self.keypath)
             sys.exit()
 
         if self.dryrun:
@@ -614,7 +536,8 @@ class Burner(object):
                 f.write(new_rc_local)
         self.disable_password_ssh()
 
-    def configure_wifi(self, ssid, psk=None, mountpoint='/mount/pi', interactive=False):
+    def configure_wifi(self, ssid, psk=None, mountpoint='/mount/pi',
+                       interactive=False):
         """
         sets the wifi. ONly works for psk based wifi
 
@@ -937,4 +860,3 @@ class MultiBurner(object):
             # for some reason, need to do unmount twice for it to work properly
             burner.unmount(device)
             StopWatch.start("fcreate {hostname}")
-
