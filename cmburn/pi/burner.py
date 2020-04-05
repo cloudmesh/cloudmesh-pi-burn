@@ -69,7 +69,6 @@ class Burner(object):
         #
         self.cm_burn = Shell.which("/home/pi/ENV3/bin/cm-pi-burn")
         self.dryrun = dryrun
-        self.using_wifi = False
 
     def detect(self):
         """
@@ -240,7 +239,7 @@ class Burner(object):
             print("Write to /etc/hosts")
             print('127.0.1.1 ' + hostname + '\n')
 
-    def set_static_ip(self, ip, mountpoint, iface="eth0"):
+    def set_static_ip(self, ip, mountpoint, iface="eth0", mask="16"):
         """
         Sets the static ip on the sd card for the specified interface
         Also writes to master hosts file for easy access
@@ -250,8 +249,6 @@ class Burner(object):
         :param iface: Network Interface
         :param mask: Subnet Mask
         """
-
-        raise NotImplementedError
 
         # Adds the ip and hostname to /etc/hosts if it isn't already there.
         def add_to_hosts(ip):
@@ -286,10 +283,10 @@ class Burner(object):
             interfaces_conf = textwrap.dedent(f"""
             auto {iface}
             iface {iface} inet static
-                address {ip}
+                address {ip}/{mask}
             """)
 
-            with open(f'{mountpoint}/etc/network/interfaces', 'w') as config:
+            with open(f'{mountpoint}/etc/network/interfaces', 'a') as config:
                 config.write(interfaces_conf)
 
         else:
@@ -527,7 +524,7 @@ class Burner(object):
                 f.write(new_rc_local)
         self.disable_password_ssh()
 
-    def configure_network(self, ssid=None, psk=None, mountpoint='/mount/pi', ip=None, iface="eth0", interactive=False):
+    def configure_wifi(self, ssid, psk=None, mountpoint='/mount/pi', interactive=False):
         """
         sets the wifi. ONly works for psk based wifi
 
@@ -537,54 +534,31 @@ class Burner(object):
         :param interactive:
         :return:
         """
-        # Adds the ip and hostname to /etc/hosts if it isn't already there.
-        def add_to_hosts(ip):
-            with open('/etc/hosts', 'r') as host_file:
-                hosts = host_file.readlines()
 
-            replaced = False
-            for i in range(len(hosts)):
-                ip_host = hosts[i].split()
+        if psk is not None:
+            wifi = textwrap.dedent("""\
+                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
+                    update_config=1 
+                    country=US
 
-                if len(ip_host) > 1:
-                    if ip_host[0] == ip:
-                        ip_host[1] = self.hostname
-                        hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
-                        replaced = True
+                    network={{
+                            ssid=\"{network}\"
+                            psk=\"{pwd}\"
+                            key_mgmt=WPA-PSK
+                    }}""".format(network=ssid, pwd=psk))
+        else:
+            wifi = textwrap.dedent("""\
+                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
+                    update_config=1 
+                    country=US
 
-                    elif ip_host[1] == self.hostname:
-                        ip_host[0] = ip
-                        hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
-                        replaced = True
-            if not replaced:
-                hosts.append(f"{ip}\t{self.hostname}\n")
+                    network={{
+                            ssid=\"{network}\"
+                            key_mgmt=NONE
+                    }}""".format(network=ssid))
 
-            with open('/etc/hosts', 'w') as host_file:
-                host_file.writelines(hosts)
-
-
-        temp = os.popen("ip route | grep default | awk '{print$3}'").read()[:-1]  # Default gateway only required if using static ip
-        option_gateway = f"gateway {temp}" if ssid else ""
-        option_ssid = f"wpa-ssid {ssid}" if ssid else ""
-        option_psk = f"wpa-psk {psk}" if psk else ""
-        option_address = f"address {ip}" if ip else ""
-
-        if ip:
-            add_to_hosts(ip)
-
-        config = textwrap.dedent(f"""\
-                auto lo
-                iface lo inet loopback
-
-                auto {iface}
-                iface {iface} inet dhcp
-                    {option_address}
-                    {option_ssid}
-                    {option_psk}
-                    {option_address}
-                """)
-
-        path = f"{mountpoint}/etc/network/interfaces"
+        # Per fix provided by Gregor, we use this path to get around rfkill block on boot
+        path = f"{mountpoint}/boot/wpa_supplicant.conf"
         # path = f"{mp}/etc/wpa_supplicant/wpa_supplicant.conf"
         if self.dryrun:
             print("DRY RUN - skipping:")
@@ -596,9 +570,7 @@ class Burner(object):
                 return
         # pathlib.Path(self.filename(path)).write_text(wifi)
         with open(path, 'w') as f:
-            print("Using wifi config:")
-            print(config)
-            f.write(config)
+            f.write(wifi)
 
     # TODO Formats device with one FAT32 partition
     # WARNING: This is a very unreliable way of automating the process using fdisk
@@ -861,16 +833,17 @@ class MultiBurner(object):
 
             burner.mount(device, mp)
             burner.disable_terminal_login(mp, password)
-            if ssid or ip:
-                iface = "wlan0" if ssid else "eth0"
-                burner.configure_network(ssid, psk, mp, ip, iface)
-                
+            if ssid:
+                burner.configure_wifi(ssid, psk, mp)
             burner.enable_ssh(mp)
             burner.disable_password_ssh(mp)
             burner.set_hostname(hostname, mp)
             burner.set_key(key, mp)
+            if ip:
+                burner.set_static_ip(ip, mp)
 
             burner.unmount(device)
             # for some reason, need to do unmount twice for it to work properly
             burner.unmount(device)
             StopWatch.start("fcreate {hostname}")
+
