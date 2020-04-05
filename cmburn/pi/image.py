@@ -127,12 +127,14 @@ class Image(object):
 
         # cancel if image already downloaded
         if os.path.exists(img_filename):
-            Console.warning(f"file already downloaded. Found at: {img_file}")
+            Console.warning(f"file already downloaded. Found at:\n\n"
+                            f"    {img_file}\n")
             return
 
         # cancel if image already downloaded
         if os.path.isfile(str(img_file)):
-            Console.warning(f"file already downloaded. Found at: {zip_file}")
+            Console.warning(f"file already downloaded. Found at:\n\n"
+                            "    {zip_file}\n")
 
             return
 
