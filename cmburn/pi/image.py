@@ -3,18 +3,16 @@
 #
 # https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
 
-import requests
 import os
-from pathlib import Path
 import zipfile
+from pathlib import Path
+
 import oyaml as yaml
-
-from cmburn.pi.util import readfile, writefile
-from cmburn.pi import columns
-
-from cmburn.pi.util import WARNING
-
+import requests
 import urllib3
+from cloudmesh.common.console import Console
+from cmburn.pi import columns
+from cmburn.pi.util import readfile, writefile
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -126,15 +124,15 @@ class Image(object):
 
         # cancel if image already downloaded
         if os.path.exists(img_filename):
-            WARNING("file already downloaded. Found at:",
-                    Path(Path(self.directory) / Path(img_filename)))
+            Console.warning("file already downloaded. Found at:",
+                            Path(Path(self.directory) / Path(img_filename)))
             return
 
         # cancel if image already downloaded
         img_file = Path(Path(self.directory) / Path(img_filename))
         if os.path.isfile(str(img_file)):
-            WARNING("file already downloaded. Found at:",
-                    Path(Path(self.directory) / Path(zip_filename)))
+            Console.warning("file already downloaded. Found at:",
+                            Path(Path(self.directory) / Path(zip_filename)))
             return
 
         # download the image, unzip it, and delete the zip file

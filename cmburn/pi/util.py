@@ -1,9 +1,8 @@
-import sys
 import os
+import sys
 from pathlib import Path
 
 import requests
-import urllib3
 
 # noinspection PyPep8
 if True:
@@ -26,10 +25,6 @@ if True:
     #
     ##############################################
 
-
-# noinspection PyPep8Naming
-def WARNING(*args, **kwargs):
-    print("WARNING:", *args, file=sys.stderr, **kwargs)
 
 
 def writefile(filename, content):
