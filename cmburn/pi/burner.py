@@ -138,28 +138,46 @@ class Burner(object):
         )
         )
 
-        devices = USB.get_devices()
+        #devices = USB.get_devices()
 
-        # banner("Devices found")
+        #banner("Devices found")
 
-        # print ('\n'.join(sorted(devices)))
+        #print ('\n'.join(sorted(devices)))
 
-        details = USB.get_from_dmesg(devices)
+        details = USB.get_from_dmesg()
 
         if print_stdout:
             banner("SD Cards Found")
             print(Printer.write(details,
-                                order=["name", "dev", "reader", "formatted",
+                                order=[#"name",
+                                       "dev",
+                                       #"device",
+                                       #"bus",
+                                       #"sg",
+                                       "info",
+                                       "readable",
+                                       "formatted",
                                        "empty",
-                                       "size", "removable_disk",
-                                       "write_protection"],
-                                header=["Name", "Device", "Reader", "Formatted",
+                                       "size",
+                                       "direct-access",
+                                       "removable",
+                                       "writeable"],
+                                header=[#"Name",
+                                        "Path",
+                                        #"Device",
+                                        #"Bus",
+                                        #"Sg",
+                                        "Info",
+                                        "Readable",
+                                        "Formatted",
                                         "Empty",
-                                        "Size", "Removable", "Protected"]))
+                                        "Size",
+                                        "Aaccess",
+                                        "Removable",
+                                        "Writeable"]))
 
 
             lsusb = USB.get_from_lsusb()
-
 
             #endors = USB.get_vendor()
             #print(vendors)

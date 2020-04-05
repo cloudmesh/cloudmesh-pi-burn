@@ -96,10 +96,6 @@ Description:
         | wlan0   | 192.168.1.12   | 192.168.1.255  |
         +---------+----------------+----------------+
 
-
-
-
-
 Example:
   cm-pi-burn create --image=2019-09-26-raspbian-buster-lite --device=/dev/mmcblk0
                     --hostname=red[5-7] --ipaddr=192.168.1.[5-7] --sshkey=id_rsa

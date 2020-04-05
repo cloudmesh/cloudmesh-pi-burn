@@ -75,7 +75,7 @@ class USB(object):
 
 
     @staticmethod
-    def get_from_usb(ishex=True):
+    def get_from_usb():
 
         #
         # in future we also look up the vendor
@@ -134,16 +134,68 @@ class USB(object):
 
 
     @staticmethod
-    def get_from_dmesg(devices=None):
+    def get_from_dmesg():
 
-        if devices is None:
-            devices = USB.get_devices()
+        lines = subprocess.getoutput("dmesg -t").splitlines()
 
+        details = {}
+        for line in lines:
+            if line.startswith("scsi") and "Direct-Access" in line:
+                sdci, key, what = line.split(" ", 2)
+                comment = line.split("Direct-Access")[1].strip()
+                what = " ".join(comment.split("  ")[:2])
+                try:
+                    details[key] = {}
+                except:
+                   pass
+                details[key]["key"] = key
+                details[key]["direct-access"]= True
+                details[key]["info"] = what
+                device, a, b, bus, rest = key.split(":")
+                details[key]["device"] = device
+                details[key]["bus"] = bus
+
+            elif line.startswith("sd") and " sg" in line:
+                sg = line.split(" sg")[1].split(" ",1)[0]
+                details[key]["sg"] = sg
+
+            elif line.startswith("sd") and "] " in line:
+                prefix, key, device, comment = line.split(" ", 3)
+                details[key]["key"] = key
+                if "Attached SCSI removable disk" in comment:
+                    details[key]["removable"] = True
+                if "logical blocks:" in comment:
+                    size = comment.split("blocks:")[1]
+                    details[key]["size"] = size.strip().replace("(","").replace(")","")
+                if "Write Protect is" in comment:
+                    details[key]["writeable"] = "off" in comment
+                name = details[key]["name"] = device.replace("[","").replace("]","")
+                dev = details[key]["dev"] = f"/dev/{name}"
+                _fdisk = USB.fdisk(name)
+                details[key]['readable']= "cannot open" in _fdisk
+                details[key]['empty']= "linux" in _fdisk
+                details[key]['formatted']= "FAT32" not in _fdisk
+        # remove opbets without size
+
+        found = []
+        for name in details:
+            entry = details[name]
+            if 'size' in list(entry.keys()):
+                found.append(entry)
+
+
+
+
+        return found
+
+
+        return ""
+
+        '''
         # print (devices)
         details = []
         for device in devices:
             name = os.path.basename(device)
-            command = f"dmesg | fgrep [{name}]"
             dmesg = result = subprocess.getoutput(command)
             _fdisk = USB.fdisk(name)
             result = result.replace("Write Protect is", "write_protection:")
@@ -165,8 +217,7 @@ class USB(object):
                         _get_attribute("write_protection:",
                                        _dmesg) is not "off",
                     'size': size,
-                    'reader': "cannot open" in _fdisk,
-                    'empty': "linux" in _fdisk,
-                    'formatted': "FAT32" not in _fdisk
+                    
                 })
         return details
+        '''
