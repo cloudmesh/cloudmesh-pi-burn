@@ -8,8 +8,10 @@
 
 """
 
-from setuptools import find_packages, setup
 import io
+
+from setuptools import find_packages, setup
+
 
 def readfile(filename):
     with io.open(filename, encoding="utf-8") as stream:
@@ -52,6 +54,7 @@ setup(
     keywords='Raspberry PI SD Card Cloudmesh',
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),  # Required
     install_requires=[
+        "wget",
         "python-hostlist",
         "docopt",
         "prompter",
