@@ -122,17 +122,18 @@ class Image(object):
 
         print("Downloading {}".format(zip_filename))
 
+        img_file = Path(Path(self.directory) / Path(img_filename))
+        zip_file = Path(Path(self.directory) / Path(zip_filename))
+
         # cancel if image already downloaded
         if os.path.exists(img_filename):
-            Console.warning("file already downloaded. Found at:",
-                            Path(Path(self.directory) / Path(img_filename)))
+            Console.warning(f"file already downloaded. Found at: {img_file}")
             return
 
         # cancel if image already downloaded
-        img_file = Path(Path(self.directory) / Path(img_filename))
         if os.path.isfile(str(img_file)):
-            Console.warning("file already downloaded. Found at:",
-                            Path(Path(self.directory) / Path(zip_filename)))
+            Console.warning(f"file already downloaded. Found at: {zip_file}")
+
             return
 
         # download the image, unzip it, and delete the zip file
