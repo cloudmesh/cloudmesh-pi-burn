@@ -1,12 +1,107 @@
-# cm-pi-burn
-
-curl -Ls http://cloudmesh.github.io/get/pi | sh
-
 WARNING: This program is designed for a Raspberry Pi and must not be
 executed on your laptop
 
-## Setup a Master Raspberry Pi
+# Quick Start
+## Step 1. Setup a Master Raspberry Pi and Configure a Virtual Environment
 
+See [here](#setting-up-master-pi)
+
+For this tutorial, assume my master pi's hostname is red and my virtual env is ENV3. We will be working on the default pi user (ie. pi@red)
+
+## Step 2.
+Install necesssary Pi utilities
+```
+(ENV3) pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
+```
+
+## Step 3. Install latest raspbian buster lite image
+Use the following command to download the image
+```
+(ENV3) pi@red:$ cm-pi-burn image get latest
+```
+
+Verify installation by typing
+```
+(ENV3) pi@red:$ cm-pi-burn image ls
+```
+A version of raspbian should be displayed.
+
+**NOTE**
+For those of us that have already used `cm-pi-burn` several times, a major difference is that we no longer need to be in super user (ie. no more `sudo su`)
+
+## Step 4. Burn SD cards
+Enter command:
+```
+(ENV3) pi@red:$ cm-pi-burn detect
+```
+Follow the on-screen prompt to plug in your card burner.
+
+Enter the following command to discover the location of your card burner. I have included the bottom of the output for this example. 
+```
+(ENV3) pi@red:$ cm-pi-burn info
+
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+| Path     | Info                 | Readable | Formatted | Empty | Size             | Aaccess | Removable | Writeable |
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+| /dev/sda | Generic Mass-Storage | True     | True      | False | 31.9 GB/29.7 GiB | True    | True      | True      |
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+
+```
+
+For the following example, assume I want to assign hostname `red001` to the SD card and I want to assign a static IP address of `169.254.10.1` utilizing `/dev/sda`.
+
+```
+cm-pi-burn create \
+--image=latest \
+--device=/dev/sda \
+--hostname=red001 \
+--sshkey=default \
+--ipaddr=169.254.10.1 
+```
+**NOTE**
+
+By specifying `default` in `--sshkey`, `cm-pi-burn` interpets this as `/home/pi/.ssh/id_rsa.pub`
+
+To use a different identity, simply specify the full path to the key.
+
+### Using WiFi
+If you want to connect your workers directly to the internet via WiFi, then you only need to add the following two lines to the end of `cm-pi-burn`:
+```
+cm-pi-burn create \
+--image=latest \
+--device=/dev/sda \
+--hostname=red001 \
+--sshkey=default \
+--ipaddr=192.168.1.10 \
+--ssid=MyWifiRouterName \
+--wifipsk=MyWifiPassword
+```
+**NOTE**
+
+Notice I have change the `--ipaddr` option. This is to remind everyone that the static IP must fall into your network range. Many home networks have a 192.168.1.x network range, which is why I have set up the example in this context.
+
+## Step 5. Booting up worker
+After turning on the worker, you should be able to access you worker via SSH from the master.
+```
+(ENV3) pi@red:$ ssh pi@red001
+```
+
+In the future, we will try to remove the `pi` user.
+
+
+
+# To-Do:
+Still need to add support for multi-card burning (ie. syntax support).
+More cleanup
+
+
+
+# Setting up master Pi
+ 
 We recommend that you install first on one Raspberry pi. The process is
 documented at
 
@@ -27,7 +122,7 @@ your OS, and started it will look like:
 You can now chose the image and the SD Crad where you want to burn it.
 Make sure you select the card correctly as to avoid destroying the OS on the 
 computer that starts imager. We rcommend That you use an SD Card with 32GB.
- 
+
 Time to burn an image with USB # on a MAC is
 
 ## IMPORTANT NOTE:
@@ -116,6 +211,10 @@ If this is the case close all the other windows and use the terminal you
 just started.
 
 
+
+# DEPRECATED. DO NOT GO BEYOND THIS LINE AS THE DOCUMENTATION IS OUT OF DATE
+
+
 ## Installation
 
 First, you must install cm-pi-burn. In a future version, this will be done
@@ -129,8 +228,7 @@ However, in the meanwhile, you do it as follows:
 
 ```bash
 $ mkdir cm
-$ cd cm
-$ git clone https://github.com/cloudmesh/cloudmesh_pi_burn.git
+$ cd cm $ git clone https://github.com/cloudmesh/cloudmesh_pi_burn.git
 $ cd cloudmesh_pi_burn
 $ pip install -e .
 ```    

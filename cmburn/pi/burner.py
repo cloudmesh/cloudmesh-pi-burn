@@ -844,6 +844,7 @@ class MultiBurner(object):
         if device is not None:
             for dev in device:
                 devices[dev] = info_statuses[dev]['empty']
+            # Change to empty to skip next loop
             info_statuses = {}
 
         for device in info_statuses.keys():
@@ -860,7 +861,7 @@ class MultiBurner(object):
             print("\nEmpty status of devices:")
             for dev, empty_status in devices.items():
                 x = "" if empty_status else "not "
-                print(f"Device {dev} is {x}empty")
+                Console.info(f"Device {dev} is {x}empty")
         print()
 
         # detect if there is an issue with the cards, readers
@@ -919,11 +920,11 @@ class MultiBurner(object):
              progress=True,
              hostname=None,
              ip=None,
-             key=None,
+             key='default',
              password=None,
              ssid=None,
              psk=None,
-             fromatting=False):
+             fromatting=True):
         """
 
         :param image:
@@ -942,6 +943,8 @@ class MultiBurner(object):
         # Burns the image on the specific device
 
         mp = '/mount/pi'
+        if key == 'default':
+            key = '/home/pi/.ssh/id_rsa.pub'
 
         # don't do the input() after burning the last card
         # use a counter to check this
@@ -960,6 +963,7 @@ class MultiBurner(object):
         burner.set_hostname(hostname, mp)
         burner.disable_terminal_login(mp, password)
         if ssid:
+            Console.warning("Warning: In the future, try to interface with the workers via ethernet/switch rather than WiFi")
             burner.configure_wifi(ssid, psk, mp)
         burner.enable_ssh(mp)
         burner.disable_password_ssh(mp)
