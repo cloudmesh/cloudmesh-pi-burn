@@ -19,6 +19,7 @@ pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
 pi@red:$ source ~/ENV3/bin/activate
 
 (ENV3) pi@red:$ ssh-keygen
+(ENV3) pi@red:$ eval "$(ssh-agent -s)"
 (ENV3) pi@red:$ ssh-add
 (ENV3) pi@red:$ cm-pi-burn image get latest
 (ENV3) pi@red:$ cm-pi-burn image ls
