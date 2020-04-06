@@ -18,8 +18,6 @@ from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.console import Console
 from cloudmesh.common.StopWatch import StopWatch
-from cloudmesh.common.parameter import Parameter
-
 from pprint import pprint
 import subprocess
 from cmburn.pi.usb import USB
@@ -53,18 +51,6 @@ def gen_strong_pass():
         string.punctuation
     return ''.join(random.choice(password_characters) for i in range(length))
 
-def to_dict(data, name="dev"):
-    """
-    converst to a dict
-
-    :param data: list
-    :param name: the name of the key
-    :return:
-    """
-    result = {}
-    for entry in data:
-        result[entry[name]] = entry
-    return result
 
 # noinspection PyPep8
 class Burner(object):
@@ -190,7 +176,6 @@ class Burner(object):
                                         "Removable",
                                         "Writeable"]))
 
-
             lsusb = USB.get_from_lsusb()
 
             #endors = USB.get_vendor()
@@ -203,6 +188,10 @@ class Burner(object):
             #for line in udev.splitlines():
             #    if any(word in line for word in attributes):
             #        print(line)
+
+
+        # Convert details into a dict where the key for each entry is the device
+        details = {detail['dev'] : detail for detail in details}
 
         return details
 
@@ -377,7 +366,7 @@ class Burner(object):
             b = Burner()
             while counter < max_tries:
                 time.sleep(1)
-                formatted = to_dict(b.info(print_stdout=False))[device]['formatted']
+                formatted = b.info(print_stdout=False)[device]['formatted']
                 if formatted:
                     break
                 counter += 1
@@ -637,8 +626,6 @@ class Burner(object):
 
         print("Formatting device...")
         # self.unmount(device)
-
-        StopWatch.start(f"format {device}")
         os.system(f'sudo umount {device}*')
         pipeline = textwrap.dedent("""d
 
@@ -775,8 +762,6 @@ class MultiBurner(object):
 
         # :param devices: string with device letters
 
-        #if device != list:
-        #    device = Parameter.expand(device)
         #
         # define the dev
         #
@@ -785,7 +770,7 @@ class MultiBurner(object):
         # probe the dev
         #
         # pprint(Burner().info())
-        info_statuses = to_dict(Burner().info())
+        info_statuses = Burner().info()
 
         # If the user specifies a particular device, we only care about that
         # device
@@ -900,7 +885,7 @@ class MultiBurner(object):
         for i in range(1):
 
             print("counter", counter)
-            StopWatch.start(f"create {hostname}")
+            StopWatch.start("fcreate {hostname}")
 
             print(fromatting)
             if fromatting:
@@ -923,9 +908,4 @@ class MultiBurner(object):
             burner.unmount(device)
             # for some reason, need to do unmount twice for it to work properly
             burner.unmount(device)
-            StopWatch.start(f"create {hostname}")
-            #
-            # TODO: we should have a test here
-            #
-            StopWatch.status(f"create {hostname}", True)
-
+            StopWatch.start("fcreate {hostname}")
