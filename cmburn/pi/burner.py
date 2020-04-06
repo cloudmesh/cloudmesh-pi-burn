@@ -329,7 +329,7 @@ class Burner(object):
             elif iface == "wlan0":
                 # nameserver 10.1.1.1
                 dnss = self.system("cat /etc/resolv.conf | grep nameserver").split()[1]
-                routerss = self.system("ip route | grep default | awk '{print $3}'").read()[:-1]  # omit the \n at the end
+                routerss = self.system("ip route | grep default | awk '{print $3}'")[:-1]  # omit the \n at the end
                 dhcp_conf = textwrap.dedent(f"""
                         interface wlan0
                         static ip_address={ip}
