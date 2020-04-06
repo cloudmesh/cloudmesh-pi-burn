@@ -365,7 +365,7 @@ class Burner(object):
             # Configure static wifi IP
             elif iface == "wlan0":
                 dnss = self.system("cat /etc/resolv.conf | grep nameserver").split()[1] # index 0 is "nameserver" so ignore
-                routerss = self.system("ip route | grep default | awk '{print $3}'")[:-1]  # omit the \n at the end
+                routerss = self.system("ip route | grep default | awk '{print $3}'")  # omit the \n at the end
                 dhcp_conf = textwrap.dedent(f"""
                         interface wlan0
                         static ip_address={ip}
