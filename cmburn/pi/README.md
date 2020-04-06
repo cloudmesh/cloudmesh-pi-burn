@@ -28,6 +28,8 @@ computer that starts imager. We rcommend That you use an SD Card with 32GB.
  
 Time to burn an image with USB # on a MAC is
 
+## IMPORTANT NOTE:
+`$` denotes pi user and `#` denotes root user when command lines are shown.
 
 ## Starting the Pi
 
@@ -78,7 +80,7 @@ Pis you want to dedicate as workers. The master we call `red`
 The easiset to change your hostname is form the commandline with 
 
 ```bash
-pi$ sudo raspi-config
+$ sudo raspi-config
 ```
 
 * Goto `2 Network Options`
@@ -87,7 +89,7 @@ pi$ sudo raspi-config
 Reboot when you are done with 
 
 ```bash
-pi$ sudo shutdown -r now
+$ sudo shutdown -r now
 ```
 
 ## Activate python 3
@@ -240,6 +242,7 @@ you are sure you do not by accident delete information.
 
 
 ## Finding Image Versions
+Start using sudo now!
 
 First, you have to find the raspbian image you like to install. For this
 purpose, we have developed a command that lists you the available images
