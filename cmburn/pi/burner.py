@@ -19,23 +19,31 @@ from cloudmesh.common.Shell import Shell
 from cloudmesh.common.console import Console
 from cloudmesh.common.StopWatch import StopWatch
 from pprint import pprint
+from cloudmesh.common.util import readfile, writefile
 import subprocess
 from cmburn.pi.usb import USB
 
 
 # TODO: make sure everything is compatible with --dryrun
 
+def sudo_writefile(filename, content):
+    tmp = "/tmp/tmp.txt"
+    writefile(tmp, content)
+    result = subprocess.check_output(f"sudo cp {tmp} {filename}")
+    return result
+
+def sudo_readfile(filename):
+    result = subprocess.check_output(f"sudo cat {filename}")
+    return result
+
 def os_is_windows():
     return platform.system() == "Windows"
-
 
 def os_is_linux():
     return platform.system() == "Linux" and "raspberry" not in platform.uname()
 
-
 def os_is_mac():
     return platform.system() == "Darwin"
-
 
 def os_is_pi():
     return "raspberry" in platform.uname()
