@@ -28,12 +28,12 @@ from cmburn.pi.usb import USB
 
 def sudo_writefile(filename, content):
     tmp = "/tmp/tmp.txt"
-    writefile(tmp)
-    result = subprocess.check_output(f"sudo python3 cp {tmp} {filename}")
+    writefile(tmp, content)
+    result = subprocess.check_output(f"sudo cp {tmp} {filename}")
     return result
 
 def sudo_readfile(filename):
-    result = subprocess.check_output(f"sudo python3 cat {filename}")
+    result = subprocess.check_output(f"sudo cat {filename}")
     return result
 
 def os_is_windows():
