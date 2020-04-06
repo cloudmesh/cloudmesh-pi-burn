@@ -215,10 +215,7 @@ class Burner(object):
         #     print(command)
         # else:
         #     os.system(command)
-        if self.dryrun:
-            print(command)
-        else:
-            subprocess.getoutput(command)
+        return subprocess.getoutput(command)
         
 
     def burn(self, image, device, blocksize="4M"):
@@ -323,11 +320,8 @@ class Burner(object):
             # Configure static wifi IP
             elif iface == "wlan0":
                 # nameserver 10.1.1.1
-                dnss = os.popen(
-                    "cat /etc/resolv.conf | grep nameserver").read().split()[1]
-                routerss = os.popen(
-                    "ip route | grep default | awk '{print $3}'").read()[
-                           :-1]  # omit the \n at the end
+                dnss = self.system("cat /etc/resolv.conf | grep nameserver").split()[1]
+                routerss = self.system("ip route | grep default | awk '{print $3}'").read()[:-1]  # omit the \n at the end
                 dhcp_conf = textwrap.dedent(f"""
                         interface wlan0
                         static ip_address={ip}
@@ -634,6 +628,7 @@ class Burner(object):
         print("Formatting device...")
         self.unmount(device)
         StopWatch.start(f"format {device}")
+
         pipeline = textwrap.dedent("""d
 
                                     d
@@ -742,6 +737,15 @@ class MultiBurner(object):
     are plugged in other than a keyboard or a mouse.
 
     """
+    # System command that uses subprocess to execute terminal commands
+    # Returns the stdout of the command
+    def system(self, command):
+        """
+
+        :param command:
+        :return:
+        """
+        return subprocess.getoutput(command)
 
     # noinspection PyUnboundLocalVariable
     def burn_all(self,
@@ -841,7 +845,7 @@ class MultiBurner(object):
             self.burn(image, device, blocksize, progress, hostname,
                       ip, key, password, ssid, psk, fromatting)
 
-            os.system('tput bel')  # ring the terminal bell to notify user
+            self.system('tput bel')  # ring the terminal bell to notify user
             if i < len(hostnames) - 1:
                 if (i + 1) != ((i + 1) % len(keys)):
                     choice = input(
