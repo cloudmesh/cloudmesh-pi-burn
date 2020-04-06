@@ -385,7 +385,6 @@ def analyse(arguments):
         StopWatch.stop("total")
         StopWatch.status("total", True)
 
-    if verbose:
         StopWatch.benchmark(sysinfo=False, csv=False)
 
 
