@@ -377,7 +377,7 @@ class Burner(object):
             b = Burner()
             while counter < max_tries:
                 time.sleep(1)
-                formatted = to_dict(b.info(print_stdout=False)[device]['formatted'])
+                formatted = to_dict(b.info(print_stdout=False))[device]['formatted']
                 if formatted:
                     break
                 counter += 1
@@ -637,6 +637,8 @@ class Burner(object):
 
         print("Formatting device...")
         # self.unmount(device)
+
+        StopWatch.start("format")
         os.system(f'sudo umount {device}*')
         pipeline = textwrap.dedent("""d
 
@@ -656,8 +658,18 @@ class Burner(object):
 
         os.system(
             f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}')
-        print("Done formatting :)")
-        print("Wait while card burns...")
+        StopWatch.stop("format")
+        StopWatch.start("format", True)
+        #
+        # TODO: we should have a test here
+        #
+        StopWatch.benchmark(sysinfo=True, csv=False)
+
+        Console.ok("Formating completed ...")
+
+        ("format")
+
+        Console.info("Wait while the card is written ...")
 
     # This is to prevent desktop access of th pi (directly plugging monitor, keyboard, mouse into pi, etc.)
     #
@@ -878,7 +890,7 @@ class MultiBurner(object):
         for i in range(1):
 
             print("counter", counter)
-            StopWatch.start("fcreate {hostname}")
+            StopWatch.start(f"create {hostname}")
 
             print(fromatting)
             if fromatting:
@@ -901,4 +913,9 @@ class MultiBurner(object):
             burner.unmount(device)
             # for some reason, need to do unmount twice for it to work properly
             burner.unmount(device)
-            StopWatch.start("fcreate {hostname}")
+            StopWatch.start(f"create {hostname}")
+            #
+            # TODO: we should have a test here
+            #
+            StopWatch.start(f"create {hostname}", True)
+
