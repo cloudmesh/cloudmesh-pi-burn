@@ -1,27 +1,24 @@
-import usb
 import os
 import crypt
-import sys
-import time
-import re
-import glob
-import platform
-import getpass
-import string
-import random
+import os
 import pathlib
+import platform
+import random
+import re
+import string
+import subprocess
+import sys
 import textwrap
-from cmburn.pi.image import Image
-from cloudmesh.common.util import banner
-from cloudmesh.common.util import yn_choice
+import time
+
 from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
-from cloudmesh.common.console import Console
 from cloudmesh.common.StopWatch import StopWatch
-from cloudmesh.common.parameter import Parameter
-from pprint import pprint
-from cloudmesh.common.util import readfile, writefile
-import subprocess
+from cloudmesh.common.console import Console
+from cloudmesh.common.util import banner
+from cloudmesh.common.util import writefile
+from cloudmesh.common.util import yn_choice
+from cmburn.pi.image import Image
 from cmburn.pi.usb import USB
 
 
@@ -986,5 +983,6 @@ class MultiBurner(object):
         burner.unmount(device)
         # for some reason, need to do unmount twice for it to work properly
         burner.unmount(device)
+        time.sleep(2)
         StopWatch.stop(f"create {device} {hostname}")
         StopWatch.status(f"create {device} {hostname}", True)
