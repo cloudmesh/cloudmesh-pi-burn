@@ -9,20 +9,17 @@ executed on your laptop
 * We assume you have the master configured with the latest rasbian
 * We assume you use teh username will be `pi` on `red`
 
-Install the code into a venv called ~/ENV3 with:
+Install the code on the master `red` into a venv called ~/ENV3 with,
+creates an ssh-key, adds it to sshagent, and and downloads the latest
+Raspbian image. Make sure you use a strong passphrase for the key.
+Downloading the image will take some time.
 
 ```
 pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
 pi@red:$ source ~/ENV3/bin/activate
-pi@red:$ ssh-keygen
-pi@red:$ ssh-add
-```
 
-Make sure you use a string passphrase.
-
-Next get the latest raspbian image you like to burn with
-
-```
+(ENV3) pi@red:$ ssh-keygen
+(ENV3) pi@red:$ ssh-add
 (ENV3) pi@red:$ cm-pi-burn image get latest
 (ENV3) pi@red:$ cm-pi-burn image ls
 ```
@@ -34,6 +31,8 @@ command will be sufficient.
 ```
 (ENV3) pi@red:$ cm-pi-burn info
 
+...
+
 # ----------------------------------------------------------------------
 # SD Cards Found
 # ----------------------------------------------------------------------
@@ -43,13 +42,6 @@ command will be sufficient.
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
 | /dev/sdx | Generic Mass-Storage | True     | True      | False | 31.9 GB/29.7 GiB | True    | True      | True      |
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
-```
-
-If the `info` command does not work use the `detect` command that requires
-you to unplug the writer.
-
-```
-(ENV3) pi@red:$ cm-pi-burn detect
 ```
 
 Now set your default SD card device with (your sdx may be different as
