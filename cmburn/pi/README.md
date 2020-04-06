@@ -513,7 +513,7 @@ SSHFS:
          IdentityFile ~/.ssh/id_rsa.pub
 
    mkdir master
-   sshfs master: master
+   sshfs master: master -o auto_cache
     ```
 
     See also: <https://github.com/libfuse/sshfs>
