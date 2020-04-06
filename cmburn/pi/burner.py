@@ -27,14 +27,29 @@ from cmburn.pi.usb import USB
 
 # TODO: make sure everything is compatible with --dryrun
 
-def sudo_writefile(filename, content):
-    tmp = "/tmp/tmp.txt"
-    writefile(tmp, content)
-    result = subprocess.check_output(f"sudo cp {tmp} {filename}")
-    return result
+def sudo_writefile(filename, content, append=False):
+    os.system('mkdir -p ~/.cloudmesh/tmp')
+    tmp = "~/.cloudmesh/tmp/tmp.txt"
 
-def sudo_readfile(filename):
-    result = subprocess.check_output(f"sudo cat {filename}")
+    if append:
+        content = sudo_readfile(filename, split=False) + content
+
+    writefile(tmp, content)
+
+    result = subprocess.getstatusoutput(f"sudo cp {tmp} {filename}")
+
+    # If exit code is not 0
+    if result[0] != 0:
+        Console.warning(f"{filename} was not created correctly -> {result[1]}")
+
+    return result[1]
+
+def sudo_readfile(filename, split=True):
+    result = subprocess.getoutput(f"sudo cat {filename}")
+
+    if split:
+        result = result.split('\n')
+
     return result
 
 def os_is_windows():
@@ -78,6 +93,7 @@ class Burner(object):
         self.keypath = None
 
     def detect(self):
+        os.system('sudo dmesg -c')
         """
 
         :return:
@@ -224,7 +240,12 @@ class Burner(object):
         #     print(command)
         # else:
         #     os.system(command)
-        return subprocess.getoutput(command)
+        res = subprocess.getstatusoutput(command)
+        # If exit code is not 0, warn user
+        if res[0] != 0 and res[0] != 32:
+            Console.warning(f'Warning: "{command}" did not execute properly -> {res[1]} :: exit code {res[0]}')
+
+        return res[1]
         
 
     def burn(self, image, device, blocksize="4M"):
@@ -237,7 +258,6 @@ class Burner(object):
         :return:
         """
 
-        print (image)
         image_path = Image(image).fullpath
 
         result = subprocess.getoutput(f'sudo dd bs={blocksize} if={image_path} of={device}')
@@ -258,8 +278,7 @@ class Burner(object):
         self.hostname = hostname
         # write the new hostname to /etc/hostname
         if not self.dryrun:
-            self.system(
-                f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
+            self.system(f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
         else:
             print()
             print("Write to /etc/hostname")
@@ -269,14 +288,15 @@ class Burner(object):
         # 127.0.1.1 raspberrypi   # default
         # 127.0.1.1 red47         # new
         if not self.dryrun:
-            with open(f'{mountpoint}/etc/hosts', 'r') as f:  # read /etc/hosts
-                lines = [l for l in f.readlines()][:-1]  # ignore the last line
-                newlastline = '127.0.1.1 ' + hostname + '\n'
+            # with open(f'{mountpoint}/etc/hosts', 'r') as f:  # read /etc/hosts
+            f = sudo_readfile(f'{mountpoint}/etc/hosts')
+            # lines = [l for l in f.readlines()][:-1]  # ignore the last line
+            lines = f[:-1]
+            newlastline = '127.0.1.1 ' + hostname + '\n'
 
         if not self.dryrun:
             new_hostsfile_contents = ''.join(lines) + newlastline
-            self.system(
-                f'echo "{new_hostsfile_contents}" | sudo cp /dev/stdin {mountpoint}/etc/hosts')
+            sudo_writefile(f'{mountpoint}/etc/hosts', new_hostsfile_contents)
         else:
             print()
             print("Write to /etc/hosts")
@@ -295,8 +315,9 @@ class Burner(object):
 
         # Adds the ip and hostname to /etc/hosts if it isn't already there.
         def add_to_hosts(ip):
-            with open('/etc/hosts', 'r') as host_file:
-                hosts = host_file.readlines()
+            # with open('/etc/hosts', 'r') as host_file:
+            #     hosts = host_file.readlines()
+            hosts = sudo_readfile('/etc/hosts')
 
             replaced = False
             for i in range(len(hosts)):
@@ -315,8 +336,13 @@ class Burner(object):
             if not replaced:
                 hosts.append(f"{ip}\t{self.hostname}\n")
 
-            with open('/etc/hosts', 'w') as host_file:
-                host_file.writelines(hosts)
+            # with open('/etc/hosts', 'w') as host_file:
+            #     host_file.writelines(hosts)
+            config = ""
+            for line in hosts:
+                config = config + line + '\n'
+
+            sudo_writefile('/etc/hosts', config)
 
         # Add static IP and hostname to master's hosts file and configure worker with static IP
         if not self.dryrun:
@@ -329,14 +355,14 @@ class Burner(object):
                 iface {iface} inet static
                     address {ip}/{mask}
                 """)
-                with open(f'{mountpoint}/etc/network/interfaces',
-                          'a') as config:
-                    config.write(interfaces_conf)
+                # with open(f'{mountpoint}/etc/network/interfaces',
+                #           'a') as config:
+                #     config.write(interfaces_conf)
+                sudo_writefile(f'{mountpoint}/etc/network/interfaces', interfaces_conf, append=True)
 
             # Configure static wifi IP
             elif iface == "wlan0":
-                # nameserver 10.1.1.1
-                dnss = self.system("cat /etc/resolv.conf | grep nameserver").split()[1]
+                dnss = self.system("cat /etc/resolv.conf | grep nameserver").split()[1] # index 0 is "nameserver" so ignore
                 routerss = self.system("ip route | grep default | awk '{print $3}'")[:-1]  # omit the \n at the end
                 dhcp_conf = textwrap.dedent(f"""
                         interface wlan0
@@ -344,8 +370,10 @@ class Burner(object):
                         static routers={routerss}
                         static domain_name_servers={dnss}
                         """)
-                with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
-                    config.write(dhcp_conf)
+                # with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
+                #     config.write(dhcp_conf)
+                sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf, append=True)
+                
 
         else:
             print('interface eth0\n')
@@ -391,10 +419,6 @@ class Burner(object):
                     print(
                         "Timed out waiting for OS to detect filesystem on burned card")
                     sys.exit(1)
-        # DEBUG
-        print(f'sudo mkdir -p {mountpoint}')
-        print(f'sudo mount {device}2 {mountpoint}')
-        print(f'sudo mount {device}1 {mountpoint}/boot')
 
         self.system(f'sudo mkdir -p {mountpoint}')
         self.system(f'sudo mount {device}2 {mountpoint}')
@@ -458,19 +482,21 @@ class Burner(object):
         ]
 
         found_params = set()
-        with open(sshd_config, 'r') as f:
-            for line in f:
-                found_a_param = False
-                for param, value in force_params:
-                    if sets_param(param, line):
-                        # Only set the parameter once
-                        if param not in found_params:
-                            new_sshd_config += param + " " + value + "\n"
-                            updated_params = True
-                        found_a_param = True
-                        found_params.add(param)
-                if not found_a_param:
-                    new_sshd_config += line
+        # with open(sshd_config, 'r') as f:
+        f = sudo_readfile(sshd_config)
+
+        for line in f:
+            found_a_param = False
+            for param, value in force_params:
+                if sets_param(param, line):
+                    # Only set the parameter once
+                    if param not in found_params:
+                        new_sshd_config += param + " " + value + "\n"
+                        updated_params = True
+                    found_a_param = True
+                    found_params.add(param)
+            if not found_a_param:
+                new_sshd_config += line
         # Check if any params not found
         for param, value in force_params:
             if param not in found_params:
@@ -482,8 +508,9 @@ class Burner(object):
             # as we no longer do it on osx, we need to identify if this is still needed
             #
             # self.truncate_file(sshd_config)
-            with open(sshd_config, "w") as f:
-                f.write(new_sshd_config)
+            # with open(sshd_config, "w") as f:
+            #     f.write(new_sshd_config)
+            sudo_writefile(sshd_config, new_sshd_config)
 
     # IMPROVE
     # ok osx
@@ -624,12 +651,10 @@ class Burner(object):
             print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
                                                              psk, path))
             return
-        elif interactive:
-            if not yn_choice("About write wifi info. Please confirm:"):
-                return
-        # pathlib.Path(self.filename(path)).write_text(wifi)
-        with open(path, 'w') as f:
-            f.write(wifi)
+
+        # with open(path, 'w') as f:
+        #     f.write(wifi)
+        sudo_writefile(path, wifi)
 
     # TODO Formats device with one FAT32 partition
     # WARNING: This is a very unreliable way of automating the process using fdisk
@@ -641,7 +666,7 @@ class Burner(object):
         :return:
         """
 
-        print("Formatting device...")
+        Console.info("Formatting device...")
         self.unmount(device)
         StopWatch.start(f"format {device}")
 
@@ -662,7 +687,6 @@ class Burner(object):
                                     b""")
 
         command = f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}'
-        print (command)
         result = subprocess.getoutput(command)
 
         StopWatch.stop(f"format {device}")
@@ -675,7 +699,6 @@ class Burner(object):
 
         Console.ok("Formating completed ...")
 
-        ("format")
 
         Console.info("Wait while the card is written ...")
 
@@ -707,35 +730,45 @@ class Burner(object):
             raise NotImplementedError()
 
         # Make sure there's an 'x' in /etc/passwd
-        with open(f'{mountpoint}/etc/passwd', 'r') as f:
-            info = [l for l in f.readlines()]
+#        with open(f'{mountpoint}/etc/passwd', 'r') as f:
+#            info = [l for l in f.readlines()]
+        
+        info = sudo_readfile(f'{mountpoint}/etc/passwd')
 
+        content = ""
         for i in range(len(info)):
             inf = info[i].split(":")
             if inf[0] == 'pi':
                 inf[1] = 'x'
                 info[i] = ':'.join(inf)
 
-        #
-        # BUG: write file first in temporary file and the write it with a
-        # sudo python3 command in the righ t location
-        # develop a function for that and than use
-        #
-        with open(f'{mountpoint}/etc/passwd', 'w') as f:
-            f.writelines(info)
+            content = content + info[i] + '\n'
 
+
+        # with open(f'{mountpoint}/etc/passwd', 'w') as f:
+        #     f.writelines(info)
+
+        sudo_writefile(f'{mountpoint}/etc/passwd', content)
+
+        
         # Add it to shadow file
-        with open(f'{mountpoint}/etc/shadow', 'r') as f:
-            data = [l for l in f.readlines()]
+        # with open(f'{mountpoint}/etc/shadow', 'r') as f:
+        #     data = [l for l in f.readlines()]
 
+        data = sudo_readfile(f'{mountpoint}/etc/shadow')
+
+        content = ""
         for i in range(len(data)):
             dat = data[i].split(":")
             if dat[0] == 'pi':
                 dat[1] = pswd
                 data[i] = ':'.join(dat)
 
-        with open(f'{mountpoint}/etc/shadow', 'w') as f:
-            f.writelines(data)
+            content = content + data[i] + '\n'
+
+        # with open(f'{mountpoint}/etc/shadow', 'w') as f:
+        #     f.writelines(data)
+        sudo_writefile(f'{mountpoint}/etc/shadow', content)
 
 
 class MultiBurner(object):
@@ -754,7 +787,12 @@ class MultiBurner(object):
         :param command:
         :return:
         """
-        return subprocess.getoutput(command)
+        res = subprocess.getstatusoutput(command)
+        # If exit code is not 0, warn user
+        if res[0] != 0:
+            Console.warning(f'Warning: "{command}" did not execute properly -> {res[1]} :: exit code {res[0]}')
+
+        return res[1]
 
     # noinspection PyUnboundLocalVariable
     def burn_all(self,
@@ -831,7 +869,7 @@ class MultiBurner(object):
         # ask if this is ok to burn otherwise
         burn_all = yn_choice("Burn non-empty devices too?")
 
-        # if yes burn all of them for which we have status "empty card"
+        # if no burn all of them for which we have status "empty card"
         if not burn_all:
             # delete from devices dict any non-empty devices
             devices_to_delete = []
@@ -871,8 +909,8 @@ class MultiBurner(object):
                 print('Burning next card...')
                 print()
         i += 1
-        print(f"You burned {i} SD Cards")
-        print("Done :)")
+        Console.info(f"You burned {i} SD Cards")
+        Console.ok("Done :)")
 
     def burn(self,
              image="latest",
@@ -910,30 +948,27 @@ class MultiBurner(object):
 
         counter = 0
         burner = Burner()
-        for i in range(1):
 
-            print("counter", counter)
-            StopWatch.start("fcreate {hostname}")
+        print("counter", counter)
+        StopWatch.start("fcreate {hostname}")
 
-            print(fromatting)
-            if fromatting:
-                burner.format_device(device)
+        if fromatting:
+            burner.format_device(device)
 
-            burner.burn(image, device, blocksize=blocksize)
+        burner.burn(image, device, blocksize=blocksize)
+        burner.mount(device, mp)
+        burner.set_hostname(hostname, mp)
+        burner.disable_terminal_login(mp, password)
+        if ssid:
+            burner.configure_wifi(ssid, psk, mp)
+        burner.enable_ssh(mp)
+        burner.disable_password_ssh(mp)
+        burner.set_key(key, mp)
+        if ip:
+            interface = "wlan0" if ssid is not None else "eth0"
+            burner.set_static_ip(ip, mp, iface=interface)
 
-            burner.mount(device, mp)
-            burner.disable_terminal_login(mp, password)
-            if ssid:
-                burner.configure_wifi(ssid, psk, mp)
-            burner.enable_ssh(mp)
-            burner.disable_password_ssh(mp)
-            burner.set_hostname(hostname, mp)
-            burner.set_key(key, mp)
-            if ip:
-                interface = "wlan0" if ssid is not None else "eth0"
-                burner.set_static_ip(ip, mp, iface=interface)
-
-            burner.unmount(device)
-            # for some reason, need to do unmount twice for it to work properly
-            burner.unmount(device)
-            StopWatch.start("fcreate {hostname}")
+        burner.unmount(device)
+        # for some reason, need to do unmount twice for it to work properly
+        burner.unmount(device)
+        StopWatch.stop("fcreate {hostname}")
