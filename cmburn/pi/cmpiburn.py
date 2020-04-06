@@ -121,15 +121,26 @@ from cloudmesh.common.Tabulate import Printer
 debug = True
 
 
+# Accepts arguments of the form
+# /dev/sd[a-c] -> [/dev/sda, /dev/sdb, /dev/sdc]
+# /dev/sd[a,b,c] -> [/dev/sda, /dev/sdb, /dev/sdc]
 def device_parser(expr):
     left = expr.find("[")
     if left < 0:
         return [expr]
-    bounds = expr[left + 1:expr.find("]")].split("-")
+    selection = expr[left + 1:expr.find("]")]
     partial_expr = expr[:left]
     results = []
-    for i in range(ord(bounds[0]), ord(bounds[1]) + 1):
-        results.append(partial_expr + chr(i))
+    if "-" in selection:
+        selection = selection.split("-")
+        for i in range(ord(selection[0]), ord(selection[1]) + 1):
+            results.append(partial_expr + chr(i))
+    elif "," in selection:
+        selection = selection.split(",")
+        for l in selection:
+            results.append(partial_expr + l)
+    else:
+        raise NotImplementedError
     return results
 
 
@@ -372,10 +383,8 @@ def analyse(arguments):
 
         image = arguments['--image']
 
-        # devices = None  # use the info command to detect
-        # ^^ We should be more specific with our devices
-        #devices = device_parser(arguments['--device'])
-        devices = arguments["--device"].split(",")
+        devices = device_parser(arguments['--device'])
+        # devices = arguments["--device"].split(",")
         
         hostnames = Parameter.expand(arguments['--hostname'])
         ips = None if not arguments['--ipaddr'] else Parameter.expand(

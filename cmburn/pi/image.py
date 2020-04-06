@@ -32,7 +32,11 @@ class Image(object):
             os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
         os.system('mkdir -p ' + self.directory)
         self.image_name = name
-        self.fullpath = self.directory + '/' + self.image_name + '.img'
+        if name == 'latest':
+            self.fullpath = self.directory + '/' + self.latest_version() + '.img'
+        else:
+            self.fullpath = self.directory + '/' + self.image_name + '.img'
+            
 
     def version_cache_create(self, refresh=False):
         data = []
@@ -98,6 +102,10 @@ class Image(object):
                 link = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/{line}"
                 return link
         return None
+
+    def latest_version(self):
+        source_url = requests.head("https://downloads.raspberrypi.org/raspbian_lite_latest", allow_redirects=True).url
+        return os.path.basename(source_url)[:-4]
 
     def fetch(self):
         """
