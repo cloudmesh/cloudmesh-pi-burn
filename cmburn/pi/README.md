@@ -22,7 +22,6 @@ pi@red:$ source ~/ENV3/bin/activate
 (ENV3) pi@red:$ ssh-add
 (ENV3) pi@red:$ cm-pi-burn image get latest
 (ENV3) pi@red:$ cm-pi-burn image ls
-(ENV3) pi@red:$ cm-pi-burn detect 
 ```
 
 To prepare for burning check if your SD card writer is detected and
