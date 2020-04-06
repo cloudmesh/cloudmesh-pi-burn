@@ -356,6 +356,8 @@ For more information on options, see `/cmburn/pi/cmpiburn.py`
 Here is an example call of the command `create` using a static IP
 address connecting to a home wifi network
 
+TODO: WIFI is not listed here
+
 ```bash
 # cm-pi-burn create \
     --image=2020-02-05-raspbian-buster-lite \
@@ -394,8 +396,8 @@ notation in  the `--hostname` and `--ipaddr` arguments:
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sd[a-f]
     --hostname=red[2-7] \
-    --sshkey=/home/pi/.ssh/id_rsa.pub 
-    --blocksize=4M
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
     --ipaddr=169.254.10.[32-37] \
     --format
 ```
