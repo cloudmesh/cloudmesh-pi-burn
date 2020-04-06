@@ -105,18 +105,18 @@ Example:
 """
 
 import os
-from docopt import docopt
-from pathlib import Path
 from getpass import getpass
+from pathlib import Path
 
-from cmburn.pi.util import readfile, writefile
+import oyaml as yaml
+from cloudmesh.common.StopWatch import StopWatch
+from cloudmesh.common.Tabulate import Printer
+from cloudmesh.common.parameter import Parameter
+from cmburn.pi.burner import Burner, MultiBurner, gen_strong_pass
 from cmburn.pi.image import Image
 from cmburn.pi.network import Network
-import oyaml as yaml
-from cmburn.pi.burner import Burner, MultiBurner, gen_strong_pass
-from cloudmesh.common.StopWatch import StopWatch
-from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.Tabulate import Printer
+from cmburn.pi.util import readfile, writefile
+from docopt import docopt
 
 debug = True
 
@@ -348,11 +348,6 @@ def analyse(arguments):
                 ssid = None
 
 
-        #
-        # BUG stopwatch without end
-        #
-        StopWatch.start("create")
-
         # check_root(dryrun=dryrun)
 
         image = 'latest' if not arguments['--image'] else arguments['--image']
@@ -370,6 +365,7 @@ def analyse(arguments):
         key = arguments['--sshkey']
         mp = '/mount/pi'
         blocksize = arguments["--blocksize"]
+
         StopWatch.start("total")
 
         multi = MultiBurner()
