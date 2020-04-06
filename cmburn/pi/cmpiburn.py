@@ -22,7 +22,7 @@ Usage:
                          [--dryrun]
                          [--passwd=PASSWD]
                          [--ssid=SSID]
-                         [--wifipsk=PSK]
+                         [--wifipassword=PSK]
                          [--format]
   cm-pi-burn [-v] burn [IMAGE] [DEVICE] --[dryrun]
   cm-pi-burn [-v] mount [DEVICE] [MOUNTPOINT]
@@ -42,7 +42,7 @@ Options:
   --device=DEVICE        The device, e.g. /dev/mmcblk0
   --hostname=HOSTNAME    The hostname
   --ipaddr=IP            The IP address
-  --key=KEY              The name of the SSH key file [default: id_rsa]
+  --key=KEY              The name of the SSH key file
   --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
 
 Files:
@@ -119,30 +119,6 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.Tabulate import Printer
 
 debug = True
-
-
-# Accepts arguments of the form
-# /dev/sd[a-c] -> [/dev/sda, /dev/sdb, /dev/sdc]
-# /dev/sd[a,b,c] -> [/dev/sda, /dev/sdb, /dev/sdc]
-def device_parser(expr):
-    left = expr.find("[")
-    if left < 0:
-        return [expr]
-    selection = expr[left + 1:expr.find("]")]
-    partial_expr = expr[:left]
-    results = []
-    if "-" in selection:
-        selection = selection.split("-")
-        for i in range(ord(selection[0]), ord(selection[1]) + 1):
-            results.append(partial_expr + chr(i))
-    elif "," in selection:
-        selection = selection.split(",")
-        for l in selection:
-            results.append(partial_expr + l)
-    else:
-        raise NotImplementedError
-    return results
-
 
 def analyse(arguments):
     dryrun = arguments["--dryrun"]
@@ -360,19 +336,17 @@ def analyse(arguments):
         psk = None
         if arguments["--ssid"]:
             ssid = arguments["--ssid"]
-            if arguments["--wifipsk"]:
-                psk = arguments["--wifipsk"]
+            if arguments["--wifipassword"]:
+                psk = arguments["--wifipassword"]
             else:
                 psk = None
         else:
-            if arguments["--wifipsk"]:
+            if arguments["--wifipassword"]:
                 print("Can't have wifi password with no ssid")
                 return
             else:
                 ssid = None
 
-        # TODO Improve
-        fromatting = True if arguments["--format"] else False
 
         #
         # BUG stopwatch without end
@@ -381,17 +355,22 @@ def analyse(arguments):
 
         # check_root(dryrun=dryrun)
 
-        image = arguments['--image']
+        image = 'latest' if not arguments['--image'] else arguments['--image']
 
-        devices = device_parser(arguments['--device'])
-        # devices = arguments["--device"].split(",")
+        environ_DEV = os.environ['DEV'] if 'DEV' in os.environ else None
+        devices = arguments["--device"] or environ_DEV or None
+
+        if devices is not None:
+            devices = Parameter.expand_string(devices)
         
         hostnames = Parameter.expand(arguments['--hostname'])
+
         ips = None if not arguments['--ipaddr'] else Parameter.expand(
             arguments['--ipaddr'])
         key = arguments['--sshkey']
         mp = '/mount/pi'
         blocksize = arguments["--blocksize"]
+
 
         StopWatch.start("total")
 
@@ -408,8 +387,7 @@ def analyse(arguments):
             key=key,
             password=passwd,
             ssid=ssid,
-            psk=psk,
-            fromatting=fromatting)
+            psk=psk)
         StopWatch.stop("total")
         StopWatch.status("total", True)
 

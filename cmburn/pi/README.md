@@ -4,10 +4,10 @@ executed on your laptop
 # Quick Start
 
 * We assume you have at at leats 3 PI's
-* We assume you will use the hostname for teh master to be `red`, and
+* We assume you will use the hostname for the master to be `red`, and
   for the workers you will use `red[001-002]`.
 * We assume you have the master configured with the latest rasbian
-* We assume you use teh username will be `pi` on `red`
+* We assume you use the username will be `pi` on `red`
 
 Install the code on the master `red` into a venv called ~/ENV3 with,
 creates an ssh-key, adds it to sshagent, and and downloads the latest
@@ -22,6 +22,7 @@ pi@red:$ source ~/ENV3/bin/activate
 (ENV3) pi@red:$ ssh-add
 (ENV3) pi@red:$ cm-pi-burn image get latest
 (ENV3) pi@red:$ cm-pi-burn image ls
+(ENV3) pi@red:$ cm-pi-burn detect 
 ```
 
 To prepare for burning check if your SD card writer is detected and
@@ -44,13 +45,19 @@ command will be sufficient.
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
 ```
 
-Now set your default SD card device with (your sdx may be different as
-reported by the `info`command and start burning `red[001-002`].
+Now set your default SD card device with the following command (your /dev/sdx may be different as
+reported by the `info` command
+
+```
+(ENV3) pi@red:$ export DEV=/dev/sdx
+```
+
+and start burning `red[001-002`].
 
 ```
 (ENV3) pi@red:$ cm-pi-burn create \
 --hostname=red[001-002] \
---ipaddr=169.254.10.1 
+--ipaddr=169.254.10.[1-2]
 ```
 
 After you put the SD Cards in the worker Pis and boot them you can log
@@ -65,7 +72,18 @@ In the future, we will try to remove the `pi` user.
 E.g. use we will integrate `cms host ssh config red[001-003]`
 
 >
-> ***Atrenative: Using WiFi:***
+> ***Alternative: Specifying --device***
+> If you would rather not use `export DEV=/dev/sdx`, you can specify it using the `--device` option:
+> ```
+> (ENV3) pi@red:$ cm-pi-burn create \
+> --device=/dev/sdx \
+> --hostname=red[001-002] \
+> --ipaddr=169.254.10.[1-2]
+> ```
+>
+
+>
+> ***Alternative: Using WiFi:***
 >
 > If you want to connect your workers directly to the internet via WiFi,
 > then you only need to add the following two lines to the end of

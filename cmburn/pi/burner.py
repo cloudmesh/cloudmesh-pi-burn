@@ -93,29 +93,30 @@ class Burner(object):
         self.keypath = None
 
     def detect(self):
-        os.system('sudo dmesg -c')
         """
 
         :return:
         """
-        banner("Detecting USB Card Reader")
+        # Clear dmesg table so that info doesn't get confused with previous detects
+        self.system('sudo dmesg -c')
+        banner("Detecting USB Card Reader(s)")
 
-        print("Make sure the USB Reader is removed ...")
-        if not yn_choice("Is the reader removed?"):
+        print("Make sure the USB Reader(s) is removed ...")
+        if not yn_choice("Is the reader(s) removed?"):
             sys.exit()
         usb_out = set(Shell.execute("lsusb").splitlines())
-        print("Now plug in the Reader ...")
-        if not yn_choice("Is the reader plugged in?"):
+        print("Now plug in the Reader(s) ...")
+        if not yn_choice("Is the reader(s) plugged in?"):
             sys.exit()
         usb_in = set(Shell.execute("lsusb").splitlines())
 
         writer = usb_in - usb_out
         if len(writer) == 0:
             print(
-                "ERROR: we did not detect the devise, make sure it is plugged.")
+                "ERROR: we did not detect the device, make sure it is plugged.")
             sys.exit()
         else:
-            banner("Detected Card Writer")
+            banner("Detected Card Writers")
 
             print("\n".join(writer))
             print()
@@ -129,39 +130,40 @@ class Burner(object):
         print("cm-pi-burn:", self.cm_burn)
         print("dryrun:    ", self.dryrun)
 
-        banner("Operating System SD Card")
         result = USB.fdisk("/dev/mmcblk0")
         if print_stdout:
+            banner("Operating System SD Card")
             print(result)
 
-        banner("USB Device Probe")
 
         details = USB.get_from_usb()
 
-        print(Printer.write(
-            details,
-            order=["address",
-                   "bus",
-                   "idVendor",
-                   "idProduct",
-                   "hVendor",
-                   "hProduct",
-                   "iManufacturer",
-                   "iSerialNumber",
-                   "usbVersion",
-                   "comment"],
-            header=["Adr.",
-                    "bus",
-                    "Vendor",
-                    "Prod.",
-                    "H Vendor",
-                    "H Prod.",
-                    "Man.",
-                    "Ser.Num.",
-                    "USB Ver.",
-                    "Comment"]
-        )
-        )
+        if print_stdout:
+            banner("USB Device Probe")
+            print(Printer.write(
+                details,
+                order=["address",
+                       "bus",
+                       "idVendor",
+                       "idProduct",
+                       "hVendor",
+                       "hProduct",
+                       "iManufacturer",
+                       "iSerialNumber",
+                       "usbVersion",
+                       "comment"],
+                header=["Adr.",
+                        "bus",
+                        "Vendor",
+                        "Prod.",
+                        "H Vendor",
+                        "H Prod.",
+                        "Man.",
+                        "Ser.Num.",
+                        "USB Ver.",
+                        "Comment"]
+            )
+            )
 
         #devices = USB.get_devices()
 
@@ -390,7 +392,7 @@ class Burner(object):
         #   mountpoint/home/pi/.ssh/authorized_keys
         self.system(f'mkdir -p {mountpoint}/home/pi/.ssh/')
         self.system(
-            f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
+            f'sudo cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
     def mount(self, device, mountpoint="/mount/pi"):
         """
@@ -436,10 +438,12 @@ class Burner(object):
         # unmount p1 (/boot) and then p2 (/)
         self.system(f'sudo umount {device}1')
         # noinspection PyBroadException
-        try:
-            self.system(f'sudo umount {device}1')
-        except:
-            pass
+        # try:
+        #     print(f"trying to unmount {device}1")
+        #     self.system(f'sudo umount {device}1')
+        # except:
+        #     pass
+        self.system('sleep 1') # Occasionally there are issues with unmounting. Pause for good effect.
         self.system(f'sudo umount {device}2')
 
     def enable_ssh(self, mountpoint):
@@ -735,14 +739,13 @@ class Burner(object):
         
         info = sudo_readfile(f'{mountpoint}/etc/passwd')
 
-        content = ""
         for i in range(len(info)):
             inf = info[i].split(":")
             if inf[0] == 'pi':
                 inf[1] = 'x'
                 info[i] = ':'.join(inf)
 
-            content = content + info[i] + '\n'
+        content = '\n'.join(info) 
 
 
         # with open(f'{mountpoint}/etc/passwd', 'w') as f:
@@ -764,7 +767,7 @@ class Burner(object):
                 dat[1] = pswd
                 data[i] = ':'.join(dat)
 
-            content = content + data[i] + '\n'
+        content = '\n'.join(data)
 
         # with open(f'{mountpoint}/etc/shadow', 'w') as f:
         #     f.writelines(data)
@@ -806,7 +809,7 @@ class MultiBurner(object):
                  password=None,
                  ssid=None,
                  psk=None,
-                 fromatting=False):
+                 fromatting=True):
         """
 
         :param image:
@@ -825,7 +828,6 @@ class MultiBurner(object):
 
         # :param devices: string with device letters
 
-        #device = Parameter.expand(device)
         #print (device)
 
         #
@@ -885,6 +887,7 @@ class MultiBurner(object):
         print(' '.join(devices.keys()))
 
         keys = list(devices.keys())
+        count = 0
         for i in range(len(hostnames)):
             # for device, status in devices.items():
             # We might be using one device slot to burn multiple cards
@@ -896,6 +899,8 @@ class MultiBurner(object):
             self.burn(image, device, blocksize, progress, hostname,
                       ip, key, password, ssid, psk, fromatting)
 
+            count += 1
+            Console.info(f'Burned card {count}')
             self.system('tput bel')  # ring the terminal bell to notify user
             if i < len(hostnames) - 1:
                 if (i + 1) != ((i + 1) % len(keys)):
@@ -909,18 +914,18 @@ class MultiBurner(object):
                 input('Insert next card and press enter...')
                 print('Burning next card...')
                 print()
-        i += 1
-        Console.info(f"You burned {i} SD Cards")
+
+        Console.info(f"You burned {count} SD Cards")
         Console.ok("Done :)")
 
     def burn(self,
              image="latest",
-             device="/dev/sda",
+             device=None,
              blocksize="4M",
              progress=True,
              hostname=None,
              ip=None,
-             key='default',
+             key=None,
              password=None,
              ssid=None,
              psk=None,
@@ -943,8 +948,14 @@ class MultiBurner(object):
         # Burns the image on the specific device
 
         mp = '/mount/pi'
-        if key == 'default':
-            key = '/home/pi/.ssh/id_rsa.pub'
+        if key == None:
+            key = '~/.ssh/id_rsa.pub'
+
+        elif key == 'root':
+            key = f'/{key}/.ssh/id_rsa.pub'
+
+        else:
+            key = f'/home/{key}/.ssh/id_rsa.pub'
 
         # don't do the input() after burning the last card
         # use a counter to check this
