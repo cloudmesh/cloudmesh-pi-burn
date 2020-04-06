@@ -140,6 +140,7 @@ def analyse(arguments):
     StopWatch.start("info")
     burner = Burner(dryrun=dryrun)
     StopWatch.stop("info")
+    StopWatch.staus("info", True)
 
 
     if arguments["network"]  and arguments["list"]:
@@ -201,18 +202,21 @@ def analyse(arguments):
         StopWatch.stop("wifi")
         # burner.configure_wifi(ssid, password)
         StopWatch.stop("wifi")
+        StopWatch.status("wifi", True)
 
     elif arguments['detect']:
 
         StopWatch.start("burn")
         burner.detect()
         StopWatch.stop("burn")
+        StopWatch.status("burn", True)
 
     elif arguments['info']:
 
         StopWatch.start("burn")
         burner.info()
         StopWatch.stop("burn")
+        StopWatch.status("burn", True)
 
     elif arguments['burn']:
         # check_root(dryrun=dryrun)
@@ -222,6 +226,7 @@ def analyse(arguments):
         StopWatch.start("burn")
         burner.burn(image, device)
         StopWatch.stop("burn")
+        StopWatch.status("burn", True)
 
     elif arguments['mount']:
         # check_root(dryrun=dryrun)
@@ -231,6 +236,7 @@ def analyse(arguments):
         StopWatch.start("mount")
         burner.mount(device, mp)
         StopWatch.stop("mount")
+        StopWatch.status("mount", True)
 
     elif arguments['set'] and arguments['hostname']:
         # check_root(dryrun=dryrun)
@@ -240,6 +246,7 @@ def analyse(arguments):
         StopWatch.start("set hostname")
         burner.set_hostname(hostname, mp)
         StopWatch.stop("set hostname")
+        StopWatch.status("set hostname", True)
 
     elif arguments['set'] and arguments['ip']:
         # check_root(dryrun=dryrun)
@@ -249,6 +256,7 @@ def analyse(arguments):
         StopWatch.start("set ip")
         burner.set_static_ip(ip, mp)
         StopWatch.stop("set ip")
+        StopWatch.status("set ip", True)
 
     elif arguments['set'] and arguments['key']:
         # check_root(dryrun=dryrun)
@@ -258,6 +266,7 @@ def analyse(arguments):
         StopWatch.start("set key")
         burner.set_key(key, mp)
         StopWatch.stop("set key")
+        StopWatch.status("set key", True)
 
     elif arguments['enable'] and arguments['ssh']:
         # check_root(dryrun=dryrun)
@@ -266,6 +275,7 @@ def analyse(arguments):
         StopWatch.start("enable ssh")
         burner.enable_ssh(mp)
         StopWatch.stop("enable ssh")
+        StopWatch.status("enable ssh", True)
 
     elif arguments['unmount']:
         # check_root(dryrun=dryrun)
@@ -274,6 +284,7 @@ def analyse(arguments):
         StopWatch.start("unmount")
         burner.unmount(device)
         StopWatch.stop("unmount")
+        StopWatch.status("unmount", True)
 
     # elif arguments['versions'] and arguments['image']:
     #    image = Image()
@@ -282,17 +293,21 @@ def analyse(arguments):
         StopWatch.start("image ls")
         Image().ls()
         StopWatch.stop("image ls")
+        StopWatch.status("image ls", True)
+
 
     elif arguments['delete'] and arguments['image']:
         StopWatch.start("image rm")
         Image(arguments['IMAGE']).rm()
         StopWatch.stop("image rm")
+        StopWatch.status("image rm", True)
 
     elif arguments['get'] and arguments['image']:
         StopWatch.start("image fetch")
 
         Image(arguments['URL']).fetch()
         StopWatch.stop("image fetch")
+        StopWatch.status("image fetch", True)
 
     elif arguments['versions'] and arguments['image']:
 
@@ -319,6 +334,7 @@ def analyse(arguments):
                 download = entry[version]
                 print("{}: {}".format(version, download))
         StopWatch.stop("image versions")
+        StopWatch.status("image versions", True)
 
     elif arguments['create']:
 
@@ -347,6 +363,9 @@ def analyse(arguments):
         # TODO Improve
         fromatting = True if arguments["--format"] else False
 
+        #
+        # BUG stopwatch without end
+        #
         StopWatch.start("create")
 
         # check_root(dryrun=dryrun)
@@ -382,6 +401,7 @@ def analyse(arguments):
             psk=psk,
             fromatting=fromatting)
         StopWatch.stop("total")
+        StopWatch.status("total", True)
 
     if verbose:
         StopWatch.benchmark(sysinfo=False, csv=False)

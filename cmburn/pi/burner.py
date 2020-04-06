@@ -638,7 +638,7 @@ class Burner(object):
         print("Formatting device...")
         # self.unmount(device)
 
-        StopWatch.start("format")
+        StopWatch.start(f"format {device}")
         os.system(f'sudo umount {device}*')
         pipeline = textwrap.dedent("""d
 
@@ -658,8 +658,8 @@ class Burner(object):
 
         os.system(
             f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}')
-        StopWatch.stop("format")
-        StopWatch.status("format", True)
+        StopWatch.stop(f"format {device}")
+        StopWatch.status(f"format {device}", True)
         #
         # TODO: we should have a test here
         #
