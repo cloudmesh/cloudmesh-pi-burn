@@ -633,6 +633,7 @@ class Burner(object):
 
         print("Formatting device...")
         self.unmount(device)
+        StopWatch.start(f"format {device}")
         pipeline = textwrap.dedent("""d
 
                                     d
@@ -649,10 +650,30 @@ class Burner(object):
                                     t
                                     b""")
 
-        os.system(
-            f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}')
-        print("Done formatting :)")
-        print("Wait while card burns...")
+        command = f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}'
+        print (command)
+        result = subprocess.getoutput(command)
+
+        print ("RRR", result)
+
+        StopWatch.stop(f"format {device}")
+        success = "failed to open" not in result
+        StopWatch.status(f"format {device}", success)
+
+        if not success:
+            Console.error("could not find the image")
+            sys.exit(1)
+
+        #
+        # TODO: we should have a test here
+        #
+        StopWatch.benchmark(sysinfo=True, csv=False)
+
+        Console.ok("Formating completed ...")
+
+        ("format")
+
+        Console.info("Wait while the card is written ...")
 
     # This is to prevent desktop access of th pi (directly plugging monitor, keyboard, mouse into pi, etc.)
     #
@@ -691,6 +712,11 @@ class Burner(object):
                 inf[1] = 'x'
                 info[i] = ':'.join(inf)
 
+        #
+        # BUG: write file first in temporary file and the write it with a
+        # sudo python3 command in the righ t location
+        # develop a function for that and than use
+        #
         with open(f'{mountpoint}/etc/passwd', 'w') as f:
             f.writelines(info)
 
