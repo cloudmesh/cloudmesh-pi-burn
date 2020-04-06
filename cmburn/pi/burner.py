@@ -203,16 +203,23 @@ class Burner(object):
         # https://raspberry-pi-guide.readthedocs.io/en/latest/system.html
         # this is for fedora, but should also work for raspbian
 
+    # System command that uses subprocess to execute terminal commands
+    # Returns the stdout of the command
     def system(self, command):
         """
 
         :param command:
         :return:
         """
+        # if self.dryrun:
+        #     print(command)
+        # else:
+        #     os.system(command)
         if self.dryrun:
             print(command)
         else:
-            os.system(command)
+            subprocess.getoutput(command)
+        
 
     def burn(self, image, device, blocksize="4M"):
         """
@@ -625,8 +632,7 @@ class Burner(object):
         """
 
         print("Formatting device...")
-        # self.unmount(device)
-        os.system(f'sudo umount {device}*')
+        self.unmount(device)
         pipeline = textwrap.dedent("""d
 
                                     d
