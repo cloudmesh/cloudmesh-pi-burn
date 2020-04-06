@@ -2,41 +2,35 @@ WARNING: This program is designed for a Raspberry Pi and must not be
 executed on your laptop
 
 # Quick Start
-## Step 1. Setup a Master Raspberry Pi and Configure a Virtual Environment
 
-See [here](#setting-up-master-pi)
+* We assume you have at at leats 3 PI's
+* We assume you will use the hostname for teh master to be `red`, and
+  for the workers you will use `red[001-002]`.
+* We assume you have the master configured with the latest rasbian
+* We assume you use teh username will be `pi` on `red`
 
-For this tutorial, assume my master pi's hostname is red and my virtual env is ENV3. We will be working on the default pi user (ie. pi@red)
+Install the code into a venv called ~/ENV3 with:
 
-## Step 2.
-Install necesssary Pi utilities
 ```
-(ENV3) pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
+pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
+pi@red:$ source ~/ENV3/bin/activate
+pi@red:$ ssh-keygen
+pi@red:$ ssh-add
 ```
 
-## Step 3. Install latest raspbian buster lite image
-Use the following command to download the image
+Make sure you use a string passphrase.
+
+Next get the latest raspbian image you like to burn with
+
 ```
 (ENV3) pi@red:$ cm-pi-burn image get latest
-```
-
-Verify installation by typing
-```
 (ENV3) pi@red:$ cm-pi-burn image ls
 ```
-A version of raspbian should be displayed.
 
-**NOTE**
-For those of us that have already used `cm-pi-burn` several times, a major difference is that we no longer need to be in super user (ie. no more `sudo su`)
+To prepare for burning check if your SD card writer is detected and
+observe the output. We have multiple programs to do so likely the `info`
+command will be sufficient.
 
-## Step 4. Burn SD card
-Enter command:
-```
-(ENV3) pi@red:$ cm-pi-burn detect
-```
-Follow the on-screen prompt to plug in your card burner.
-
-Enter the following command to discover the location of your card burner. I have included the bottom of the output for this example. 
 ```
 (ENV3) pi@red:$ cm-pi-burn info
 
@@ -47,45 +41,89 @@ Enter the following command to discover the location of your card burner. I have
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
 | Path     | Info                 | Readable | Formatted | Empty | Size             | Aaccess | Removable | Writeable |
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
-| /dev/sda | Generic Mass-Storage | True     | True      | False | 31.9 GB/29.7 GiB | True    | True      | True      |
+| /dev/sdx | Generic Mass-Storage | True     | True      | False | 31.9 GB/29.7 GiB | True    | True      | True      |
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
-
 ```
 
-For the following example, assume I want to assign hostname `red001` to the SD card and I want to assign a static IP address of `169.254.10.1` utilizing `/dev/sda`.
+If the `info` command does not work use the `detect` command that requires
+you to unplug the writer.
+
+```
+(ENV3) pi@red:$ cm-pi-burn detect
+```
+
+Now set your default SD card device with (your sdx may be different as
+reported by the `info`command and start burning `red[001-002`].
 
 ```
 (ENV3) pi@red:$ cm-pi-burn create \
---image=latest \
---device=/dev/sda \
---hostname=red001 \
---sshkey=default \
+--hostname=red[001-002] \
 --ipaddr=169.254.10.1 
 ```
+
+After you put the SD Cards in the worker Pis and boot them you can log
+into them with
+
+```
+(ENV3) pi@red:$ ssh pi@red001
+```
+
+In the future, we will try to remove the `pi` user.
+
+E.g. use we will integrate `cms host ssh config red[001-003]`
+
+>
+> ***Atrenative: Using WiFi:***
+>
+> If you want to connect your workers directly to the internet via WiFi,
+> then you only need to add the following two lines to the end of
+> `cm-pi-burn`:
+>
+> ```
+> (ENV3) pi@red:$ cm-pi-burn create \
+> --image=latest \
+> --hostname=red[001-002] \
+> --ipaddr=192.168.1.10 \
+> --ssid=MyWifiRouterName \
+> --wifipassword=MyWifiPassword
+> ```
+>
+
+>
+> ***Alternative: Burning with Multiple SD Card Writers:***
+>
+> To use multiple card writers you can use
+>
+> ```
+> (ENV3) pi@red:$ cm-pi-burn create \
+> --image=latest \
+> --device=/dev/sd[a,e] \
+> --hostname=red[001-002] \
+> --sshkey=default \
+> --ipaddr=169.254.10.[1-2]
+> ```
+>
+
+
+## STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT
+
+THAT GREGOR DID NOT WANT TO DELETE  AS IT COULD BE USEFUL
+AND MAYBE COULD BE INTEGRATED IN THE MAIN DOCUMENTATION
+
 **NOTE**
 
-By specifying `default` in `--sshkey`, `cm-pi-burn` interpets this as `/home/pi/.ssh/id_rsa.pub`
-
-To use a different identity, simply specify the full path to the key.
-
-### Using WiFi
-If you want to connect your workers directly to the internet via WiFi, then you only need to add the following two lines to the end of `cm-pi-burn`:
-```
-(ENV3) pi@red:$ cm-pi-burn create \
---image=latest \
---device=/dev/sda \
---hostname=red001 \
---sshkey=default \
---ipaddr=192.168.1.10 \
---ssid=MyWifiRouterName \
---wifipsk=MyWifiPassword
-```
-**NOTE**
-
-Notice I have change the `--ipaddr` option. This is to remind everyone that the static IP must fall into your network range. Many home networks have a 192.168.1.x network range, which is why I have set up the example in this context.
+Notice I have change the `--ipaddr` option. This is to remind everyone
+that the static IP must fall into your network range. Many home networks
+have a 192.168.1.x network range, which is why I have set up the example
+in this context.
 
 ## Step 4(alt). Burning Multiple Cards
-The process for burning multiple cards is very straightforward and analogous to burning a single card. In this example, we assume we want hostnames `red001, red002, red003` with ip addresses `169.254.10.1, 169.254.10.2, 169.254.10.3' burned on cards located at `/dev/sda, /dev/sde, /dev/sdf` respectively. Our command is as follows:
+
+The process for burning multiple cards is very straightforward and
+analogous to burning a single card. In this example, we assume we want
+hostnames `red001, red002, red003` with ip addresses `169.254.10.1,
+169.254.10.2, 169.254.10.3' burned on cards located at `/dev/sda,
+/dev/sde, /dev/sdf` respectively. Our command is as follows:
 
 ```
 (ENV3) pi@red:$ cm-pi-burn create \
@@ -98,13 +136,6 @@ The process for burning multiple cards is very straightforward and analogous to 
 
 This has not yet been tested due to lack of card-readers.
 
-## Step 5. Booting up worker
-After turning on the worker, you should be able to access you worker via SSH from the master.
-```
-(ENV3) pi@red:$ ssh pi@red001
-```
-
-In the future, we will try to remove the `pi` user.
 
 
 
