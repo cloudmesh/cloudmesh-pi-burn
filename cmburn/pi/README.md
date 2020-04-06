@@ -29,7 +29,7 @@ A version of raspbian should be displayed.
 **NOTE**
 For those of us that have already used `cm-pi-burn` several times, a major difference is that we no longer need to be in super user (ie. no more `sudo su`)
 
-## Step 4. Burn SD cards
+## Step 4. Burn SD card
 Enter command:
 ```
 (ENV3) pi@red:$ cm-pi-burn detect
@@ -83,6 +83,20 @@ cm-pi-burn create \
 **NOTE**
 
 Notice I have change the `--ipaddr` option. This is to remind everyone that the static IP must fall into your network range. Many home networks have a 192.168.1.x network range, which is why I have set up the example in this context.
+
+## Step 4(alt). Burning Multiple Cards
+The process for burning multiple cards is very straightforward and analogous to burning a single card. In this example, we assume we want hostnames `red001, red002, red003` with ip addresses `169.254.10.1, 169.254.10.2, 169.254.10.3' burned on cards located at `/dev/sda, /dev/sde, /dev/sdf` respectively. Our command is as follows:
+
+```
+cm-pi-burn create \
+--image=latest \
+--device=/dev/sd[a,e,f] \
+--hostname=red[001-003] \
+--sshkey=default \
+--ipaddr=169.254.10.[1-3]
+```
+
+This has not yet been tested due to lack of card-readers.
 
 ## Step 5. Booting up worker
 After turning on the worker, you should be able to access you worker via SSH from the master.
