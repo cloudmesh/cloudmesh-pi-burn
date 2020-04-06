@@ -73,7 +73,6 @@ E.g. use we will integrate `cms host ssh config red[001-003]`
 >
 > ```
 > (ENV3) pi@red:$ cm-pi-burn create \
-> --image=latest \
 > --hostname=red[001-002] \
 > --ipaddr=192.168.1.10 \
 > --ssid=MyWifiRouterName \
@@ -88,10 +87,8 @@ E.g. use we will integrate `cms host ssh config red[001-003]`
 >
 > ```
 > (ENV3) pi@red:$ cm-pi-burn create \
-> --image=latest \
 > --device=/dev/sd[a,e] \
 > --hostname=red[001-002] \
-> --sshkey=default \
 > --ipaddr=169.254.10.[1-2]
 > ```
 >
