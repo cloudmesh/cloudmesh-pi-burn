@@ -656,10 +656,20 @@ class Burner(object):
                                     t
                                     b""")
 
-        os.system(
-            f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}')
+        command = f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}'
+        print (command)
+        result = subprocess.getoutput(command)
+
+        print ("RRR", result)
+
         StopWatch.stop(f"format {device}")
-        StopWatch.status(f"format {device}", True)
+        success = "failed to open" not in result
+        StopWatch.status(f"format {device}", success)
+
+        if not success:
+            Console.error("could not find the image")
+            sys.exit(1)
+
         #
         # TODO: we should have a test here
         #
