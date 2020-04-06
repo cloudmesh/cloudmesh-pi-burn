@@ -182,6 +182,14 @@ class Burner(object):
             #endors = USB.get_vendor()
             #print(vendors)
 
+            #udev = subprocess.getoutput("udevadm info -a -p  $(udevadm info -q path -n /dev/sda)")
+            #
+            #attributes = ["vendor","model", "model", "version", "manufacturer",
+            #     "idProduct", "idVendor"]
+            #for line in udev.splitlines():
+            #    if any(word in line for word in attributes):
+            #        print(line)
+
         return details
 
         #
