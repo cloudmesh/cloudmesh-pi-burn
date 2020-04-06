@@ -55,7 +55,7 @@ Enter the following command to discover the location of your card burner. I have
 For the following example, assume I want to assign hostname `red001` to the SD card and I want to assign a static IP address of `169.254.10.1` utilizing `/dev/sda`.
 
 ```
-cm-pi-burn create \
+(ENV3) pi@red:$ cm-pi-burn create \
 --image=latest \
 --device=/dev/sda \
 --hostname=red001 \
@@ -71,7 +71,7 @@ To use a different identity, simply specify the full path to the key.
 ### Using WiFi
 If you want to connect your workers directly to the internet via WiFi, then you only need to add the following two lines to the end of `cm-pi-burn`:
 ```
-cm-pi-burn create \
+(ENV3) pi@red:$ cm-pi-burn create \
 --image=latest \
 --device=/dev/sda \
 --hostname=red001 \
@@ -88,7 +88,7 @@ Notice I have change the `--ipaddr` option. This is to remind everyone that the 
 The process for burning multiple cards is very straightforward and analogous to burning a single card. In this example, we assume we want hostnames `red001, red002, red003` with ip addresses `169.254.10.1, 169.254.10.2, 169.254.10.3' burned on cards located at `/dev/sda, /dev/sde, /dev/sdf` respectively. Our command is as follows:
 
 ```
-cm-pi-burn create \
+(ENV3) pi@red:$ cm-pi-burn create \
 --image=latest \
 --device=/dev/sd[a,e,f] \
 --hostname=red[001-003] \
@@ -109,7 +109,6 @@ In the future, we will try to remove the `pi` user.
 
 
 # To-Do:
-Still need to add support for multi-card burning (ie. syntax support).
 More cleanup
 
 
