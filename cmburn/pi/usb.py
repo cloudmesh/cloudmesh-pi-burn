@@ -183,10 +183,12 @@ class USB(object):
             if 'size' in list(entry.keys()):
                 found.append(entry)
 
+
+
+
         return found
 
 
-        return ""
 
         '''
         # print (devices)
