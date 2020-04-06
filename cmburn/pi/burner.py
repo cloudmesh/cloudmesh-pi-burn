@@ -659,7 +659,7 @@ class Burner(object):
         os.system(
             f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}')
         StopWatch.stop("format")
-        StopWatch.start("format", True)
+        StopWatch.status("format", True)
         #
         # TODO: we should have a test here
         #
@@ -917,5 +917,5 @@ class MultiBurner(object):
             #
             # TODO: we should have a test here
             #
-            StopWatch.start(f"create {hostname}", True)
+            StopWatch.status(f"create {hostname}", True)
 
