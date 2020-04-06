@@ -9,7 +9,7 @@ if not Hardware.is_pi():
 if sys.version_info[0] < 3:
     print("ERROR: You must be using Python 3")
     sys.exit()
-if 'pi' not in sys.prefix:
+if not "VIRTUAL_ENV" in os.environ:
     print("ERROR: You must be using a virtual env that is in the user pi")
     sys.exit()
 

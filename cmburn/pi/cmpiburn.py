@@ -140,7 +140,7 @@ def analyse(arguments):
     StopWatch.start("info")
     burner = Burner(dryrun=dryrun)
     StopWatch.stop("info")
-    StopWatch.staus("info", True)
+    StopWatch.status("info", True)
 
 
     if arguments["network"]  and arguments["list"]:
