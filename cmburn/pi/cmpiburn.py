@@ -374,8 +374,9 @@ def analyse(arguments):
 
         # devices = None  # use the info command to detect
         # ^^ We should be more specific with our devices
-        devices = device_parser(arguments['--device'])
-
+        #devices = device_parser(arguments['--device'])
+        devices = arguments["--device"].split(",")
+        
         hostnames = Parameter.expand(arguments['--hostname'])
         ips = None if not arguments['--ipaddr'] else Parameter.expand(
             arguments['--ipaddr'])

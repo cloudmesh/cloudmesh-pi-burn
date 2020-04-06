@@ -1,5 +1,7 @@
 # cm-pi-burn
 
+curl -Ls http://cloudmesh.github.io/get/pi | sh
+
 WARNING: This program is designed for a Raspberry Pi and must not be
 executed on your laptop
 

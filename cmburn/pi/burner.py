@@ -18,6 +18,7 @@ from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.console import Console
 from cloudmesh.common.StopWatch import StopWatch
+from cloudmesh.common.parameter import Parameter
 from pprint import pprint
 from cloudmesh.common.util import readfile, writefile
 import subprocess
@@ -236,10 +237,17 @@ class Burner(object):
         :return:
         """
 
+        print (image)
         image_path = Image(image).fullpath
 
-        self.system(f'sudo dd bs={blocksize} if={image_path} of={device}')
+        result = subprocess.getoutput(f'sudo dd bs={blocksize} if={image_path} of={device}')
 
+        if "failed to open" in result:
+            Console.error("The image could not be found")
+            sys.exit(1)
+
+
+        
     def set_hostname(self, hostname, mountpoint):
         """
         Sets the hostname on the sd card
@@ -657,15 +665,8 @@ class Burner(object):
         print (command)
         result = subprocess.getoutput(command)
 
-        print ("RRR", result)
-
         StopWatch.stop(f"format {device}")
-        success = "failed to open" not in result
-        StopWatch.status(f"format {device}", success)
-
-        if not success:
-            Console.error("could not find the image")
-            sys.exit(1)
+        StopWatch.status(f"format {device}", True)
 
         #
         # TODO: we should have a test here
@@ -785,6 +786,9 @@ class MultiBurner(object):
         """
 
         # :param devices: string with device letters
+
+        #device = Parameter.expand(device)
+        #print (device)
 
         #
         # define the dev
