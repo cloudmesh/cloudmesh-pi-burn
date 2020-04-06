@@ -663,7 +663,7 @@ class Burner(object):
     # TODO Formats device with one FAT32 partition
     # WARNING: This is a very unreliable way of automating the process using fdisk
 
-    def format_device(self, device='dev/sda'):
+    def format_device(self, device='dev/sda', hostname=None):
         """
 
         :param device:
@@ -672,7 +672,7 @@ class Burner(object):
 
         Console.info("Formatting device...")
         self.unmount(device)
-        StopWatch.start(f"format {device}")
+        StopWatch.start(f"format {device} {hostname}")
 
         pipeline = textwrap.dedent("""d
 
@@ -693,8 +693,8 @@ class Burner(object):
         command = f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}'
         result = subprocess.getoutput(command)
 
-        StopWatch.stop(f"format {device}")
-        StopWatch.status(f"format {device}", True)
+        StopWatch.stop(f"format {device} {hostname}")
+        StopWatch.status(f"format {device} {hostname}", True)
 
         #
         # TODO: we should have a test here
@@ -964,10 +964,10 @@ class MultiBurner(object):
         burner = Burner()
 
         print("counter", counter)
-        StopWatch.start("fcreate {hostname}")
+        StopWatch.start(f"create {device} {hostname}")
 
         if fromatting:
-            burner.format_device(device)
+            burner.format_device(device=device, hostname=hostname)
 
         burner.burn(image, device, blocksize=blocksize)
         burner.mount(device, mp)
@@ -986,4 +986,5 @@ class MultiBurner(object):
         burner.unmount(device)
         # for some reason, need to do unmount twice for it to work properly
         burner.unmount(device)
-        StopWatch.stop("fcreate {hostname}")
+        StopWatch.stop(f"create {device} {hostname}")
+        StopWatch.status(f"create {device} {hostname}", True)

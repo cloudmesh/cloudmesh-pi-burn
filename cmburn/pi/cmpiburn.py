@@ -370,8 +370,6 @@ def analyse(arguments):
         key = arguments['--sshkey']
         mp = '/mount/pi'
         blocksize = arguments["--blocksize"]
-
-
         StopWatch.start("total")
 
         multi = MultiBurner()
