@@ -18,6 +18,8 @@ from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.console import Console
 from cloudmesh.common.StopWatch import StopWatch
+from cloudmesh.common.parameter import Parameter
+
 from pprint import pprint
 import subprocess
 from cmburn.pi.usb import USB
@@ -51,6 +53,18 @@ def gen_strong_pass():
         string.punctuation
     return ''.join(random.choice(password_characters) for i in range(length))
 
+def to_dict(data, name="dev"):
+    """
+    converst to a dict
+
+    :param data: list
+    :param name: the name of the key
+    :return:
+    """
+    result = {}
+    for entry in data:
+        result[entry[name]] = entry
+    return result
 
 # noinspection PyPep8
 class Burner(object):
@@ -363,7 +377,7 @@ class Burner(object):
             b = Burner()
             while counter < max_tries:
                 time.sleep(1)
-                formatted = b.info(print_stdout=False)[device]['formatted']
+                formatted = to_dict(b.info(print_stdout=False)[device]['formatted'])
                 if formatted:
                     break
                 counter += 1
@@ -739,6 +753,8 @@ class MultiBurner(object):
 
         # :param devices: string with device letters
 
+        #if device != list:
+        #    device = Parameter.expand(device)
         #
         # define the dev
         #
@@ -747,7 +763,7 @@ class MultiBurner(object):
         # probe the dev
         #
         # pprint(Burner().info())
-        info_statuses = Burner().info()
+        info_statuses = to_dict(Burner().info())
 
         # If the user specifies a particular device, we only care about that
         # device
