@@ -626,6 +626,8 @@ class Burner(object):
 
         print("Formatting device...")
         # self.unmount(device)
+        StopWatch.start(f"format {device}")
+
         os.system(f'sudo umount {device}*')
         pipeline = textwrap.dedent("""d
 
@@ -705,6 +707,11 @@ class Burner(object):
                 inf[1] = 'x'
                 info[i] = ':'.join(inf)
 
+        #
+        # BUG: write file first in temporary file and the write it with a
+        # sudo python3 command in the righ t location
+        # develop a function for that and than use
+        #
         with open(f'{mountpoint}/etc/passwd', 'w') as f:
             f.writelines(info)
 
