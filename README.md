@@ -1,5 +1,9 @@
 # Cloudmesh Pi Burner for SD Cards
 
+{warning}
+
+{icons}
+
 WARNING: This program is designed for a Raspberry Pi and must not be
 executed on your laptop
 
@@ -673,3 +677,7 @@ SSHFS:
     ```
 
     See also: <https://github.com/libfuse/sshfs>
+
+## Manual
+
+{manual}
