@@ -62,6 +62,7 @@ setup(
         "pyyaml",
         "oyaml",
         "cloudmesh-common",
+        "cloudmesh-cmd5",
         "pyusb",
         "requests",
     ],
@@ -71,7 +72,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'cm-burn=cmburn.general.cmburn:main',
+            # 'cm-burn=cmburn.general.cmburn:main',
             'cm-pi-burn=cmburn.pi.cmpiburn:main',
         ],
     },
