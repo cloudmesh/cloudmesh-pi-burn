@@ -1,507 +1,675 @@
-## cm-burn
+# Cloudmesh Pi Burner for SD Cards
 
-`cm-burn` is a program to burn many SD cards for the preparation of
-building clusters with Raspberry Pi's.  The program is developed in
-Python and is portable on Linux, Windows, and OSX. It allows users to
-create readily bootable SD cards that have the network configured,
-contain a public ssh key from your machine that you used to configure
-the cards.  The unique feature is that you can burn multiple cards in
-a row.
+WARNING: This program is designed for a Raspberry Pi and must not be
+executed on your laptop
 
-A sample command invocation looks like:
-
-```
-cm-burn —-name  red[5-7] \
-        --key ~/.ssh/id_rsa.pub \
-        —-ips 192.168.1.[5-7] \
-        —-image 2018-06-27-raspbian-stretch
-```
-        
-This command creates 3 SD cards where the hostnames `red5`, `red6`, `red 7`
-with the network addresses `192.168.1.5`, `192.168.1.6`,
-and `192.168.1.7`. The public key is added to the authorized_keys file
-of the pi user.  The password login is automatically disabled and only
-the ssh key authentication is enabled.
-
-## Process
-
-The process of the burn is as follows.
-
-1. start the programm with the appropriate parameters the program will
-   ask you to place an SD Card in the SD Card writer. Place it in
-2. the specified image will be burned on the SD Card
-3. next the SD Card will be mounted by the program and the appropriate
-   modifications will bbe conducted.
-4. after the modifications the SD Card will be unmounted
-5. you will be asked to remove the card
-6. if additional cards need to be burned, you will go to step 2.
-
-In case a SD Card of a PI in the cluster goes bad, you can simply burn
-it again by providing the appropriate parameters, and just print the
-subset that are broken.
-
-## Setting up a Single Large Cluster with cm-burn
-
-`cm-burn` will setup a simple network on all cluster nodes
-configured. There are different models for networking configuration we
-could use.  However we have decided for one that allows you to
-interface with your local Laptop to the cluster via Wifi.  The setup
-is illustrated in Figure Networking.
+Please note that a lot of information is not yet integarted and is
+available in a previous [README](README-old.md). A lot of information is
+still relevant and we will include it here once we have made sure it
+works.
 
 
-![](images/network.png)
+## Quick Start
 
-Figure: Networking
+* We assume you have at at leats 3 PI's
+* We assume you will use the hostname for the master to be `red`, and
+  for the workers you will use `red[001-002]`.
+* We assume you have the master configured with the latest rasbian
+* We assume you use the username will be `pi` on `red`
 
-We assume that you have used cm-burn to create all SD cards for the
-Pi's. One of the Pi's is specially configured with the command
+Install the code on the master `red` into a venv called ~/ENV3 with,
+creates an ssh-key, adds it to sshagent, and and downloads the latest
+Raspbian image. Make sure you use a strong passphrase for the key.
+Downloading the image will take some time.
 
 ```
-cm-burn --master red01
+pi@red:$ ssh-keygen
+pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
+pi@red:$ source ~/ENV3/bin/activate
+
+(ENV3) pi@red:$ ssh-add
+(ENV3) pi@red:$ cm-pi-burn image get latest
+(ENV3) pi@red:$ cm-pi-burn image ls
 ```
 
-The SD Card in the SD Card writer will be configured as a `master`. If
-the name does not match it will be configured as a worker.  Only the
-`master` is connected with the Wifi network. All other nodes rout the
-internet connection through the master node.  As the `master` node is
-on the same Wifi network as the laptop you can login to the 'master'
-node and from there log into the workers.  To simplify access you
-could even setup ssh tunneled connections from the Laptop via the
-master. But this is left up to you if you wish.
-
-As a result you will be able to login on each of the machines and
-execute commands such as
+To prepare for burning check if your SD card writer is detected and
+observe the output. We have multiple programs to do so likely the `info`
+command will be sufficient.
 
 ```
-sudo apt-get update
+(ENV3) pi@red:$ cm-pi-burn info
+
+...
+
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+| Path     | Info                 | Readable | Formatted | Empty | Size             | Aaccess | Removable | Writeable |
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+| /dev/sdx | Generic Mass-Storage | True     | True      | False | 31.9 GB/29.7 GiB | True    | True      | True      |
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
 ```
 
-Certainly you can even have a much simpler setup by just attaching a keyboard, mouse and monitor/TV to your `master`. 
-This will allow you to directly work on the master node, not needing any additional hardware.
-
-## Setting up a Cluster of Clusters with cm-burn
-
-To integrate the clusters into a single network, we need a switch  or combination of switches to which we connect the clusters.
-This is depicted in the Figure Cluster of Clusters
-
-
-![](images/network-cluster.png)
-
-Each cluster is naemed cluster01-clusterNN. The hostnames are node followed by 3 zeros padded with the node number
-There is a correlation between the cluster number and the node numbers in the following interval
-
-a cluster has the nodes 
+Now set your default SD card device with the following command (your /dev/sdx may be different as
+reported by the `info` command
 
 ```
-[(clustername - 1) * 5 + 1, (clustername - 1) * 5 + 5]
+(ENV3) pi@red:$ export DEV=/dev/sdx
 ```
 
-For convenience we will be also enabeling a cluster burn logic, that burns all images for a given cluster
-
-cm-burn --workers=5 --name=cluster --nodes=nodes --id=3
-
-![](images/pi_clusters_case.jpg)
-
-## Prerequisits
-
-### Raspberry Pi
-
-We assume that you have set up a raspberry pi with the newest raspbian
-OS. We assume that you have changed the default password and can log
-into the pi.
-
-We assume you have not done anything else to the OS.
-
-The easiest way to duplicate the SD card is simply to clone it with
-the build in SD Card copier. This program can be found in the menu
-under Accessories.
-
-![SD Card Copier](images/sdcc.png) 
-
-Figure: SD Card Copier
-
-This program will copy the contents of the card plugged into the PI
-onto another one. The only thing you need is an USB SD Card
-writer. You cn accept the defaults when the cards are plugged in which
-allow you to copy the Internal SD Card onto the other one. Just be
-carefull that you do not overwrite your internal one. This feature can
-also be used to create backups of images that you have worked on and
-want to preserve.
-
-Thus as you can see there is not much you need to do to prepare a PI
-to be used for burning the SD Card.
-
-TODO: Python3
-
-#### Card Burning from commandline
-
-* Insert card and find mmcblk0, e.g. no letter p in it for partition
-
-```sudo ls -ltr /dev/*```
-
-
-```sudo dd bs=1M if=~/.cloudmesh/images/imagename.img of=mmcblk0 status=progress conv=fsync```
-
-
-### OSX 
-
-#### Card Burning
-
-On OSX a good program is to use etcher for burning the images on disk:
-
-* <https://etcher.io/>
-
-To access it form the commandline you can also use
-
-* <https://etcher.io/cli/>
-
-#### File System Management
-Unfortunately, the free versions of writing the ext file system are no
-longer supported on OSX. This means that as of writing of this document
-the best solution we found is to purchase and install extFS on the
-MacOS computer you use for burning the SD Cards. If you find an
-alternative, please let us know. (We tested ext4fuse, which
-unfortunately only supports read access, see Appendix)
-
-To easily read and write ext file systems, please install extFS which
-can be downloaded from
-
-* <https://www.paragon-software.com/home/extfs-mac/>
-
-The purchase price of the software is $39.95.
-
-If you like to not spend any money we recommend that you conduct the
-burning on a raspberry pi.
-
-TODO: PYTHON3 use pyenv
-
-Tip: An alternative would be using virtualbox and using a virtual machine 
-to avoid purchasing extFS.
-
-## Windows
-
-
-#### Elevate permissions for Python.exe in Windows
-
-* Create a shortcut for python.exe
-* Change the shortcut target into something like C:\xxx\...\python.exe  
-* Click "advance..." in the property panel of the shortcut, and click
-  the option "run as administrator"
-
-#### Executable needed to burn the image on SD Card:
-
-Download CommandLineDiskImager from the following url
-
-* <https://github.com/davidferguson/CommandLineDiskImager>
-
-The above executable will be used by cm-burn script.
-
-It's necessary to burn the raspbian image to the SD card with this executable manually or thru Etcher in order to continue with next step.
-
-```CommandLineDiskImager.exe C:\Users\John\Downloads\raspbian.img G```
-
-#### File System Management
-
-Download the Open source ext3/4 file system driver for Windows installer from
-
-* <http://www.ext2fsd.com/>
-* Open Ext2fsd exe
-* The burned image in the previous step in SD card will have 2 partition
-* FAT32 partition will be assigned with the Drive letter - Boot Drive
-* Assign Drive Letter for EXT4 (Right click on the EXT4, 
-  Assign letter.  
-  The drive letter will be used while running cm-burn) - Root Drive
-* Setting Automount of this EXT4
-* F3 or Tools->Ext2 Volume Management
-* Check-> Automatically mount via Ext2Mgr
-* The instructions above needed for the Ext2fsd to reserve the Drive Letters and any raspbian image burned to SD will be auto mounted to the specific reserved drive letters. These drive letters need to be specified while using cm-burn
-
-
-## Installation 
-
-### Install on your OS
-
-Once you have decided which Computer system (MacOS, Linux, or Windows)
-you like to use for using the cm-burn program you need to install
-it. The program is written in python3 which we assume you have
-installed and is your default python in your terminal.
-
-To install cm-burn, please execute 
-```
-git clone https://github.com/cloudmesh/cm-burn.git
-cd cm-burn
-pip install .
-```
-
-In future it will also be hosted on pypi and you will be able to
-install it with
+and start burning `red[001-002`].
 
 ```
-pip install git+https://github.com/cloudmesh/cm-burn
-```
-To check if the program works please issue the command
-
-```cm-burn check install```
-
-It will check if you have installed all prerequisites and are able to
-run the command as on some OSes you must be in the sudo list to runi
-it and access the SD card burner as well as mounting some file systems.
-
-
-### Usage
-
-#### cmburn.yaml
-
-```
-cloudmesh:
-    burn:
-       image: None
+(ENV3) pi@red:$ cm-pi-burn create \
+--hostname=red[001-002] \
+--ipaddr=169.254.10.[1-2]
 ```
 
-#### Manual page
-
-
-1. git clone https://github.com/cloudmesh/cm-burn
-2. cd cm-burn
-3. python setup.py install
-4. Copy the Raspberyy PI images to be burned under ~/.cloudmesh/images
-
-The manual page is as follows:
+After you put the SD Cards in the worker Pis and boot them you can log
+into them with
 
 ```
-cm-burn -h
-Cloudmesh Raspberry Pi Mass Image Burner.
-
-Usage:
-  cm-burn create --group GROUP --names HOSTS --image IMAGE [--key=KEY]  [--ips=IPS]
-  cm-burn gregor --group GROUP --names HOSTS --image IMAGE [--key=KEY]  [--ips=IPS]
-  cm-burn ls
-  cm-burn rm IMAGE
-  cm-burn get [URL]
-  cm-burn update
-  cm-burn check install
-  cm-burn (-h | --help)
-  cm-burn --version
-
-Options:
-  -h --help     Show this screen.
-  --version     Show version.
-  --key=KEY     the path of the public key [default: ~/.ssh/id_rsa.pub].
-  --ips=IPS     th ips in hostlist format
-
-Location of the images to be stored for reuse:
-  
-  ~/.cloudmesh/images
-  ~/.cloudmesh/inventory
-  
-
-Description:
-  cm-burn create [--image=IMAGE] [--group=GROUP] [--names=HOSTS]
-                 [--ips=IPS] [--key=PUBLICKEY] [--ssid=SSID] [--psk=PSK]
-                 [--domain=DOMAIN]
-                 [--bootdrive=BOOTDRIVE] [--rootdrive=ROOTDRIVE]
-                 [-n --dry-run] [-i --interactive]
-  cm-burn ls [-ni]
-  cm-burn rm IMAGE [-ni]
-  cm-burn get [URL]
-  cm-burn update
-  cm-burn check install
-  cm-burn hostname [HOSTNAME] [-ni]
-  cm-burn ssh [PUBLICKEY] [-ni]
-  cm-burn ip IPADDRESS [--domain=DOMAIN] [-ni]
-  cm-burn wifi SSID [PASSWD] [-ni]
-  cm-burn info [-ni]
-  cm-burn image [--image=IMAGE] [--device=DEVICE]
-                [-ni]
-  cm-burn (-h | --help)
-  cm-burn --version
-
-Options:
-  -h --help         Show this screen.
-  -n --dry-run      Show output of commands but don't execute them
-  -i --interactive  Confirm each change before doing it
-  --version         Show version.
-  --key=KEY         the path of the public key [default: ~/.ssh/id_rsa.pub].
-  --ips=IPS         the IPs in hostlist format
-  --image=IMAGE     the image to be burned [default: 2018-06-27-raspbian-stretch.img].
-
-Example:
-  cm-burn create --names red[000-010] ips --image rasbian_latest
-  cmb-urn create --group g1 --names red[001-003] --key c:/users/<user>/.ssh/id_rsa.pub --image 2018-06-27-raspbian-stretch.img --bootdrive I --rootdrive G --domain 192.168.1.254 --ip 192.168.1.[111-113]
-
-```
-## Appendix
-
-### OSX ext4fuse
-
-Unfortunately ext4fuse only supports read access. To install it please
-use the following steps. However it will not allow you to use the
-cm-burn program. It may be useful for inspection of SD Cards
-
-On OSX you will need brew and install osxfuse and ext4fuse
-
-```
-brew cask install osxfuse
-brew install ext4fuse
+(ENV3) pi@red:$ ssh pi@red001
 ```
 
-To run it, your account must be in the sudoers list. Than you can do the following
+In the future, we will try to remove the `pi` user.
+
+E.g. use we will integrate `cms host ssh config red[001-003]`
+
+>
+> ***Alternative: Specifying --device***
+> If you would rather not use `export DEV=/dev/sdx`, you can specify it using the `--device` option:
+> ```
+> (ENV3) pi@red:$ cm-pi-burn create \
+> --device=/dev/sdx \
+> --hostname=red[001-002] \
+> --ipaddr=169.254.10.[1-2]
+> ```
+>
+
+>
+> ***Alternative: Using WiFi:***
+>
+> If you want to connect your workers directly to the internet via WiFi,
+> then you only need to add the following two lines to the end of
+> `cm-pi-burn`:
+>
+> ```
+> (ENV3) pi@red:$ cm-pi-burn create \
+> --hostname=red[001-002] \
+> --ipaddr=192.168.1.10 \
+> --ssid=MyWifiRouterName \
+> --wifipassword=MyWifiPassword
+> ```
+>
+
+>
+> ***Alternative: Burning with Multiple SD Card Writers:***
+>
+> To use multiple card writers you can use
+>
+> ```
+> (ENV3) pi@red:$ cm-pi-burn create \
+> --device=/dev/sd[a,e] \
+> --hostname=red[001-002] \
+> --ipaddr=169.254.10.[1-2]
+> ```
+>
+
+
+## STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT
+
+THAT GREGOR DID NOT WANT TO DELETE  AS IT COULD BE USEFUL
+AND MAYBE COULD BE INTEGRATED IN THE MAIN DOCUMENTATION
+
+**NOTE**
+
+Notice I have change the `--ipaddr` option. This is to remind everyone
+that the static IP must fall into your network range. Many home networks
+have a 192.168.1.x network range, which is why I have set up the example
+in this context.
+
+## Step 4(alt). Burning Multiple Cards
+
+The process for burning multiple cards is very straightforward and
+analogous to burning a single card. In this example, we assume we want
+hostnames `red001, red002, red003` with ip addresses `169.254.10.1,
+169.254.10.2, 169.254.10.3' burned on cards located at `/dev/sda,
+/dev/sde, /dev/sdf` respectively. Our command is as follows:
 
 ```
-mkdir linux
-mkdir boot
-cp  ../*.img 00.img
-brew cask install osxfuse
-brew install ext4fuse
-hdiutil mount 00.img 
+(ENV3) pi@red:$ cm-pi-burn create \
+--image=latest \
+--device=/dev/sd[a,e,f] \
+--hostname=red[001-003] \
+--sshkey=default \
+--ipaddr=169.254.10.[1-3]
 ```
 
-This will return 
-```
-/dev/disk3          	FDisk_partition_scheme         	
-/dev/disk3s1        	Windows_FAT_32                 	/Volumes/boot
-/dev/disk3s2        	Linux          
-```
+This has not yet been tested due to lack of card-readers.
 
-We can now access the boot partition with 
 
-```
-ls /Volumes/boot/
-```
 
-This partition is writable as it is not in ext format.
 
-However to access the Linux partition in read only form we need to mount it with fuse
+# To-Do:
+More cleanup
 
-```
-sudo mkdir /Volumes/Linux
-sudo ext4fuse /dev/disk2s2 /Volumes/Linux -o allow_other
-ext4fuse /dev/disk2s2 linux
-less linux/etc/hosts
-sudo umount /Volumes/Linux 
-```
 
-### Activate SSH
 
-see method 3 in <https://www.raspberrypi.org/documentation/remote-access/ssh/>
+# Setting up master Pi
+ 
+We recommend that you install first on one Raspberry pi. The process is
+documented at
 
-Draft:
+* <https://www.raspberrypi.org/downloads/>
 
-Set up ssh key on windows (use and document the ubuntu on windows thing)
+The first thing you need to do is install a regular image burning
+program. We recommend you use Raspberry PI Imager. As for the image, we
+want to use 
 
-you will have ~/.ssh/id_rsa.pub and ~/.ssh/id_rsa
+* Raspbian
 
-copy the content of the file ~/.ssh/id_rsa.pub into ???/.ssh/authorized_keys
-??? is the location of the admin user i think the username is pi
+as Raspbian is the official supported OS. We use
+this OS on the master. Once you have downloded imager and installed in
+your OS, and started it will look like:
 
-enable ssh on the other partition while creating the fike to activate ssh
+![Imager](images/imager.png)
+ 
+You can now chose the image and the SD Crad where you want to burn it.
+Make sure you select the card correctly as to avoid destroying the OS on the 
+computer that starts imager. We rcommend That you use an SD Card with 32GB.
 
-### Hostname
+Time to burn an image with USB # on a MAC is
 
-change /etc/hostname
+## IMPORTANT NOTE:
+`$` denotes pi user and `#` denotes root user when command lines are shown.
 
-### Activate Network
+## Starting the Pi
 
-see <https://www.raspberrypi.org/learning/networking-lessons/rpi-static-ip-address/>
+Once you have achieved that and configured the OS (do not forget to use
+a strong password), you need to update it after the customary reboot. 
 
-### Change default password
+In case you do not have the master initially on a network, 
+make sure your time is set up properly, which you can do with 
 
-From the net (wrong method):
-
-Mount the SD card, go into the file system, and edit /etc/passwd. Find the line starting with "pi" that begins like this:
-
-```pi:x:1000:1000...```
-
-Get rid of the x; leave the colons on either side. This will eliminate the need for a password.
-
-You probably then want to create a new password by using the passwd command after you log in.
-
-The right thing to do is to create a new hash and store it in place of x.
-not yet sure how that can be done a previous student from the class may have been aboe to do that 
-Bertholt is firstname.
-
-could this work? <https://unix.stackexchange.com/questions/81240/manually-generate-password-for-etc-shadow>
-
-```python3 -c "from getpass import getpass; from crypt import *; p=getpass(); print('\n'+crypt(p, METHOD_SHA512)) if p==getpass('Please repeat: ') else print('\nFailed repeating.')"```
-
-## Unmount Drives on Windows
-
-RemoveDrive.exe needs to be downloaded to c:\Tools from the following path and to have the Administrator rights (Right Click on the exe -> Properties -> Compatibility Tab -> Run this program as an Administrator
-
-* <https://www.uwe-sieber.de/drivetools_e.html>
-
-See also 
-
-* <https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/remove-psdrive?view=powershell-6>
-
-Gregor thinks that unmounting is much easier in an aelevated command prompt using 
-
-```
-mountvol <Drive Letter>: /d
+```bash
+$ sudo date -s "Jan 2, 2020 14:03 EST"
 ```
 
-# Links
+and put in the appropriate time string corresponding to your date and
+time and time zone.
 
-* <https://github.com/cloudmesh-community/hid-sp18-419/blob/master/cluster/headless_setup.md>
-* <https://medium.com/@viveks3th/how-to-bootstrap-a-headless-raspberry-pi-with-a-mac-6eba3be20b26>
-  * network setup is not good as it requires additional step, we want to preconfigure on sd card and plug in multiple pis at once not a single one.
-* https://github.com/cloudmesh/cloudmesh.pi/blob/dev/bin/cm-burn
-* http://www.microhowto.info/howto/mount_a_partition_located_inside_a_file_or_logical_volume.html
-* http://www.janosgyerik.com/mounting-a-raspberry-pi-image-on-osx/
-* https://github.com/Hitabis/pibakery
-* http://osxdaily.com/2014/03/20/mount-ext-linux-file-system-mac/
-* https://linuxconfig.org/how-to-mount-rasberry-pi-filesystem-image
-* https://www.jeffgeerling.com/blogs/jeff-geerling/mounting-raspberry-pis-ext4-sd
-* https://blog.hypriot.com/post/cloud-init-cloud-on-hypriot-x64/
-* https://www.paragon-software.com/home/extfs-mac/
+In case you like a simplified time setup, please visit
 
+* <https://www.google.com>
 
+It will have a button that will ask you to update the time. 
 
-# OSX during burning
+Now, open a terminal and execute 
+
+```bash
+$ sudo apt-get update
+$ sudo apt-get -y full-upgrade
+```
+
+Now you have to create an ssh key with the command.
+
+```bash
+$ ssh-keygen
+```
+
+Keep the default location and use a strong passphrase but do not use the
+same as you have used for your login. Using no passphrase is not
+recommended. You can use `ssh-add` in a terminal, so you do not have to
+all the time type in your passphrase. Please consult with the manual on
+`ssh-keygen` and `ssh-add`.
+
+Next make sure to rename the master node. As we will have many workers
+it is best to use a basename such as `red`.
+
+This way our workers can be called `red[001-100]` or whatever number of
+Pis you want to dedicate as workers. The master we call `red`
+
+The easiset to change your hostname is form the commandline with 
+
+```bash
+$ sudo raspi-config
+```
+
+* Goto `2 Network Options`
+* Goto `N1 Change Hostname`
+
+Reboot when you are done with 
+
+```bash
+$ sudo shutdown -r now
+```
+
+## Activate python 3
+
+Next, configure python 3 with the help of a virtual env
+
+```bash
+$ python3 -m venv ~/ENV3
+$ source ~/ENV3/bin/activate
+```
+
+Place at the end of your `.bashrc` file the line
 
 ```
-/dev/disk0 (internal):
-   #:                       TYPE NAME                    SIZE       IDENTIFIER
-   0:      GUID_partition_scheme                         2.0 TB     disk0
-   1:                        EFI EFI                     314.6 MB   disk0s1
-   2:                 Apple_APFS Container disk1         2.0 TB     disk0s2
+$ source ~/ENV3/bin/activate
+```
+ 
+Now open a new terminal and see if it has the `(ENV3)` as a prefix to
+your command prompt.
 
-/dev/disk1 (synthesized):
-   #:                       TYPE NAME                    SIZE       IDENTIFIER
-   0:      APFS Container Scheme -                      +2.0 TB     disk1
-                                 Physical Store disk0s2
-   1:                APFS Volume Macintosh HD            811.4 GB   disk1s1
-   2:                APFS Volume Preboot                 26.8 MB    disk1s2
-   3:                APFS Volume Recovery                519.0 MB   disk1s3
-   4:                APFS Volume VM                      9.7 GB     disk1s4
+If this is the case close all the other windows and use the terminal you
+just started.
 
-/dev/disk2 (external, physical):
-   #:                       TYPE NAME                    SIZE       IDENTIFIER
-   0:     FDisk_partition_scheme                        *31.9 GB    disk2
 
-/dev/disk3 (external, physical):
-   #:                       TYPE NAME                    SIZE       IDENTIFIER
-   0:     FDisk_partition_scheme                        *31.9 GB    disk3
+
+# DEPRECATED. DO NOT GO BEYOND THIS LINE AS THE DOCUMENTATION IS OUT OF DATE
+
+
+## Installation
+
+First, you must install cm-pi-burn. In a future version, this will be done
+with
+
+```bash
+$ pip install cloudmesh-cmburn
+```
    
-   
- ```
- 
- 
- ## Experiment DIY multiSDCard writer
- 
-We intend to experiment to build a multiSD card writer via USB. 
-We will attempt to do this for OSX initially, therefore we like to order the following product
+However, in the meanwhile, you do it as follows:
 
-* [USB Hub 3.0 Splitter, LYFNLOVE 7 Port USB Data](https://www.amazon.com/Splitter-LYFNLOVE-Charging-Individual-Switches/dp/B072LW1RGG/ref=sr_1_9?ie=UTF8&qid=1534418434&sr=8-9&keywords=usb+3.0+hub)
+```bash
+$ mkdir cm
+$ cd cm $ git clone https://github.com/cloudmesh/cloudmesh_pi_burn.git
+$ cd cloudmesh_pi_burn
+$ pip install -e .
+```    
 
-We will use multiple USB card readers (possibly just USB2 till we replacethem with USB3)
+In the future, we will remove the -e
 
-Than we will rewrite our program to attempt using the SDcard writers
+```bash
+$ pip install .
+```
+
+## Information about the SD Cards and Card Writer
+
+You need at least one SD Card writer. However, cm-pi-burn is
+supposed to work also with a USB hub in which you can plug in
+multiple SD Cards and burn one card at a time. Once done, you can add a
+new batch, and you can continue writing. This is done for all specified
+hosts so that you can minimize the interaction with the SD cards.
+
+To find out more about the Card writers and the SD Cards, you can use
+the command
+
+```bash
+$ cm-pi-burn detect
+```
+
+It will first ask you to not plug in the SDCard writer to probe the
+system in empty status. Then you need to plug in the SD Card writer
+and with the cards in it. After you have said yes once you plugged
+them in, you will see an output similar to: 
+
+```
+# ----------------------------------------------------------------------
+# Detecting USB Card Reader
+# ----------------------------------------------------------------------
+
+Make sure the USB Reader is removed ...
+Is the reader removed? (Y/n) 
+Now plug in the Reader ...
+Is the reader pluged in? (Y/n) 
+
+# ----------------------------------------------------------------------
+# Detected Card Writer
+# ----------------------------------------------------------------------
+
+Bus 002 Device 020: ID 045b:0210 Hitachi, Ltd 
+Bus 002 Device 024: ID 05e3:0749 Genesys Logic, Inc. 
+Bus 001 Device 014: ID 045b:0209 Hitachi, Ltd 
+Bus 001 Device 015: ID 045b:0209 Hitachi, Ltd 
+Bus 001 Device 016: ID 05e3:0749 Genesys Logic, Inc. 
+Bus 002 Device 023: ID 05e3:0749 Genesys Logic, Inc. 
+Bus 002 Device 019: ID 045b:0210 Hitachi, Ltd 
+Bus 002 Device 021: ID 05e3:0749 Genesys Logic, Inc. 
+Bus 002 Device 022: ID 05e3:0749 Genesys Logic, Inc. 
+```
+
+Note that in this case, we will see two devices, one for the USB hub in
+which the card is plugged in, and one for the SD Card itself.
+
+Next, we like to show you a bit more useful information while probing
+the operating system when the SD Card  Writers are plugged in. Please
+call the command:
+
+```bash
+$ cm-pi-burn info
+```
+
+You will see an output similar to 
+
+```
+# ----------------------------------------------------------------------
+# Operating System
+# ----------------------------------------------------------------------
+
+Disk /dev/mmcblk0: 29.7 GiB, 31914983424 bytes, 62333952 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x5e3da3da
+
+Device         Boot  Start      End  Sectors  Size Id Type
+/dev/mmcblk0p1        8192   532479   524288  256M  c W95 FAT32 (LBA)
+/dev/mmcblk0p2      532480 62333951 61801472 29.5G 83 Linux
+
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++------+----------+--------+----------+-------+-------------------+-----------+-----------+
+| Name | Device   | Reader | Formated | Empty | Size              | Removable | Protected |
++------+----------+--------+----------+-------+-------------------+-----------+-----------+
+| sde  | /dev/sde | True   | True     | True  |  31.9 GB/29.7 GiB | True      | False     |
+| sdd  | /dev/sdd | True   | True     | False |  31.9 GB/29.7 GiB | True      | False     |
+| sdc  | /dev/sdc | True   | True     | True  |  31.9 GB/29.7 GiB | True      | False     |
+| sdb  | /dev/sdb | True   | True     | False |  31.9 GB/29.7 GiB | True      | False     |
+| sda  | /dev/sda | True   | True     | False |  31.9 GB/29.7 GiB | True      | False     |
++------+----------+--------+----------+-------+-------------------+-----------+-----------+
+```
+
+Under `Operating System` you will see the block device you will see
+information about your operating system. This is the card plugged into
+the back of your PI.
+
+Under SDCards found you will see the list of SD Cards and some
+information about the cards that are plugged into the writers.
+
+Make sure that you only include cards that you truly want to overwrite.
+We have given an example where this is not the case while indicating it
+in the Empty column. We recommend that you only use formatted cards, so
+you are sure you do not by accident delete information.
 
 
+## Finding Image Versions
+Start using sudo now!
 
+First, you have to find the raspbian image you like to install. For this
+purpose, we have developed a command that lists you the available images
+in the Raspberry Pi repository. To see the versions, please use the
+command
 
+```bash
+# cm-pi-burn image versions
+```
+
+Once in a while, they come out with new versions. You can refresh the
+list with
+
+```bash
+# cm-pi-burn image versions --refresh
+```
+
+## Downloading an Image
+
+To download the newest image, use the command
+
+```bash
+# cm-pi-burn image get latest
+```
+
+The image is downloaded into the folder
+
+* `~/.cloudmesh/cmburn/images`
+
+To list the downloaded images, you can use the command
+
+```bash
+# cm-pi-burn image ls
+```
+
+In case you like to use the latest download, you can use the
+command.
+
+TODO: MISSING
+
+You can also specify the exact URL with
+
+```bash
+# cm-pi-burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
+```
+
+## ROOT
+
+For the burn process, you need to use root privileges. To achieve this,
+you need to execute the following commands. The source command
+activates the python virtual env that you have created where you
+installed the cm-pi-burn command
+
+```bash
+$ sudo su
+# source /home/pi/ENV3/bin/activate
+```
+
+Please note that for our notation a `#` indicates this command is
+executed in root.
+
+## Creating Cluster SD-Cards
+
+Next, we describe how we create a number of SD-Cards to create a cluster.
+Each card will have a unique hostname, an IP address and your public key. 
+To locate your device, you can use:
+
+```bash
+$ cm-pi-burn info  
+```
+
+You can look at the names of your devices under the device column. Eg
+/dev/sda,/dev/sdb,etc
+
+## Burning SD-Cards
+
+To burn one card, we will use ` cm-pi-burn create ` with several
+important options:
+
+* `--image` specifies the name of the image to burn
+* `--device` is the path to the SD card. If this option is omitted,
+  then `cm-pi-burn` will use the devices listed under `cm-pi-burn info`
+* `--hostname` is the name for the pi
+* `--sshkey` is the path to your SSH PUBLIC key
+* `--blocksize` specified to 4M for our purposes
+
+If you want to specify a password for desktop login (for debugging
+purposes), you can use the option
+
+* `--passwd=PASSWD` 
+
+to set a password. In the future, you should not use this option as we
+do not want to login through the terminal. We only want to SSH from the
+master Pi.
+
+### Auto Format to FAT32
+
+The `--format` is an option that can be used to automatically format
+your SD card to FAT32. The current implementation is quite unstable as
+it makes several assumptions. If this option is used, it will most
+likely work.
+
+Do not worry if you see the message `No partition is defined yet!`
+
+### Note on using a static IP address
+
+You can use the `--ipaddr=IP` option to set a static IP address for your
+Pis. To make sure this works, ensure that your master Pi is connected to
+the network as cm-pi-burn will pull information from the network to
+configure static IP usage.
+
+For more information on options, see `/cmburn/pi/cmpiburn.py`
+
+Here is an example call of the command `create` using a static IP
+address connecting to a home wifi network
+
+TODO: WIFI is not listed here
+
+```bash
+# cm-pi-burn create \
+    --image=2020-02-05-raspbian-buster-lite \
+    --device=/dev/sda \
+    --hostname=red2 \
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
+    --ipaddr=169.254.10.30 \
+    --format
+```
+
+Here we are assuming that your device name is sda, but its very important
+to verify it once before executing the above command. Note that if we
+omit the `--device` option, then `cm-pi-burn` will refer to the devices
+listed using `cm-pi-burn info`
+
+If your Pis are going to use ethernet connection, then the command is as
+simple as:
+
+```bash
+# cm-pi-burn create \
+    --image=2020-02-05-raspbian-buster-lite \
+    --device=/dev/sda \
+    --hostname=red2 \
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
+    --ipaddr=169.254.10.32 \
+    --format
+```
+
+To burn many cards, you can specify them conveniently in parameter
+notation in  the `--hostname` and `--ipaddr` arguments:
+
+```bash
+# cm-pi-burn create \
+    --image=2020-02-05-raspbian-buster-lite \
+    --device=/dev/sd[a-f]
+    --hostname=red[2-7] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
+    --ipaddr=169.254.10.[32-37] \
+    --format
+```
+
+Note the ranges are inclusive. Alternatively, we can omit the --device
+option and allow cm-pi-burn to detect the devices from `cm-pi-burn
+info`:
+
+```bash
+# cm-pi-burn create \
+    --image=2020-02-05-raspbian-buster-lite \
+    --hostname=red[2-7] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
+    --ipaddr=169.254.10.[32-37] \
+    --format
 ```
 
 
+You may see the program output some unmount errors during the burn
+process - this is normal.
 
+After the process is completed, a message will appear on your terminal
+stating the number of cards you have burnt.
+
+You can verify if the burn process is completed or not by plugging in
+one of the SD cards to a Raspberry Pi and starting it. Raspberry Pi
+terminal appears asking your login and password. After the successful
+authentication, now you can use your raspberry pi just like any other.
+
+
+Here is an alternative version to the command above with a different
+`--device` option.
+
+
+```bash
+# cm-pi-burn create \
+    --image=2020-02-05-raspbian-buster-lite \
+    --device=/dev/sda \
+    --hostname=red[2-7] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
+    --ipaddr=169.254.10.[32-37] \
+    --format
+```
+
+Notice here how we have only listed one port in the `--device` option.
+This would be in the case that we only have one SD card writer, but we
+don't want to rerun the command each time. That would be quite tedious.
+Instead, the command will burn to `/dev/sda` with hostname red2, then a
+prompt will come up asking the user if we want to reuse `/dev/sda`.
+
+```
+Slot /dev/sda needs to be reused. Do you wish to continue? [y/n] 
+# y
+Insert next card and press enter...
+# [enter]
+Burning next card...
+```
+
+In this way, we avoid having to rerun the command while providing enough
+safeguards so we don't accidentally overwrite the last SD card. This
+prompt will also appear if the number of hosts (in this example there
+are 4 hosts) exceeds the number of available devices (1 in this
+example).
+
+If the only device listed under `cm-pi-burn info` is `/dev/sda`, then the
+above command is equivalent to:
+
+```bash
+# cm-pi-burn create \
+    --image=2020-02-05-raspbian-buster-lite \
+    --hostname=red[2-7] \
+    --sshkey=/home/pi/.ssh/id_rsa.pub \
+    --blocksize=4M \
+    --ipaddr=169.254.10.[32-37] \
+    --format
+```
+
+
+## From the raspberry FAQ
+
+Quote:
+    There is no on/off switch! To switch on, just plug it in. To switch
+    off, if you are in the graphical environment, you can either log out
+    from the main menu, exit to the Bash prompt, or open the terminal.
+    From the Bash prompt or terminal, you can shut down the Raspberry Pi
+    by entering sudo halt `-h`. Wait until all the LEDs except the power
+    LED are off, then wait an additional second to make sure the SD card
+    can finish its wear-leveling tasks and write actions. You can now
+    safely unplug the Raspberry Pi. Failure to shut the Raspberry Pi
+    down properly may corrupt your SD card, which would mean you would
+    have to re-image it.
+    
+LED control:
+
+    see:
+    
+    cms pi led red off HOSTNAME
+
+SSHFS:
+   add master to `.ssh/config` onlocal machine
+
+    ```
+   Host master
+         HostName xxx.xxx.xxx.xxx
+         User pi
+         IdentityFile ~/.ssh/id_rsa.pub
+
+   mkdir master
+   sshfs master: master -o auto_cache
+    ```
+
+    See also: <https://github.com/libfuse/sshfs>
