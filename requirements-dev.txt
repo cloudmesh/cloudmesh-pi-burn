@@ -1,0 +1,4 @@
+nose
+pytest
+coverage
+flake8
