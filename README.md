@@ -32,8 +32,8 @@ pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
 pi@red:$ source ~/ENV3/bin/activate
 
 (ENV3) pi@red:$ ssh-add
-(ENV3) pi@red:$ cm-pi-burn image get latest
-(ENV3) pi@red:$ cm-pi-burn image ls
+(ENV3) pi@red:$ cms burn image get latest
+(ENV3) pi@red:$ cms burn image ls
 ```
 
 To prepare for burning check if your SD card writer is detected and
@@ -41,7 +41,7 @@ observe the output. We have multiple programs to do so likely the `info`
 command will be sufficient.
 
 ```
-(ENV3) pi@red:$ cm-pi-burn info
+(ENV3) pi@red:$ cms burn info
 
 ...
 
@@ -66,7 +66,7 @@ reported by the `info` command
 and start burning `red[001-002`].
 
 ```
-(ENV3) pi@red:$ cm-pi-burn create \
+(ENV3) pi@red:$ cms burn create \
 --hostname=red[001-002] \
 --ipaddr=169.254.10.[1-2]
 ```
@@ -86,7 +86,7 @@ E.g. use we will integrate `cms host ssh config red[001-003]`
 > ***Alternative: Specifying --device***
 > If you would rather not use `export DEV=/dev/sdx`, you can specify it using the `--device` option:
 > ```
-> (ENV3) pi@red:$ cm-pi-burn create \
+> (ENV3) pi@red:$ cms burn create \
 > --device=/dev/sdx \
 > --hostname=red[001-002] \
 > --ipaddr=169.254.10.[1-2]
@@ -98,10 +98,10 @@ E.g. use we will integrate `cms host ssh config red[001-003]`
 >
 > If you want to connect your workers directly to the internet via WiFi,
 > then you only need to add the following two lines to the end of
-> `cm-pi-burn`:
+> `cms burn`:
 >
 > ```
-> (ENV3) pi@red:$ cm-pi-burn create \
+> (ENV3) pi@red:$ cms burn create \
 > --hostname=red[001-002] \
 > --ipaddr=192.168.1.10 \
 > --ssid=MyWifiRouterName \
@@ -115,7 +115,7 @@ E.g. use we will integrate `cms host ssh config red[001-003]`
 > To use multiple card writers you can use
 >
 > ```
-> (ENV3) pi@red:$ cm-pi-burn create \
+> (ENV3) pi@red:$ cms burn create \
 > --device=/dev/sd[a,e] \
 > --hostname=red[001-002] \
 > --ipaddr=169.254.10.[1-2]
@@ -144,7 +144,7 @@ hostnames `red001, red002, red003` with ip addresses `169.254.10.1,
 /dev/sde, /dev/sdf` respectively. Our command is as follows:
 
 ```
-(ENV3) pi@red:$ cm-pi-burn create \
+(ENV3) pi@red:$ cms burn create \
 --image=latest \
 --device=/dev/sd[a,e,f] \
 --hostname=red[001-003] \
@@ -279,19 +279,19 @@ just started.
 
 ## Installation
 
-First, you must install cm-pi-burn. In a future version, this will be done
+First, you must install `cms burn`. In a future version, this will be done
 with
 
 ```bash
-$ pip install cloudmesh-cmburn
+$ pip install cloudmesh-pi-burn
 ```
    
 However, in the meanwhile, you do it as follows:
 
 ```bash
 $ mkdir cm
-$ cd cm $ git clone https://github.com/cloudmesh/cloudmesh_pi_burn.git
-$ cd cloudmesh_pi_burn
+$ cd cm $ git clone https://github.com/cloudmesh/cloudmesh-pi-burn.git
+$ cd cloudmesh-pi-burn
 $ pip install -e .
 ```    
 
@@ -303,7 +303,7 @@ $ pip install .
 
 ## Information about the SD Cards and Card Writer
 
-You need at least one SD Card writer. However, cm-pi-burn is
+You need at least one SD Card writer. However, `cms burn` is
 supposed to work also with a USB hub in which you can plug in
 multiple SD Cards and burn one card at a time. Once done, you can add a
 new batch, and you can continue writing. This is done for all specified
@@ -313,7 +313,7 @@ To find out more about the Card writers and the SD Cards, you can use
 the command
 
 ```bash
-$ cm-pi-burn detect
+$ cms burn detect
 ```
 
 It will first ask you to not plug in the SDCard writer to probe the
@@ -354,7 +354,7 @@ the operating system when the SD Card  Writers are plugged in. Please
 call the command:
 
 ```bash
-$ cm-pi-burn info
+$ cms burn info
 ```
 
 You will see an output similar to 
@@ -412,14 +412,14 @@ in the Raspberry Pi repository. To see the versions, please use the
 command
 
 ```bash
-# cm-pi-burn image versions
+# cms burn image versions
 ```
 
 Once in a while, they come out with new versions. You can refresh the
 list with
 
 ```bash
-# cm-pi-burn image versions --refresh
+# cms burn image versions --refresh
 ```
 
 ## Downloading an Image
@@ -427,7 +427,7 @@ list with
 To download the newest image, use the command
 
 ```bash
-# cm-pi-burn image get latest
+# cms burn image get latest
 ```
 
 The image is downloaded into the folder
@@ -437,7 +437,7 @@ The image is downloaded into the folder
 To list the downloaded images, you can use the command
 
 ```bash
-# cm-pi-burn image ls
+# cms burn image ls
 ```
 
 In case you like to use the latest download, you can use the
@@ -448,7 +448,7 @@ TODO: MISSING
 You can also specify the exact URL with
 
 ```bash
-# cm-pi-burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
+# cms burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
 ```
 
 ## ROOT
@@ -456,7 +456,7 @@ You can also specify the exact URL with
 For the burn process, you need to use root privileges. To achieve this,
 you need to execute the following commands. The source command
 activates the python virtual env that you have created where you
-installed the cm-pi-burn command
+installed the `cms burn` command
 
 ```bash
 $ sudo su
@@ -473,7 +473,7 @@ Each card will have a unique hostname, an IP address and your public key.
 To locate your device, you can use:
 
 ```bash
-$ cm-pi-burn info  
+$ cms burn info  
 ```
 
 You can look at the names of your devices under the device column. Eg
@@ -481,12 +481,12 @@ You can look at the names of your devices under the device column. Eg
 
 ## Burning SD-Cards
 
-To burn one card, we will use ` cm-pi-burn create ` with several
+To burn one card, we will use `cms burn create` with several
 important options:
 
 * `--image` specifies the name of the image to burn
 * `--device` is the path to the SD card. If this option is omitted,
-  then `cm-pi-burn` will use the devices listed under `cm-pi-burn info`
+  then `cms burn` will use the devices listed under `cms burn info`
 * `--hostname` is the name for the pi
 * `--sshkey` is the path to your SSH PUBLIC key
 * `--blocksize` specified to 4M for our purposes
@@ -513,7 +513,7 @@ Do not worry if you see the message `No partition is defined yet!`
 
 You can use the `--ipaddr=IP` option to set a static IP address for your
 Pis. To make sure this works, ensure that your master Pi is connected to
-the network as cm-pi-burn will pull information from the network to
+the network as cms burn will pull information from the network to
 configure static IP usage.
 
 For more information on options, see `/cmburn/pi/cmpiburn.py`
@@ -524,7 +524,7 @@ address connecting to a home wifi network
 TODO: WIFI is not listed here
 
 ```bash
-# cm-pi-burn create \
+# cms burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sda \
     --hostname=red2 \
@@ -536,14 +536,14 @@ TODO: WIFI is not listed here
 
 Here we are assuming that your device name is sda, but its very important
 to verify it once before executing the above command. Note that if we
-omit the `--device` option, then `cm-pi-burn` will refer to the devices
-listed using `cm-pi-burn info`
+omit the `--device` option, then `cms burn` will refer to the devices
+listed using `cms burn info`
 
 If your Pis are going to use ethernet connection, then the command is as
 simple as:
 
 ```bash
-# cm-pi-burn create \
+# cms burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sda \
     --hostname=red2 \
@@ -557,7 +557,7 @@ To burn many cards, you can specify them conveniently in parameter
 notation in  the `--hostname` and `--ipaddr` arguments:
 
 ```bash
-# cm-pi-burn create \
+# cms burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sd[a-f]
     --hostname=red[2-7] \
@@ -568,11 +568,11 @@ notation in  the `--hostname` and `--ipaddr` arguments:
 ```
 
 Note the ranges are inclusive. Alternatively, we can omit the --device
-option and allow cm-pi-burn to detect the devices from `cm-pi-burn
+option and allow cms burn to detect the devices from `cms burn
 info`:
 
 ```bash
-# cm-pi-burn create \
+# cms burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
@@ -599,7 +599,7 @@ Here is an alternative version to the command above with a different
 
 
 ```bash
-# cm-pi-burn create \
+# cms burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --device=/dev/sda \
     --hostname=red[2-7] \
@@ -629,11 +629,11 @@ prompt will also appear if the number of hosts (in this example there
 are 4 hosts) exceeds the number of available devices (1 in this
 example).
 
-If the only device listed under `cm-pi-burn info` is `/dev/sda`, then the
+If the only device listed under `cms burn info` is `/dev/sda`, then the
 above command is equivalent to:
 
 ```bash
-# cm-pi-burn create \
+# cms burn create \
     --image=2020-02-05-raspbian-buster-lite \
     --hostname=red[2-7] \
     --sshkey=/home/pi/.ssh/id_rsa.pub \
