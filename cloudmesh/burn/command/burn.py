@@ -1,11 +1,9 @@
 from __future__ import print_function
 
-from cloudmesh.common.console import Console
-from cloudmesh.common.debug import VERBOSE
+from cloudmesh.burn.command.interpreter import execute
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 
-from cloudmesh.burn.command.interpreter import execute
 
 class BurnCommand(PluginCommand):
 
@@ -49,7 +47,8 @@ class BurnCommand(PluginCommand):
             Options:
               -h --help              Show this screen.
               --version              Show version.
-              --image=IMAGE          The image filename, e.g. 2019-09-26-raspbian-buster.img
+              --image=IMAGE          The image filename,
+                                     e.g. 2019-09-26-raspbian-buster.img
               --device=DEVICE        The device, e.g. /dev/mmcblk0
               --hostname=HOSTNAME    The hostname
               --ipaddr=IP            The IP address
@@ -69,8 +68,8 @@ class BurnCommand(PluginCommand):
                      if the passwd flag is added the default password is
                      queried from the commandline and added to all SDCards
 
-                     if the flag is ommitted login via the password is disabled and
-                     only login via the sshkey is allowed
+                     if the flag is ommitted login via the password is disabled
+                     and only login via the sshkey is allowed
 
               Network
 
@@ -93,7 +92,8 @@ class BurnCommand(PluginCommand):
 
                 cms burn network list [--used]
 
-                    Lists the used ip addresses as a comma separated parameter list
+                    Lists the used ip addresses as a comma separated parameter
+                    list
 
                        192.168.50.1,192.168.50.4,...
 
@@ -108,11 +108,15 @@ class BurnCommand(PluginCommand):
                     +---------+----------------+----------------+
 
             Example:
-              cms burn create --image=2019-09-26-raspbian-buster-lite --device=/dev/mmcblk0
-                                --hostname=red[5-7] --ipaddr=192.168.1.[5-7] --sshkey=id_rsa
+              cms burn create --image=2019-09-26-raspbian-buster-lite \
+                              --device=/dev/mmcblk0
+                              --hostname=red[5-7] \
+                              --ipaddr=192.168.1.[5-7] \
+                              --sshkey=id_rsa
               cms burn image get latest
-              cms burn image delete 2019-09-26-raspbian-buster-lite
               cms burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
+              cms burn image delete 2019-09-26-raspbian-buster-lite
+
         """
 
         return execute(arguments)
