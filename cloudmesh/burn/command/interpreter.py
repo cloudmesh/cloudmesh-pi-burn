@@ -14,9 +14,7 @@ from cloudmesh.burn.network import Network
 from cloudmesh.burn.util import readfile, writefile
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
-from cloudmesh.common.parameter import Parameter
 
-debug = True
 
 def execute(label, function):
     StopWatch.start(label)
@@ -35,13 +33,13 @@ def execute(arguments):
 
 
 
-    if arguments["network"] and arguments["list"]:
+    if arguments.network and arguments["list"]:
 
-        ip = arguments["ip"] or Network.address()[0]['local']
+        ip = arguments.ip or Network.address()[0]['local']
 
         details = Network.nmap(ip=ip)
 
-        if arguments["--used"]:
+        if arguments.used:
 
             print(','.join([x['ip'] for x in details]))
 
@@ -54,7 +52,7 @@ def execute(arguments):
             )
         return ""
 
-    if arguments["network"] and arguments["address"]:
+    if arguments.network and arguments.address:
 
         # print (Network.nmap())
         details = Network.address()
@@ -68,10 +66,10 @@ def execute(arguments):
         return ""
 
 
-    elif arguments['wifi']:
+    elif arguments.wifi:
 
-        password = arguments['PASSWD']
-        ssid = arguments['SSID']
+        password = arguments.PASSWD
+        ssid = arguments.SSID
 
         if password is None:
             password = getpass("Please enter the Wifi password; ")
@@ -81,76 +79,76 @@ def execute(arguments):
         StopWatch.stop("wifi")
         StopWatch.status("wifi", True)
 
-    elif arguments['detect']:
+    elif arguments.detect:
 
         execute("burn", burner.detect())
 
 
-    elif arguments['info']:
+    elif arguments.info:
 
         execute("burn", burner.info())
 
-    elif arguments['burn']:
+    elif arguments.burn:
         # check_root(dryrun=dryrun)
 
-        image = arguments['IMAGE']
-        device = arguments['DEVICE']
+        image = arguments.IMAGE
+        device = arguments.DEVICE
         execute("burn", burner.burn(image, device))
 
-    elif arguments['mount']:
+    elif arguments.mount:
         # check_root(dryrun=dryrun)
 
-        device = arguments['DEVICE']
-        mp = arguments['MOUNTPOINT']
+        device = arguments.DEVICE
+        mp = arguments.MOUNTPOINT
         execute("mount", burner.mount(device, mp))
 
-    elif arguments['set'] and arguments['hostname']:
+    elif arguments.set and arguments.host:
         # check_root(dryrun=dryrun)
 
-        hostname = arguments['HOSTNAME']
-        mp = arguments['MOUNTPOINT']
+        hostname = arguments.HOSTNAME
+        mp = arguments.MOUNTPOINT
         execute("set hostname",        burner.set_hostname(hostname, mp))
 
-    elif arguments['set'] and arguments['ip']:
+    elif arguments.set and arguments.ip:
         # check_root(dryrun=dryrun)
 
-        ip = arguments['IP']
-        mp = arguments['MOUNTPOINT']
+        ip = arguments.IP
+        mp = arguments.MOUNTPOINT
         execute("set ip",        burner.set_static_ip(ip, mp))
 
-    elif arguments['set'] and arguments['key']:
+    elif arguments.set and arguments.key:
         # check_root(dryrun=dryrun)
 
-        key = arguments['KEY']
-        mp = arguments['MOUNTPOINT']
+        key = arguments.KEY
+        mp = arguments.MOUNTPOINT
         execute("set key", burner.set_key(key, mp))
 
-    elif arguments['enable'] and arguments['ssh']:
+    elif arguments.enable and arguments.ssh:
         # check_root(dryrun=dryrun)
 
-        mp = arguments['MOUNTPOINT']
+        mp = arguments.MOUNTPOINT
         execute("enable ssh",         burner.enable_ssh(mp))
 
-    elif arguments['unmount']:
+    elif arguments.unmount:
         # check_root(dryrun=dryrun)
 
-        device = arguments['DEVICE']
+        device = arguments.DEVICE
         execute("unmount",         burner.unmount(device))
 
-    # elif arguments['versions'] and arguments['image']:
+    # elif arguments.versions and arguments.image:
     #    image = Image()
 
-    elif arguments['ls'] and arguments['image']:
+    elif arguments.ls and arguments.image:
         execute("image ls",         Image().ls())
 
 
-    elif arguments['delete'] and arguments['image']:
-        execute("image rm",        Image(arguments['IMAGE']).rm())
+    elif arguments.delete and arguments.image:
+        execute("image rm",        Image(arguments.IMAGE).rm())
 
-    elif arguments['get'] and arguments['image']:
-        execute("image fetch",        Image(arguments['URL']).fetch())
+    elif arguments.get and arguments.image:
+        execute("image fetch",        Image(arguments.URL).fetch())
 
-    elif arguments['versions'] and arguments['image']:
+    elif arguments.versions and arguments.image:
 
         StopWatch.start("image versions")
 
@@ -177,7 +175,7 @@ def execute(arguments):
         StopWatch.stop("image versions")
         StopWatch.status("image versions", True)
 
-    elif arguments['create']:
+    elif arguments.create:
 
         if arguments["--passwd"]:
             passwd = arguments["--passwd"]
@@ -203,7 +201,7 @@ def execute(arguments):
 
         # check_root(dryrun=dryrun)
 
-        image = 'latest' if not arguments['--image'] else arguments['--image']
+        image = 'latest' if not arguments.image else arguments.image
 
         environ_DEV = os.environ['DEV'] if 'DEV' in os.environ else None
         devices = arguments["--device"] or environ_DEV or None
@@ -211,13 +209,13 @@ def execute(arguments):
         if devices is not None:
             devices = Parameter.expand_string(devices)
 
-        hostnames = Parameter.expand(arguments['--hostname'])
+        hostnames = Parameter.expand(arguments.hostname)
 
-        ips = None if not arguments['--ipaddr'] else Parameter.expand(
-            arguments['--ipaddr'])
-        key = arguments['--sshkey']
+        ips = None if not arguments.ipaddr else Parameter.expand(
+            arguments.ipaddr)
+        key = arguments.sshkey
         mp = '/mount/pi'
-        blocksize = arguments["--blocksize"]
+        blocksize = arguments.blocksize
 
         StopWatch.start("total")
 

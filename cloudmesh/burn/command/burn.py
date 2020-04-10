@@ -3,6 +3,7 @@ from __future__ import print_function
 from cloudmesh.burn.command.interpreter import execute
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
+from cloudmesh.shell.command import map_parameters
 
 
 class BurnCommand(PluginCommand):
@@ -35,7 +36,7 @@ class BurnCommand(PluginCommand):
                                      [--format]
               cms burn [-v] burn [IMAGE] [DEVICE] --[dryrun]
               cms burn [-v] mount [DEVICE] [MOUNTPOINT]
-              cms burn [-v] set hostname [HOSTNAME] [MOUNTPOINT]
+              cms burn [-v] set host [HOSTNAME] [MOUNTPOINT]
               cms burn [-v] set ip [IP] [MOUNTPOINT]
               cms burn [-v] set key [KEY] [MOUNTPOINT]
               cms burn [-v] enable ssh [MOUNTPOINT]
@@ -61,9 +62,7 @@ class BurnCommand(PluginCommand):
                 Location where the images will be stored for reuse
 
             Description:
-              cms burn create
-
-                 --passwd=PASSWD
+                cms burn create --passwd=PASSWD
 
                      if the passwd flag is added the default password is
                      queried from the commandline and added to all SDCards
@@ -108,15 +107,30 @@ class BurnCommand(PluginCommand):
                     +---------+----------------+----------------+
 
             Example:
-              cms burn create --image=2019-09-26-raspbian-buster-lite \
-                              --device=/dev/mmcblk0
-                              --hostname=red[5-7] \
-                              --ipaddr=192.168.1.[5-7] \
-                              --sshkey=id_rsa
-              cms burn image get latest
-              cms burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
-              cms burn image delete 2019-09-26-raspbian-buster-lite
+              > cms burn create --image=2019-09-26-raspbian-buster-lite \
+              >                --device=/dev/mmcblk0
+              >                --hostname=red[5-7] \
+              >                --ipaddr=192.168.1.[5-7] \
+              >                --sshkey=id_rsa
+              > cms burn image get latest
+              > cms burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
+              > cms burn image delete 2019-09-26-raspbian-buster-lite
 
         """
+
+        map_parameters(arguments,
+                       "refresh",
+                       "image",
+                       "device",
+                       "hostname",
+                       "ipaddr",
+                       "sshkey",
+                       "blocksize",
+                       "dryrun",
+                       "passwd",
+                       "ssid",
+                       "wifipassword",
+                       "version")
+        arguments.FORMAT = arguments["--format"]
 
         return execute(arguments)
