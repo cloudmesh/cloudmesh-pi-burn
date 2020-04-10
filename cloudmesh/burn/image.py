@@ -13,7 +13,7 @@ import requests
 import urllib3
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
-from cmburn.pi.util import readfile, writefile
+from cloudmesh.burn.util import readfile, writefile
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 

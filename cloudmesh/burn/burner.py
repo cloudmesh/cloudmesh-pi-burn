@@ -18,8 +18,8 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
-from cmburn.pi.image import Image
-from cmburn.pi.usb import USB
+from cloudmesh.burn.image import Image
+from cloudmesh.burn.usb import USB
 
 
 # TODO: make sure everything is compatible with --dryrun

@@ -1,5 +1,5 @@
 cloudmesh-common
-cloudmesh-cmd6
+cloudmesh-cmd5
 wget
 python-hostlist
 docopt
@@ -7,5 +7,4 @@ prompter
 requests
 pyyaml
 oyaml
-pyusb
 requests
