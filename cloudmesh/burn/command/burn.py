@@ -14,8 +14,8 @@ class BurnCommand(PluginCommand):
         ::
 
             Usage:
-              burn execute network list [--ip=IP] [--used]
-              burn network address
+              burn network list [--ip=IP] [--used]
+              burn network
               burn info [DEVICE]
               burn detect
               burn image versions [--refresh]

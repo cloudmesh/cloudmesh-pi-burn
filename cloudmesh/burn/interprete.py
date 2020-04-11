@@ -30,8 +30,6 @@ def interprete(arguments):
     StopWatch.stop("info")
     StopWatch.status("info", True)
 
-
-
     if arguments.network and arguments["list"]:
 
         ip = arguments.ip or Network.address()[0]['local']
@@ -51,7 +49,7 @@ def interprete(arguments):
             )
         return ""
 
-    if arguments.network and arguments.address:
+    elif arguments.network:
 
         # print (Network.nmap())
         details = Network.address()
