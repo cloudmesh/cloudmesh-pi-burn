@@ -24,7 +24,6 @@ def execute(label, function):
 
 def execute(arguments):
     dryrun = arguments["--dryrun"]
-    verbose = arguments["-v"]
 
     StopWatch.start("info")
     burner = Burner(dryrun=dryrun)

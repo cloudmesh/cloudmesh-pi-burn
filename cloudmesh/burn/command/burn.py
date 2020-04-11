@@ -1,6 +1,4 @@
-from __future__ import print_function
-
-from cloudmesh.burn.command.interpreter import execute
+from cloudmesh.burn.interpreter import execute
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
@@ -16,15 +14,15 @@ class BurnCommand(PluginCommand):
         ::
 
             Usage:
-              cms burn execute network list [--ip=IP] [--used]
-              cms burn network address
-              cms burn [-v] info [DEVICE]
-              cms burn [-v] detect
-              cms burn [-v] image versions [--refresh]
-              cms burn [-v] image ls
-              cms burn [-v] image delete [IMAGE]
-              cms burn [-v] image get [URL]
-              cms burn [-v] create [--image=IMAGE]
+              burn execute network list [--ip=IP] [--used]
+              burn network address
+              burn info [DEVICE]
+              burn detect
+              burn image versions [--refresh]
+              burn image ls
+              burn image delete [IMAGE]
+              burn image get [URL]
+              burn create [--image=IMAGE]
                                      [--device=DEVICE]
                                      [--hostname=HOSTNAME]
                                      [--ipaddr=IP]
@@ -35,16 +33,14 @@ class BurnCommand(PluginCommand):
                                      [--ssid=SSID]
                                      [--wifipassword=PSK]
                                      [--format]
-              cms burn [-v] burn [IMAGE] [DEVICE] --[dryrun]
-              cms burn [-v] mount [DEVICE] [MOUNTPOINT]
-              cms burn [-v] set host [HOSTNAME] [MOUNTPOINT]
-              cms burn [-v] set ip [IP] [MOUNTPOINT]
-              cms burn [-v] set key [KEY] [MOUNTPOINT]
-              cms burn [-v] enable ssh [MOUNTPOINT]
-              cms burn [-v] unmount [DEVICE]
-              cms burn [-v] wifi SSID [PASSWD] [-ni]
-              cms burn (-h | --help)
-              cms burn --version
+              burn burn [IMAGE] [DEVICE] --[dryrun]
+              burn mount [DEVICE] [MOUNTPOINT]
+              burn set host [HOSTNAME] [MOUNTPOINT]
+              burn set ip [IP] [MOUNTPOINT]
+              burn set key [KEY] [MOUNTPOINT]
+              burn enable ssh [MOUNTPOINT]
+              burn unmount [DEVICE]
+              burn wifi SSID [PASSWD] [-ni]
 
             Options:
               -h --help              Show this screen.
@@ -77,18 +73,18 @@ class BurnCommand(PluginCommand):
 
                     Lists the ip addresses that are on the same network
 
-                    +------------+---------------+----------+-----------+
-                    | Name       | IP            | Status   | Latency   |
-                    |------------+---------------+----------+-----------|
-                    | Router     | 192.168.1.1   | up       | 0.0092s   |
-                    | iPhone     | 192.168.1.4   | up       | 0.061s    |
-                    | red01      | 192.168.1.46  | up       | 0.0077s   |
-                    | laptop     | 192.168.1.78  | up       | 0.058s    |
-                    | unkown     | 192.168.1.126 | up       | 0.14s     |
-                    | red03      | 192.168.1.158 | up       | 0.0037s   |
-                    | red02      | 192.168.1.199 | up       | 0.0046s   |
-                    | red        | 192.168.1.249 | up       | 0.00021s  |
-                    +------------+----------------+----------+-----------+
+              >      +------------+---------------+----------+-----------+
+              >      | Name       | IP            | Status   | Latency   |
+              >      |------------+---------------+----------+-----------|
+              >      | Router     | 192.168.1.1   | up       | 0.0092s   |
+              >      | iPhone     | 192.168.1.4   | up       | 0.061s    |
+              >      | red01      | 192.168.1.46  | up       | 0.0077s   |
+              >      | laptop     | 192.168.1.78  | up       | 0.058s    |
+              >      | unkown     | 192.168.1.126 | up       | 0.14s     |
+              >      | red03      | 192.168.1.158 | up       | 0.0037s   |
+              >      | red02      | 192.168.1.199 | up       | 0.0046s   |
+              >      | red        | 192.168.1.249 | up       | 0.00021s  |
+              >      +------------+----------------+----------+-----------+
 
                 cms burn network list [--used]
 
@@ -101,11 +97,11 @@ class BurnCommand(PluginCommand):
 
                     Lists the own network address
 
-                    +---------+----------------+----------------+
-                    | Label   | Local          | Broadcast      |
-                    |---------+----------------+----------------|
-                    | wlan0   | 192.168.1.12   | 192.168.1.255  |
-                    +---------+----------------+----------------+
+              >      +---------+----------------+----------------+
+              >      | Label   | Local          | Broadcast      |
+              >      |---------+----------------+----------------|
+              >      | wlan0   | 192.168.1.12   | 192.168.1.255  |
+              >      +---------+----------------+----------------+
 
             Example:
               > cms burn create --image=2019-09-26-raspbian-buster-lite \
@@ -135,6 +131,5 @@ class BurnCommand(PluginCommand):
         arguments.FORMAT = arguments["--format"]
 
         VERBOSE(arguments)
-        print (type(arguments))
 
         return execute(arguments)
