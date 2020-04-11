@@ -265,7 +265,6 @@ class Burner(object):
             Console.error("The image could not be found")
             sys.exit(1)
 
-
         
     def set_hostname(self, hostname, mountpoint):
         """

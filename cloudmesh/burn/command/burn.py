@@ -4,6 +4,7 @@ from cloudmesh.burn.command.interpreter import execute
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
+from cloudmesh.common.debug import VERBOSE
 
 
 class BurnCommand(PluginCommand):
@@ -15,7 +16,7 @@ class BurnCommand(PluginCommand):
         ::
 
             Usage:
-              execute network list [--ip=IP] [--used]
+              cms burn execute network list [--ip=IP] [--used]
               cms burn network address
               cms burn [-v] info [DEVICE]
               cms burn [-v] detect
@@ -132,5 +133,8 @@ class BurnCommand(PluginCommand):
                        "wifipassword",
                        "version")
         arguments.FORMAT = arguments["--format"]
+
+        VERBOSE(arguments)
+        print (type(arguments))
 
         return execute(arguments)
