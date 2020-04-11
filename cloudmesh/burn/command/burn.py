@@ -73,18 +73,18 @@ class BurnCommand(PluginCommand):
 
                     Lists the ip addresses that are on the same network
 
-              >      +------------+---------------+----------+-----------+
-              >      | Name       | IP            | Status   | Latency   |
-              >      |------------+---------------+----------+-----------|
-              >      | Router     | 192.168.1.1   | up       | 0.0092s   |
-              >      | iPhone     | 192.168.1.4   | up       | 0.061s    |
-              >      | red01      | 192.168.1.46  | up       | 0.0077s   |
-              >      | laptop     | 192.168.1.78  | up       | 0.058s    |
-              >      | unkown     | 192.168.1.126 | up       | 0.14s     |
-              >      | red03      | 192.168.1.158 | up       | 0.0037s   |
-              >      | red02      | 192.168.1.199 | up       | 0.0046s   |
-              >      | red        | 192.168.1.249 | up       | 0.00021s  |
-              >      +------------+----------------+----------+-----------+
+                     +------------+---------------+----------+-----------+
+                     | Name       | IP            | Status   | Latency   |
+                     |------------+---------------+----------+-----------|
+                     | Router     | 192.168.1.1   | up       | 0.0092s   |
+                     | iPhone     | 192.168.1.4   | up       | 0.061s    |
+                     | red01      | 192.168.1.46  | up       | 0.0077s   |
+                     | laptop     | 192.168.1.78  | up       | 0.058s    |
+                     | unkown     | 192.168.1.126 | up       | 0.14s     |
+                     | red03      | 192.168.1.158 | up       | 0.0037s   |
+                     | red02      | 192.168.1.199 | up       | 0.0046s   |
+                     | red        | 192.168.1.249 | up       | 0.00021s  |
+                     +------------+----------------+----------+-----------+
 
                 cms burn network list [--used]
 
@@ -97,21 +97,27 @@ class BurnCommand(PluginCommand):
 
                     Lists the own network address
 
-              >      +---------+----------------+----------------+
-              >      | Label   | Local          | Broadcast      |
-              >      |---------+----------------+----------------|
-              >      | wlan0   | 192.168.1.12   | 192.168.1.255  |
-              >      +---------+----------------+----------------+
+                     +---------+----------------+----------------+
+                     | Label   | Local          | Broadcast      |
+                     |---------+----------------+----------------|
+                     | wlan0   | 192.168.1.12   | 192.168.1.255  |
+                     +---------+----------------+----------------+
 
-            Example:
-              > cms burn create --image=2019-09-26-raspbian-buster-lite \
-              >                --device=/dev/mmcblk0
-              >                --hostname=red[5-7] \
-              >                --ipaddr=192.168.1.[5-7] \
-              >                --sshkey=id_rsa
-              > cms burn image get latest
-              > cms burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
-              > cms burn image delete 2019-09-26-raspbian-buster-lite
+            Examples: ( \ is not shown)
+
+               > cms burn create --image=2019-09-26-raspbian-buster-lite
+               >                 --device=/dev/mmcblk0
+               >                 --hostname=red[5-7]
+               >                 --ipaddr=192.168.1.[5-7]
+               >                 --sshkey=id_rsa
+
+               > cms burn image get latest
+
+               > cms burn image get https://downloads.raspberrypi.org/
+               >   raspbian_lite/images/
+               >   raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
+
+               > cms burn image delete 2019-09-26-raspbian-buster-lite
 
         """
 
