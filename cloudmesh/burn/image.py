@@ -11,9 +11,10 @@ from pathlib import Path
 import oyaml as yaml
 import requests
 import urllib3
+
+from cloudmesh.burn.util import readfile, writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
-from cloudmesh.burn.util import readfile, writefile
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -36,7 +37,6 @@ class Image(object):
             self.fullpath = self.directory + '/' + self.latest_version() + '.img'
         else:
             self.fullpath = self.directory + '/' + self.image_name + '.img'
-            
 
     def version_cache_create(self, refresh=False):
         data = []
@@ -104,7 +104,9 @@ class Image(object):
         return None
 
     def latest_version(self):
-        source_url = requests.head("https://downloads.raspberrypi.org/raspbian_lite_latest", allow_redirects=True).url
+        source_url = requests.head(
+            "https://downloads.raspberrypi.org/raspbian_lite_latest",
+            allow_redirects=True).url
         return os.path.basename(source_url)[:-4]
 
     def fetch(self):

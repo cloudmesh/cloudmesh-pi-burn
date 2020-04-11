@@ -6,7 +6,7 @@ author:
     affilation: Indiana University
     location: loomington, IN 47401
     email: laszewski@gmail.com
-    
+
 date: Nov. 1st, 2019
 tags: [rasperry pi, cluster, sdcard, cloudmesh]
 numbersections: yes
@@ -26,7 +26,7 @@ abstract: |
   to write multiple cards easily while avoiding the cost of a card
   duplicator and minimizing the time one needs to switch cards into a
   single card writer.
-  
+
 header-includes: |
   \usepackage{booktabs}
 

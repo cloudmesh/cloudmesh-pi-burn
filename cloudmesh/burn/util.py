@@ -1,8 +1,9 @@
 import os
-import sys
 from pathlib import Path
 
 import requests
+
+import sys
 
 # noinspection PyPep8
 if True:
@@ -24,7 +25,6 @@ if True:
 
     #
     ##############################################
-
 
 
 def writefile(filename, content):

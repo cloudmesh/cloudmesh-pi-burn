@@ -6,9 +6,10 @@
 # see: https://github.com/dlcowen/dfirwizard/blob/master/admin.py
 
 import os
-import sys
-import types
 import traceback
+import types
+
+import sys
 
 
 def isUserAdmin():

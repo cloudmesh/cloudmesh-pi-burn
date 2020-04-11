@@ -94,7 +94,6 @@ import pathlib
 import platform
 import re
 import subprocess
-import sys
 import textwrap
 import time
 import zipfile
@@ -106,6 +105,8 @@ import requests
 import wget
 from docopt import docopt
 from prompter import yesno, prompt
+
+import sys
 
 # import wmi
 
@@ -204,8 +205,8 @@ def cat(path):
     try:
         with open(path, 'r') as file:
             content = file.read()
-    except FileNotFoundError :
-    return content
+    except FileNotFoundError:
+        return content
 
 
 def execute_with_progress(command):

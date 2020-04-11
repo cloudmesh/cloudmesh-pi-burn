@@ -1,8 +1,9 @@
 from cloudmesh.burn.interprete import interprete
+
+from cloudmesh.common.debug import VERBOSE
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-from cloudmesh.common.debug import VERBOSE
 
 
 class BurnCommand(PluginCommand):

@@ -1,4 +1,3 @@
-import os
 import crypt
 import os
 import pathlib
@@ -7,10 +6,12 @@ import random
 import re
 import string
 import subprocess
-import sys
 import textwrap
 import time
 
+import sys
+from cloudmesh.burn.image import Image
+from cloudmesh.burn.usb import USB
 from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.StopWatch import StopWatch
@@ -18,8 +19,6 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.burn.image import Image
-from cloudmesh.burn.usb import USB
 
 
 # TODO: make sure everything is compatible with --dryrun
@@ -41,6 +40,7 @@ def sudo_writefile(filename, content, append=False):
 
     return result[1]
 
+
 def sudo_readfile(filename, split=True):
     result = subprocess.getoutput(f"sudo cat {filename}")
 
@@ -49,17 +49,22 @@ def sudo_readfile(filename, split=True):
 
     return result
 
+
 def os_is_windows():
     return platform.system() == "Windows"
+
 
 def os_is_linux():
     return platform.system() == "Linux" and "raspberry" not in platform.uname()
 
+
 def os_is_mac():
     return platform.system() == "Darwin"
 
+
 def os_is_pi():
     return "raspberry" in platform.uname()
+
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
@@ -132,7 +137,6 @@ class Burner(object):
             banner("Operating System SD Card")
             print(result)
 
-
         details = USB.get_from_usb()
 
         if print_stdout:
@@ -162,60 +166,59 @@ class Burner(object):
             )
             )
 
-        #devices = USB.get_devices()
+        # devices = USB.get_devices()
 
-        #banner("Devices found")
+        # banner("Devices found")
 
-        #print ('\n'.join(sorted(devices)))
+        # print ('\n'.join(sorted(devices)))
 
         details = USB.get_from_dmesg()
 
         if print_stdout:
             banner("SD Cards Found")
             print(Printer.write(details,
-                                order=[#"name",
-                                       "dev",
-                                       #"device",
-                                       #"bus",
-                                       #"sg",
-                                       "info",
-                                       "readable",
-                                       "formatted",
-                                       "empty",
-                                       "size",
-                                       "direct-access",
-                                       "removable",
-                                       "writeable"],
-                                header=[#"Name",
-                                        "Path",
-                                        #"Device",
-                                        #"Bus",
-                                        #"Sg",
-                                        "Info",
-                                        "Readable",
-                                        "Formatted",
-                                        "Empty",
-                                        "Size",
-                                        "Aaccess",
-                                        "Removable",
-                                        "Writeable"]))
+                                order=[  # "name",
+                                    "dev",
+                                    # "device",
+                                    # "bus",
+                                    # "sg",
+                                    "info",
+                                    "readable",
+                                    "formatted",
+                                    "empty",
+                                    "size",
+                                    "direct-access",
+                                    "removable",
+                                    "writeable"],
+                                header=[  # "Name",
+                                    "Path",
+                                    # "Device",
+                                    # "Bus",
+                                    # "Sg",
+                                    "Info",
+                                    "Readable",
+                                    "Formatted",
+                                    "Empty",
+                                    "Size",
+                                    "Aaccess",
+                                    "Removable",
+                                    "Writeable"]))
 
             lsusb = USB.get_from_lsusb()
 
-            #endors = USB.get_vendor()
-            #print(vendors)
+            # endors = USB.get_vendor()
+            # print(vendors)
 
-            #udev = subprocess.getoutput("udevadm info -a -p  $(udevadm info -q path -n /dev/sda)")
+            # udev = subprocess.getoutput("udevadm info -a -p  $(udevadm info -q path -n /dev/sda)")
             #
-            #attributes = ["vendor","model", "model", "version", "manufacturer",
+            # attributes = ["vendor","model", "model", "version", "manufacturer",
             #     "idProduct", "idVendor"]
-            #for line in udev.splitlines():
+            # for line in udev.splitlines():
             #    if any(word in line for word in attributes):
             #        print(line)
 
-
         # Convert details into a dict where the key for each entry is the device
-        details = {detail['dev'] : detail for detail in details}
+        details = {detail['dev']: detail for detail in details}
 
         return details
 
@@ -242,10 +245,10 @@ class Burner(object):
         res = subprocess.getstatusoutput(command)
         # If exit code is not 0, warn user
         if res[0] != 0 and res[0] != 32:
-            Console.warning(f'Warning: "{command}" did not execute properly -> {res[1]} :: exit code {res[0]}')
+            Console.warning(
+                f'Warning: "{command}" did not execute properly -> {res[1]} :: exit code {res[0]}')
 
         return res[1]
-        
 
     def burn(self, image, device, blocksize="4M"):
         """
@@ -259,13 +262,13 @@ class Burner(object):
 
         image_path = Image(image).fullpath
 
-        result = subprocess.getoutput(f'sudo dd bs={blocksize} if={image_path} of={device}')
+        result = subprocess.getoutput(
+            f'sudo dd bs={blocksize} if={image_path} of={device}')
 
         if "failed to open" in result:
             Console.error("The image could not be found")
             sys.exit(1)
 
-        
     def set_hostname(self, hostname, mountpoint):
         """
         Sets the hostname on the sd card
@@ -276,7 +279,8 @@ class Burner(object):
         self.hostname = hostname
         # write the new hostname to /etc/hostname
         if not self.dryrun:
-            self.system(f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
+            self.system(
+                f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
         else:
             print()
             print("Write to /etc/hostname")
@@ -356,12 +360,16 @@ class Burner(object):
                 # with open(f'{mountpoint}/etc/network/interfaces',
                 #           'a') as config:
                 #     config.write(interfaces_conf)
-                sudo_writefile(f'{mountpoint}/etc/network/interfaces', interfaces_conf, append=True)
+                sudo_writefile(f'{mountpoint}/etc/network/interfaces',
+                               interfaces_conf, append=True)
 
             # Configure static wifi IP
             elif iface == "wlan0":
-                dnss = self.system("cat /etc/resolv.conf | grep nameserver").split()[1] # index 0 is "nameserver" so ignore
-                routerss = self.system("ip route | grep default | awk '{print $3}'")  # omit the \n at the end
+                dnss = \
+                self.system("cat /etc/resolv.conf | grep nameserver").split()[
+                    1]  # index 0 is "nameserver" so ignore
+                routerss = self.system(
+                    "ip route | grep default | awk '{print $3}'")  # omit the \n at the end
                 dhcp_conf = textwrap.dedent(f"""
                         interface wlan0
                         static ip_address={ip}
@@ -370,8 +378,9 @@ class Burner(object):
                         """)
                 # with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
                 #     config.write(dhcp_conf)
-                sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf, append=True)
-                
+                sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf,
+                               append=True)
+
 
         else:
             print('interface eth0\n')
@@ -439,7 +448,8 @@ class Burner(object):
         #     self.system(f'sudo umount {device}1')
         # except:
         #     pass
-        self.system('sleep 1') # Occasionally there are issues with unmounting. Pause for good effect.
+        self.system(
+            'sleep 1')  # Occasionally there are issues with unmounting. Pause for good effect.
         self.system(f'sudo umount {device}2')
 
     def enable_ssh(self, mountpoint):
@@ -699,7 +709,6 @@ class Burner(object):
 
         Console.ok("Formating completed ...")
 
-
         Console.info("Wait while the card is written ...")
 
     # This is to prevent desktop access of th pi (directly plugging monitor, keyboard, mouse into pi, etc.)
@@ -730,9 +739,9 @@ class Burner(object):
             raise NotImplementedError()
 
         # Make sure there's an 'x' in /etc/passwd
-#        with open(f'{mountpoint}/etc/passwd', 'r') as f:
-#            info = [l for l in f.readlines()]
-        
+        #        with open(f'{mountpoint}/etc/passwd', 'r') as f:
+        #            info = [l for l in f.readlines()]
+
         info = sudo_readfile(f'{mountpoint}/etc/passwd')
 
         for i in range(len(info)):
@@ -741,15 +750,13 @@ class Burner(object):
                 inf[1] = 'x'
                 info[i] = ':'.join(inf)
 
-        content = '\n'.join(info) 
-
+        content = '\n'.join(info)
 
         # with open(f'{mountpoint}/etc/passwd', 'w') as f:
         #     f.writelines(info)
 
         sudo_writefile(f'{mountpoint}/etc/passwd', content)
 
-        
         # Add it to shadow file
         # with open(f'{mountpoint}/etc/shadow', 'r') as f:
         #     data = [l for l in f.readlines()]
@@ -778,6 +785,7 @@ class MultiBurner(object):
     are plugged in other than a keyboard or a mouse.
 
     """
+
     # System command that uses subprocess to execute terminal commands
     # Returns the stdout of the command
     def system(self, command):
@@ -789,7 +797,8 @@ class MultiBurner(object):
         res = subprocess.getstatusoutput(command)
         # If exit code is not 0, warn user
         if res[0] != 0:
-            Console.warning(f'Warning: "{command}" did not execute properly -> {res[1]} :: exit code {res[0]}')
+            Console.warning(
+                f'Warning: "{command}" did not execute properly -> {res[1]} :: exit code {res[0]}')
 
         return res[1]
 
@@ -824,7 +833,7 @@ class MultiBurner(object):
 
         # :param devices: string with device letters
 
-        #print (device)
+        # print (device)
 
         #
         # define the dev
@@ -970,7 +979,8 @@ class MultiBurner(object):
         burner.set_hostname(hostname, mp)
         burner.disable_terminal_login(mp, password)
         if ssid:
-            Console.warning("Warning: In the future, try to interface with the workers via ethernet/switch rather than WiFi")
+            Console.warning(
+                "Warning: In the future, try to interface with the workers via ethernet/switch rather than WiFi")
             burner.configure_wifi(ssid, psk, mp)
         burner.enable_ssh(mp)
         burner.disable_password_ssh(mp)

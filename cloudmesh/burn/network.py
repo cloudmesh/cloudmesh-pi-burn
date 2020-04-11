@@ -1,7 +1,6 @@
+import json
 import socket
 import subprocess
-from pprint import pprint
-import json
 
 
 class Network:
@@ -30,7 +29,7 @@ class Network:
                             'ipbyname': socket.gethostbyname(hostname),
 
                         }
-                        #print ("nnn", n)
+                        # print ("nnn", n)
                         element.update(n)
                         if 'broadcast' in n.keys():
                             result.append(element)
@@ -44,7 +43,7 @@ class Network:
             ip = Network.address()['ip']
         mask = ip.rsplit(".", 1)[0]
         command = f"nmap -sP {mask}.*"
-        print (command)
+        print(command)
         result = subprocess.getoutput(command)
         result = result.replace("Nmap scan report for ", "")
         result = result.replace("Host is ", "")
@@ -52,8 +51,8 @@ class Network:
 
         result = result.splitlines()[1:]
         details = []
-        for i in range (0, int(len(result)/2)):
-            position = 2* i
+        for i in range(0, int(len(result) / 2)):
+            position = 2 * i
             a = result[position]
             b = result[position + 1]
             line = f"{a} {b}"

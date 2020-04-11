@@ -8,6 +8,7 @@ from getpass import getpass
 from pathlib import Path
 
 import oyaml as yaml
+
 from cloudmesh.burn.burner import Burner, MultiBurner, gen_strong_pass
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
@@ -21,6 +22,7 @@ def execute(label, function):
     function
     StopWatch.stop(label)
     StopWatch.status(label, True)
+
 
 def interprete(arguments):
     dryrun = arguments.dryrun
@@ -104,14 +106,14 @@ def interprete(arguments):
 
         hostname = arguments.HOSTNAME
         mp = arguments.MOUNTPOINT
-        execute("set hostname",        burner.set_hostname(hostname, mp))
+        execute("set hostname", burner.set_hostname(hostname, mp))
 
     elif arguments.set and arguments.ip:
         # check_root(dryrun=dryrun)
 
         ip = arguments.IP
         mp = arguments.MOUNTPOINT
-        execute("set ip",        burner.set_static_ip(ip, mp))
+        execute("set ip", burner.set_static_ip(ip, mp))
 
     elif arguments.set and arguments.key:
         # check_root(dryrun=dryrun)
@@ -124,26 +126,26 @@ def interprete(arguments):
         # check_root(dryrun=dryrun)
 
         mp = arguments.MOUNTPOINT
-        execute("enable ssh",         burner.enable_ssh(mp))
+        execute("enable ssh", burner.enable_ssh(mp))
 
     elif arguments.unmount:
         # check_root(dryrun=dryrun)
 
         device = arguments.DEVICE
-        execute("unmount",         burner.unmount(device))
+        execute("unmount", burner.unmount(device))
 
     # elif arguments.versions and arguments.image:
     #    image = Image()
 
     elif arguments.ls and arguments.image:
-        execute("image ls",         Image().ls())
+        execute("image ls", Image().ls())
 
 
     elif arguments.delete and arguments.image:
-        execute("image rm",        Image(arguments.IMAGE).rm())
+        execute("image rm", Image(arguments.IMAGE).rm())
 
     elif arguments.get and arguments.image:
-        execute("image fetch",        Image(arguments.URL).fetch())
+        execute("image fetch", Image(arguments.URL).fetch())
 
     elif arguments.versions and arguments.image:
 

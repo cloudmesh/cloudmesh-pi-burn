@@ -1,12 +1,13 @@
-import subprocess
 import glob
 import os
-import usb
+import subprocess
+
 import requests
+import usb
+
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
-import sys
-from pprint import pprint
+
 
 def _get_attribute(attribute, lines):
     for line in lines:
@@ -26,7 +27,6 @@ class USB(object):
         except:
             return "unkown"
 
-
     def load_vendor_description(self):
         self.get_vendor()
         data = {}
@@ -38,7 +38,7 @@ class USB(object):
                 if line.startswith("#") or line.startswith("]") or line is None:
                     pass
                 elif line.startswith("\t"):
-                    product_id, product  = line.strip().split(" ", 1)
+                    product_id, product = line.strip().split(" ", 1)
                     print(vendor_id, product_id, product)
                     data[vendor_id][product_id] = {
                         'vendor_id': vendor_id,
@@ -73,17 +73,16 @@ class USB(object):
     def fdisk(dev):
         return subprocess.getoutput(f"sudo fdisk -l {dev}")
 
-
     @staticmethod
     def get_from_usb():
 
         #
         # in future we also look up the vendor
         #
-        #v = USB()
-        #v.load_vendor_description()
+        # v = USB()
+        # v.load_vendor_description()
 
-        #pprint (v.vendors)
+        # pprint (v.vendors)
 
         def h(d, a):
             v = hex(d[a])
@@ -132,7 +131,6 @@ class USB(object):
 
         return all
 
-
     @staticmethod
     def get_from_dmesg():
 
@@ -147,16 +145,16 @@ class USB(object):
                 try:
                     details[key] = {}
                 except:
-                   pass
+                    pass
                 details[key]["key"] = key
-                details[key]["direct-access"]= True
+                details[key]["direct-access"] = True
                 details[key]["info"] = what
                 device, a, b, bus, rest = key.split(":")
                 details[key]["device"] = device
                 details[key]["bus"] = bus
 
             elif line.startswith("sd") and " sg" in line:
-                sg = line.split(" sg")[1].split(" ",1)[0]
+                sg = line.split(" sg")[1].split(" ", 1)[0]
                 details[key]["sg"] = sg
 
             elif line.startswith("sd") and "] " in line:
@@ -166,15 +164,18 @@ class USB(object):
                     details[key]["removable"] = True
                 if "logical blocks:" in comment:
                     size = comment.split("blocks:")[1]
-                    details[key]["size"] = size.strip().replace("(","").replace(")","")
+                    details[key]["size"] = size.strip().replace("(",
+                                                                "").replace(")",
+                                                                            "")
                 if "Write Protect is" in comment:
                     details[key]["writeable"] = "off" in comment
-                name = details[key]["name"] = device.replace("[","").replace("]","")
+                name = details[key]["name"] = device.replace("[", "").replace(
+                    "]", "")
                 dev = details[key]["dev"] = f"/dev/{name}"
                 _fdisk = USB.fdisk(name)
-                details[key]['readable']= "cannot open" in _fdisk
-                details[key]['empty']= "linux" in _fdisk
-                details[key]['formatted']= "FAT32" not in _fdisk
+                details[key]['readable'] = "cannot open" in _fdisk
+                details[key]['empty'] = "linux" in _fdisk
+                details[key]['formatted'] = "FAT32" not in _fdisk
         # remove opbets without size
 
         found = []
@@ -183,12 +184,7 @@ class USB(object):
             if 'size' in list(entry.keys()):
                 found.append(entry)
 
-
-
-
         return found
-
-
 
         '''
         # print (devices)
