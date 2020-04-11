@@ -41,6 +41,7 @@ observe the output. We have multiple programs to do so likely the `info`
 command will be sufficient.
 
 ```
+(ENV3) pi@red:$ cms burn detect
 (ENV3) pi@red:$ cms burn info
 
 ...
