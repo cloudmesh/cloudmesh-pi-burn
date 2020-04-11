@@ -84,7 +84,6 @@ Description:
 Example:
   cm-burn create --group=red --names=red[5-6] --ip=192.168.1.[5-6]
 """
-from __future__ import print_function
 
 import datetime
 import getpass

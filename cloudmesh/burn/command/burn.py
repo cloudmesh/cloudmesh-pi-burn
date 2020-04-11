@@ -1,4 +1,4 @@
-from cloudmesh.burn.interpreter import execute
+from cloudmesh.burn.interprete import interprete
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
@@ -132,4 +132,4 @@ class BurnCommand(PluginCommand):
 
         VERBOSE(arguments)
 
-        return execute(arguments)
+        return interprete(arguments)

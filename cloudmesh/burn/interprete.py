@@ -22,8 +22,8 @@ def execute(label, function):
     StopWatch.stop(label)
     StopWatch.status(label, True)
 
-def execute(arguments):
-    dryrun = arguments["--dryrun"]
+def interprete(arguments):
+    dryrun = arguments.dryrun
 
     StopWatch.start("info")
     burner = Burner(dryrun=dryrun)
