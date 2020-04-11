@@ -9,6 +9,7 @@ from pathlib import Path
 
 import oyaml as yaml
 
+from cloudmesh.common.parameter import Parameter
 from cloudmesh.burn.burner import Burner, MultiBurner, gen_strong_pass
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
