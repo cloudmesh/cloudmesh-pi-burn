@@ -10,9 +10,12 @@ from pathlib import Path
 
 import oyaml as yaml
 import requests
+# TODO: fin out if this is still needed by simply outcommenting it
+# import cloudmesh.burn.requests_ssl_key_fix
 import urllib3
 
-from cloudmesh.burn.util import readfile, writefile
+from cloudmesh.common.util import readfile
+from cloudmesh.common.util import writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 

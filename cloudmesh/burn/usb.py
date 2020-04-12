@@ -3,6 +3,8 @@ import os
 import subprocess
 
 import requests
+# TODO: fin out if this is still needed by simply outcommenting it
+# import cloudmesh.burn.requests_ssl_key_fix
 import usb
 
 from cloudmesh.common.util import readfile

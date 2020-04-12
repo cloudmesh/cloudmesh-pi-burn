@@ -13,7 +13,8 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.burn.burner import Burner, MultiBurner, gen_strong_pass
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
-from cloudmesh.burn.util import readfile, writefile
+from cloudmesh.common.util import readfile
+from cloudmesh.common.util import writefile
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 
