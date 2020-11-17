@@ -12,6 +12,8 @@ available in a previous [README](README-old.md). A lot of information is
 still relevant and we will include it here once we have made sure it
 works.
 
+See [here](https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/main/cloudmesh/pi/cluster/k3) for k3s program documentation.
+
 
 ## Quick Start
 
