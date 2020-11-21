@@ -123,14 +123,13 @@ class BurnCommand(PluginCommand):
         """
 
         map_parameters(arguments,
-                       "refresh",
-                       "image",
+                       "refresh"
                        "device",
                        "hostname",
                        "ipaddr",
                        "sshkey",
                        "blocksize",
-                       "dryrun",
+                      #  "dryrun",
                        "passwd",
                        "ssid",
                        "wifipassword",

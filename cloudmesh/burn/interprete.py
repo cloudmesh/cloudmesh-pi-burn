@@ -26,7 +26,7 @@ def execute(label, function):
 
 
 def interprete(arguments):
-    dryrun = arguments.dryrun
+    dryrun = arguments['dryrun']
 
     StopWatch.start("info")
     burner = Burner(dryrun=dryrun)
@@ -138,17 +138,17 @@ def interprete(arguments):
     # elif arguments.versions and arguments.image:
     #    image = Image()
 
-    elif arguments.ls and arguments.image:
+    elif arguments.ls and arguments['image']:
         execute("image ls", Image().ls())
 
 
-    elif arguments.delete and arguments.image:
+    elif arguments.delete and arguments['image']:
         execute("image rm", Image(arguments.IMAGE).rm())
 
-    elif arguments.get and arguments.image:
+    elif arguments.get and arguments['image']:
         execute("image fetch", Image(arguments.URL).fetch())
 
-    elif arguments.versions and arguments.image:
+    elif arguments.versions and arguments['image']:
 
         StopWatch.start("image versions")
 
@@ -201,7 +201,7 @@ def interprete(arguments):
 
         # check_root(dryrun=dryrun)
 
-        image = 'latest' if not arguments.image else arguments.image
+        image = 'latest' if not arguments['image'] else arguments['image']
 
         environ_DEV = os.environ['DEV'] if 'DEV' in os.environ else None
         devices = arguments["--device"] or environ_DEV or None
