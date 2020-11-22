@@ -17,17 +17,13 @@ See [here](https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/main/cloudmesh
 
 ## Quick Start
 
-* We assume you have at at leats 3 PI's
+* We assume you have at at leats 3 PI's (note. this is just for this particular example. One master and two workers)
 * We assume you will use the hostname for the master to be `red`, and
   for the workers you will use `red[001-002]`.
-* We assume you have the master configured with the latest rasbian
-* We assume you use the username will be `pi` on `red`
+* We assume you have the master configured with the (latest Raspberry Pi OS)[https://www.raspberrypi.org/documentation/installation/installing-images/README.md]
+* We assume you use the username will be `pi` on `red` (note. `pi` is the default username)
 
-Install the code on the master `red` into a venv called ~/ENV3 with,
-creates an ssh-key, adds it to sshagent, and and downloads the latest
-Raspbian image. Make sure you use a strong passphrase for the key.
-Downloading the image will take some time.
-
+On `red`, perform the following to create an ssh-key, download cloudmesh for Pi, and download the latest raspbian OS with `cms burn`
 ```
 pi@red:$ ssh-keygen
 pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
@@ -39,7 +35,7 @@ pi@red:$ source ~/ENV3/bin/activate
 ```
 
 To prepare for burning check if your SD card writer is detected and
-observe the output. We have multiple programs to do so likely the `info`
+observe the output (note it is a prompted command). We have multiple programs to do so likely the `info`
 command will be sufficient.
 
 ```
@@ -66,7 +62,7 @@ reported by the `info` command
 (ENV3) pi@red:$ export DEV=/dev/sdx
 ```
 
-and start burning `red[001-002`].
+and start burning `red[001-002]`.
 
 ```
 (ENV3) pi@red:$ cms burn create \
@@ -78,12 +74,16 @@ After you put the SD Cards in the worker Pis and boot them you can log
 into them with
 
 ```
-(ENV3) pi@red:$ ssh pi@red001
+(ENV3) pi@red:$ ssh pi@red001.local
 ```
 
-In the future, we will try to remove the `pi` user.
+In the future, we will try to remove the `pi` user. 
 
 E.g. use we will integrate `cms host ssh config red[001-003]`
+
+
+Note that if the Pi's are all connected under (cms bridge)[https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/main/cloudmesh/bridge], the `.local` extension is not necessary.
+
 
 >
 > ***Alternative: Specifying --device***
