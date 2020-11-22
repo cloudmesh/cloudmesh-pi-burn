@@ -66,8 +66,7 @@ and start burning `red[001-002]`.
 
 ```
 (ENV3) pi@red:$ cms burn create \
---hostname=red[001-002] \
---ipaddr=169.254.10.[1-2]
+--hostname=red[001-002]
 ```
 
 After you put the SD Cards in the worker Pis and boot them you can log
