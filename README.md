@@ -30,7 +30,7 @@ Downloading the image will take some time.
 
 ```
 pi@red:$ ssh-keygen
-pi@red:$ curl -Ls https://raw.githubusercontent.com/cloudmesh/get/main/pi/index.html | sh
+pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
 pi@red:$ source ~/ENV3/bin/activate
 
 (ENV3) pi@red:$ ssh-add
