@@ -17,6 +17,8 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
+from cloudmesh.common.debug import VERBOSE
+from cloudmesh.common.console import Console
 
 
 def execute(label, function):
@@ -79,6 +81,42 @@ def interprete(arguments):
         # burner.configure_wifi(ssid, password)
         StopWatch.stop("wifi")
         StopWatch.status("wifi", True)
+
+
+    elif arguments.bakery and arguments.ssid:
+
+        from cloudmesh.burn.pibakery.bakery import Bakery
+
+        if arguments.ssid is None:
+            arguments.password = getpass("Please enter the SSID password: ")
+
+        if arguments.wifipassword is None:
+            arguments.password = getpass("Please enter the Wifi password: ")
+
+        if arguments.password is None:
+            arguments.password = getpass(
+                "Please enter the password for user pi: ")
+
+        bakery = Bakery()
+
+        if arguments.force:
+            Console.ok("Deleting the file")
+            bakery.delete()
+
+        bakery.load(hostname=arguments.NAME,
+                    ssid=arguments.ssid,
+                    wifipassword=arguments.wifipassword,
+                    password=arguments.password, )
+        StopWatch.stop("bakery")
+        bakery.burn()
+        StopWatch.stop("bakery")
+        StopWatch.status("bakery", True)
+
+    elif arguments.bakery:
+
+        from cloudmesh.burn.pibakery.bakery import Bakery
+        bakery = Bakery()
+        bakery.open()
 
     elif arguments.detect:
 
