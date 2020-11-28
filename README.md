@@ -1,29 +1,83 @@
 # Cloudmesh Pi Burner for SD Cards
 
-{warning}
-
-{icons}
-
-WARNING: This program is designed for a Raspberry Pi and must not be
+**WARNING:** This program is designed for a Raspberry Pi and must not be
 executed on your laptop
 
-Please note that a lot of information is not yet integarted and is
-available in a previous [README](README-old.md). A lot of information is
-still relevant and we will include it here once we have made sure it
-works.
 
-See [here](https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/main/cloudmesh/pi/cluster/k3) for k3s program documentation.
+## See Also
 
+Some older documentation, much of it is still relevant, is available
+at the following links. We will in time integrate or update them.
+
+**NOTE:** Please note that a lot of information is not yet integarted and is
+available in a previous [README-old](README-old.md).
+The information the older README is
+still relevant and we will include it here over time.
+
+**NOTE:** We also have additional information just started on how to
+install a kubernetes cluster. This however doe not yet work. See
+[kubernetes cluster instalation guide.](https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/main/cloudmesh/pi/cluster/k3)
+for k3s program documentation.
+
+**NOTE**: [Old manual documentation](https://cloudmesh.github.io/cloudmesh-manual/projects/project-pi-burn.html?highlight=burn)
+
+## Nomenclature of a command prefix
+
+* Commands proceeded with `pi@red:$` are to be executed on the Rasperry
+  Pi with the name red.
+
+* Commands with `(ENV3) pi@red:$` are to be executed in a virtula ENV
+  using Python 3 on the Raspberry Pi with the name red
+
+* Commands with `$` only are to be executed on your local computer
+  that is not a Pi.
 
 ## Quick Start
 
-* We assume you have at at leats 3 PI's (note. this is just for this particular example. One master and two workers)
+In this example we will set up a network of Raspberry Pi's. In our
+example we will set up a cluster with 3 Pi's. We have the following
+assumptions:
+
+* We assume you have at at least 3 Raspberry Pi's. This will provide
+  you in our example with a master and two worker Pi's. However if you
+  have more, you can use more by adding more worker Pi's. Please adapt
+  our example accordingly. The minimum number of workers is 1.
+
 * We assume you will use the hostname for the master to be `red`, and
   for the workers you will use `red[001-002]`.
-* We assume you have the master configured with the (latest Raspberry Pi OS)[https://www.raspberrypi.org/documentation/installation/installing-images/README.md]
-* We assume you use the username will be `pi` on `red` (note. `pi` is the default username)
 
-On `red`, perform the following to create an ssh-key, download cloudmesh for Pi, and download the latest raspbian OS with `cms burn`
+* We assume that you have one more SD Card than you have PI's. If not
+  you need to reinstall the burn program on that master. and use that
+  reburned SD card.
+
+* We assume that you have an SD card writer. We wecommend that you get
+  one that is USB 3 compatible as the new PI's do support USB 3 and
+  thus are faster.
+
+* We assume you have the master configured with the (latest Raspberry
+  Pi
+  OS)[https://www.raspberrypi.org/documentation/installation/installing-images/README.md]
+
+* We assume you use the username `pi` on `red`. Note, that `pi` is
+  the default username on Rasperry Pi OS. To rename the hostname which
+  is originally `raspberry` please log into it and execute the
+  following command:
+
+  TODO: MAYBE WE SHOULD JUST LEAVE THE NAME raspberry and just burn a
+  new SD card
+
+  ```
+  pi@raspberry:$ sudo echo "127.0.1.1 red" >> /etc/hosts
+  pi@raspberry:$ sudo reboot
+  ```
+
+  after the reboot the machien will show up as `red`
+  
+In the first step we will install some useful software on the master
+that allows us to easily burn and reburn also the card for master. 
+On `red`, perform the following to create an ssh-key, download
+cloudmesh for Pi, and download the latest raspbian OS with `cms burn`
+
 ```
 pi@red:$ ssh-keygen
 pi@red:$ curl -Ls http://cloudmesh.github.io/get/pi | sh
@@ -35,8 +89,8 @@ pi@red:$ source ~/ENV3/bin/activate
 ```
 
 To prepare for burning check if your SD card writer is detected and
-observe the output (note it is a prompted command). We have multiple programs to do so likely the `info`
-command will be sufficient.
+observe the output (note it is a prompted command). We have multiple
+programs to do so likely the `info` command will be sufficient.
 
 ```
 (ENV3) pi@red:$ cms burn detect
@@ -55,8 +109,8 @@ command will be sufficient.
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
 ```
 
-Now set your default SD card device with the following command (your /dev/sdx may be different as
-reported by the `info` command
+Now set your default SD card device with the following command (your
+`/dev/sdx` may be different as reported by the `info` command
 
 ```
 (ENV3) pi@red:$ export DEV=/dev/sdx
@@ -81,12 +135,17 @@ In the future, we will try to remove the `pi` user.
 E.g. use we will integrate `cms host ssh config red[001-003]`
 
 
-Note that if the Pi's are all connected under (cms bridge)[https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/main/cloudmesh/bridge], the `.local` extension is not necessary.
+Note that if the Pi's are all connected under (cms
+bridge)[https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/main/cloudmesh/bridge],
+the `.local` extension is not necessary.
 
 
 >
 > ***Alternative: Specifying --device***
-> If you would rather not use `export DEV=/dev/sdx`, you can specify it using the `--device` option:
+>
+> If you would rather not use `export DEV=/dev/sdx`, you can specify
+> it using the `--device` option:
+>
 > ```
 > (ENV3) pi@red:$ cms burn create \
 > --device=/dev/sdx \
@@ -98,9 +157,9 @@ Note that if the Pi's are all connected under (cms bridge)[https://github.com/cl
 >
 > ***Alternative: Using WiFi:***
 >
-> If you want to connect your workers directly to the internet via WiFi,
-> then you only need to add the following two lines to the end of
-> `cms burn`:
+> If you want to connect your workers directly to the internet via
+> WiFi, then you only need to add the following two lines to the end
+> of `cms burn`:
 >
 > ```
 > (ENV3) pi@red:$ cms burn create \
@@ -125,17 +184,132 @@ Note that if the Pi's are all connected under (cms bridge)[https://github.com/cl
 >
 
 
+## Manual
+
+```
+
+cms burn help
+
+
+Usage:
+  burn network list [--ip=IP] [--used]
+  burn network
+  burn info [DEVICE]
+  burn detect
+  burn image versions [--refresh]
+  burn image ls
+  burn image delete [IMAGE]
+  burn image get [URL]
+  burn create [--image=IMAGE]
+                         [--device=DEVICE]
+                         [--hostname=HOSTNAME]
+                         [--ipaddr=IP]
+                         [--sshkey=KEY]
+                         [--blocksize=BLOCKSIZE]
+                         [--dryrun]
+                         [--passwd=PASSWD]
+                         [--ssid=SSID]
+                         [--wifipassword=PSK]
+                         [--format]
+  burn burn [IMAGE] [DEVICE] --[dryrun]
+  burn mount [DEVICE] [MOUNTPOINT]
+  burn set host [HOSTNAME] [MOUNTPOINT]
+  burn set ip [IP] [MOUNTPOINT]
+  burn set key [KEY] [MOUNTPOINT]
+  burn enable ssh [MOUNTPOINT]
+  burn unmount [DEVICE]
+  burn wifi SSID [PASSWD] [-ni]
+
+Options:
+  -h --help              Show this screen.
+  --version              Show version.
+  --image=IMAGE          The image filename,
+                         e.g. 2019-09-26-raspbian-buster.img
+  --device=DEVICE        The device, e.g. /dev/mmcblk0
+  --hostname=HOSTNAME    The hostname
+  --ipaddr=IP            The IP address
+  --key=KEY              The name of the SSH key file
+  --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
+
+Files:
+  This is not fully thought through and needs to be documented
+  ~/.cloudmesh/images
+    Location where the images will be stored for reuse
+
+Description:
+    cms burn create --passwd=PASSWD
+
+         if the passwd flag is added the default password is
+         queried from the commandline and added to all SDCards
+
+         if the flag is ommitted login via the password is disabled
+         and only login via the sshkey is allowed
+
+  Network
+
+    cms burn network list
+
+        Lists the ip addresses that are on the same network
+
+         +------------+---------------+----------+-----------+
+         | Name       | IP            | Status   | Latency   |
+         |------------+---------------+----------+-----------|
+         | Router     | 192.168.1.1   | up       | 0.0092s   |
+         | iPhone     | 192.168.1.4   | up       | 0.061s    |
+         | red01      | 192.168.1.46  | up       | 0.0077s   |
+         | laptop     | 192.168.1.78  | up       | 0.058s    |
+         | unkown     | 192.168.1.126 | up       | 0.14s     |
+         | red03      | 192.168.1.158 | up       | 0.0037s   |
+         | red02      | 192.168.1.199 | up       | 0.0046s   |
+         | red        | 192.168.1.249 | up       | 0.00021s  |
+         +------------+----------------+----------+-----------+
+
+    cms burn network list [--used]
+
+        Lists the used ip addresses as a comma separated parameter
+        list
+
+           192.168.50.1,192.168.50.4,...
+
+    cms burn network address
+
+        Lists the own network address
+
+         +---------+----------------+----------------+
+         | Label   | Local          | Broadcast      |
+         |---------+----------------+----------------|
+         | wlan0   | 192.168.1.12   | 192.168.1.255  |
+         +---------+----------------+----------------+
+
+Examples: ( \ is not shown)
+
+   > cms burn create --image=2019-09-26-raspbian-buster-lite
+   >                 --device=/dev/mmcblk0
+   >                 --hostname=red[5-7]
+   >                 --ipaddr=192.168.1.[5-7]
+   >                 --sshkey=id_rsa
+
+   > cms burn image get latest
+
+   > cms burn image get https://downloads.raspberrypi.org/
+   >   raspbian_lite/images/
+   >   raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
+
+   > cms burn image delete 2019-09-26-raspbian-buster-lite
+
+```
+
+
+
 ## STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT
 
 THAT GREGOR DID NOT WANT TO DELETE  AS IT COULD BE USEFUL
 AND MAYBE COULD BE INTEGRATED IN THE MAIN DOCUMENTATION
 
-**NOTE**
-
-Notice I have change the `--ipaddr` option. This is to remind everyone
-that the static IP must fall into your network range. Many home networks
-have a 192.168.1.x network range, which is why I have set up the example
-in this context.
+**NOTE**: Notice I have changed the `--ipaddr` option. This is to
+remind everyone that the static IP must fall into your network
+range. Many home networks have a 192.168.1.x network range, which is
+why I have set up the example in this context.
 
 ## Step 4(alt). Burning Multiple Cards
 
@@ -155,14 +329,6 @@ hostnames `red001, red002, red003` with ip addresses `169.254.10.1,
 ```
 
 This has not yet been tested due to lack of card-readers.
-
-
-
-
-# To-Do:
-More cleanup
-
-
 
 # Setting up master Pi
  
@@ -680,6 +846,3 @@ SSHFS:
 
     See also: <https://github.com/libfuse/sshfs>
 
-## Manual
-
-{manual}
