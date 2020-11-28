@@ -66,8 +66,7 @@ clean:
 	rm -rf *.eggs
 	rm -rf docs/build
 	rm -rf build
-	find . -type d -name __pycache__ -delete
-	find . -name '*.pyc' -delete
+	find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
 	rm -rf .tox
 	rm -f *.whl
 
