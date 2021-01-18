@@ -3,6 +3,16 @@
 **WARNING:** This program is designed for a Raspberry Pi and must not be
 executed on your laptop
 
+
+[![image](https://img.shields.io/travis/TankerHQ/cloudmesh-pi-burn.svg?branch=main)](https://travis-ci.org/TankerHQ/cloudmesn-pi-burn)
+
+[![image](https://img.shields.io/pypi/pyversions/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn)
+
+[![image](https://img.shields.io/pypi/v/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn/)
+
+[![image](https://img.shields.io/github/license/TankerHQ/python-cloudmesh-pi-burn.svg)](https://github.com/TankerHQ/python-cloudmesh-pi-burn/blob/main/LICENSE)
+
+
 <!--TOC-->
 
 - [Cloudmesh Pi Burner for SD Cards](#cloudmesh-pi-burner-for-sd-cards)
