@@ -3,6 +3,32 @@
 **WARNING:** This program is designed for a Raspberry Pi and must not be
 executed on your laptop
 
+<!--TOC-->
+
+- [Cloudmesh Pi Burner for SD Cards](#cloudmesh-pi-burner-for-sd-cards)
+  - [See Also](#see-also)
+  - [Nomenclature of a command prefix](#nomenclature-of-a-command-prefix)
+  - [Quick Start](#quick-start)
+  - [Manual](#manual)
+  - [STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT](#stuff-to-be-deleted-or-integrated-in-rest-of-document)
+  - [Step 4(alt). Burning Multiple Cards](#step-4alt-burning-multiple-cards)
+- [Setting up master Pi](#setting-up-master-pi)
+  - [IMPORTANT NOTE:](#important-note)
+  - [Starting the Pi](#starting-the-pi)
+  - [Activate python 3](#activate-python-3)
+- [DEPRECATED. DO NOT GO BEYOND THIS LINE AS THE DOCUMENTATION IS OUT OF DATE](#deprecated-do-not-go-beyond-this-line-as-the-documentation-is-out-of-date)
+  - [Installation](#installation)
+  - [Information about the SD Cards and Card Writer](#information-about-the-sd-cards-and-card-writer)
+  - [Finding Image Versions](#finding-image-versions)
+  - [Downloading an Image](#downloading-an-image)
+  - [ROOT](#root)
+  - [Creating Cluster SD-Cards](#creating-cluster-sd-cards)
+  - [Burning SD-Cards](#burning-sd-cards)
+    - [Auto Format to FAT32](#auto-format-to-fat32)
+    - [Note on using a static IP address](#note-on-using-a-static-ip-address)
+  - [From the raspberry FAQ](#from-the-raspberry-faq)
+
+<!--TOC-->
 
 ## See Also
 
@@ -186,12 +212,8 @@ the `.local` extension is not necessary.
 
 ## Manual
 
+<!--MANUAL-->
 ```
-
-cms burn help
-
-
-Usage:
   burn network list [--ip=IP] [--used]
   burn network
   burn info [DEVICE]
@@ -298,6 +320,9 @@ Examples: ( \ is not shown)
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
 ```
+<!--MANUAL-->
+
+
 
 
 
