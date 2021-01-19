@@ -129,7 +129,7 @@ class BurnCommand(PluginCommand):
                        "ipaddr",
                        "sshkey",
                        "blocksize",
-                      #  "dryrun",
+                       #  "dryrun",
                        "passwd",
                        "ssid",
                        "wifipassword",

@@ -366,8 +366,8 @@ class Burner(object):
             # Configure static wifi IP
             elif iface == "wlan0":
                 dnss = \
-                self.system("cat /etc/resolv.conf | grep nameserver").split()[
-                    1]  # index 0 is "nameserver" so ignore
+                    self.system("cat /etc/resolv.conf | grep nameserver").split()[
+                        1]  # index 0 is "nameserver" so ignore
                 routerss = self.system(
                     "ip route | grep default | awk '{print $3}'")  # omit the \n at the end
                 dhcp_conf = textwrap.dedent(f"""
@@ -380,8 +380,6 @@ class Burner(object):
                 #     config.write(dhcp_conf)
                 sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf,
                                append=True)
-
-
         else:
             print('interface eth0\n')
             print(f'static ip_address={ip}/{mask}')
@@ -953,7 +951,7 @@ class MultiBurner(object):
         # Burns the image on the specific device
 
         mp = '/mount/pi'
-        if key == None:
+        if key is None:
             key = '~/.ssh/id_rsa.pub'
 
         elif key == 'root':

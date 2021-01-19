@@ -1,15 +1,14 @@
 # Cloudmesh Pi Burner for SD Cards
 
-**WARNING:** This program is designed for a Raspberry Pi and must not be
-executed on your laptop
+**WARNING:** *This program is designed for a Raspberry Pi and must not be
+executed on your laptop or desktop. An earlier version that could be run on Linux, 
+macOS, and Windows 10 is no longer supported. If you want to help us porting them 
+on any of these OSes, please contact laszewski@gmail.com*
 
 
 [![image](https://img.shields.io/travis/TankerHQ/cloudmesh-pi-burn.svg?branch=main)](https://travis-ci.org/TankerHQ/cloudmesn-pi-burn)
-
 [![image](https://img.shields.io/pypi/pyversions/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn)
-
 [![image](https://img.shields.io/pypi/v/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn/)
-
 [![image](https://img.shields.io/github/license/TankerHQ/python-cloudmesh-pi-burn.svg)](https://github.com/TankerHQ/python-cloudmesh-pi-burn/blob/main/LICENSE)
 
 
@@ -40,6 +39,12 @@ executed on your laptop
 
 <!--TOC-->
 
+## Introduction
+
+TODO
+
+
+
 ## See Also
 
 Some older documentation, much of it is still relevant, is available
@@ -57,12 +62,12 @@ for k3s program documentation.
 
 **NOTE**: [Old manual documentation](https://cloudmesh.github.io/cloudmesh-manual/projects/project-pi-burn.html?highlight=burn)
 
-## Nomenclature of a command prefix
+## Nomenclature
 
 * Commands proceeded with `pi@red:$` are to be executed on the Rasperry
   Pi with the name red.
 
-* Commands with `(ENV3) pi@red:$` are to be executed in a virtula ENV
+* Commands with `(ENV3) pi@red:$` are to be executed in a virtual ENV
   using Python 3 on the Raspberry Pi with the name red
 
 * Commands with `$` only are to be executed on your local computer

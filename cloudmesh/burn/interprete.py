@@ -65,7 +65,6 @@ def interprete(arguments):
         )
         return ""
 
-
     elif arguments.wifi:
 
         password = arguments.PASSWD
@@ -82,7 +81,6 @@ def interprete(arguments):
     elif arguments.detect:
 
         execute("burn", burner.detect())
-
 
     elif arguments.info:
 
@@ -140,7 +138,6 @@ def interprete(arguments):
 
     elif arguments.ls and arguments['image']:
         execute("image ls", Image().ls())
-
 
     elif arguments.delete and arguments['image']:
         execute("image rm", Image(arguments.IMAGE).rm())
