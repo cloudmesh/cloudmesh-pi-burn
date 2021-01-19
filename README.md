@@ -18,6 +18,10 @@ on any of these OSes, please contact laszewski@gmail.com*
   - [See Also](#see-also)
   - [Nomenclature of a command prefix](#nomenclature-of-a-command-prefix)
   - [Quick Start](#quick-start)
+    - [Setup](#setup)
+    - [Single Card Burning](#single-card-burning)
+    - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
+    - [Connecting Pis Together](#connecting-pis-together)
   - [Manual](#manual)
   - [STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT](#stuff-to-be-deleted-or-integrated-in-rest-of-document)
   - [Step 4(alt). Burning Multiple Cards](#step-4alt-burning-multiple-cards)
@@ -39,21 +43,29 @@ on any of these OSes, please contact laszewski@gmail.com*
 
 <!--TOC-->
 
-## Introduction
+## cms burn
 
-TODO
+`cms burn` is a program to burn many SD cards for the preparation of
+building clusters with Raspberry Pi's.  The program is developed in
+Python and is portable on Linux, Windows, and OSX. It allows users to
+create readily bootable SD cards that have the network configured,
+contain a public ssh key from your machine that you used to configure
+the cards.  The unique feature is that you can burn multiple cards in
+a row.
 
+A sample command invocation looks like:
 
+```
+cms burn create \
+--hostname=red[001-002]
+```
+This command will burn 2 SD cards with the 
+        
 
 ## See Also
 
 Some older documentation, much of it is still relevant, is available
 at the following links. We will in time integrate or update them.
-
-**NOTE:** Please note that a lot of information is not yet integarted and is
-available in a previous [README-old](README-old.md).
-The information the older README is
-still relevant and we will include it here over time.
 
 **NOTE:** We also have additional information just started on how to
 install a kubernetes cluster. This however doe not yet work. See
@@ -62,18 +74,145 @@ for k3s program documentation.
 
 **NOTE**: [Old manual documentation](https://cloudmesh.github.io/cloudmesh-manual/projects/project-pi-burn.html?highlight=burn)
 
-## Nomenclature
+# Quick Start
+## Requirements
+* You will need at least **1 Raspberry Pi** burned using [Raspberry Pi imager](https://www.raspberrypi.org/software/). Use the recommended operating system for this Pi. Setting up a Raspberry Pi in this manner should be relatively straightforward as it is heavily documented online (For example, [how to setup SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/)). All you will need for this guide is an internet connection for your Pi.
 
-* Commands proceeded with `pi@red:$` are to be executed on the Rasperry
-  Pi with the name red.
+* You will need an SD card burner (USB tends to work best) to burn new cards
 
-* Commands with `(ENV3) pi@red:$` are to be executed in a virtual ENV
-  using Python 3 on the Raspberry Pi with the name red
+* You will need 1 or more extra SD cards to burn.
 
-* Commands with `$` only are to be executed on your local computer
-  that is not a Pi.
+---
 
-## Quick Start
+## Setup
+> Note: These commands should be run on the Raspberry Pi Terminal.
+> Our full commands are inserted into this document which includes 
+> the hostname of our Pi (this should be an indicator we are working purely within the Raspberry Pi)
+
+Step 1. Installing Cloudmesh
+
+The simple curl command below will generate an ssh-key, update your system, and install cloudmesh.
+
+```
+pi@raspberrypi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
+```
+This will take a moment...
+
+Step 2. Activate Python Virtual Environment
+If you have not already, enter the Python virtual environment provided by the installation script.
+```
+pi@raspberrypi:~ $ source ~/ENV3/bin/activate
+```
+
+Step 3. Detecting the card burner
+
+Run the detect command as follows:
+```
+(ENV3) pi@raspberrypi:~ $ cms burn detect
+```
+This command will prompt the user with instructions on how to mount the SD card burner on the Pi. You should also have your SD card inserted into the burner at this time.
+
+If all is done correctly, running the following command will return the path to the card burner.
+```
+(ENV3) pi@raspberrypi:~ $ cms burn info
+```
+
+Here is a snippet from the returned lines:
+```
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+| Path     | Info                 | Readable | Formatted | Empty | Size             | Aaccess | Removable | Writeable |
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+| /dev/sda | Generic Mass-Storage | True     | True      | False | 31.9 GB/29.7 GiB | True    | True      |           |
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+```
+We can see that the path to our burner is `/dev/sda`. Let us export this as an environment variable for access by the burn program.
+
+```
+(ENV3) pi@raspberrypi:~ $ export DEV=/dev/sda
+```
+Of course, your path may be different.
+
+Step 4. Retrieving a Raspbian Lite Image (Only needs to be done once per image version)
+
+Currently, we burn our SD cards with Raspbian Lite, as desktop is not usually needed for the intended use case of this program.
+
+We can retrieve the latest version of raspbian lite as follows:
+```
+(ENV3) pi@raspberrypi:~ $ cms burn image get latest
+```
+This will take a few moments...
+
+We can also use this command to get specific versions of Raspbian Lite. This will be included in this guide at a future date.
+
+Your Pi is now ready to burn SD cards.
+
+---
+
+## Single Card Burning
+Step 0. Ensure the SD card is inserted.
+
+We can run `cms burn info` again as we did above to verify our SD card is connected.
+
+Step 1. Burning the SD Card
+
+Choose a hostname for your card. We will use `red001`.
+```
+(ENV3) pi@raspberrypi:~ $ cms burn create --hostname=red001
+```
+Wait for the card to burn. Once the process is complete, it is safe to remove the SD card.
+
+---
+
+## Burning Multiple SD Cards with a Single Burner
+Step 0. Ensure the first SD card is inserted into the burner.
+
+We can run `cms burn info` again as we did above to verify our SD card is connected.
+
+Step 2. Burning the Cards
+
+`cms burn` supports logical incremenation of numbers/characters.
+
+For example, `red00[1-2]` is interpreted by cms burn as `[red001, red002]`.
+Similarly, `red[a-c]` is interpreted by cms burn as `[reda, redb, redc]`.
+
+We can burn 2 SD cards as follows:
+```
+(ENV3) pi@raspberrypi:~ $ cms burn create --hostname=red00[1-2]
+```
+
+The user will be prompted to swap the SD cards after each card burn if there are still remaining cards to burn.
+
+---
+
+## Connecting Pis Together
+`cms burn` will setup a simple network on all cluster nodes
+configured. There are different models for networking configuration we
+could use.  However we have decided for one that allows you to
+interface with your local Laptop to the cluster via Wifi.  The setup
+is illustrated in Figure Networking.
+
+![](images/network.png)
+
+Figure: Networking
+
+We assume that you have used `cms burn` to create all SD cards for the
+Pi's.
+
+The Pi used to burn the cards is known as `Pi Master` in the figure above.
+
+Once your setup is configured in this manner, Pi Master should be able to ssh into each node via its hostname. For example, if one of our workers is `red001`, we may ssh to them as follows:
+```
+(ENV3) pi@raspberrypi:~ $ ssh pi@red001.local
+```
+
+> Note: To figure out when a Pi is done completing its initial bootup process, the green light on the Pi will remain on until the bootup/setup is complete. Once there is just a solid red light, the Pi is ready.
+
+## STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT
+
 
 In this example we will set up a network of Raspberry Pi's. In our
 example we will set up a cluster with 3 Pi's. We have the following
@@ -339,10 +478,6 @@ Examples: ( \ is not shown)
 
 
 
-
-
-## STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT
-
 THAT GREGOR DID NOT WANT TO DELETE  AS IT COULD BE USEFUL
 AND MAYBE COULD BE INTEGRATED IN THE MAIN DOCUMENTATION
 
@@ -369,118 +504,6 @@ hostnames `red001, red002, red003` with ip addresses `169.254.10.1,
 ```
 
 This has not yet been tested due to lack of card-readers.
-
-# Setting up master Pi
- 
-We recommend that you install first on one Raspberry pi. The process is
-documented at
-
-* <https://www.raspberrypi.org/downloads/>
-
-The first thing you need to do is install a regular image burning
-program. We recommend you use Raspberry PI Imager. As for the image, we
-want to use 
-
-* Raspbian
-
-as Raspbian is the official supported OS. We use
-this OS on the master. Once you have downloded imager and installed in
-your OS, and started it will look like:
-
-![Imager](images/imager.png)
- 
-You can now chose the image and the SD Crad where you want to burn it.
-Make sure you select the card correctly as to avoid destroying the OS on the 
-computer that starts imager. We rcommend That you use an SD Card with 32GB.
-
-Time to burn an image with USB # on a MAC is
-
-## IMPORTANT NOTE:
-`$` denotes pi user and `#` denotes root user when command lines are shown.
-
-## Starting the Pi
-
-Once you have achieved that and configured the OS (do not forget to use
-a strong password), you need to update it after the customary reboot. 
-
-In case you do not have the master initially on a network, 
-make sure your time is set up properly, which you can do with 
-
-```bash
-$ sudo date -s "Jan 2, 2020 14:03 EST"
-```
-
-and put in the appropriate time string corresponding to your date and
-time and time zone.
-
-In case you like a simplified time setup, please visit
-
-* <https://www.google.com>
-
-It will have a button that will ask you to update the time. 
-
-Now, open a terminal and execute 
-
-```bash
-$ sudo apt-get update
-$ sudo apt-get -y full-upgrade
-```
-
-Now you have to create an ssh key with the command.
-
-```bash
-$ ssh-keygen
-```
-
-Keep the default location and use a strong passphrase but do not use the
-same as you have used for your login. Using no passphrase is not
-recommended. You can use `ssh-add` in a terminal, so you do not have to
-all the time type in your passphrase. Please consult with the manual on
-`ssh-keygen` and `ssh-add`.
-
-Next make sure to rename the master node. As we will have many workers
-it is best to use a basename such as `red`.
-
-This way our workers can be called `red[001-100]` or whatever number of
-Pis you want to dedicate as workers. The master we call `red`
-
-The easiset to change your hostname is form the commandline with 
-
-```bash
-$ sudo raspi-config
-```
-
-* Goto `2 Network Options`
-* Goto `N1 Change Hostname`
-
-Reboot when you are done with 
-
-```bash
-$ sudo shutdown -r now
-```
-
-## Activate python 3
-
-Next, configure python 3 with the help of a virtual env
-
-```bash
-$ python3 -m venv ~/ENV3
-$ source ~/ENV3/bin/activate
-```
-
-Place at the end of your `.bashrc` file the line
-
-```
-$ source ~/ENV3/bin/activate
-```
- 
-Now open a new terminal and see if it has the `(ENV3)` as a prefix to
-your command prompt.
-
-If this is the case close all the other windows and use the terminal you
-just started.
-
-
 
 # DEPRECATED. DO NOT GO BEYOND THIS LINE AS THE DOCUMENTATION IS OUT OF DATE
 
