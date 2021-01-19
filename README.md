@@ -2,7 +2,7 @@
 
 **WARNING:** *This program is designed for a Raspberry Pi and must not be
 executed on your laptop or desktop. An earlier version that could be run on Linux, 
-macOS, and Windows 10 is no longer supported. If you want to help us porting them 
+macOS, and Windows 10 is NO LONGER supported. If you want to help us porting them 
 on any of these OSes, please contact laszewski@gmail.com*
 
 
@@ -46,8 +46,7 @@ on any of these OSes, please contact laszewski@gmail.com*
 ## cms burn
 
 `cms burn` is a program to burn many SD cards for the preparation of
-building clusters with Raspberry Pi's.  The program is developed in
-Python and is portable on Linux, Windows, and OSX. It allows users to
+building clusters with Raspberry Pi's. It allows users to
 create readily bootable SD cards that have the network configured,
 contain a public ssh key from your machine that you used to configure
 the cards.  The unique feature is that you can burn multiple cards in
