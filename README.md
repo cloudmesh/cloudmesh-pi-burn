@@ -46,8 +46,9 @@ on any of these OSes, please contact laszewski@gmail.com*
 building clusters with Raspberry Pi's. It allows users to
 create readily bootable SD cards that have the network configured,
 contain a public ssh key from your machine that you used to configure
-the cards.  The unique feature is that you can burn multiple cards in
-a row. 
+the cards. Thus not much additional setup is needed. Another unique 
+feature is that you can burn multiple cards in a row, each with their 
+individual setup such as hostnames and ipadresses.
 
 A sample command invocation looks like:
 
@@ -55,13 +56,13 @@ A sample command invocation looks like:
 cms burn create --hostname=red[001-002]
 ```
 
-This command will burn 2 SD cards with the names red001 and red002
+This command will burn 2 SD cards with the names red001 and red002.
         
 
 ## See Also
 
 Some older documentation, much of it is still relevant, is available
-at the following links. We will in time integrate or update them.
+at the following links. We will in time integrate here or update them.
 
 **NOTE:** We also have additional information just started on how to
 install a kubernetes cluster. This however doe not yet work. See
@@ -70,19 +71,35 @@ for k3s program documentation.
 
 **NOTE**: [Old manual documentation](https://cloudmesh.github.io/cloudmesh-manual/projects/project-pi-burn.html?highlight=burn)
 
-## Quick Start
+## Quickstart
+
+To provide you with a glimps oon what you can do with cms burn, we have 
+provided this quickstart guide that will create one managment PI and several 
+workers.
+
 
 ### Requirements
 
-* You will need at least **1 Raspberry Pi** burned using [Raspberry Pi imager](https://www.raspberrypi.org/software/). Use the recommended operating system for this Pi. Setting up a Raspberry Pi in this manner should be relatively straightforward as it is heavily documented online (For example, [how to setup SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/)). All you will need for this guide is an internet connection for your Pi.
+For the quickstart we have the following requirements:
 
-* You will need an SD card burner (USB tends to work best) to burn new cards
+* To simplify things we assume you have one more SD Cards than you have 
+  Raspberry PIs. (However, its also possible that you can do this also with the 
+  exact number of cars as you have PI's. But its far easier if you just get one more card).
+  
+* You will need at least **1 Raspberry Pi** SD Card burned 
+  using [Raspberry Pi imager](https://www.raspberrypi.org/software/). 
+  You can use your normal operating system to burn such a card including Windows, macOS, or Linux. 
+  Setting up a Raspberry Pi in this manner should be relatively straightforward 
+  as it is nicely documented online (For example, 
+  [how to setup SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/)). 
+  All you will need for this guide is an internet connection for your Pi.
 
-* You will need 1 or more extra SD cards to burn.
-
----
+* You will need an SD card writer (USB tends to work best) to burn new cards
+  We recommend that you invest in a USB3 SDCard writer as they are significantly 
+  faster and you can resuse them on PI'4s
 
 ### Setup
+
 > Note: These commands should be run on the Raspberry Pi Terminal.
 > Our full commands are inserted into this document which includes 
 > the hostname of our Pi (this should be an indicator we are working purely within the Raspberry Pi)
