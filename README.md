@@ -15,31 +15,28 @@ on any of these OSes, please contact laszewski@gmail.com*
 <!--TOC-->
 
 - [Cloudmesh Pi Burner for SD Cards](#cloudmesh-pi-burner-for-sd-cards)
+  - [cms burn](#cms-burn)
   - [See Also](#see-also)
-  - [Nomenclature of a command prefix](#nomenclature-of-a-command-prefix)
   - [Quick Start](#quick-start)
+    - [Requirements](#requirements)
     - [Setup](#setup)
     - [Single Card Burning](#single-card-burning)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
     - [Connecting Pis Together](#connecting-pis-together)
-  - [Manual](#manual)
   - [STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT](#stuff-to-be-deleted-or-integrated-in-rest-of-document)
+  - [Manual](#manual)
   - [Step 4(alt). Burning Multiple Cards](#step-4alt-burning-multiple-cards)
-- [Setting up master Pi](#setting-up-master-pi)
-  - [IMPORTANT NOTE:](#important-note)
-  - [Starting the Pi](#starting-the-pi)
-  - [Activate python 3](#activate-python-3)
-- [DEPRECATED. DO NOT GO BEYOND THIS LINE AS THE DOCUMENTATION IS OUT OF DATE](#deprecated-do-not-go-beyond-this-line-as-the-documentation-is-out-of-date)
-  - [Installation](#installation)
-  - [Information about the SD Cards and Card Writer](#information-about-the-sd-cards-and-card-writer)
-  - [Finding Image Versions](#finding-image-versions)
-  - [Downloading an Image](#downloading-an-image)
-  - [ROOT](#root)
-  - [Creating Cluster SD-Cards](#creating-cluster-sd-cards)
-  - [Burning SD-Cards](#burning-sd-cards)
+  - [DEPRECATED. DO NOT GO BEYOND THIS LINE AS THE DOCUMENTATION IS OUT OF DATE](#deprecated-do-not-go-beyond-this-line-as-the-documentation-is-out-of-date)
+    - [Installation](#installation)
+    - [Information about the SD Cards and Card Writer](#information-about-the-sd-cards-and-card-writer)
+    - [Finding Image Versions](#finding-image-versions)
+    - [Downloading an Image](#downloading-an-image)
+    - [ROOT](#root)
+    - [Creating Cluster SD-Cards](#creating-cluster-sd-cards)
+    - [Burning SD-Cards](#burning-sd-cards)
     - [Auto Format to FAT32](#auto-format-to-fat32)
     - [Note on using a static IP address](#note-on-using-a-static-ip-address)
-  - [From the raspberry FAQ](#from-the-raspberry-faq)
+    - [From the raspberry FAQ](#from-the-raspberry-faq)
 
 <!--TOC-->
 
@@ -50,15 +47,15 @@ building clusters with Raspberry Pi's. It allows users to
 create readily bootable SD cards that have the network configured,
 contain a public ssh key from your machine that you used to configure
 the cards.  The unique feature is that you can burn multiple cards in
-a row.
+a row. 
 
 A sample command invocation looks like:
 
 ```
-cms burn create \
---hostname=red[001-002]
+cms burn create --hostname=red[001-002]
 ```
-This command will burn 2 SD cards with the 
+
+This command will burn 2 SD cards with the names red001 and red002
         
 
 ## See Also
@@ -73,8 +70,10 @@ for k3s program documentation.
 
 **NOTE**: [Old manual documentation](https://cloudmesh.github.io/cloudmesh-manual/projects/project-pi-burn.html?highlight=burn)
 
-# Quick Start
-## Requirements
+## Quick Start
+
+### Requirements
+
 * You will need at least **1 Raspberry Pi** burned using [Raspberry Pi imager](https://www.raspberrypi.org/software/). Use the recommended operating system for this Pi. Setting up a Raspberry Pi in this manner should be relatively straightforward as it is heavily documented online (For example, [how to setup SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/)). All you will need for this guide is an internet connection for your Pi.
 
 * You will need an SD card burner (USB tends to work best) to burn new cards
@@ -83,7 +82,7 @@ for k3s program documentation.
 
 ---
 
-## Setup
+### Setup
 > Note: These commands should be run on the Raspberry Pi Terminal.
 > Our full commands are inserted into this document which includes 
 > the hostname of our Pi (this should be an indicator we are working purely within the Raspberry Pi)
@@ -151,7 +150,7 @@ Your Pi is now ready to burn SD cards.
 
 ---
 
-## Single Card Burning
+### Single Card Burning
 Step 0. Ensure the SD card is inserted.
 
 We can run `cms burn info` again as we did above to verify our SD card is connected.
@@ -166,7 +165,7 @@ Wait for the card to burn. Once the process is complete, it is safe to remove th
 
 ---
 
-## Burning Multiple SD Cards with a Single Burner
+### Burning Multiple SD Cards with a Single Burner
 Step 0. Ensure the first SD card is inserted into the burner.
 
 We can run `cms burn info` again as we did above to verify our SD card is connected.
@@ -187,7 +186,7 @@ The user will be prompted to swap the SD cards after each card burn if there are
 
 ---
 
-## Connecting Pis Together
+### Connecting Pis Together
 `cms burn` will setup a simple network on all cluster nodes
 configured. There are different models for networking configuration we
 could use.  However we have decided for one that allows you to
@@ -477,6 +476,7 @@ Examples: ( \ is not shown)
 
 
 
+
 THAT GREGOR DID NOT WANT TO DELETE  AS IT COULD BE USEFUL
 AND MAYBE COULD BE INTEGRATED IN THE MAIN DOCUMENTATION
 
@@ -504,10 +504,10 @@ hostnames `red001, red002, red003` with ip addresses `169.254.10.1,
 
 This has not yet been tested due to lack of card-readers.
 
-# DEPRECATED. DO NOT GO BEYOND THIS LINE AS THE DOCUMENTATION IS OUT OF DATE
+## DEPRECATED. DO NOT GO BEYOND THIS LINE AS THE DOCUMENTATION IS OUT OF DATE
 
 
-## Installation
+### Installation
 
 First, you must install `cms burn`. In a future version, this will be done
 with
@@ -531,7 +531,7 @@ In the future, we will remove the -e
 $ pip install .
 ```
 
-## Information about the SD Cards and Card Writer
+### Information about the SD Cards and Card Writer
 
 You need at least one SD Card writer. However, `cms burn` is
 supposed to work also with a USB hub in which you can plug in
@@ -633,7 +633,8 @@ in the Empty column. We recommend that you only use formatted cards, so
 you are sure you do not by accident delete information.
 
 
-## Finding Image Versions
+### Finding Image Versions
+
 Start using sudo now!
 
 First, you have to find the raspbian image you like to install. For this
@@ -652,7 +653,7 @@ list with
 # cms burn image versions --refresh
 ```
 
-## Downloading an Image
+### Downloading an Image
 
 To download the newest image, use the command
 
@@ -681,7 +682,7 @@ You can also specify the exact URL with
 # cms burn image get https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
 ```
 
-## ROOT
+### ROOT
 
 For the burn process, you need to use root privileges. To achieve this,
 you need to execute the following commands. The source command
@@ -696,7 +697,7 @@ $ sudo su
 Please note that for our notation a `#` indicates this command is
 executed in root.
 
-## Creating Cluster SD-Cards
+### Creating Cluster SD-Cards
 
 Next, we describe how we create a number of SD-Cards to create a cluster.
 Each card will have a unique hostname, an IP address and your public key. 
@@ -709,7 +710,7 @@ $ cms burn info
 You can look at the names of your devices under the device column. Eg
 /dev/sda,/dev/sdb,etc
 
-## Burning SD-Cards
+### Burning SD-Cards
 
 To burn one card, we will use `cms burn create` with several
 important options:
@@ -873,7 +874,7 @@ above command is equivalent to:
 ```
 
 
-## From the raspberry FAQ
+### From the raspberry FAQ
 
 Quote:
     There is no on/off switch! To switch on, just plug it in. To switch
