@@ -102,11 +102,13 @@ For the quickstart we have the following requirements:
 
 > Note: These commands should be run on the Raspberry Pi Terminal.
 > Our full commands are inserted into this document which includes 
-> the hostname of our Pi (this should be an indicator we are working purely within the Raspberry Pi)
+> the hostname of our Pi (this should be an indicator we are 
+> working purely within the Raspberry Pi)
 
 Step 1. Installing Cloudmesh
 
-The simple curl command below will generate an ssh-key, update your system, and install cloudmesh.
+The simple curl command below will generate an ssh-key, update your system, 
+and install cloudmesh.
 
 ```
 pi@raspberrypi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
@@ -114,7 +116,9 @@ pi@raspberrypi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
 This will take a moment...
 
 Step 2. Activate Python Virtual Environment
-If you have not already, enter the Python virtual environment provided by the installation script.
+If you have not already, enter the Python virtual environment provided by 
+the installation script.
+
 ```
 pi@raspberrypi:~ $ source ~/ENV3/bin/activate
 ```
@@ -122,17 +126,21 @@ pi@raspberrypi:~ $ source ~/ENV3/bin/activate
 Step 3. Detecting the card burner
 
 Run the detect command as follows:
+
 ```
 (ENV3) pi@raspberrypi:~ $ cms burn detect
 ```
+
 This command will prompt the user with instructions on how to mount the SD card burner on the Pi. You should also have your SD card inserted into the burner at this time.
 
 If all is done correctly, running the following command will return the path to the card burner.
+
 ```
 (ENV3) pi@raspberrypi:~ $ cms burn info
 ```
 
 Here is a snippet from the returned lines:
+
 ```
 # ----------------------------------------------------------------------
 # SD Cards Found
@@ -144,11 +152,13 @@ Here is a snippet from the returned lines:
 | /dev/sda | Generic Mass-Storage | True     | True      | False | 31.9 GB/29.7 GiB | True    | True      |           |
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
 ```
+
 We can see that the path to our burner is `/dev/sda`. Let us export this as an environment variable for access by the burn program.
 
 ```
 (ENV3) pi@raspberrypi:~ $ export DEV=/dev/sda
 ```
+
 Of course, your path may be different.
 
 Step 4. Retrieving a Raspbian Lite Image (Only needs to be done once per image version)
@@ -156,18 +166,20 @@ Step 4. Retrieving a Raspbian Lite Image (Only needs to be done once per image v
 Currently, we burn our SD cards with Raspbian Lite, as desktop is not usually needed for the intended use case of this program.
 
 We can retrieve the latest version of raspbian lite as follows:
+
 ```
 (ENV3) pi@raspberrypi:~ $ cms burn image get latest
 ```
+
 This will take a few moments...
 
 We can also use this command to get specific versions of Raspbian Lite. This will be included in this guide at a future date.
 
 Your Pi is now ready to burn SD cards.
 
----
 
 ### Single Card Burning
+
 Step 0. Ensure the SD card is inserted.
 
 We can run `cms burn info` again as we did above to verify our SD card is connected.
@@ -180,9 +192,9 @@ Choose a hostname for your card. We will use `red001`.
 ```
 Wait for the card to burn. Once the process is complete, it is safe to remove the SD card.
 
----
 
 ### Burning Multiple SD Cards with a Single Burner
+
 Step 0. Ensure the first SD card is inserted into the burner.
 
 We can run `cms burn info` again as we did above to verify our SD card is connected.
@@ -195,15 +207,17 @@ For example, `red00[1-2]` is interpreted by cms burn as `[red001, red002]`.
 Similarly, `red[a-c]` is interpreted by cms burn as `[reda, redb, redc]`.
 
 We can burn 2 SD cards as follows:
+
 ```
 (ENV3) pi@raspberrypi:~ $ cms burn create --hostname=red00[1-2]
 ```
 
-The user will be prompted to swap the SD cards after each card burn if there are still remaining cards to burn.
+The user will be prompted to swap the SD cards after each card burn if 
+there are still remaining cards to burn.
 
----
 
 ### Connecting Pis Together
+
 `cms burn` will setup a simple network on all cluster nodes
 configured. There are different models for networking configuration we
 could use.  However we have decided for one that allows you to
@@ -219,12 +233,17 @@ Pi's.
 
 The Pi used to burn the cards is known as `Pi Master` in the figure above.
 
-Once your setup is configured in this manner, Pi Master should be able to ssh into each node via its hostname. For example, if one of our workers is `red001`, we may ssh to them as follows:
+Once your setup is configured in this manner, Pi Master should be able to ssh 
+into each node via its hostname. For example, if one of our workers is 
+`red001`, we may ssh to them as follows:
+
 ```
 (ENV3) pi@raspberrypi:~ $ ssh pi@red001.local
 ```
 
-> Note: To figure out when a Pi is done completing its initial bootup process, the green light on the Pi will remain on until the bootup/setup is complete. Once there is just a solid red light, the Pi is ready.
+> Note: To figure out when a Pi is done completing its initial bootup process, 
+> the green light on the Pi will remain on until the bootup/setup is complete. 
+> Once there is just a solid red light, the Pi is ready.
 
 
 ## Manual
@@ -338,8 +357,6 @@ Examples: ( \ is not shown)
 
 ```
 <!--MANUAL-->
-
-
 
 
 ## STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT
