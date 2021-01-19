@@ -57,7 +57,7 @@ cms burn create --hostname=red[001-002]
 ```
 
 This command will burn 2 SD cards with the names red001 and red002.
-        
+
 
 ## See Also
 
@@ -71,6 +71,17 @@ for k3s program documentation.
 
 **NOTE**: [Old manual documentation](https://cloudmesh.github.io/cloudmesh-manual/projects/project-pi-burn.html?highlight=burn)
 
+## Nomenclature
+
+* Commands proceeded with `pi@red:$` are to be executed on the Rasperry
+  Pi with the name red.
+
+* Commands with `(ENV3) pi@red:$` are to be executed in a virtula ENV
+  using Python 3 on the Raspberry Pi with the name red
+
+* Commands with `raspberry$` only are to be executed on your burner pi
+  that is not a Pi.
+  
 ## Quickstart
 
 To provide you with a glimps oon what you can do with cms burn, we have 
@@ -86,7 +97,7 @@ For the quickstart we have the following requirements:
   Raspberry PIs. (However, its also possible that you can do this also with the 
   exact number of cars as you have PI's. But its far easier if you just get one more card).
   
-* You will need at least **1 Raspberry Pi** SD Card burned 
+* Burner Pi: You will need at least **1 Raspberry Pi** SD Card burned 
   using [Raspberry Pi imager](https://www.raspberrypi.org/software/). 
   You can use your normal operating system to burn such a card including Windows, macOS, or Linux. 
   Setting up a Raspberry Pi in this manner should be relatively straightforward 
@@ -98,14 +109,16 @@ For the quickstart we have the following requirements:
   We recommend that you invest in a USB3 SDCard writer as they are significantly 
   faster and you can resuse them on PI'4s
 
-### Setup
+### Burner Pi
 
-> Note: These commands should be run on the Raspberry Pi Terminal.
-> Our full commands are inserted into this document which includes 
-> the hostname of our Pi (this should be an indicator we are 
-> working purely within the Raspberry Pi)
+First, we set up a regular Raspberry PI on our extra SD Card. This Pi will be 
+explicitly only used for burning. Although you could also set it up on the 
+Manager PI we prefer using this additional card to simplify the setup.
 
-Step 1. Installing Cloudmesh
+How to set up this Burner PI is discussed in the Requirements section and 
+you may already have one such SD Card from other experiments you did with a PI.
+
+Step 1. Installing Cloudmesh on the Burner Pi
 
 The simple curl command below will generate an ssh-key, update your system, 
 and install cloudmesh.
@@ -113,9 +126,11 @@ and install cloudmesh.
 ```
 pi@raspberrypi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
 ```
+
 This will take a moment...
 
 Step 2. Activate Python Virtual Environment
+
 If you have not already, enter the Python virtual environment provided by 
 the installation script.
 
@@ -131,9 +146,12 @@ Run the detect command as follows:
 (ENV3) pi@raspberrypi:~ $ cms burn detect
 ```
 
-This command will prompt the user with instructions on how to mount the SD card burner on the Pi. You should also have your SD card inserted into the burner at this time.
+This command will prompt the user with instructions on how to mount 
+the SD card burner on the Pi. You should also have your SD card 
+inserted into the burner at this time.
 
-If all is done correctly, running the following command will return the path to the card burner.
+If all is done correctly, running the following command will return 
+the path to the card burner.
 
 ```
 (ENV3) pi@raspberrypi:~ $ cms burn info
@@ -153,7 +171,8 @@ Here is a snippet from the returned lines:
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
 ```
 
-We can see that the path to our burner is `/dev/sda`. Let us export this as an environment variable for access by the burn program.
+We can see that the path to our burner is `/dev/sda`. Let us export 
+this as an environment variable for access by the burn program.
 
 ```
 (ENV3) pi@raspberrypi:~ $ export DEV=/dev/sda
@@ -161,11 +180,12 @@ We can see that the path to our burner is `/dev/sda`. Let us export this as an e
 
 Of course, your path may be different.
 
-Step 4. Retrieving a Raspbian Lite Image (Only needs to be done once per image version)
+Step 4. Retrieving a Raspbian Lite Image (Only needs to be done once per 
+image version)
 
-Currently, we burn our SD cards with Raspbian Lite, as desktop is not usually needed for the intended use case of this program.
-
-We can retrieve the latest version of raspbian lite as follows:
+Currently, we burn our SD cards with Raspbian Lite, as desktop is not 
+needed for cluster nodes. We can retrieve the latest version of 
+raspbian lite as follows:
 
 ```
 (ENV3) pi@raspberrypi:~ $ cms burn image get latest
@@ -173,16 +193,18 @@ We can retrieve the latest version of raspbian lite as follows:
 
 This will take a few moments...
 
-We can also use this command to get specific versions of Raspbian Lite. This will be included in this guide at a future date.
+We can also use this command to get specific versions of Raspbian Lite. 
+This will be included in this guide at a future date.
 
-Your Pi is now ready to burn SD cards.
+Your burner Pi is now ready to burn SD cards.
 
 
 ### Single Card Burning
 
 Step 0. Ensure the SD card is inserted.
 
-We can run `cms burn info` again as we did above to verify our SD card is connected.
+We can run `cms burn info` again as we did above to verify our 
+SD card is connected.
 
 Step 1. Burning the SD Card
 
@@ -190,14 +212,16 @@ Choose a hostname for your card. We will use `red001`.
 ```
 (ENV3) pi@raspberrypi:~ $ cms burn create --hostname=red001
 ```
-Wait for the card to burn. Once the process is complete, it is safe to remove the SD card.
+Wait for the card to burn. Once the process is complete, it is safe 
+to remove the SD card.
 
 
 ### Burning Multiple SD Cards with a Single Burner
 
 Step 0. Ensure the first SD card is inserted into the burner.
 
-We can run `cms burn info` again as we did above to verify our SD card is connected.
+We can run `cms burn info` again as we did above to verify our SD 
+card is connected.
 
 Step 2. Burning the Cards
 
@@ -215,6 +239,9 @@ We can burn 2 SD cards as follows:
 The user will be prompted to swap the SD cards after each card burn if 
 there are still remaining cards to burn.
 
+
+QUESTION: Do we not also need the ip address? Why burn if we do not have 
+network, or is this working with DHCP?
 
 ### Connecting Pis Together
 
