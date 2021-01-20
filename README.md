@@ -1,8 +1,8 @@
 # Cloudmesh Pi Burner for SD Cards
 
 **WARNING:** *This program is designed for a Raspberry Pi and must not be
-executed on your laptop or desktop. An earlier version that could be run on Linux, 
-macOS, and Windows 10 is NO LONGER supported. If you want to help us porting them 
+executed on your laptop or desktop. An earlier version that could be run on **Linux, 
+macOS, and Windows 10 is no longer supported**. If you want to help us porting them 
 on any of these OSes, please contact laszewski@gmail.com*
 
 
@@ -48,30 +48,24 @@ on any of these OSes, please contact laszewski@gmail.com*
 building clusters with Raspberry Pi's. It allows users to
 create readily bootable SD cards that have the network configured,
 contain a public ssh key from your machine that you used to configure
-the cards. Thus not much additional setup is needed. Another unique 
+the cards. Thus not much additional setup is needed for a cluster. Another unique 
 feature is that you can burn multiple cards in a row, each with their 
 individual setup such as hostnames and ipadresses.
+
+TODO: a little bit more detail about thentwork 
+
+TODO: image
+
+image must include somehwo the switch of the sdcard between master and burner pi
 
 A sample command invocation looks like:
 
 ```
-cms burn create --hostname=red[001-002]
+cms burn create --hostname=red[001-002] ???
 ```
 
 This command will burn 2 SD cards with the names red001 and red002.
-
-
-## See Also
-
-Some older documentation, much of it is still relevant, is available
-at the following links. We will in time integrate here or update them.
-
-**NOTE:** We also have additional information just started on how to
-install a kubernetes cluster. This however doe not yet work. See
-[kubernetes cluster instalation guide.](https://github.com/cloudmesh/cloudmesh-pi-cluster/tree/main/cloudmesh/pi/cluster/k3)
-for k3s program documentation.
-
-**NOTE**: [Old manual documentation](https://cloudmesh.github.io/cloudmesh-manual/projects/project-pi-burn.html?highlight=burn)
+TODO: what about the master?
 
 ## Nomenclature
 
@@ -84,7 +78,7 @@ for k3s program documentation.
 * Commands with `raspberry$` only are to be executed on your burner pi
   that is not a Pi.
   
-## Quickstart
+## Quickstart for this type of network (?)
 
 To provide you with a glimps oon what you can do with cms burn, we have 
 provided this quickstart guide that will create one managment PI and several 
@@ -274,6 +268,10 @@ into each node via its hostname. For example, if one of our workers is
 > the green light on the Pi will remain on until the bootup/setup is complete. 
 > Once there is just a solid red light, the Pi is ready.
 
+
+## Quickstart Guide for Mesh Networks 
+
+Gregor does this.
 
 ## Manual burn
 
