@@ -54,7 +54,10 @@ individual setup such as hostnames and ipadresses.
 
 TODO: a little bit more detail about thentwork 
 
-TODO: image
+
+![](images/network-bridge.png)
+
+Figure: Networking with bridge
 
 image must include somehwo the switch of the sdcard between master and burner pi
 
