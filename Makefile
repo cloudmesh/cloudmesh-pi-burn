@@ -16,7 +16,8 @@ install:
 
 readme:
 	cms man readme -p --toc
-	cms man readme -p --tag="MANUAL" burn
+	cms man readme -p --tag="MANUAL-BURN" burn
+	cms man readme -p --tag="MANUAL-BRIDGE" bridge
 
 source:
 	cd ../cloudmesh.cmd5; make source

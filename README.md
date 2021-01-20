@@ -17,14 +17,16 @@ on any of these OSes, please contact laszewski@gmail.com*
 - [Cloudmesh Pi Burner for SD Cards](#cloudmesh-pi-burner-for-sd-cards)
   - [cms burn](#cms-burn)
   - [See Also](#see-also)
-  - [Quick Start](#quick-start)
+  - [Nomenclature](#nomenclature)
+  - [Quickstart](#quickstart)
     - [Requirements](#requirements)
-    - [Setup](#setup)
+    - [Burner Pi](#burner-pi)
     - [Single Card Burning](#single-card-burning)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
     - [Connecting Pis Together](#connecting-pis-together)
+  - [Manual burn](#manual-burn)
+  - [Manual bridge](#manual-bridge)
   - [STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT](#stuff-to-be-deleted-or-integrated-in-rest-of-document)
-  - [Manual](#manual)
   - [Step 4(alt). Burning Multiple Cards](#step-4alt-burning-multiple-cards)
   - [DEPRECATED. DO NOT GO BEYOND THIS LINE AS THE DOCUMENTATION IS OUT OF DATE](#deprecated-do-not-go-beyond-this-line-as-the-documentation-is-out-of-date)
     - [Installation](#installation)
@@ -273,9 +275,9 @@ into each node via its hostname. For example, if one of our workers is
 > Once there is just a solid red light, the Pi is ready.
 
 
-## Manual
+## Manual burn
 
-<!--MANUAL-->
+<!--MANUAL-BURN-->
 ```
   burn network list [--ip=IP] [--used]
   burn network
@@ -383,7 +385,114 @@ Examples: ( \ is not shown)
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
 ```
-<!--MANUAL-->
+<!--MANUAL-BURN-->
+
+
+## Manual bridge
+
+<!--MANUAL-BRIDGE-->
+```
+  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
+  bridge set HOSTS ADDRESSES 
+  bridge restart [--nohup] [--background]
+  bridge status
+  bridge test HOSTS [--rate=RATE]
+  bridge list NAMES
+  bridge check NAMES [--configuration] [--connection]
+  bridge info
+
+Arguments:
+    HOSTS        Hostnames of connected devices. 
+                 Ex. red002
+                 Ex. red[002-003]
+
+    ADDRESSES    IP addresses to assign to HOSTS. Addresses
+                 should be in the network range configured.
+                 Ex. 10.1.1.2
+                 Ex. 10.1.1.[2-3]
+
+    NAMES        A parameterized list of hosts. The first hostname 
+                 in the list is the master through which the traffic 
+                 is routed. Example:
+                 blue,blue[002-003]
+
+Options:
+    --interface=INTERFACE  The interface name [default: eth1]
+                           You can also specify wlan0 if you wnat
+                           to bridge through WIFI on the master
+                           eth0 requires a USB to WIFI adapter
+
+    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to
+                           assign the master on the
+                           interface. Ex. 10.1.1.1
+
+    --range=IPRANGE        The inclusive range of IPs that can be
+                           assigned to connecting devices. Value
+                           should be a comma separated tuple of the
+                           two range bounds. Should not include the
+                           ip of the master Ex. 10.1.1.2-10.1.1.20
+                           [default: 10.1.1.2-10.1.1.122]
+
+    --workers=WORKERS      The parametrized hostnames of workers
+                           attatched to the bridge.
+                           Ex. red002
+                           Ex. red[002-003]
+
+    --purge                Include option if a full reinstallation of
+                           dnsmasq is desired
+
+    --background           Runs the restart command in the background.
+                           stdout to bridge_restart.log
+
+    --nohup                Restarts only the dnsmasq portion of the
+                           bridge. This is done to surely prevent
+                           SIGHUP if using ssh.
+
+    --rate=RATE            The rate in seconds for repeating the test
+                           If ommitted its done just once.
+
+Description:
+
+  Command used to set up a bride so that all nodes route the traffic
+  trough the master PI.
+
+  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
+      creates the bridge on the current device
+      The create command does not restart the network.
+
+  bridge set HOSTS ADDRESSES 
+      the set command assigns the given static 
+      ip addresses to the given hostnames.
+
+  bridge status
+      Returns the status of the bridge and its linked services.
+
+  bridge restart [--nohup]
+      restarts the bridge on the master without rebooting. 
+
+  bridge test NAMES
+      A test to see if the bridges are configured correctly and one
+      hase internet access on teh specified hosts.
+
+  bridge list NAMES
+      Lists information about the bridges (may not be needed)
+
+  bridge check NAMES [--config] [--connection]
+      provides information about the network configuration
+      and netwokrk access. Thisis not a comprehensive speedtest
+      for which we use test.
+
+  bridge info
+      prints relevant information about the configured bridge
+
+
+Design Changes:
+  We still may need the master to be part of other commands in case
+  for example the check is different for master and worker
+
+```
+<!--MANUAL-BRIDGE-->
+
 
 
 ## STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT
