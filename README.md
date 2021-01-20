@@ -276,6 +276,11 @@ into each node via its hostname. For example, if one of our workers is
 
 Gregor does this.
 
+![](images/network-mesh.png)
+
+Figure: Networking with bridge
+
+
 ## Manual burn
 
 <!--MANUAL-BURN-->
