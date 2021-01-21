@@ -188,7 +188,7 @@ Step 1. Burning the SD Card
 
 Choose a hostname for your card. We will use `red001`.
 ```
-(ENV3) pi@raspberrypi:~ $ cms burn create --hostname=red001
+(ENV3) pi@masterpi:~ $ cms burn create --hostname=red001
 ```
 Wait for the card to burn. Once the process is complete, it is safe 
 to remove the SD card.
@@ -211,7 +211,7 @@ Similarly, `red[a-c]` is interpreted by cms burn as `[reda, redb, redc]`.
 We can burn 2 SD cards as follows:
 
 ```
-(ENV3) pi@raspberrypi:~ $ cms burn create --hostname=red00[1-2]
+(ENV3) pi@masterpi:~ $ cms burn create --hostname=red00[1-2]
 ```
 
 The user will be prompted to swap the SD cards after each card burn if 
@@ -287,7 +287,7 @@ Once the installations are complete, let us restart the bridge to reflect these 
 Once the process is complete, we can use the following command to list our connected devices.
 
 ```
-(ENV3) pi@burnerpi:~ $ cms bridge info
+(ENV3) pi@masterpi:~ $ cms bridge info
 bridge info
 
 # ----------------------------------------------------------------------
@@ -450,6 +450,7 @@ Examples: ( \ is not shown)
 
 
 
+
 ## Manual bridge
 
 <!--MANUAL-BRIDGE-->
@@ -548,6 +549,7 @@ Design Changes:
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
