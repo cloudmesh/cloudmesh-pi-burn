@@ -75,13 +75,6 @@ class Image(object):
         """
         Fetch and list available image versions and their download URLs
         """
-        # image locations
-        #
-        # https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/
-
-        #
-        # versions can be found with https://downloads.raspberrypi.org/raspbian_lite/images/
-        #
 
         result = requests.get(repo, verify=False)
         lines = result.text.split(' ')
@@ -92,16 +85,13 @@ class Image(object):
                 line = line.split('href="')[1]
                 line = line.split('/')[0]
                 v.append(line)
-                download = self.find_image_zip(line)
+                download = self.find_image_zip(repo, line)
                 d.append(download)
         return v, d
 
-    def find_image_zip(self, version):
+    def find_image_zip(self, repo, version):
 
-        # url = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/".format(
-        #    version)
-
-        url = f"{self.raspberry_lite_images}/{version}/"
+        url = f"{repo}/{version}/"
 
         result = requests.get(url, verify=False)
         lines = result.text.split(' ')
@@ -109,7 +99,7 @@ class Image(object):
             if '.zip"' in line and "</td>" in line:
                 line = line.split('href="')[1]
                 line = line.split('"')[0]
-                link = f"{self.raspberry_lite_images}/{version}/{line}"
+                link = f"{repo}/{version}/{line}"
                 return link
         return None
 
