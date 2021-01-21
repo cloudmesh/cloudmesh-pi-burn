@@ -37,26 +37,39 @@ def interprete(arguments):
 
         StopWatch.start("image versions")
         image = Image()
-        data = []
+        data = {
+            "lite": [],
+            "full": []
+        }
         cache = Path(
             os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
         if arguments["--refresh"] or not cache.exists():
             os.system("mkdir -p ~/.cloudmesh/cmburn")
-            print("finding repos ...", end="")
+            print("finding lite repos ...", end="")
             repos = [f"{image.raspberry_lite_images}"]
             for repo in repos:
                 versions, downloads = Image().versions(repo)
                 print("These images are available at")
                 for version, download in zip(versions, downloads):
-                    print("{}: {}".format(version, download))
-                    data.append({version: download})
+                    print(f"{version}: {download}")
+                    data["lite"].append({version: download})
+            print("finding lite repos ...", end="")
+            repos = [f"{image.raspberry_full_images}"]
+            for repo in repos:
+                versions, downloads = Image().versions(repo)
+                print("These images are available at")
+                for version, download in zip(versions, downloads):
+                    print(f"{version}: {download}")
+                    data["full"].append({version: download})
             writefile(cache, yaml.dump(data))
         else:
-            data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)
-            for entry in data:
-                version = list(entry.keys())[0]
-                download = entry[version]
-                print(f"{version}: {download}")
+            #data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)
+            #for entry in data:
+            #   version = list(entry.keys())[0]
+            #    download = entry[version]
+            #    print(f"{version}: {download}")
+            data = readfile(cache)
+            print(data)
         StopWatch.stop("image versions")
         StopWatch.status("image versions", True)
         return ""

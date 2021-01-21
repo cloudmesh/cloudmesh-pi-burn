@@ -36,9 +36,9 @@ class Image(object):
         self.image_name = name
 
         self.raspberry_lite_images = \
-            "https://downloads.raspberrypi.org/raspios_lite_armhf/images/"
-        print(self.directory)
-        print(self.image_name)
+            "https://downloads.raspberrypi.org/raspios_lite_armhf/images"
+        self.raspberry_full_images = \
+            "https://downloads.raspberrypi.org/raspios_full_armhf/images"
 
         if name == 'latest':
             self.fullpath = self.directory + '/' + self.latest_version() + '.img'
