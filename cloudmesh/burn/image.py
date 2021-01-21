@@ -111,6 +111,7 @@ class Image(object):
         return None
 
     def latest_version(self):
+        # bug must read from ~/.cloudmesh/cmburn/distributions.yaml
         source_url = requests.head(
             f"{self.raspberry_lite_images}/raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip",
             allow_redirects=True).url
