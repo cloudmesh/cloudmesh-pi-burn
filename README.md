@@ -17,12 +17,12 @@ on any of these OSes, please contact laszewski@gmail.com*
 - [Cloudmesh Pi Burner for SD Cards](#cloudmesh-pi-burner-for-sd-cards)
   - [cms burn](#cms-burn)
   - [Nomenclature](#nomenclature)
-  - [Quickstart for this type of network (?)](#quickstart-for-this-type-of-network-)
+  - [Quickstart for Restricted WiFi Access](#quickstart-for-restricted-wifi-access)
     - [Requirements](#requirements)
-    - [Burner Pi](#burner-pi)
+    - [Master Pi](#master-pi)
     - [Single Card Burning](#single-card-burning)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
-    - [Connecting Pis Together](#connecting-pis-together)
+    - [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge)
   - [Quickstart Guide for Mesh Networks](#quickstart-guide-for-mesh-networks)
   - [Manual burn](#manual-burn)
   - [Manual bridge](#manual-bridge)
@@ -443,8 +443,10 @@ Examples: ( \ is not shown)
 
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
+
 ```
 <!--MANUAL-BURN-->
+
 
 
 
@@ -482,31 +484,24 @@ Options:
                            to bridge through WIFI on the master
                            eth0 requires a USB to WIFI adapter
 
-    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to
-                           assign the master on the
+    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to assign the master on the
                            interface. Ex. 10.1.1.1
 
-    --range=IPRANGE        The inclusive range of IPs that can be
-                           assigned to connecting devices. Value
-                           should be a comma separated tuple of the
-                           two range bounds. Should not include the
-                           ip of the master Ex. 10.1.1.2-10.1.1.20
-                           [default: 10.1.1.2-10.1.1.122]
+    --range=IPRANGE        The inclusive range of IPs [default: 10.1.1.2-10.1.1.122] that can be assigned 
+                           to connecting devices. Value should be a comma
+                           separated tuple of the two range bounds. Should
+                           not include the ip of the master
+                           Ex. 10.1.1.2-10.1.1.20
 
-    --workers=WORKERS      The parametrized hostnames of workers
-                           attatched to the bridge.
+    --workers=WORKERS      The parametrized hostnames of workers attatched to the bridge.
                            Ex. red002
                            Ex. red[002-003]
 
-    --purge                Include option if a full reinstallation of
-                           dnsmasq is desired
+    --purge       Include option if a full reinstallation of dnsmasq is desired
 
-    --background           Runs the restart command in the background.
-                           stdout to bridge_restart.log
+    --background    Runs the restart command in the background. stdout to bridge_restart.log
 
-    --nohup                Restarts only the dnsmasq portion of the
-                           bridge. This is done to surely prevent
-                           SIGHUP if using ssh.
+    --nohup      Restarts only the dnsmasq portion of the bridge. This is done to surely prevent SIGHUP if using ssh.
 
     --rate=RATE            The rate in seconds for repeating the test
                            If ommitted its done just once.
@@ -550,8 +545,10 @@ Design Changes:
   We still may need the master to be part of other commands in case
   for example the check is different for master and worker
 
+
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
