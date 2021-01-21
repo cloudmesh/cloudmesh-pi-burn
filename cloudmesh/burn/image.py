@@ -37,8 +37,8 @@ class Image(object):
 
         self.raspberry_lite_images = \
             "https://downloads.raspberrypi.org/raspios_lite_armhf/images/"
-        print (self.directory)
-        print (self.image_name)
+        print(self.directory)
+        print(self.image_name)
 
         if name == 'latest':
             self.fullpath = self.directory + '/' + self.latest_version() + '.img'
@@ -97,7 +97,7 @@ class Image(object):
 
     def find_image_zip(self, version):
 
-        #url = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/".format(
+        # url = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/".format(
         #    version)
 
         url = f"{self.raspberry_lite_images}/{version}/"
@@ -180,7 +180,9 @@ class Image(object):
         zipfile.ZipFile(zip_filename).extractall()
 
     def verify(self):
-        # verify if the image is ok, use SHA
+        """
+        verify if the image is ok, use SHA
+        """
         raise NotImplementedError
 
     def rm(self):
