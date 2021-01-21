@@ -16,14 +16,14 @@ on any of these OSes, please contact laszewski@gmail.com*
 
 - [Cloudmesh Pi Burner for SD Cards](#cloudmesh-pi-burner-for-sd-cards)
   - [cms burn](#cms-burn)
-  - [See Also](#see-also)
   - [Nomenclature](#nomenclature)
-  - [Quickstart](#quickstart)
+  - [Quickstart for this type of network (?)](#quickstart-for-this-type-of-network-)
     - [Requirements](#requirements)
     - [Burner Pi](#burner-pi)
     - [Single Card Burning](#single-card-burning)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
     - [Connecting Pis Together](#connecting-pis-together)
+  - [Quickstart Guide for Mesh Networks](#quickstart-guide-for-mesh-networks)
   - [Manual burn](#manual-burn)
   - [Manual bridge](#manual-bridge)
   - [STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT](#stuff-to-be-deleted-or-integrated-in-rest-of-document)
@@ -394,6 +394,7 @@ Examples: ( \ is not shown)
 <!--MANUAL-BURN-->
 
 
+
 ## Manual bridge
 
 <!--MANUAL-BRIDGE-->
@@ -498,6 +499,7 @@ Design Changes:
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
