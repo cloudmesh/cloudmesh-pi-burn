@@ -33,7 +33,36 @@ def interprete(arguments):
     StopWatch.stop("info")
     StopWatch.status("info", True)
 
-    if arguments.network and arguments["list"]:
+    if arguments.versions and arguments['image']:
+
+        StopWatch.start("image versions")
+        image = Image()
+        data = []
+        cache = Path(
+            os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
+        if arguments["--refresh"] or not cache.exists():
+            os.system("mkdir -p ~/.cloudmesh/cmburn")
+            print("finding repos ...", end="")
+            repos = [f"{image.raspberry_lite_images}"]
+            for repo in repos:
+                versions, downloads = Image().versions(repo)
+                print("These images are available at")
+                for version, download in zip(versions, downloads):
+                    print("{}: {}".format(version, download))
+                    data.append({version: download})
+            writefile(cache, yaml.dump(data))
+        else:
+            data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)
+            for entry in data:
+                version = list(entry.keys())[0]
+                download = entry[version]
+                print(f"{version}: {download}")
+        StopWatch.stop("image versions")
+        StopWatch.status("image versions", True)
+        return ""
+
+
+    elif arguments.network and arguments["list"]:
 
         ip = arguments.ip or Network.address()[0]['local']
 
@@ -89,13 +118,16 @@ def interprete(arguments):
         execute("burn", burner.info())
         return ""
 
-    elif arguments.burn:
-        # check_root(dryrun=dryrun)
+    #
+    # BUG THIS IS WAY TO EARLY AND MAY NEED TO BE LAST
+    #
+    #elif arguments.burn:
+    #    # check_root(dryrun=dryrun)
 
-        image = arguments.IMAGE
-        device = arguments.DEVICE
-        execute("burn", burner.burn(image, device))
-        return ""
+    #    image = arguments.IMAGE
+    #    device = arguments.DEVICE
+    #    execute("burn", burner.burn(image, device))
+    #    return ""
 
     elif arguments.mount:
         # check_root(dryrun=dryrun)
@@ -158,33 +190,6 @@ def interprete(arguments):
         execute("image fetch", Image(arguments.URL).fetch())
         return ""
 
-    elif arguments.versions and arguments['image']:
-
-        StopWatch.start("image versions")
-
-        data = []
-        cache = Path(
-            os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
-        if arguments["--refresh"] or not cache.exists():
-            os.system("mkdir -p ~/.cloudmesh/cmburn")
-            print("finding repos ...", end="")
-            repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
-            for repo in repos:
-                versions, downloads = Image().versions(repo)
-                print("These images are available at")
-                for version, download in zip(versions, downloads):
-                    print("{}: {}".format(version, download))
-                    data.append({version: download})
-            writefile(cache, yaml.dump(data))
-        else:
-            data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)
-            for entry in data:
-                version = list(entry.keys())[0]
-                download = entry[version]
-                print(f"{version}: {download}")
-        StopWatch.stop("image versions")
-        StopWatch.status("image versions", True)
-        return ""
 
     elif arguments.create:
 
