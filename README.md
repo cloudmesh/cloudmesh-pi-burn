@@ -79,7 +79,7 @@ TODO: what about the master?
   using Python 3 on the Raspberry Pi with the name red
 
 * Commands with `raspberry$` only are to be executed on your burner pi
-  that is not a Pi.
+  that is not part of the cluster
   
 ## Quickstart for this type of network (?)
 
@@ -186,6 +186,8 @@ Currently, we burn our SD cards with Raspbian Lite, as desktop is not
 needed for cluster nodes. We can retrieve the latest version of 
 raspbian lite as follows:
 
+We can retrieve the latest version of raspbian lite as follows:
+
 ```
 (ENV3) pi@raspberrypi:~ $ cms burn image get latest
 ```
@@ -194,6 +196,21 @@ This will take a few moments...
 
 We can also use this command to get specific versions of Raspbian Lite. 
 This will be included in this guide at a future date.
+
+We can verify the download of the image with the following command
+
+```
+(ENV3) pi@raspberrypi:~ $ cms burn image ls
+
+
+# ----------------------------------------------------------------------
+# Available Images
+# ----------------------------------------------------------------------
+
+    * 2020-02-13-raspbian-buster-lite
+```
+
+We can also use this command to get specific versions of Raspbian Lite. This will be included in this guide at a future date.
 
 Your burner Pi is now ready to burn SD cards.
 
