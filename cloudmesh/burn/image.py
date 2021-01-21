@@ -28,11 +28,18 @@ class Image(object):
     # /home/user/.cloudmesh/images/raspbian-2019.img
 
     def __init__(self, name="latest"):
+        name = name or "latest"
         self.directory = os.path.expanduser('~/.cloudmesh/cmburn/images')
         self.cache = Path(
             os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
         os.system('mkdir -p ' + self.directory)
         self.image_name = name
+
+        self.raspberry_lite_images = \
+            "https://downloads.raspberrypi.org/raspios_lite_armhf/images/"
+        print (self.directory)
+        print (self.image_name)
+
         if name == 'latest':
             self.fullpath = self.directory + '/' + self.latest_version() + '.img'
         else:
@@ -44,7 +51,7 @@ class Image(object):
         if refresh or not self.cache.exists():
             os.system("mkdir -p ~/.cloudmesh/cmburn")
             print("finding repos ...", end="")
-            repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
+            repos = [self.raspberry_lite_images]
             for repo in repos:
                 versions, downloads = Image().versions(repo)
                 print("These images are available at")
@@ -90,8 +97,10 @@ class Image(object):
 
     def find_image_zip(self, version):
 
-        url = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/".format(
-            version)
+        #url = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/".format(
+        #    version)
+
+        url = f"{self.raspberry_lite_images}/{version}/"
 
         result = requests.get(url, verify=False)
         lines = result.text.split(' ')
@@ -99,13 +108,13 @@ class Image(object):
             if '.zip"' in line and "</td>" in line:
                 line = line.split('href="')[1]
                 line = line.split('"')[0]
-                link = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/{line}"
+                link = f"{self.raspberry_lite_images}/{version}/{line}"
                 return link
         return None
 
     def latest_version(self):
         source_url = requests.head(
-            "https://downloads.raspberrypi.org/raspbian_lite_latest",
+            f"{self.raspberry_lite_images}/raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip",
             allow_redirects=True).url
         return os.path.basename(source_url)[:-4]
 
@@ -118,7 +127,7 @@ class Image(object):
         """
 
         if self.image_name == 'latest':
-            self.image_name = "https://downloads.raspberrypi.org/raspbian_lite_latest"
+            self.image_name = f"{self.raspberry_lite_images}/raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip"
 
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
