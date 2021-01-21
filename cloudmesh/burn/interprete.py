@@ -77,14 +77,17 @@ def interprete(arguments):
         # burner.configure_wifi(ssid, password)
         StopWatch.stop("wifi")
         StopWatch.status("wifi", True)
+        return ""
 
     elif arguments.detect:
 
         execute("burn", burner.detect())
+        return ""
 
     elif arguments.info:
 
         execute("burn", burner.info())
+        return ""
 
     elif arguments.burn:
         # check_root(dryrun=dryrun)
@@ -92,6 +95,7 @@ def interprete(arguments):
         image = arguments.IMAGE
         device = arguments.DEVICE
         execute("burn", burner.burn(image, device))
+        return ""
 
     elif arguments.mount:
         # check_root(dryrun=dryrun)
@@ -99,6 +103,7 @@ def interprete(arguments):
         device = arguments.DEVICE
         mp = arguments.MOUNTPOINT
         execute("mount", burner.mount(device, mp))
+        return ""
 
     elif arguments.set and arguments.host:
         # check_root(dryrun=dryrun)
@@ -106,6 +111,7 @@ def interprete(arguments):
         hostname = arguments.HOSTNAME
         mp = arguments.MOUNTPOINT
         execute("set hostname", burner.set_hostname(hostname, mp))
+        return ""
 
     elif arguments.set and arguments.ip:
         # check_root(dryrun=dryrun)
@@ -113,6 +119,7 @@ def interprete(arguments):
         ip = arguments.IP
         mp = arguments.MOUNTPOINT
         execute("set ip", burner.set_static_ip(ip, mp))
+        return ""
 
     elif arguments.set and arguments.key:
         # check_root(dryrun=dryrun)
@@ -120,30 +127,36 @@ def interprete(arguments):
         key = arguments.KEY
         mp = arguments.MOUNTPOINT
         execute("set key", burner.set_key(key, mp))
+        return ""
 
     elif arguments.enable and arguments.ssh:
         # check_root(dryrun=dryrun)
 
         mp = arguments.MOUNTPOINT
         execute("enable ssh", burner.enable_ssh(mp))
+        return ""
 
     elif arguments.unmount:
         # check_root(dryrun=dryrun)
 
         device = arguments.DEVICE
         execute("unmount", burner.unmount(device))
+        return ""
 
     # elif arguments.versions and arguments.image:
     #    image = Image()
 
     elif arguments.ls and arguments['image']:
         execute("image ls", Image().ls())
+        return ""
 
     elif arguments.delete and arguments['image']:
         execute("image rm", Image(arguments.IMAGE).rm())
+        return ""
 
     elif arguments.get and arguments['image']:
         execute("image fetch", Image(arguments.URL).fetch())
+        return ""
 
     elif arguments.versions and arguments['image']:
 
@@ -168,9 +181,10 @@ def interprete(arguments):
             for entry in data:
                 version = list(entry.keys())[0]
                 download = entry[version]
-                print("{}: {}".format(version, download))
+                print(f"{version}: {download}")
         StopWatch.stop("image versions")
         StopWatch.status("image versions", True)
+        return ""
 
     elif arguments.create:
 
@@ -234,3 +248,6 @@ def interprete(arguments):
         StopWatch.status("total", True)
 
         StopWatch.benchmark(sysinfo=False, csv=False)
+        return ""
+
+    return ""
