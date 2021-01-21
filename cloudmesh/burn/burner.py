@@ -86,10 +86,6 @@ class Burner(object):
 
         :param dryrun:
         """
-        #
-        # BUG this is actually a bug ;-) we should do this differently ;-)
-        #
-        self.cm_burn = Shell.which("/home/pi/ENV3/bin/cm-pi-burn")
         self.dryrun = dryrun
         self.hostname = None
         self.keypath = None
@@ -129,7 +125,6 @@ class Burner(object):
         :return:
         """
 
-        print("cm-pi-burn:", self.cm_burn)
         print("dryrun:    ", self.dryrun)
 
         result = USB.fdisk("/dev/mmcblk0")
