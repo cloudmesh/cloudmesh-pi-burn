@@ -51,16 +51,25 @@ def interprete(arguments):
                 versions, downloads = Image().versions(repo)
                 print("These images are available at")
                 for version, download in zip(versions, downloads):
-                    print(f"{version}: {download}")
-                    data["lite"].append({version: download})
+                    entry = {
+                        "version": version,
+                        "url": download,
+                        "date": version.split("-", 1)[1]
+                    }
+                    data["lite"].append(entry)
+
             print("finding lite repos ...", end="")
             repos = [f"{image.raspberry_full_images}"]
             for repo in repos:
                 versions, downloads = Image().versions(repo)
                 print("These images are available at")
                 for version, download in zip(versions, downloads):
-                    print(f"{version}: {download}")
-                    data["full"].append({version: download})
+                    entry = {
+                        "version": version,
+                        "url": download,
+                        "date": version.split("-", 1)[1]
+                    }
+                    data["full"].append(entry)
             writefile(cache, yaml.dump(data))
         else:
             #data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)

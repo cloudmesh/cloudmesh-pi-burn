@@ -47,6 +47,8 @@ class Image(object):
 
 
     def version_cache_create(self, refresh=False):
+        # not used
+        # bug only for lite, needs repo as parameter
         data = []
 
         if refresh or not self.cache.exists():
@@ -55,17 +57,22 @@ class Image(object):
             repos = [self.raspberry_lite_images]
             for repo in repos:
                 versions, downloads = Image().versions(repo)
-                print("These images are available at")
+                print(" These images are available at")
                 for version, download in zip(versions, downloads):
-                    print("{}: {}".format(version, download))
-                    data.append({version: download})
+                    entry = {
+                        "version": version,
+                        "url": download,
+                        "date": version.split("-", 1)[1]
+                    }
+                    print (entry)
+                    data.append(entry)
             writefile(self.cache, yaml.dump(data))
         else:
             data = yaml.load(readfile(self.cache), Loader=yaml.SafeLoader)
             for entry in data:
                 version = list(entry.keys())[0]
                 download = entry[version]
-                print("{}: {}".format(version, download))
+                print(f"{version}: {download}")
 
     def version_cache_read(self):
         data = yaml.load(readfile(self.cache), Loader=yaml.SafeLoader)
