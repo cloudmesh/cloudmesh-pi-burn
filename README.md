@@ -52,23 +52,6 @@ the cards. Thus not much additional setup is needed for a cluster. Another uniqu
 feature is that you can burn multiple cards in a row, each with their 
 individual setup such as hostnames and ipadresses.
 
-TODO: a little bit more detail about thentwork 
-
-
-![](images/network-bridge.png)
-
-Figure: Networking with bridge
-
-image must include somehwo the switch of the sdcard between master and burner pi
-
-A sample command invocation looks like:
-
-```
-cms burn create --hostname=red[001-002] ???
-```
-
-This command will burn 2 SD cards with the names red001 and red002.
-TODO: what about the master?
 
 ## Nomenclature
 
@@ -77,88 +60,102 @@ TODO: what about the master?
 
 * Commands with `(ENV3) pi@red:$` are to be executed in a virtula ENV
   using Python 3 on the Raspberry Pi with the name red
-
-* Commands with `raspberry$` only are to be executed on your burner pi
-  that is not part of the cluster
   
-## Quickstart for this type of network (?)
+## Quickstart for Restricted WiFi Access
 
-To provide you with a glimps oon what you can do with cms burn, we have 
-provided this quickstart guide that will create one managment PI and several 
+To provide you with a glimpse on what you can do with cms burn, we have 
+provided this quickstart guide that will create one master PI and several 
 workers.
 
+This setup is intended for those who have restricted access to their home network (ie. cannot access router controls). 
+For example, those on campus WiFis or regulated apartment WiFis.
+
+The figure below describes our network configuration. We have 5 Raspberry Pi 4s: 1 master and 4 workers. We have WiFi access, but we do not necessarily have access to the router's controls.
+
+We also have a network switch, where the master and workers can communicate locally, but we will also configure the master to provide internet access to devices on the network switch via a "network bridge".
+
+![](images/network-bridge.png)
 
 ### Requirements
 
 For the quickstart we have the following requirements:
 
-* To simplify things we assume you have one more SD Cards than you have 
-  Raspberry PIs. (However, its also possible that you can do this also with the 
-  exact number of cars as you have PI's. But its far easier if you just get one more card).
+* SD Cards and Raspberry Pis
   
-* Burner Pi: You will need at least **1 Raspberry Pi** SD Card burned 
+* Master Pi: You will need at least **1 Raspberry Pi** SD Card burned 
   using [Raspberry Pi imager](https://www.raspberrypi.org/software/). 
   You can use your normal operating system to burn such a card including Windows, macOS, or Linux. 
   Setting up a Raspberry Pi in this manner should be relatively straightforward 
   as it is nicely documented online (For example, 
   [how to setup SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/)). 
-  All you will need for this guide is an internet connection for your Pi.
+  All you will need for this guide is an internet connection for your Pi. It might also be of use to change the hostname of this Pi.
 
 * You will need an SD card writer (USB tends to work best) to burn new cards
   We recommend that you invest in a USB3 SDCard writer as they are significantly 
   faster and you can resuse them on PI'4s
 
-### Burner Pi
+### Master Pi
 
-First, we set up a regular Raspberry PI on our extra SD Card. This Pi will be 
-explicitly only used for burning. Although you could also set it up on the 
-Manager PI we prefer using this additional card to simplify the setup.
-
-How to set up this Burner PI is discussed in the Requirements section and 
-you may already have one such SD Card from other experiments you did with a PI.
-
-Step 1. Installing Cloudmesh on the Burner Pi
+**Step 1.** Installing Cloudmesh on the Master Pi
 
 The simple curl command below will generate an ssh-key, update your system, 
 and install cloudmesh.
 
 ```
-pi@raspberrypi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
+pi@masterpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
 ```
 
 This will take a moment...
 
-Step 2. Activate Python Virtual Environment
+**Step 2.** Activate Python Virtual Environment
 
 If you have not already, enter the Python virtual environment provided by 
 the installation script.
 
 ```
-pi@raspberrypi:~ $ source ~/ENV3/bin/activate
+pi@masterpi:~ $ source ~/ENV3/bin/activate
 ```
 
-Step 3. Detecting the card burner
+**Step 3.** Download the latest Raspberry Pi Lite OS
 
-Run the detect command as follows:
-
-```
-(ENV3) pi@raspberrypi:~ $ cms burn detect
-```
-
-This command will prompt the user with instructions on how to mount 
-the SD card burner on the Pi. You should also have your SD card 
-inserted into the burner at this time.
-
-If all is done correctly, running the following command will return 
-the path to the card burner.
+The following command will download the latest images for Raspberry Lite OS.
 
 ```
-(ENV3) pi@raspberrypi:~ $ cms burn info
+(ENV3) pi@masterpi:~ $ cms burn image get latest
 ```
 
-Here is a snippet from the returned lines:
+We can verify our image's downloaded with the following.
 
 ```
+(ENV3) pi@masterpi:~ $ cms burn image ls
+```
+
+**Step 4**. Setup SD Card Writer
+
+Run the following command to setup your SD Card Writer with cms burn. It will provide a sequence of instructions to follow.
+
+```
+(ENV3) pi@masterpi:~ $ cms burn detect
+
+Make sure the USB Reader(s) is removed ...
+Is the reader(s) removed? y/n
+Now plug in the Reader(s) ...
+Is the reader(s) plugged in? y/n
+
+# ----------------------------------------------------------------------
+# Detected Card Writers
+# ----------------------------------------------------------------------
+
+Bus 001 Device 003: ID 1908:0226 GEMBIRD
+```
+
+Now insert one of the worker (orange) SD cards into your writer.
+
+Running the following command will provide us information on our SD card's location on the system. 
+
+```
+(ENV3) pi@masterpi:~ $ cms burn info
+...
 # ----------------------------------------------------------------------
 # SD Cards Found
 # ----------------------------------------------------------------------
@@ -166,54 +163,19 @@ Here is a snippet from the returned lines:
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
 | Path     | Info                 | Readable | Formatted | Empty | Size             | Aaccess | Removable | Writeable |
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
-| /dev/sda | Generic Mass-Storage | True     | True      | False | 31.9 GB/29.7 GiB | True    | True      |           |
+| /dev/sda | Generic Mass-Storage | True     | True      | False | 64.1 GB/59.7 GiB | True    | True      |           |
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
 ```
 
-We can see that the path to our burner is `/dev/sda`. Let us export 
-this as an environment variable for access by the burn program.
+> `cms burn info` has other useful information, but for the purposes of this guide we omit it. 
+
+We can see from the information displayed that our SD card's path is `/dev/sda`. Of course, this may vary. Let us record this path for `cms burn` access.
 
 ```
-(ENV3) pi@raspberrypi:~ $ export DEV=/dev/sda
+(ENV3) pi@masterpi:~ $ export DEV=/dev/sda
 ```
 
-Of course, your path may be different.
-
-Step 4. Retrieving a Raspbian Lite Image (Only needs to be done once per 
-image version)
-
-Currently, we burn our SD cards with Raspbian Lite, as desktop is not 
-needed for cluster nodes. We can retrieve the latest version of 
-raspbian lite as follows:
-
-We can retrieve the latest version of raspbian lite as follows:
-
-```
-(ENV3) pi@raspberrypi:~ $ cms burn image get latest
-```
-
-This will take a few moments...
-
-We can also use this command to get specific versions of Raspbian Lite. 
-This will be included in this guide at a future date.
-
-We can verify the download of the image with the following command
-
-```
-(ENV3) pi@raspberrypi:~ $ cms burn image ls
-
-
-# ----------------------------------------------------------------------
-# Available Images
-# ----------------------------------------------------------------------
-
-    * 2020-02-13-raspbian-buster-lite
-```
-
-We can also use this command to get specific versions of Raspbian Lite. This will be included in this guide at a future date.
-
-Your burner Pi is now ready to burn SD cards.
-
+`cms burn` is now properly configured and ready to begin burning cards. See the following sections on burning that are in accordance with your setup.
 
 ### Single Card Burning
 
@@ -259,35 +221,109 @@ there are still remaining cards to burn.
 QUESTION: Do we not also need the ip address? Why burn if we do not have 
 network, or is this working with DHCP?
 
-### Connecting Pis Together
+ANSWER: `cms bridge` is what handles ip address assignments. This centralized program allows us to manage the ip addresses of all nodes in the cluster via the master. It runs as a DHCP server so we can automatically handle ip address assignments. `cms bridge` also allows users to assign static IPs to nodes in their cluster. See [cms bridge documentation](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/main/cloudmesh/bridge/README.md#a-simple-command-to-setup-a-network-bridge-between-raspberry-pis-and-a-manager-pi-utilizing-dnsmasq) for more information. 
 
-`cms burn` will setup a simple network on all cluster nodes
-configured. There are different models for networking configuration we
-could use.  However we have decided for one that allows you to
-interface with your local Laptop to the cluster via Wifi.  The setup
-is illustrated in Figure Networking.
+If, however, the user wishes to strictly assign a static IP at the time of burning, they may use the `--ipaddr=IP` as noted in the [cms burn manual](https://github.com/cloudmesh/cloudmesh-pi-burn#manual-burn). The behavior of this parameter is very similar to the hostnames parameter. For example, `10.1.1.[1-3]` evaluates to `[10.1.1.1, 10.1.1.2, 10.1.1.3]`
 
-![](images/network.png)
+### Connecting Pis to the Internet via Bridge
 
-Figure: Networking
 
-We assume that you have used `cms burn` to create all SD cards for the
+![](images/network-bridge.png)
+
+Figure: Networking Bridge
+
+Step 0. Recap and Setup
+
+At this point we assume that you have used `cms burn` to create all SD cards for the
 Pi's.
 
-The Pi used to burn the cards is known as `Pi Master` in the figure above.
+We are also continuing to use `masterpi` (which is where we burn the worker SD cards).
+
+We will now use `cms bridge` to connect the worker Pis to the internet. Let us again reference the diagram of our network setup. You should now begin connecting your Pis together via network switch. Ensure that `masterpi` is also connected into the network switch.
+
+Step 1. Verify Local Connection to Workers
+
+Ensure your workers are booted and that your network switch is turned on. Once the Pis are done booting up, we will verify our local connections to them on the network switch via SSH.
+
+
+> Note: To figure out when a Pi is done completing its initial bootup process, 
+> the green light on the Pi will flash periodically until the bootup/setup is complete. 
+> Once there is just a red light for a period, the Pi is ready.
+
 
 Once your setup is configured in this manner, Pi Master should be able to ssh 
 into each node via its hostname. For example, if one of our workers is 
 `red001`, we may ssh to them as follows:
 
 ```
-(ENV3) pi@raspberrypi:~ $ ssh pi@red001.local
+(ENV3) pi@masterpi:~ $ ssh pi@red001.local
 ```
 
-> Note: To figure out when a Pi is done completing its initial bootup process, 
-> the green light on the Pi will remain on until the bootup/setup is complete. 
-> Once there is just a solid red light, the Pi is ready.
+If this is successful, you are ready to connect your workers to the internet.
 
+Step 2. Configuring our Bridge
+
+At this point, the master pi can talk to the workers via the network switch. However, these
+burned Pis do not have internet access. It can be very tedious to connect each Pi individually to our WiFi. So we provide a command to "bridge" internet access between the burner Pi and the burned Pis. This program should already be installed by the cloudmesh installation script.
+
+We can easily create our bridge as follows. 
+
+```
+(ENV3) pi@masterpi:~ $ cms bridge create --interface='wlan0'
+```
+
+This will take a moment while the dependencies are installed...
+
+> Note the `--interface` option indicates the interface used by the master pi to access the internet. In this case, since we are using WiFi, it is most likely `wlan0`. Other options such as `eth0` and `eth1` exist for ethernet connections.
+
+Once the installations are complete, let us restart the bridge to reflect these changes.
+
+```
+(ENV3) pi@masterpi:~ $ cms bridge restart --background
+```
+
+> Note the use of `--background` in this case is recommended as the process may potentially break a user's SSH pipeline (due to WiFi). If this is the case, the program will continue in the background without error and the user will be able to SSH shortly after.
+
+Once the process is complete, we can use the following command to list our connected devices.
+
+```
+(ENV3) pi@burnerpi:~ $ cms bridge info
+bridge info
+
+# ----------------------------------------------------------------------
+#
+# IP range: 10.1.1.2 - 10.1.1.122
+# Manager IP: 10.1.1.1
+#
+# # LEASE HISTORY #
+# 2021-01-21 06:04:08 dc:a6:32:e8:01:a3 10.1.1.84 red001 01:dc:a6:32:e8:01:a3
+# 2021-01-21 06:04:08 dc:a6:32:e7:f0:fb 10.1.1.12 red003 01:dc:a6:32:e7:f0:fb
+# 2021-01-21 06:04:08 dc:a6:32:e8:02:cd 10.1.1.22 red004 01:dc:a6:32:e8:02:cd
+# 2021-01-21 06:04:08 dc:a6:32:e8:06:21 10.1.1.39 red002 01:dc:a6:32:e8:06:21
+# ----------------------------------------------------------------------
+```
+
+At this point, our workers should have internet access. Let us SSH into one and ping google.com to verify.
+
+```
+(ENV3) pi@masterpi:~ $ ssh red001
+
+pi@red001:~ $ ping google.com
+PING google.com (142.250.64.238) 56(84) bytes of data.
+64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=1 ttl=106 time=48.2 ms
+64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=2 ttl=106 time=48.3 ms
+64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=3 ttl=106 time=47.9 ms
+64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=4 ttl=106 time=47.10 ms
+64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=5 ttl=106 time=48.5 ms
+^C
+--- google.com ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 9ms
+rtt min/avg/max/mdev = 47.924/48.169/48.511/0.291 ms
+```
+
+Note how we are able to omit the pi user and .local extension
+
+The cluster is now complete.
 
 ## Quickstart Guide for Mesh Networks 
 
