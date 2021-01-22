@@ -1,9 +1,10 @@
 # Cloudmesh Pi Burner for SD Cards
 
-**WARNING:** *This program is designed for a Raspberry Pi and must not be
-executed on your laptop or desktop. An earlier version that could be run on **Linux, 
-macOS, and Windows 10 is no longer supported**. If you want to help us porting them 
-on any of these OSes, please contact laszewski@gmail.com*
+**WARNING:** *This program is designed for a Raspberry Pi and must not
+be executed on your laptop or desktop. An earlier version that could
+be run on **Linux, macOS, and Windows 10 is no longer supported**. If
+you want to help us porting them on any of these OSes, please contact
+laszewski@gmail.com*
 
 
 [![image](https://img.shields.io/travis/TankerHQ/cloudmesh-pi-burn.svg?branch=main)](https://travis-ci.org/TankerHQ/cloudmesn-pi-burn)
@@ -45,34 +46,40 @@ on any of these OSes, please contact laszewski@gmail.com*
 ## cms burn
 
 `cms burn` is a program to burn many SD cards for the preparation of
-building clusters with Raspberry Pi's. It allows users to
-create readily bootable SD cards that have the network configured,
-contain a public ssh key from your machine that you used to configure
-the cards. Thus not much additional setup is needed for a cluster. Another unique 
-feature is that you can burn multiple cards in a row, each with their 
-individual setup such as hostnames and ipadresses.
+building clusters with Raspberry Pi's. It allows users to create
+readily bootable SD cards that have the network configured, contain a
+public ssh key from your machine that you used to configure the
+cards. Thus not much additional setup is needed for a cluster. Another
+unique feature is that you can burn multiple cards in a row, each with
+their individual setup such as hostnames and ipadresses.
 
 
 ## Nomenclature
 
-* Commands proceeded with `pi@red:$` are to be executed on the Rasperry
-  Pi with the name red.
+* Commands proceeded with `pi@red:$` are to be executed on the
+  Rasperry Pi with the name red.
 
 * Commands with `(ENV3) pi@red:$` are to be executed in a virtula ENV
   using Python 3 on the Raspberry Pi with the name red
   
 ## Quickstart for Restricted WiFi Access
 
-To provide you with a glimpse on what you can do with cms burn, we have 
-provided this quickstart guide that will create one master PI and several 
-workers.
+To provide you with a glimpse on what you can do with cms burn, we
+have provided this quickstart guide that will create one master PI and
+several workers.
 
-This setup is intended for those who have restricted access to their home network (ie. cannot access router controls). 
-For example, those on campus WiFis or regulated apartment WiFis.
+This setup is intended for those who have restricted access to their
+home network (ie. cannot access router controls).  For example, those
+on campus WiFis or regulated apartment WiFis.
 
-The figure below describes our network configuration. We have 5 Raspberry Pi 4s: 1 master and 4 workers. We have WiFi access, but we do not necessarily have access to the router's controls.
+The figure below describes our network configuration. We have 5
+Raspberry Pi 4s: 1 master and 4 workers. We have WiFi access, but we
+do not necessarily have access to the router's controls.
 
-We also have a network switch, where the master and workers can communicate locally, but we will also configure the master to provide internet access to devices on the network switch via a "network bridge".
+We also have a network switch, where the master and workers can
+communicate locally, but we will also configure the master to provide
+internet access to devices on the network switch via a "network
+bridge".
 
 ![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-bridge.png)
 
@@ -82,24 +89,26 @@ For the quickstart we have the following requirements:
 
 * SD Cards and Raspberry Pis
   
-* Master Pi: You will need at least **1 Raspberry Pi** SD Card burned 
-  using [Raspberry Pi imager](https://www.raspberrypi.org/software/). 
-  You can use your normal operating system to burn such a card including Windows, macOS, or Linux. 
-  Setting up a Raspberry Pi in this manner should be relatively straightforward 
-  as it is nicely documented online (For example, 
-  [how to setup SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/)). 
-  All you will need for this guide is an internet connection for your Pi. It might also be of use to change the hostname of this Pi.
+* Master Pi: You will need at least **1 Raspberry Pi** SD Card burned
+  using [Raspberry Pi imager](https://www.raspberrypi.org/software/).
+  You can use your normal operating system to burn such a card
+  including Windows, macOS, or Linux.  Setting up a Raspberry Pi in
+  this manner should be relatively straightforward as it is nicely
+  documented online (For example,
+  [how to setup SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/)).
+  All you will need for this guide is an internet connection for your
+  Pi. It might also be of use to change the hostname of this Pi.
 
-* You will need an SD card writer (USB tends to work best) to burn new cards
-  We recommend that you invest in a USB3 SDCard writer as they are significantly 
-  faster and you can resuse them on PI'4s
+* You will need an SD card writer (USB tends to work best) to burn new
+  cards We recommend that you invest in a USB3 SDCard writer as they
+  are significantly faster and you can resuse them on PI'4s
 
 ### Master Pi
 
 **Step 1.** Installing Cloudmesh on the Master Pi
 
-The simple curl command below will generate an ssh-key, update your system, 
-and install cloudmesh.
+The simple curl command below will generate an ssh-key, update your
+system, and install cloudmesh.
 
 ```
 pi@masterpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
@@ -109,8 +118,8 @@ This will take a moment...
 
 **Step 2.** Activate Python Virtual Environment
 
-If you have not already, enter the Python virtual environment provided by 
-the installation script.
+If you have not already, enter the Python virtual environment provided
+by the installation script.
 
 ```
 pi@masterpi:~ $ source ~/ENV3/bin/activate
@@ -118,7 +127,8 @@ pi@masterpi:~ $ source ~/ENV3/bin/activate
 
 **Step 3.** Download the latest Raspberry Pi Lite OS
 
-The following command will download the latest images for Raspberry Lite OS.
+The following command will download the latest images for Raspberry
+Lite OS.
 
 ```
 (ENV3) pi@masterpi:~ $ cms burn image get latest
@@ -132,7 +142,8 @@ We can verify our image's downloaded with the following.
 
 **Step 4**. Setup SD Card Writer
 
-Run the following command to setup your SD Card Writer with cms burn. It will provide a sequence of instructions to follow.
+Run the following command to setup your SD Card Writer with cms
+burn. It will provide a sequence of instructions to follow.
 
 ```
 (ENV3) pi@masterpi:~ $ cms burn detect
@@ -151,7 +162,8 @@ Bus 001 Device 003: ID 1908:0226 GEMBIRD
 
 Now insert one of the worker (orange) SD cards into your writer.
 
-Running the following command will provide us information on our SD card's location on the system. 
+Running the following command will provide us information on our SD
+card's location on the system.
 
 ```
 (ENV3) pi@masterpi:~ $ cms burn info
@@ -169,13 +181,17 @@ Running the following command will provide us information on our SD card's locat
 
 > `cms burn info` has other useful information, but for the purposes of this guide we omit it. 
 
-We can see from the information displayed that our SD card's path is `/dev/sda`. Of course, this may vary. Let us record this path for `cms burn` access.
+We can see from the information displayed that our SD card's path is
+`/dev/sda`. Of course, this may vary. Let us record this path for `cms
+burn` access.
 
 ```
 (ENV3) pi@masterpi:~ $ export DEV=/dev/sda
 ```
 
-`cms burn` is now properly configured and ready to begin burning cards. See the following sections on burning that are in accordance with your setup.
+`cms burn` is now properly configured and ready to begin burning
+cards. See the following sections on burning that are in accordance
+with your setup.
 
 ### Single Card Burning
 
@@ -219,18 +235,32 @@ We can burn 2 SD cards as follows:
 The user will be prompted to swap the SD cards after each card burn if 
 there are still remaining cards to burn.
 
+One if the important aspects is how to set up networking. We have
+three options
 
-QUESTION: Do we not also need the ip address? Why burn if we do not have 
-network, or is this working with DHCP?
+OPTION 1.The framework we use to set up default networking will use a DHCP
+server. This is configured at a later step with the command `cms
+bridge` that manages all ip addresses on the master. This is the
+easiest way to set up networking. There are two other options
 
-ANSWER: `cms bridge` is what handles ip address assignments. This centralized program allows us to manage the ip addresses of all nodes in the cluster via the master. It runs as a DHCP server so we can automatically handle ip address assignments. `cms bridge` also allows users to assign static IPs to nodes in their cluster. See [cms bridge documentation](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/main/cloudmesh/bridge/README.md#a-simple-command-to-setup-a-network-bridge-between-raspberry-pis-and-a-manager-pi-utilizing-dnsmasq) for more information. 
+OPTION 2: Setup static IPs via the bridge command. `cms bridge` allows
+users to assign static IPs to nodes in their cluster. See
+[cms bridge documentation](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/main/cloudmesh/bridge/README.md#a-simple-command-to-setup-a-network-bridge-between-raspberry-pis-and-a-manager-pi-utilizing-dnsmasq)
+for more information.
 
-If, however, the user wishes to strictly assign a static IP at the time of burning, they may use the `--ipaddr=IP` as noted in the [cms burn manual](https://github.com/cloudmesh/cloudmesh-pi-burn#manual-burn). The behavior of this parameter is very similar to the hostnames parameter. For example, `10.1.1.[1-3]` evaluates to `[10.1.1.1, 10.1.1.2, 10.1.1.3]`
+OPTION 3: If the user wishes to strictly assign a static IP at the
+time of burning, they may use the `--ipaddr=IP` as noted in the
+[cms burn manual](https://github.com/cloudmesh/cloudmesh-pi-burn#manual-burn). The
+behavior of this parameter is very similar to the hostnames
+parameter. For example, `10.1.1.[1-3]` evaluates to
+`[10.1.1.1, 10.1.1.2, 10.1.1.3]`
 
-### Connecting Pis to the Internet via Bridge
+Which option you use may depend on your persoanl preferences or your
+network requirements. If in doubt, start with OPTION 1.
 
+### Connecting Pis to the Internet via Bridge (OPTION 1)
 
-![](images/network-bridge.png)
+![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-bridge.png)
 
 Figure: Networking Bridge
 
@@ -241,11 +271,17 @@ Pi's.
 
 We are also continuing to use `masterpi` (which is where we burn the worker SD cards).
 
-We will now use `cms bridge` to connect the worker Pis to the internet. Let us again reference the diagram of our network setup. You should now begin connecting your Pis together via network switch. Ensure that `masterpi` is also connected into the network switch.
+We will now use `cms bridge` to connect the worker Pis to the
+internet. Let us again reference the diagram of our network setup. You
+should now begin connecting your Pis together via network
+switch. Ensure that `masterpi` is also connected into the network
+switch.
 
 Step 1. Verify Local Connection to Workers
 
-Ensure your workers are booted and that your network switch is turned on. Once the Pis are done booting up, we will verify our local connections to them on the network switch via SSH.
+Ensure your workers are booted and that your network switch is turned
+on. Once the Pis are done booting up, we will verify our local
+connections to them on the network switch via SSH.
 
 
 > Note: To figure out when a Pi is done completing its initial bootup process, 
@@ -331,12 +367,15 @@ The cluster is now complete.
 
 Gregor does this.
 
-![](images/network-mesh.png)
+![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-mesh.png)
 
 Figure: Networking with bridge
 
 
-## Manual burn
+## Manual Page for the `burn` command
+
+Note to execute the command on the commandline you have to type in
+`cms burn` and not jsut `burn`.
 
 <!--MANUAL-BURN-->
 ```
@@ -450,10 +489,10 @@ Examples: ( \ is not shown)
 <!--MANUAL-BURN-->
 
 
+## Manual Page for the `bridge` command
 
-
-
-## Manual bridge
+Note to execute the command on the commandline you have to type in
+`cms bridge` and not jsut `bridge`.
 
 <!--MANUAL-BRIDGE-->
 ```
