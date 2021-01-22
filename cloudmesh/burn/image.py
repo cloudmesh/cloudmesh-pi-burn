@@ -1,8 +1,3 @@
-#
-# Example image link
-#
-# https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
-
 import os
 import textwrap
 import zipfile
