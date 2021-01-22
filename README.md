@@ -110,7 +110,8 @@ This will take a moment...
 
 **Step 2.** Activate Python Virtual Environment
 
-If you have not already, enter the Python virtual environment provided
+Activate Python Virtual Environment, 
+if you have not already, enter the Python virtual environment provided
 by the installation script.
 
 ```
@@ -152,7 +153,8 @@ Is the reader(s) plugged in? y/n
 Bus 001 Device 003: ID 1908:0226 GEMBIRD
 ```
 
-Now insert one of the worker (orange) SD cards into your writer.
+Now insert a FAT32 formatted SD cards into your writer to create worker 
+SD cards.
 
 Running the following command will provide us information on our SD
 card's location on the system.
@@ -230,7 +232,7 @@ there are still remaining cards to burn.
 One if the important aspects is how to set up networking. We have
 three options
 
-OPTION 1.The framework we use to set up default networking will use a DHCP
+OPTION 1: The framework we use to set up default networking will use a DHCP
 server. This is configured at a later step with the command `cms
 bridge` that manages all ip addresses on the master. This is the
 easiest way to set up networking. There are two other options
@@ -306,7 +308,11 @@ We can easily create our bridge as follows.
 
 This will take a moment while the dependencies are installed...
 
-> Note the `--interface` option indicates the interface used by the master pi to access the internet. In this case, since we are using WiFi, it is most likely `wlan0`. Other options such as `eth0` and `eth1` exist for ethernet connections.
+> Note the `--interface` option indicates the interface 
+> used by the master pi to access the internet. 
+> In this case, since we are using WiFi, it is most 
+> likely `wlan0`. Other options such as `eth0` and `eth1` 
+> exist for ethernet connections.
 
 Once the installations are complete, let us restart the bridge to reflect these changes.
 
@@ -314,7 +320,11 @@ Once the installations are complete, let us restart the bridge to reflect these 
 (ENV3) pi@masterpi:~ $ cms bridge restart --background
 ```
 
-> Note the use of `--background` in this case is recommended as the process may potentially break a user's SSH pipeline (due to WiFi). If this is the case, the program will continue in the background without error and the user will be able to SSH shortly after.
+> Note the use of `--background` in this case is 
+> recommended as the process may potentially break a 
+> user's SSH pipeline (due to WiFi). If this is the case, 
+> the program will continue in the background without error 
+> and the user will be able to SSH shortly after.
 
 Once the process is complete, we can use the following command to list our connected devices.
 
@@ -359,7 +369,7 @@ The cluster is now complete.
 
 ## Quickstart Guide for Mesh Networks 
 
-This section will be completed.
+This section is still under development.
 
 In case you have a Mesh Network, the setup can typically be even more
 simplifies as we can attach the unmanaged router directly to a Mesh
@@ -374,6 +384,8 @@ Figure 2: Networking with Mesh network
 You will not need the bridge command to setup the network.
 
 ## Set up of the SSH keys and SSH tunnel
+
+This section is still under development.
 
 One important aspect of the cluster is to setup authentication 
 with ssh, so we can easily login from the Laptop to each of the PI 
