@@ -17,17 +17,41 @@ def _get_attribute(attribute, lines):
 
 
 class USB(object):
+    """
+    Class to make interacting with USB devices such as SDCard writers easier.
+    """
 
     def __init__(self):
         self.vendors = None
 
     def get_product(self, vendor, product):
+        """
+        internal method used to retrive the vendor, product string
+        :param vendor: the vendor name
+        :type vendor: str
+        :param product: the product name
+        :type product: str
+        :return: the vendor product string
+        :rtype: str
+        """
         try:
             return self.vendors[vendor][product]
         except:
             return "unkown"
 
     def load_vendor_description(self):
+        """
+        Creates a dict from the usb devices that are detected.
+        Attributes for each entry include
+
+            'vendor_id'
+            'product_id'
+            'vendor'
+            'product'
+
+        :return: a dict of vendor specifications for the USB devices
+        :rtype: dict
+        """
         self.get_vendor()
         data = {}
         product_id = None
@@ -55,6 +79,12 @@ class USB(object):
         return data
 
     def get_vendor(self):
+        """
+        Retrives the names of vendors from linux-usb.org
+
+        :return: the content of the file
+        :rtype: str
+        """
         filename = 'usb.ids'
 
         if not os.path.isfile(filename):
@@ -67,14 +97,42 @@ class USB(object):
 
     @staticmethod
     def get_devices():
+        """
+        finds all devices starting with /dev/sd?
+
+        :return: list
+        :rtype: list of devices
+        """
         return glob.glob("/dev/sd?")
 
     @staticmethod
     def fdisk(dev):
+        """
+        calls fdosk on the specified device
+
+        :param dev: device, example /dev/sdz
+        :type dev: str
+        :return: the output from the fdisk command
+        :rtype: str
+        """
         return subprocess.getoutput(f"sudo fdisk -l {dev}")
 
     @staticmethod
     def get_from_usb():
+        """
+        TODO: explain differnce to get_from_lsusb
+
+        Finds the information about attached USB devices from lsusb
+        Attributes of the devices found include
+
+            'comment'
+            "hVendor"
+            "hProduct"
+            "serach"
+
+        :return: list of dicts
+        :rtype: list
+        """
 
         #
         # in future we also look up the vendor
@@ -106,6 +164,20 @@ class USB(object):
 
     @staticmethod
     def get_from_lsusb():
+        """
+        Gets information about USB devices from lsusb. Attributes include
+
+            'bus'
+            'addr'
+            'ivendor'
+            'iproduct'
+            'vendor'
+            'product'
+            'comment'
+
+        :return: list of dicts
+        :rtype: list of dicts
+        """
         lsusb = subprocess.getoutput("lsusb").splitlines()
         all = {}
         for line in lsusb:
@@ -133,6 +205,14 @@ class USB(object):
 
     @staticmethod
     def get_from_dmesg():
+        """
+        Get information for USB and other direct attached devices from
+        dmsg. It includes information such if the device is readable or writable,
+        and if a card is formatted with FAT32.
+
+        :return: list of dicts
+        :rtype: lits of dicts
+        """
 
         lines = subprocess.getoutput("dmesg -t").splitlines()
 
