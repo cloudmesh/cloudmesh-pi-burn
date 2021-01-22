@@ -33,7 +33,7 @@ laszewski@gmail.com*
 
 <!--TOC-->
 
-## cms burn
+## Introduction
 
 `cms burn` is a program to burn many SD cards for the preparation of
 building clusters with Raspberry Pi's. It allows users to create
@@ -52,7 +52,7 @@ their individual setup such as hostnames and ipadresses.
 * Commands with `(ENV3) pi@red:$` are to be executed in a virtula ENV
   using Python 3 on the Raspberry Pi with the name red
   
-## Quickstart for Restricted WiFi Access
+## Quickstart for Bridged WiFi
 
 To provide you with a glimpse on what you can do with cms burn, we
 have provided this quickstart guide that will create one master PI and
@@ -95,9 +95,11 @@ For the quickstart we have the following requirements:
   cards We recommend that you invest in a USB3 SDCard writer as they
   are significantly faster and you can resuse them on PI'4s
 
-### Master Pi
+### Manager Pi
 
-**Step 1.** Installing Cloudmesh on the Master Pi
+First we need to configure the Manager Pi
+
+**Step 1.** Installing Cloudmesh on the Manager Pi
 
 The simple curl command below will generate an ssh-key, update your
 system, and install cloudmesh.
@@ -141,10 +143,10 @@ burn. It will provide a sequence of instructions to follow.
 ```
 (ENV3) pi@masterpi:~ $ cms burn detect
 
-Make sure the USB Reader(s) is removed ...
-Is the reader(s) removed? y/n
-Now plug in the Reader(s) ...
-Is the reader(s) plugged in? y/n
+Make sure the USB Writer(s) is removed ...
+Is the writer(s) removed? y/n
+Now plug in the Writer(s) ...
+Is the writer(s) plugged in? y/n
 
 # ----------------------------------------------------------------------
 # Detected Card Writers
