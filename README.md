@@ -187,9 +187,11 @@ SD card is connected.
 Step 1. Burning the SD Card
 
 Choose a hostname for your card. We will use `red001`.
+
 ```
 (ENV3) pi@masterpi:~ $ cms burn create --hostname=red001
 ```
+
 Wait for the card to burn. Once the process is complete, it is safe 
 to remove the SD card.
 
