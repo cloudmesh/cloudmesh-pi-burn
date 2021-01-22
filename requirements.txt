@@ -4,8 +4,6 @@ wget
 python-hostlist
 docopt
 prompter
-requests
 pyyaml
 oyaml
 requests
-beautifulsoup4
