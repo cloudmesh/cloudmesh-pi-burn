@@ -18,6 +18,7 @@ readme:
 	cms man readme -p --toc
 	cms man readme -p --tag="MANUAL-BURN" burn
 	cms man readme -p --tag="MANUAL-BRIDGE" bridge
+	cms man readme -p --tag="MANUAL-HOST" host
 
 source:
 	cd ../cloudmesh.cmd5; make source

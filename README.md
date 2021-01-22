@@ -23,23 +23,13 @@ laszewski@gmail.com*
     - [Master Pi](#master-pi)
     - [Single Card Burning](#single-card-burning)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
-    - [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge)
+    - [Connecting Pis to the Internet via Bridge (OPTION 1)](#connecting-pis-to-the-internet-via-bridge-option-1)
   - [Quickstart Guide for Mesh Networks](#quickstart-guide-for-mesh-networks)
-  - [Manual burn](#manual-burn)
-  - [Manual bridge](#manual-bridge)
-  - [STUFF TO BE DELETED OR INTEGRATED IN REST OF DOCUMENT](#stuff-to-be-deleted-or-integrated-in-rest-of-document)
-  - [Step 4(alt). Burning Multiple Cards](#step-4alt-burning-multiple-cards)
-  - [DEPRECATED. DO NOT GO BEYOND THIS LINE AS THE DOCUMENTATION IS OUT OF DATE](#deprecated-do-not-go-beyond-this-line-as-the-documentation-is-out-of-date)
-    - [Installation](#installation)
-    - [Information about the SD Cards and Card Writer](#information-about-the-sd-cards-and-card-writer)
-    - [Finding Image Versions](#finding-image-versions)
-    - [Downloading an Image](#downloading-an-image)
-    - [ROOT](#root)
-    - [Creating Cluster SD-Cards](#creating-cluster-sd-cards)
-    - [Burning SD-Cards](#burning-sd-cards)
-    - [Auto Format to FAT32](#auto-format-to-fat32)
-    - [Note on using a static IP address](#note-on-using-a-static-ip-address)
-    - [From the raspberry FAQ](#from-the-raspberry-faq)
+  - [Set up of the SSH keys and SSH tunnel](#set-up-of-the-ssh-keys-and-ssh-tunnel)
+  - [Manual Pages](#manual-pages)
+    - [Manual Page for the `burn` command](#manual-page-for-the-burn-command)
+    - [Manual Page for the `bridge` command](#manual-page-for-the-bridge-command)
+    - [Manual Page for the `host` command](#manual-page-for-the-host-command)
 
 <!--TOC-->
 
@@ -72,7 +62,7 @@ This setup is intended for those who have restricted access to their
 home network (ie. cannot access router controls).  For example, those
 on campus WiFis or regulated apartment WiFis.
 
-The figure below describes our network configuration. We have 5
+The Figure 1 describes our network configuration. We have 5
 Raspberry Pi 4s: 1 master and 4 workers. We have WiFi access, but we
 do not necessarily have access to the router's controls.
 
@@ -82,6 +72,8 @@ internet access to devices on the network switch via a "network
 bridge".
 
 ![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-bridge.png)
+
+Figure 1: Pi Cluster setup with bridge network
 
 ### Requirements
 
@@ -260,9 +252,11 @@ network requirements. If in doubt, start with OPTION 1.
 
 ### Connecting Pis to the Internet via Bridge (OPTION 1)
 
+Figure 1 depicts how the network is set up with the help of the bridge command.
+
 ![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-bridge.png)
 
-Figure: Networking Bridge
+Figure 1: Networking Bridge
 
 Step 0. Recap and Setup
 
@@ -365,14 +359,49 @@ The cluster is now complete.
 
 ## Quickstart Guide for Mesh Networks 
 
-Gregor does this.
+This section will be completed.
+
+In case you have a Mesh Network, the setup can typically be even more
+simplifies as we can attach the unmanaged router directly to a Mesh
+node via a network cable. IN that case the node is directly connected
+to the internet and uses the DHCP feature from the Mesh router (see
+Figure 2).
 
 ![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-mesh.png)
 
-Figure: Networking with bridge
+Figure 2: Networking with Mesh network
 
+You will not need the bridge command to setup the network.
 
-## Manual Page for the `burn` command
+## Set up of the SSH keys and SSH tunnel
+
+One important aspect of the cluster is to setup authentication 
+with ssh, so we can easily login from the Laptop to each of the PI 
+workers and the PI manager. Furthermore, we like to be able to 
+login from the PI Master to each of the workers. In addition, 
+we like to be able to login between the workers.
+
+To simplify the setup of this we have developed a command 
+`cms host` with the options. To generate on multiple machines 
+on the network keys, to gather them and to redistribute or 
+scatter them so that we can easily authenticate as discussed 
+previously.
+
+One important part of this is that the key on the Laptop must 
+not be password less. This is also valid for any machine that is directly 
+added to the network such as in the Mesh notwork. 
+
+To avoid password less keys we recommend you to use `ssh-add` 
+or `ssh-keychain`.
+
+More infor and a concrete example will be documented here shortly.
+
+The manual page for `cms host` is provided in the Manual 
+Page section.
+
+## Manual Pages
+
+### Manual Page for the `burn` command
 
 Note to execute the command on the commandline you have to type in
 `cms burn` and not jsut `burn`.
@@ -484,12 +513,13 @@ Examples: ( \ is not shown)
 
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
-
 ```
 <!--MANUAL-BURN-->
 
 
-## Manual Page for the `bridge` command
+
+
+### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
 `cms bridge` and not jsut `bridge`.
@@ -526,24 +556,31 @@ Options:
                            to bridge through WIFI on the master
                            eth0 requires a USB to WIFI adapter
 
-    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to assign the master on the
+    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to
+                           assign the master on the
                            interface. Ex. 10.1.1.1
 
-    --range=IPRANGE        The inclusive range of IPs [default: 10.1.1.2-10.1.1.122] that can be assigned 
-                           to connecting devices. Value should be a comma
-                           separated tuple of the two range bounds. Should
-                           not include the ip of the master
-                           Ex. 10.1.1.2-10.1.1.20
+    --range=IPRANGE        The inclusive range of IPs that can be
+                           assigned to connecting devices. Value
+                           should be a comma separated tuple of the
+                           two range bounds. Should not include the
+                           ip of the master Ex. 10.1.1.2-10.1.1.20
+                           [default: 10.1.1.2-10.1.1.122]
 
-    --workers=WORKERS      The parametrized hostnames of workers attatched to the bridge.
+    --workers=WORKERS      The parametrized hostnames of workers
+                           attatched to the bridge.
                            Ex. red002
                            Ex. red[002-003]
 
-    --purge       Include option if a full reinstallation of dnsmasq is desired
+    --purge                Include option if a full reinstallation of
+                           dnsmasq is desired
 
-    --background    Runs the restart command in the background. stdout to bridge_restart.log
+    --background           Runs the restart command in the background.
+                           stdout to bridge_restart.log
 
-    --nohup      Restarts only the dnsmasq portion of the bridge. This is done to surely prevent SIGHUP if using ssh.
+    --nohup                Restarts only the dnsmasq portion of the
+                           bridge. This is done to surely prevent
+                           SIGHUP if using ssh.
 
     --rate=RATE            The rate in seconds for repeating the test
                            If ommitted its done just once.
@@ -587,8 +624,113 @@ Design Changes:
   We still may need the master to be part of other commands in case
   for example the check is different for master and worker
 
-
 ```
 <!--MANUAL-BRIDGE-->
 
+
+
+
+### Manual Page for the `host` command
+
+Note to execute the command on the commandline you have to type in
+`cms host` and not jsut `host`.
+
+<!--MANUAL-HOST-->
+```
+    host scp NAMES SOURCE DESTINATION [--dryrun]
+    host ssh NAMES COMMAND [--dryrun] [--output=FORMAT]
+    host config NAMES [IPS] [--user=USER] [--key=PUBLIC]
+    host check NAMES [--user=USER] [--key=PUBLIC]
+    host key create NAMES [--user=USER] [--dryrun] [--output=FORMAT]
+    host key list NAMES [--output=FORMAT]
+    host key gather NAMES [--authorized_keys] [FILE]
+    host key scatter NAMES FILE
+
+This command does some useful things.
+
+Arguments:
+    FILE   a file name
+
+Options:
+    --dryrun   shows what would be done but does not execute
+    --output=FORMAT  the format of the output
+
+Description:
+
+    host scp NAMES SOURCE DESTINATION
+
+      TBD
+
+    host ssh NAMES COMMAND
+
+      runs the command on all specified hosts
+      Example:
+           ssh red[01-10] "uname -a"
+
+    host key create NAMES
+      create a ~/.ssh/id_rsa and id_rsa.pub on all hosts specified
+      Example:
+          ssh key create "red[01-10]"
+
+    host key list NAMES
+
+      list all id_rsa.pub keys from all hosts specifed
+       Example:
+           ssh key list red[01-10]
+
+    host key gather HOSTS FILE
+
+      gathers all keys from file FILE including the one from localhost.
+
+          ssh key gather "red[01-10]" keys.txt
+
+    host key scatter HOSTS FILE
+
+      copies all keys from file FILE to authorized_keys on all hosts,
+      but also makes sure that the users ~/.ssh/id_rsa.pub key is in
+      the file.
+
+      1) adds ~/.id_rsa.pub to the FILE only if its not already in it
+      2) removes all duplicated keys
+
+      Example:
+          ssh key scatter "red[01-10]"
+
+    host key scp NAMES FILE
+
+      copies all keys from file FILE to authorized_keys on all hosts
+      but also makes sure that the users ~/.ssh/id_rsa.pub key is in
+      the file and removes duplicates, e.g. it calls fix before upload
+
+      Example:
+          ssh key list red[01-10] > pubkeys.txt
+          ssh key scp red[01-10] pubkeys.txt
+
+    host config NAMES IPS [--user=USER] [--key=PUBLIC]
+
+      generates an ssh config file tempalte that can be added to your
+      .ssh/config file
+
+      Example:
+          cms host config "red,red[01-03]" "198.168.1.[1-4]" --user=pi
+
+    host check NAMES [--user=USER] [--key=PUBLIC]
+
+      This command is used to test if you can login to the specified
+      hosts. It executes the hostname command and compares it.
+      It provides a table  with a sucess column
+
+      cms host check "red,red[01-03]"
+
+          +-------+---------+--------+
+          | host  | success | stdout |
+          +-------+---------+--------+
+          | red   | True    | red    |
+          | red01 | True    | red01  |
+          | red02 | True    | red02  |
+          | red03 | True    | red03  |
+          +-------+---------+--------+
+
+```
+<!--MANUAL-HOST-->
 
