@@ -24,6 +24,21 @@ from cloudmesh.common.util import yn_choice
 # TODO: make sure everything is compatible with --dryrun
 
 def sudo_writefile(filename, content, append=False):
+    """
+    Write a file into the file with the given filename using sudo
+    The file is first created in ~/.cloudmesh/tmp/tmp.txt
+
+    TODO: append is not implemented
+
+    :param filename: The filename
+    :type filename: str
+    :param content: The content of the file
+    :type content: str
+    :param append: if True the content will be appended to the existing file
+    :type append: bool
+    :return: The new content of the file
+    :rtype: str
+    """
     os.system('mkdir -p ~/.cloudmesh/tmp')
     tmp = "~/.cloudmesh/tmp/tmp.txt"
 
@@ -42,6 +57,16 @@ def sudo_writefile(filename, content, append=False):
 
 
 def sudo_readfile(filename, split=True):
+    """
+    Reads the file specified via sudo by filename and returns its content
+
+    :param filename: The filename
+    :type filename: str
+    :param split: if True splits the lines and returns a list
+    :type split: bool
+    :return: either str or list of the file content
+    :rtype: str or list
+    """
     result = subprocess.getoutput(f"sudo cat {filename}")
 
     if split:
@@ -51,18 +76,42 @@ def sudo_readfile(filename, split=True):
 
 
 def os_is_windows():
+    """
+    Checks if the os is windows
+
+    :return: True is windows
+    :rtype: bool
+    """
     return platform.system() == "Windows"
 
 
 def os_is_linux():
+    """
+    Checks if the os is linux
+
+    :return: True is linux
+    :rtype: bool
+    """
     return platform.system() == "Linux" and "raspberry" not in platform.uname()
 
 
 def os_is_mac():
+    """
+    Checks if the os is macOS
+
+    :return: True is macOS
+    :rtype: bool
+    """
     return platform.system() == "Darwin"
 
 
 def os_is_pi():
+    """
+    Checks if the os is Raspberry OS
+
+    :return: True is Raspberry OS
+    :rtype: bool
+    """
     return "raspberry" in platform.uname()
 
 
@@ -70,6 +119,12 @@ def os_is_pi():
 #    return subprocess.getoutput(f"dmesg")
 
 def gen_strong_pass():
+    """
+    Generates a password from letters, digits and punctuation
+
+    :return: password
+    :rtype: str
+    """
     length = random.randint(10, 15)
     password_characters = \
         string.ascii_letters + \
@@ -83,8 +138,13 @@ class Burner(object):
 
     def __init__(self, dryrun=False):
         """
+        Initializes the burner
 
-        :param dryrun:
+        TODO: dryrun may not be specified for all functions. Not yet enabled.
+              Hence do not use dryrun
+
+        :param dryrun: if True onle the commands will be listed that would
+                       be executed
         """
         self.dryrun = dryrun
         self.hostname = None
@@ -92,19 +152,18 @@ class Burner(object):
 
     def detect(self):
         """
-
-        :return:
+        Detects if a USB card writer can be found. and just prints the result
         """
         # Clear dmesg table so that info doesn't get confused with previous detects
         self.system('sudo dmesg -c')
-        banner("Detecting USB Card Reader(s)")
+        banner("Detecting USB Card Writers(s)")
 
-        print("Make sure the USB Reader(s) is removed ...")
-        if not yn_choice("Is the reader(s) removed?"):
+        print("Make sure the USB Writers(s) is removed ...")
+        if not yn_choice("Is the writer(s) removed?"):
             sys.exit()
         usb_out = set(Shell.execute("lsusb").splitlines())
-        print("Now plug in the Reader(s) ...")
-        if not yn_choice("Is the reader(s) plugged in?"):
+        print("Now plug in the Writer(s) ...")
+        if not yn_choice("Is the writer(s) plugged in?"):
             sys.exit()
         usb_in = set(Shell.execute("lsusb").splitlines())
 
@@ -121,8 +180,15 @@ class Burner(object):
 
     def info(self, print_stdout=True):
         """
+        Finds out information about USB devices
 
-        :return:
+        TODO: should we rename print_stdout to debug? seems more in
+              line with cloudmesh
+
+        :param print_stdout: if set to True prints debug information
+        :type print_stdout: bool
+        :return: dict with details about the devices
+        :rtype: dict
         """
 
         print("dryrun:    ", self.dryrun)
@@ -225,13 +291,17 @@ class Burner(object):
         # https://raspberry-pi-guide.readthedocs.io/en/latest/system.html
         # this is for fedora, but should also work for raspbian
 
-    # System command that uses subprocess to execute terminal commands
-    # Returns the stdout of the command
     def system(self, command):
         """
+        System command that uses subprocess to execute terminal commands
+        Returns the stdout of the command
 
-        :param command:
-        :return:
+        TODO: check typr of return
+
+        :param command: the command
+        :type command: str
+        :return: the stdout of the command
+        :rtype: str
         """
         # if self.dryrun:
         #     print(command)
@@ -250,11 +320,12 @@ class Burner(object):
         Burns the SD Card with an image
 
         :param image: Image object to use for burning
+        :type image: str
         :param device: Device to burn to, e.g. /dev/sda
-        :param blocksize:
-        :return:
+        :type device: str
+        :param blocksize: the blocksize used when writing, default 4M
+        :type blocksize: str
         """
-
         image_path = Image(image).fullpath
 
         result = subprocess.getoutput(
@@ -268,8 +339,11 @@ class Burner(object):
         """
         Sets the hostname on the sd card
 
-        :param hostname: hostname
-        :param mountpoint: TBD
+        :param hostname: the hostname
+        :type hostname: str
+        :param mountpoint: the mountpunt of the device on which the hostanme
+                           is found
+        :type mountpoint: str
         """
         self.hostname = hostname
         # write the new hostname to /etc/hostname
@@ -304,10 +378,17 @@ class Burner(object):
         Sets the static ip on the sd card for the specified interface
         Also writes to master hosts file for easy access
 
-        :param ip: IP address
-        :param mountpoint: TBD
-        :param iface: Network Interface
-        :param mask: Subnet Mask
+        :param ip: ips address
+        :type ip: str
+        :param mountpoint: the mountpunt of the device on which the ip
+                           is found
+        :type mountpoint: str
+        :param iface: the network Interface
+        :type iface: str
+        :param mask: the subnet Mask
+        :type mask: str
+        :return:
+        :rtype:
         """
 
         # Adds the ip and hostname to /etc/hosts if it isn't already there.
@@ -384,7 +465,10 @@ class Burner(object):
         Copies the public key into the .ssh/authorized_keys file on the sd card
 
         :param name: name of public key, e.g. 'id_rsa' for ~/.ssh/id_rsa.pub
-        :param mountpoint: TBD
+        :type name: str
+        :param mountpoint: the mountpunt of the device on which the key
+                           is found
+        :type mountpoint: str
         """
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
@@ -396,10 +480,15 @@ class Burner(object):
         """
         Mounts the current SD card
 
-        :param device: Device to mount, e.g. /dev/sda
-        :param mountpoint: Mountpoint, e.g. /mount/pi - note no trailing
-                           slash
+        :param device: device to mount, e.g. /dev/sda
+        :type device: str
+        :param mountpoint: the mountpunt of the device on which the pi user
+                           is found
+        :type mountpoint: str
         """
+
+        # TODO: make sure the mountpoint has no trailing /
+
         # mount p2 (/) and then p1 (/boot)
 
         if not self.dryrun:
@@ -416,8 +505,8 @@ class Burner(object):
                     break
                 counter += 1
                 if counter == max_tries:
-                    print(
-                        "Timed out waiting for OS to detect filesystem on burned card")
+                    print("Timed out waiting for OS to detect filesystem"
+                          " on the burned card")
                     sys.exit(1)
 
         self.system(f'sudo mkdir -p {mountpoint}')
@@ -428,7 +517,8 @@ class Burner(object):
         """
         Unmounts the current SD card
 
-        :param device: Device to unmount, e.g. /dev/sda
+        :param device: device to unmount, e.g. /dev/sda
+        :type device: str
         """
         if not self.dryrun:
             self.system('sudo sync')  # flush any pending/in-process writes
@@ -441,25 +531,26 @@ class Burner(object):
         #     self.system(f'sudo umount {device}1')
         # except:
         #     pass
-        self.system(
-            'sleep 1')  # Occasionally there are issues with unmounting. Pause for good effect.
+
+        # Occasionally there are issues with unmounting. Pause for good effect.
+        self.system('sleep 1')
         self.system(f'sudo umount {device}2')
 
     def enable_ssh(self, mountpoint):
         """
+        Enables ssh on next boot of sd card
 
-        :param mountpoint:
-        :return:
+        :param mountpoint: mount point of the /boot file system wher the
+                           ssh is enabled. by adding a file ssh
+        :type mountpoint: str
         """
-        """
-            Enables ssh on next boot of sd card
-            """
         # touch mountpoint/boot/ssh
         command = f'sudo touch {mountpoint}/boot/ssh'
         self.system(command)
 
     # IMPROVE
 
+    # TODO: docstring
     def disable_password_ssh(self, mountpoint):
         # sshd_config = self.filename("/etc/ssh/sshd_config")
         sshd_config = f'{mountpoint}/etc/ssh/sshd_config'
@@ -519,18 +610,23 @@ class Burner(object):
     # ok osx
     def activate_ssh(self, public_key, debug=False, interactive=False):
         """
-        sets the public key path and copies the it to the SD card
+        Sets the public key path and copies the it to the SD card
+
+        TODO: this has bugs as we have not yet thought about debug,
+              interactive, yesno yesno we can take form cloudmesh.common
+
+        BUG: this just raise a non implementation error
 
         :param public_key: the public key location
-        :param debug:
-        :param interactive:
+        :type public_key: str
+        :param debug: if set to tru debug messages will be printed
+        :type debug: bool
+        :param interactive: set to tru if you like interactive mode
+        :type interactive: bool
         :return: True if successful
+        :rtype: bool
         """
 
-        #
-        # this has bugs as we have not yet thought about debug, interactive, yesno
-        # yesno we can take form cloudmesh.common
-        #
 
         raise NotImplementedError
 
@@ -612,18 +708,23 @@ class Burner(object):
                 f.write(new_rc_local)
         self.disable_password_ssh()
 
-    def configure_wifi(self, ssid, psk=None, mountpoint='/mount/pi',
+    def configure_wifi(self,
+                       ssid,
+                       psk=None,
+                       mountpoint='/mount/pi',
                        interactive=False):
         """
-        sets the wifi. ONly works for psk based wifi
+        Sets the wifi. Only works for psk based wifi
 
         :param ssid: the ssid
+        :type ssid: str
         :param psk: the psk
-        :param mountpoint:
-        :param interactive:
-        :return:
+        :type psk: str
+        :param mountpoint: the mont pount
+        :type mountpoint: str
+        :param interactive: true if you like to run it interactively
+        :type interactive: bool
         """
-
         if psk is not None:
             wifi = textwrap.dedent("""\
                     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
@@ -659,14 +760,21 @@ class Burner(object):
         #     f.write(wifi)
         sudo_writefile(path, wifi)
 
-    # TODO Formats device with one FAT32 partition
-    # WARNING: This is a very unreliable way of automating the process using fdisk
-
+    # TODO
     def format_device(self, device='dev/sda', hostname=None):
         """
+        Formats device with one FAT32 partition
 
-        :param device:
-        :return:
+        WARNING: This is a potential risky way of automating
+                 the process using fdisk. ONly use on SDCards that you can lose.
+
+        WARNING: make sure you have the right device, this comamnd could
+                 potentially erase your OS
+
+        :param device: The defice on which we format
+        :type device: str
+        :param hostname: the hostname
+        :type hostname: str
         """
 
         Console.info("Formatting device...")
@@ -704,7 +812,7 @@ class Burner(object):
 
         Console.info("Wait while the card is written ...")
 
-    # This is to prevent desktop access of th pi (directly plugging monitor, keyboard, mouse into pi, etc.)
+    # This is to prevent desktop access of th pie (directly plugging monitor, keyboard, mouse into pi, etc.)
     #
     # Currently, ssh login is only possible with an authorized key. (No passwords)
     # Plugging pi directly into desktop, however, will still prompt for a user and password.
@@ -716,7 +824,12 @@ class Burner(object):
         accident the pi can not be logged into. The only way to login is via the
         ssh key
 
-        :return:
+        :param mountpoint: the mountpount for the system
+        :type mountpoint: str
+        :param password: the password for login
+        :type password: str
+        :return: file in /etc/shadow
+        :rtype: a written file
         """
 
         # Generates random salt for password generation
@@ -771,8 +884,7 @@ class Burner(object):
 
 
 class MultiBurner(object):
-    """pseudo code, please complete
-
+    """
     This class uses a single or multicard burner to burn SD Cards. It detects
     how many SD Cards are there and uses them. We assume no other USB devices
     are plugged in other than a keyboard or a mouse.
@@ -809,19 +921,32 @@ class MultiBurner(object):
                  psk=None,
                  fromatting=True):
         """
+        TODO: provide documentation
 
         :param image:
+        :type image:
         :param device:
+        :type device:
         :param blocksize:
+        :type blocksize:
         :param progress:
+        :type progress:
         :param hostnames:
+        :type hostnames:
         :param ips:
+        :type ips:
         :param key:
+        :type key:
         :param password:
+        :type password:
         :param ssid:
+        :type ssid:
         :param psk:
+        :type psk:
         :param fromatting:
+        :type fromatting:
         :return:
+        :rtype:
         """
 
         # :param devices: string with device letters
@@ -929,21 +1054,35 @@ class MultiBurner(object):
              psk=None,
              fromatting=True):
         """
+        Burns the image on the specific device
+
+        TODO: provide documentation
 
         :param image:
+        :type image:
         :param device:
+        :type device:
         :param blocksize:
+        :type blocksize:
         :param progress:
+        :type progress:
         :param hostname:
+        :type hostname:
         :param ip:
+        :type ip:
         :param key:
+        :type key:
         :param password:
+        :type password:
         :param ssid:
+        :type ssid:
         :param psk:
+        :type psk:
         :param fromatting:
+        :type fromatting:
         :return:
+        :rtype:
         """
-        # Burns the image on the specific device
 
         mp = '/mount/pi'
         if key is None:
