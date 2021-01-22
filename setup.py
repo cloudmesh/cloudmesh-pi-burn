@@ -32,6 +32,7 @@ def readfile(filename):
 requiers = """
 cloudmesh-common
 cloudmesh-cmd5
+cloudmesh-inventory
 wget
 python-hostlist
 docopt
