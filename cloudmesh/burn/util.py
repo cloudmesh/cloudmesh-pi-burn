@@ -29,7 +29,10 @@ if True:
 
 def writefile(filename, content):
     """
-    writes the content into the file
+    writes the content into the file. Same as cloudmesh.common.util.writefile
+
+    TODO: check equalency and use the common method instead
+
     :param filename: the filename
     :param content: teh content
     :return:
@@ -41,6 +44,11 @@ def writefile(filename, content):
 def readfile(filename, mode='r'):
     """
     returns the content of a file
+
+
+    TODO: check equivalency with cloudmesh.common.util.readfile. Use that insted.
+          Evaluate if the common method needs to be updated because of r, rb
+
     :param filename: the filename
     :param mode:
 
@@ -56,6 +64,16 @@ def readfile(filename, mode='r'):
 
 
 def check_root(dryrun=False, terminate=True):
+    """
+    check if I am the root user. If not simply exist the program.
+
+    TODO: should probably mocve to cloudmesh.common
+
+    :param dryrun: if set to true, does not terminate if not root user
+    :type dryrun: bool
+    :param terminate: terminates if not root user and dryrun is False
+    :type terminate: bool
+    """
     uid = os.getuid()
     if uid == 0:
         print("You are executing a a root user")
