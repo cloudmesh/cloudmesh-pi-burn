@@ -25,16 +25,16 @@ source:
 	pip install -e . -U
 	cms help
 
-requirements:
-	echo "cloudmesh-cmd5" > tmp.txt
-	echo "cloudmesh-sys" >> tmp.txt
-	echo "cloudmesh-inventory" >> tmp.txt
-	echo "cloudmesh-configuration" >> tmp.txt
-	pip-compile setup.py
-	fgrep -v "# via" requirements.txt | fgrep -v "cloudmesh" >> tmp.txt
-	mv tmp.txt requirements.txt
-	-git commit -m "update requirements" requirements.txt
-	-git push
+#requirements:
+#	echo "cloudmesh-cmd5" > tmp.txt
+#	echo "cloudmesh-sys" >> tmp.txt
+#	echo "cloudmesh-inventory" >> tmp.txt
+#	echo "cloudmesh-configuration" >> tmp.txt
+#	# pip-compile setup.py
+#	#fgrep -v "# via" requirements.txt | fgrep -v "cloudmesh" >> tmp.txt
+#	mv tmp.txt requirements.txt
+#	-git commit -m "update requirements" requirements.txt
+#	-git push
 
 manual:
 	mkdir -p docs-source/source/manual
@@ -87,7 +87,7 @@ dist:
 	python setup.py sdist bdist_wheel
 	twine check dist/*
 
-patch: clean requirements
+patch: clean
 	$(call banner, "bbuild")
 	bump2version --no-tag --allow-dirty patch
 	python setup.py sdist bdist_wheel
@@ -111,8 +111,8 @@ minor: clean
 
 release: clean
 	$(call banner, "release")
-	git tag "v$(VERSION)"
-	git push origin master --tags
+	-git tag "v$(VERSION)"
+	-git push origin master --tags
 	python setup.py sdist bdist_wheel
 	twine check dist/*
 	twine upload --repository pypi dist/*
