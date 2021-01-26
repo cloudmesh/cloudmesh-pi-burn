@@ -474,7 +474,7 @@ class Burner(object):
         #   mountpoint/home/pi/.ssh/authorized_keys
         self.system(f'mkdir -p {mountpoint}/home/pi/.ssh/')
         self.system(
-            f'sudo cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
+            f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
     def mount(self, device, mountpoint="/mount/pi"):
         """

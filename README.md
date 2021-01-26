@@ -425,6 +425,41 @@ More infor and a concrete example will be documented here shortly.
 The manual page for `cms host` is provided in the Manual 
 Page section.
 
+**Step 1.** On the master create ssh keys for each of the workers.
+
+```
+(ENV3) pi@masterpi:~ $ cms host key create red00[1-3]
+```
+
+**Step 2.** On the master gather all worker and master ssh keys into a file.
+
+```
+(ENV3) pi@masterpi:~ $ cms host key gather red00[1-3] keys.txt
+```
+
+**Step 3.** On the master scatter the keys to all the workers and master ~/.ssh/authorized_hosts file
+
+```
+(ENV3) pi@masterpi:~ $ cms host key scatter red00[1-3],localhost keys.txt
+```
+
+**Step 4.** Remove undeeded keys.txt file
+
+```
+(ENV3) pi@masterpi:~ $ rm keys.txt
+```
+
+**Step 5.** Verify SSH reachability from worker to master and worker to worker.
+
+```
+(ENV3) pi@masterpi:~ $ ssh red001
+pi@red001:~ $ ssh masterpi  #bug if master is still named raspberrypi then the worker might resolve it as 127.0.0.1. Use raspberrypi.local instead.
+(ENV3) pi@masterpi:~ $ exit
+pi@red001:~ $ ssh red002
+pi@red002:~ $ exit
+pi@red001:~ $ exit
+```
+
 ## Manual Pages
 
 ### Manual Page for the `burn` command
