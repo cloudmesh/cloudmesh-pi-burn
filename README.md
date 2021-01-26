@@ -95,11 +95,11 @@ For the quickstart we have the following requirements:
   cards We recommend that you invest in a USB3 SDCard writer as they
   are significantly faster and you can resuse them on PI'4s
 
-### Manager Pi
+### Master Pi
 
-First we need to configure the Manager Pi
+First we need to configure the Master Pi
 
-**Step 1.** Installing Cloudmesh on the Manager Pi
+**Step 1.** Installing Cloudmesh on the Master Pi
 
 The simple curl command below will generate an ssh-key, update your
 system, and install cloudmesh.
