@@ -760,3 +760,11 @@ Description:
 ```
 <!--MANUAL-HOST-->
 
+### FAQ/Hints
+
+Here, we touch upon FAQs and other useful hints.
+
+**Q1. I've quickstarted my cluster with the [bridge command](#quickstart-for-restricted-wifi-access) How do I restart my cluster to preserve the network configuration?**
+
+A1. Restarting the cluster is an inevitable task. Perhaps you need to remove the cluster from your workspace, or you simply wish to save on power. This is perfectly fine. However, to preserve the network configuration provided by the bridge command, you should only boot up your workers **after** your master has finished booting. This is so that the `bridge` program can boot up and be operational before the workers attempt to establish a connection. If the workers establish a connection with the master before the `bridge` program is active, the user will have no internet access for the workers.  In this case, you may also resolve this issue by simply rebooting your workers.
+
