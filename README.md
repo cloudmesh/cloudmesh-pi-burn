@@ -110,6 +110,18 @@ pi@masterpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
 
 This will take a moment...
 
+There is currently an issue with the version of numpy the pi4 has installed. To fix run the below command. To see more info about see <https://numpy.org/devdocs/user/troubleshooting-importerror.html#raspberry-pi>.
+
+```
+pi@masterpi:~ $ sudo apt-get install libatlas-base-dev
+```
+
+To verify run the below command. You should see no errors.
+
+```
+pi@masterpi:~ $ cms help
+```
+
 **Step 2.** Activate Python Virtual Environment
 
 Activate Python Virtual Environment, 
