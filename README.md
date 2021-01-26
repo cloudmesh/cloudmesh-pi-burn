@@ -380,7 +380,7 @@ rtt min/avg/max/mdev = 47.924/48.169/48.511/0.291 ms
 
 Note how we are able to omit the pi user and .local extension
 
-The cluster is now complete.
+The cluster is now complete. For information on rebooting clusters (ie. if you shut it down for the day and wish to reboot), see [FAQ/Hints](#faqhints)
 
 ## Quickstart Guide for Mesh Networks 
 
