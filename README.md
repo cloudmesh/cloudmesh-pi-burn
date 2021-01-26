@@ -16,9 +16,9 @@ laszewski@gmail.com*
 <!--TOC-->
 
 - [Cloudmesh Pi Burner for SD Cards](#cloudmesh-pi-burner-for-sd-cards)
-  - [cms burn](#cms-burn)
+  - [Introduction](#introduction)
   - [Nomenclature](#nomenclature)
-  - [Quickstart for Restricted WiFi Access](#quickstart-for-restricted-wifi-access)
+  - [Quickstart for Bridged WiFi](#quickstart-for-bridged-wifi)
     - [Requirements](#requirements)
     - [Master Pi](#master-pi)
     - [Single Card Burning](#single-card-burning)
@@ -30,6 +30,7 @@ laszewski@gmail.com*
     - [Manual Page for the `burn` command](#manual-page-for-the-burn-command)
     - [Manual Page for the `bridge` command](#manual-page-for-the-bridge-command)
     - [Manual Page for the `host` command](#manual-page-for-the-host-command)
+  - [FAQ/Hints](#faqhints)
 
 <!--TOC-->
 
@@ -95,11 +96,11 @@ For the quickstart we have the following requirements:
   cards We recommend that you invest in a USB3 SDCard writer as they
   are significantly faster and you can resuse them on PI'4s
 
-### Manager Pi
+### Master Pi
 
-First we need to configure the Manager Pi
+First we need to configure the Master Pi
 
-**Step 1.** Installing Cloudmesh on the Manager Pi
+**Step 1.** Installing Cloudmesh on the Master Pi
 
 The simple curl command below will generate an ssh-key, update your
 system, and install cloudmesh.
@@ -379,7 +380,7 @@ rtt min/avg/max/mdev = 47.924/48.169/48.511/0.291 ms
 
 Note how we are able to omit the pi user and .local extension
 
-The cluster is now complete.
+The cluster is now complete. For information on rebooting clusters (ie. if you shut it down for the day and wish to reboot), see [FAQ/Hints](#faqhints)
 
 ## Quickstart Guide for Mesh Networks 
 
@@ -574,8 +575,13 @@ Examples: ( \ is not shown)
 
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
+
 ```
 <!--MANUAL-BURN-->
+
+
+
+
 
 
 
@@ -617,31 +623,24 @@ Options:
                            to bridge through WIFI on the master
                            eth0 requires a USB to WIFI adapter
 
-    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to
-                           assign the master on the
+    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to assign the master on the
                            interface. Ex. 10.1.1.1
 
-    --range=IPRANGE        The inclusive range of IPs that can be
-                           assigned to connecting devices. Value
-                           should be a comma separated tuple of the
-                           two range bounds. Should not include the
-                           ip of the master Ex. 10.1.1.2-10.1.1.20
-                           [default: 10.1.1.2-10.1.1.122]
+    --range=IPRANGE        The inclusive range of IPs [default: 10.1.1.2-10.1.1.122] that can be assigned 
+                           to connecting devices. Value should be a comma
+                           separated tuple of the two range bounds. Should
+                           not include the ip of the master
+                           Ex. 10.1.1.2-10.1.1.20
 
-    --workers=WORKERS      The parametrized hostnames of workers
-                           attatched to the bridge.
+    --workers=WORKERS      The parametrized hostnames of workers attatched to the bridge.
                            Ex. red002
                            Ex. red[002-003]
 
-    --purge                Include option if a full reinstallation of
-                           dnsmasq is desired
+    --purge       Include option if a full reinstallation of dnsmasq is desired
 
-    --background           Runs the restart command in the background.
-                           stdout to bridge_restart.log
+    --background    Runs the restart command in the background. stdout to bridge_restart.log
 
-    --nohup                Restarts only the dnsmasq portion of the
-                           bridge. This is done to surely prevent
-                           SIGHUP if using ssh.
+    --nohup      Restarts only the dnsmasq portion of the bridge. This is done to surely prevent SIGHUP if using ssh.
 
     --rate=RATE            The rate in seconds for repeating the test
                            If ommitted its done just once.
@@ -685,8 +684,13 @@ Design Changes:
   We still may need the master to be part of other commands in case
   for example the check is different for master and worker
 
+
 ```
 <!--MANUAL-BRIDGE-->
+
+
+
+
 
 
 
@@ -792,6 +796,19 @@ Description:
           | red03 | True    | red03  |
           +-------+---------+--------+
 
+
 ```
 <!--MANUAL-HOST-->
+
+
+
+
+
+## FAQ/Hints
+
+Here, we touch upon FAQs and other useful hints.
+
+**Q1. I've quickstarted my cluster with the [bridge command](#quickstart-for-restricted-wifi-access) How do I restart my cluster to preserve the network configuration?**
+
+**A1.** Restarting the cluster is an inevitable task. Perhaps you need to remove the cluster from your workspace, or you simply wish to save on power. This is perfectly fine. However, to preserve the network configuration provided by the bridge command, you should only boot up your workers **after** your master has finished booting. This is so that the `bridge` program can boot up and be operational before the workers attempt to establish a connection. If the workers establish a connection with the master before the `bridge` program is active, the user will have no internet access for the workers.  In this case, you may also resolve this issue by simply rebooting your workers.
 
