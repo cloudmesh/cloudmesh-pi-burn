@@ -112,6 +112,16 @@ pi@masterpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
 
 This will take a moment...
 
+**Step 2.** Activate Python Virtual Environment
+
+Activate Python Virtual Environment, 
+if you have not already, enter the Python virtual environment provided
+by the installation script.
+
+```
+pi@masterpi:~ $ source ~/ENV3/bin/activate
+```
+
 There is currently an issue with the version of numpy the pi4 has installed. To fix run the below command. To see more info about see <https://numpy.org/devdocs/user/troubleshooting-importerror.html#raspberry-pi>.
 
 ```
@@ -122,16 +132,6 @@ To verify run the below command. You should see no errors.
 
 ```
 pi@masterpi:~ $ cms help
-```
-
-**Step 2.** Activate Python Virtual Environment
-
-Activate Python Virtual Environment, 
-if you have not already, enter the Python virtual environment provided
-by the installation script.
-
-```
-pi@masterpi:~ $ source ~/ENV3/bin/activate
 ```
 
 **Step 3.** Download the latest Raspberry Pi Lite OS
