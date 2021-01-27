@@ -125,13 +125,13 @@ pi@masterpi:~ $ source ~/ENV3/bin/activate
 There is currently an issue with the version of numpy the pi4 has installed. To fix run the below command. To see more info about see <https://numpy.org/devdocs/user/troubleshooting-importerror.html#raspberry-pi>.
 
 ```
-pi@masterpi:~ $ sudo apt-get install libatlas-base-dev
+(ENV3) pi@masterpi:~ $ sudo apt-get install libatlas-base-dev
 ```
 
 To verify run the below command. You should see no errors.
 
 ```
-pi@masterpi:~ $ cms help
+(ENV3) pi@masterpi:~ $ cms help
 ```
 
 **Step 3.** Download the latest Raspberry Pi Lite OS
