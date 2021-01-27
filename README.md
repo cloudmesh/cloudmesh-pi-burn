@@ -102,10 +102,11 @@ First we need to configure the Master Pi
 
 **Step 1.** Installing Cloudmesh on the Master Pi
 
-The simple curl command below will generate an ssh-key, update your
+Update pip and the simple curl command below will generate an ssh-key, update your
 system, and install cloudmesh.
 
 ```
+pi@masterpi:~ $ pip install pip -U
 pi@masterpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
 ```
 
