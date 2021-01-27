@@ -8,3 +8,4 @@ prompter
 pyyaml
 oyaml
 requests
+pyusb
