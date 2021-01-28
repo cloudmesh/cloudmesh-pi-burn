@@ -579,33 +579,33 @@ Quote:
     down properly may corrupt your SD card, which would mean you would
     have to re-image it.
     
-LED control:
 
-    see:
-    
-    cms pi led red off HOSTNAME
-
-SSHFS:
-   add master to `.ssh/config` onlocal machine
-
-    ```
-   Host master
-         HostName xxx.xxx.xxx.xxx
-         User pi
-         IdentityFile ~/.ssh/id_rsa.pub
-
-   mkdir master
-   sshfs master: master -o auto_cache
-    ```
-
-    See also: <https://github.com/libfuse/sshfs>
 
 ## Alternative Network Setup
 
-As implemented, cms bridge creates two seperate networks with the master pi acting as a DHCP server and router for the works. Workers traffic on the physical LAN is forwarded via the masters WLAN0 to the internet when required. The WLAN and LAN are two seperate networks.
+As implemented, cms bridge creates two seperate networks with the
+master pi acting as a DHCP server and router for the works. Workers
+traffic on the physical LAN is forwarded via the masters WLAN0 to the
+internet when required.  The WLAN and LAN are two seperate networks.
 
-An alternative option is to follow option 1 here <https://willhaley.com/blog/raspberry-pi-wifi-ethernet-bridge/>. This setup uses Proxy ARP and IP forwarding to create a single, flat network using the existing DHCP server (for instance from a home router). The WLAN and LAN all have ip addresses on the same subnet. LAN traffic is still forwarded via the masters WLAN interface when required. An advantage of this setup is its simplicty. There is no need for ssh tunnelling to access workers via a lapton on the wireless network, you can simply youse local mDNS resolotion (i.e. ssh pi@red001.local from a laptop on the WLAN). This option is not a good choice if the cluster does not have access an existing DCHP server (i.e. home wifi router). For example, in a training workshop where there is no access to the wifi or guest wifi does not permit easy DHCP granting. In these cases, with cms bridge, the master acts as a DHCP server for the workers irregardless of the environment we are working in, whereas this solution the workers would not be dynamically assigned IP addresses. We would have to provide our own DHCP server, say a standalone wifi router or cellular hotspot (for internet).
+An alternative option is to follow option 1 here
+<https://willhaley.com/blog/raspberry-pi-wifi-ethernet-bridge/>.  This
+setup uses Proxy ARP and IP forwarding to create a single, flat
+network using the existing DHCP server (for instance from a home
+router). The WLAN and LAN all have ip addresses on the same
+subnet. LAN traffic is still forwarded via the masters WLAN interface
+when required. An advantage of this setup is its simplicty. There is
+no need for ssh tunnelling to access workers via a lapton on the
+wireless network, you can simply youse local mDNS resolotion (i.e. ssh
+pi@red001.local from a laptop on the WLAN). This option is not a good
+choice if the cluster does not have
 
-I also think it would be easier to extend cms bridge to provide firewall capabilities. Since it essentially already using linux fireall utils (iptables) to provide the forwarding.
+I also think it would be easier to extend cms bridge to provide
+firewall capabilities. Since it essentially already using linux
+fireall utils (iptables) to provide the forwarding.
 
-When we scale to the 10s of nodes will have to have the cluster plugged directly into a network with wired access to DHCP and internet. That might exceed a standard home routers capabilities. We will might be looking for a managed switch at that point, where we can setup DHCP directly on the switch.
+When we scale to the 10s of nodes will have to have the cluster
+plugged directly into a network with wired access to DHCP and
+internet. That might exceed a standard home routers capabilities. We
+will might be looking for a managed switch at that point, where we can
+setup DHCP directly on the switch.
