@@ -816,6 +816,10 @@ confusing the used in this README. The command is likely to be called
 `pidev`. Once the command is graduated it will be moved into the main
 command pi.
 
+There is some very usefull aditional information about how to use the LED and temperature monitoring programs at
+
+* <https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/main/README.md>
+
 
 <!--MANUAL-PI-->
 ```
