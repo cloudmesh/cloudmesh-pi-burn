@@ -30,7 +30,10 @@ laszewski@gmail.com*
     - [Manual Page for the `burn` command](#manual-page-for-the-burn-command)
     - [Manual Page for the `bridge` command](#manual-page-for-the-bridge-command)
     - [Manual Page for the `host` command](#manual-page-for-the-host-command)
-  - [FAQ/Hints](#faqhints)
+  - [FAQ and Hints](#faq-and-hints)
+    - [I  used the \[bridge command\](#quickstart-for-restricted-wifi-access) during quickstart. How do I restart my cluster to preserve the network configuration?](#i--used-the-bridge-commandquickstart-for-restricted-wifi-access-during-quickstart-how-do-i-restart-my-cluster-to-preserve-the-network-configuration)
+    - [Can I use the LEDs on the PI Motherboard?](#can-i-use-the-leds-on-the-pi-motherboard)
+    - [How can I use pychar, to edit files or access files in general from my Laptop on the PI?](#how-can-i-use-pychar-to-edit-files-or-access-files-in-general-from-my-laptop-on-the-pi)
 
 <!--TOC-->
 
@@ -471,60 +474,116 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BURN-->
 ```
-ModuleNotFoundError: No module named 'cloudmesh.mongo'
+Usage:
+  burn network list [--ip=IP] [--used]
+  burn network
+  burn info [DEVICE]
+  burn detect
+  burn image versions [--refresh]
+  burn image ls
+  burn image delete [IMAGE]
+  burn image get [URL]
+  burn create [--image=IMAGE]
+                         [--device=DEVICE]
+                         [--hostname=HOSTNAME]
+                         [--ipaddr=IP]
+                         [--sshkey=KEY]
+                         [--blocksize=BLOCKSIZE]
+                         [--dryrun]
+                         [--passwd=PASSWD]
+                         [--ssid=SSID]
+                         [--wifipassword=PSK]
+                         [--format]
+  burn burn [IMAGE] [DEVICE] --[dryrun]
+  burn mount [DEVICE] [MOUNTPOINT]
+  burn set host [HOSTNAME] [MOUNTPOINT]
+  burn set ip [IP] [MOUNTPOINT]
+  burn set key [KEY] [MOUNTPOINT]
+  burn enable ssh [MOUNTPOINT]
+  burn unmount [DEVICE]
+  burn wifi SSID [PASSWD] [-ni]
 
-During handling of the above exception, another exception occurred:
+Options:
+  -h --help              Show this screen.
+  --version              Show version.
+  --image=IMAGE          The image filename,
+                         e.g. 2019-09-26-raspbian-buster.img
+  --device=DEVICE        The device, e.g. /dev/mmcblk0
+  --hostname=HOSTNAME    The hostname
+  --ipaddr=IP            The IP address
+  --key=KEY              The name of the SSH key file
+  --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
 
-Traceback (most recent call last):
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 159, in <module>
-    Plugin.load()
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in load
-    commands = [pydoc.locate(x) for x in classes]
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in <listcomp>
-    commands = [pydoc.locate(x) for x in classes]
-  File "/usr/lib/python3.8/pydoc.py", line 1632, in locate
-    nextmodule = safeimport('.'.join(parts[:n+1]), forceload)
-  File "/usr/lib/python3.8/pydoc.py", line 362, in safeimport
-    raise ErrorDuringImport(path, sys.exc_info())
-pydoc.ErrorDuringImport: problem in cloudmesh.google.googlebigquery.command.googlebigquery - ModuleNotFoundError: No module named 'cloudmesh.mongo'
+Files:
+  This is not fully thought through and needs to be documented
+  ~/.cloudmesh/images
+    Location where the images will be stored for reuse
 
-During handling of the above exception, another exception occurred:
+Description:
+    cms burn create --passwd=PASSWD
 
-Traceback (most recent call last):
-  File "/usr/lib/python3.8/pydoc.py", line 347, in safeimport
-    module = __import__(path)
-  File "/home/green/ENV38/lib/python3.8/site-packages/cloudmesh/google/googlebigquery/command/googlebigquery.py", line 4, in <module>
-    from cloudmesh.google.googlebigquery.Provider import Provider
-  File "/home/green/ENV38/lib/python3.8/site-packages/cloudmesh/google/googlebigquery/Provider.py", line 5, in <module>
-    from cloudmesh.mongo.DataBaseDecorator import DatabaseUpdate
-ModuleNotFoundError: No module named 'cloudmesh.mongo'
+         if the passwd flag is added the default password is
+         queried from the commandline and added to all SDCards
 
-During handling of the above exception, another exception occurred:
+         if the flag is ommitted login via the password is disabled
+         and only login via the sshkey is allowed
 
-Traceback (most recent call last):
-  File "/home/green/ENV38/bin/cms", line 11, in <module>
-    load_entry_point('cloudmesh-cmd5', 'console_scripts', 'cms')()
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 489, in load_entry_point
-    return get_distribution(dist).load_entry_point(group, name)
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 2852, in load_entry_point
-    return ep.load()
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 2443, in load
-    return self.resolve()
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 2449, in resolve
-    module = __import__(self.module_name, fromlist=['__name__'], level=0)
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 173, in <module>
-    Plugin.load()
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in load
-    commands = [pydoc.locate(x) for x in classes]
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in <listcomp>
-    commands = [pydoc.locate(x) for x in classes]
-  File "/usr/lib/python3.8/pydoc.py", line 1632, in locate
-    nextmodule = safeimport('.'.join(parts[:n+1]), forceload)
-  File "/usr/lib/python3.8/pydoc.py", line 362, in safeimport
-    raise ErrorDuringImport(path, sys.exc_info())
-pydoc.ErrorDuringImport: problem in cloudmesh.google.googlebigquery.command.googlebigquery - ModuleNotFoundError: No module named 'cloudmesh.mongo'
+  Network
+
+    cms burn network list
+
+        Lists the ip addresses that are on the same network
+
+         +------------+---------------+----------+-----------+
+         | Name       | IP            | Status   | Latency   |
+         |------------+---------------+----------+-----------|
+         | Router     | 192.168.1.1   | up       | 0.0092s   |
+         | iPhone     | 192.168.1.4   | up       | 0.061s    |
+         | red01      | 192.168.1.46  | up       | 0.0077s   |
+         | laptop     | 192.168.1.78  | up       | 0.058s    |
+         | unkown     | 192.168.1.126 | up       | 0.14s     |
+         | red03      | 192.168.1.158 | up       | 0.0037s   |
+         | red02      | 192.168.1.199 | up       | 0.0046s   |
+         | red        | 192.168.1.249 | up       | 0.00021s  |
+         +------------+----------------+----------+-----------+
+
+    cms burn network list [--used]
+
+        Lists the used ip addresses as a comma separated parameter
+        list
+
+           192.168.50.1,192.168.50.4,...
+
+    cms burn network address
+
+        Lists the own network address
+
+         +---------+----------------+----------------+
+         | Label   | Local          | Broadcast      |
+         |---------+----------------+----------------|
+         | wlan0   | 192.168.1.12   | 192.168.1.255  |
+         +---------+----------------+----------------+
+
+Examples: ( \ is not shown)
+
+   > cms burn create --image=2019-09-26-raspbian-buster-lite
+   >                 --device=/dev/mmcblk0
+   >                 --hostname=red[5-7]
+   >                 --ipaddr=192.168.1.[5-7]
+   >                 --sshkey=id_rsa
+
+   > cms burn image get latest
+
+   > cms burn image get https://downloads.raspberrypi.org/
+   >   raspbian_lite/images/
+   >   raspbian_lite-2018-10-11/2018-10-09-raspbian-stretch-lite.zip
+
+   > cms burn image delete 2019-09-26-raspbian-buster-lite
+
 ```
 <!--MANUAL-BURN-->
+
+
 
 
 
@@ -541,60 +600,11 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BRIDGE-->
 ```
-ModuleNotFoundError: No module named 'cloudmesh.mongo'
 
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 159, in <module>
-    Plugin.load()
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in load
-    commands = [pydoc.locate(x) for x in classes]
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in <listcomp>
-    commands = [pydoc.locate(x) for x in classes]
-  File "/usr/lib/python3.8/pydoc.py", line 1632, in locate
-    nextmodule = safeimport('.'.join(parts[:n+1]), forceload)
-  File "/usr/lib/python3.8/pydoc.py", line 362, in safeimport
-    raise ErrorDuringImport(path, sys.exc_info())
-pydoc.ErrorDuringImport: problem in cloudmesh.google.googlebigquery.command.googlebigquery - ModuleNotFoundError: No module named 'cloudmesh.mongo'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/usr/lib/python3.8/pydoc.py", line 347, in safeimport
-    module = __import__(path)
-  File "/home/green/ENV38/lib/python3.8/site-packages/cloudmesh/google/googlebigquery/command/googlebigquery.py", line 4, in <module>
-    from cloudmesh.google.googlebigquery.Provider import Provider
-  File "/home/green/ENV38/lib/python3.8/site-packages/cloudmesh/google/googlebigquery/Provider.py", line 5, in <module>
-    from cloudmesh.mongo.DataBaseDecorator import DatabaseUpdate
-ModuleNotFoundError: No module named 'cloudmesh.mongo'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/green/ENV38/bin/cms", line 11, in <module>
-    load_entry_point('cloudmesh-cmd5', 'console_scripts', 'cms')()
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 489, in load_entry_point
-    return get_distribution(dist).load_entry_point(group, name)
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 2852, in load_entry_point
-    return ep.load()
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 2443, in load
-    return self.resolve()
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 2449, in resolve
-    module = __import__(self.module_name, fromlist=['__name__'], level=0)
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 173, in <module>
-    Plugin.load()
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in load
-    commands = [pydoc.locate(x) for x in classes]
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in <listcomp>
-    commands = [pydoc.locate(x) for x in classes]
-  File "/usr/lib/python3.8/pydoc.py", line 1632, in locate
-    nextmodule = safeimport('.'.join(parts[:n+1]), forceload)
-  File "/usr/lib/python3.8/pydoc.py", line 362, in safeimport
-    raise ErrorDuringImport(path, sys.exc_info())
-pydoc.ErrorDuringImport: problem in cloudmesh.google.googlebigquery.command.googlebigquery - ModuleNotFoundError: No module named 'cloudmesh.mongo'
 ```
 <!--MANUAL-BRIDGE-->
+
+
 
 
 
@@ -611,60 +621,104 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-HOST-->
 ```
-ModuleNotFoundError: No module named 'cloudmesh.mongo'
+    host scp NAMES SOURCE DESTINATION [--dryrun]
+    host ssh NAMES COMMAND [--dryrun] [--output=FORMAT]
+    host config NAMES [IPS] [--user=USER] [--key=PUBLIC]
+    host check NAMES [--user=USER] [--key=PUBLIC]
+    host key create NAMES [--user=USER] [--dryrun] [--output=FORMAT]
+    host key list NAMES [--output=FORMAT]
+    host key gather NAMES [--authorized_keys] [FILE]
+    host key scatter NAMES FILE
 
-During handling of the above exception, another exception occurred:
+This command does some useful things.
 
-Traceback (most recent call last):
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 159, in <module>
-    Plugin.load()
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in load
-    commands = [pydoc.locate(x) for x in classes]
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in <listcomp>
-    commands = [pydoc.locate(x) for x in classes]
-  File "/usr/lib/python3.8/pydoc.py", line 1632, in locate
-    nextmodule = safeimport('.'.join(parts[:n+1]), forceload)
-  File "/usr/lib/python3.8/pydoc.py", line 362, in safeimport
-    raise ErrorDuringImport(path, sys.exc_info())
-pydoc.ErrorDuringImport: problem in cloudmesh.google.googlebigquery.command.googlebigquery - ModuleNotFoundError: No module named 'cloudmesh.mongo'
+Arguments:
+    FILE   a file name
 
-During handling of the above exception, another exception occurred:
+Options:
+    --dryrun   shows what would be done but does not execute
+    --output=FORMAT  the format of the output
 
-Traceback (most recent call last):
-  File "/usr/lib/python3.8/pydoc.py", line 347, in safeimport
-    module = __import__(path)
-  File "/home/green/ENV38/lib/python3.8/site-packages/cloudmesh/google/googlebigquery/command/googlebigquery.py", line 4, in <module>
-    from cloudmesh.google.googlebigquery.Provider import Provider
-  File "/home/green/ENV38/lib/python3.8/site-packages/cloudmesh/google/googlebigquery/Provider.py", line 5, in <module>
-    from cloudmesh.mongo.DataBaseDecorator import DatabaseUpdate
-ModuleNotFoundError: No module named 'cloudmesh.mongo'
+Description:
 
-During handling of the above exception, another exception occurred:
+    host scp NAMES SOURCE DESTINATION
 
-Traceback (most recent call last):
-  File "/home/green/ENV38/bin/cms", line 11, in <module>
-    load_entry_point('cloudmesh-cmd5', 'console_scripts', 'cms')()
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 489, in load_entry_point
-    return get_distribution(dist).load_entry_point(group, name)
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 2852, in load_entry_point
-    return ep.load()
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 2443, in load
-    return self.resolve()
-  File "/home/green/ENV38/lib/python3.8/site-packages/pkg_resources/__init__.py", line 2449, in resolve
-    module = __import__(self.module_name, fromlist=['__name__'], level=0)
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 173, in <module>
-    Plugin.load()
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in load
-    commands = [pydoc.locate(x) for x in classes]
-  File "/home/green/Desktop/cm/cloudmesh-cmd5/cloudmesh/shell/shell.py", line 146, in <listcomp>
-    commands = [pydoc.locate(x) for x in classes]
-  File "/usr/lib/python3.8/pydoc.py", line 1632, in locate
-    nextmodule = safeimport('.'.join(parts[:n+1]), forceload)
-  File "/usr/lib/python3.8/pydoc.py", line 362, in safeimport
-    raise ErrorDuringImport(path, sys.exc_info())
-pydoc.ErrorDuringImport: problem in cloudmesh.google.googlebigquery.command.googlebigquery - ModuleNotFoundError: No module named 'cloudmesh.mongo'
+      TBD
+
+    host ssh NAMES COMMAND
+
+      runs the command on all specified hosts
+      Example:
+           ssh red[01-10] "uname -a"
+
+    host key create NAMES
+      create a ~/.ssh/id_rsa and id_rsa.pub on all hosts specified
+      Example:
+          ssh key create "red[01-10]"
+
+    host key list NAMES
+
+      list all id_rsa.pub keys from all hosts specifed
+       Example:
+           ssh key list red[01-10]
+
+    host key gather HOSTS FILE
+
+      gathers all keys from file FILE including the one from localhost.
+
+          ssh key gather "red[01-10]" keys.txt
+
+    host key scatter HOSTS FILE
+
+      copies all keys from file FILE to authorized_keys on all hosts,
+      but also makes sure that the users ~/.ssh/id_rsa.pub key is in
+      the file.
+
+      1) adds ~/.id_rsa.pub to the FILE only if its not already in it
+      2) removes all duplicated keys
+
+      Example:
+          ssh key scatter "red[01-10]"
+
+    host key scp NAMES FILE
+
+      copies all keys from file FILE to authorized_keys on all hosts
+      but also makes sure that the users ~/.ssh/id_rsa.pub key is in
+      the file and removes duplicates, e.g. it calls fix before upload
+
+      Example:
+          ssh key list red[01-10] > pubkeys.txt
+          ssh key scp red[01-10] pubkeys.txt
+
+    host config NAMES IPS [--user=USER] [--key=PUBLIC]
+
+      generates an ssh config file tempalte that can be added to your
+      .ssh/config file
+
+      Example:
+          cms host config "red,red[01-03]" "198.168.1.[1-4]" --user=pi
+
+    host check NAMES [--user=USER] [--key=PUBLIC]
+
+      This command is used to test if you can login to the specified
+      hosts. It executes the hostname command and compares it.
+      It provides a table  with a sucess column
+
+      cms host check "red,red[01-03]"
+
+          +-------+---------+--------+
+          | host  | success | stdout |
+          +-------+---------+--------+
+          | red   | True    | red    |
+          | red01 | True    | red01  |
+          | red02 | True    | red02  |
+          | red03 | True    | red03  |
+          +-------+---------+--------+
+
 ```
 <!--MANUAL-HOST-->
+
+
 
 
 
