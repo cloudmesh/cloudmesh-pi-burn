@@ -19,6 +19,7 @@ readme:
 	cms man readme -p --tag="MANUAL-BURN" burn
 	cms man readme -p --tag="MANUAL-BRIDGE" bridge
 	cms man readme -p --tag="MANUAL-HOST" host
+	cms man readme -p --tag="MANUAL-PI" pi
 
 source:
 	cd ../cloudmesh.cmd5; make source

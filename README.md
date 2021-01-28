@@ -30,6 +30,7 @@ laszewski@gmail.com*
     - [Manual Page for the `burn` command](#manual-page-for-the-burn-command)
     - [Manual Page for the `bridge` command](#manual-page-for-the-bridge-command)
     - [Manual Page for the `host` command](#manual-page-for-the-host-command)
+    - [Manual Page for the `pi` command](#manual-page-for-the-pi-command)
   - [FAQ and Hints](#faq-and-hints)
     - [I  used the \[bridge command\](#quickstart-for-restricted-wifi-access) during quickstart. How do I restart my cluster to preserve the network configuration?](#i--used-the-bridge-commandquickstart-for-restricted-wifi-access-during-quickstart-how-do-i-restart-my-cluster-to-preserve-the-network-configuration)
     - [Can I use the LEDs on the PI Motherboard?](#can-i-use-the-leds-on-the-pi-motherboard)
@@ -474,7 +475,6 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BURN-->
 ```
-Usage:
   burn network list [--ip=IP] [--used]
   burn network
   burn info [DEVICE]
@@ -585,14 +585,6 @@ Examples: ( \ is not shown)
 
 
 
-
-
-
-
-
-
-
-
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -600,17 +592,106 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BRIDGE-->
 ```
+  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
+  bridge set HOSTS ADDRESSES 
+  bridge restart [--nohup] [--background]
+  bridge status
+  bridge test HOSTS [--rate=RATE]
+  bridge list NAMES
+  bridge check NAMES [--configuration] [--connection]
+  bridge info
+
+Arguments:
+    HOSTS        Hostnames of connected devices. 
+                 Ex. red002
+                 Ex. red[002-003]
+
+    ADDRESSES    IP addresses to assign to HOSTS. Addresses
+                 should be in the network range configured.
+                 Ex. 10.1.1.2
+                 Ex. 10.1.1.[2-3]
+
+    NAMES        A parameterized list of hosts. The first hostname 
+                 in the list is the master through which the traffic 
+                 is routed. Example:
+                 blue,blue[002-003]
+
+Options:
+    --interface=INTERFACE  The interface name [default: eth1]
+                           You can also specify wlan0 if you wnat
+                           to bridge through WIFI on the master
+                           eth0 requires a USB to WIFI adapter
+
+    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to
+                           assign the master on the
+                           interface. Ex. 10.1.1.1
+
+    --range=IPRANGE        The inclusive range of IPs that can be
+                           assigned to connecting devices. Value
+                           should be a comma separated tuple of the
+                           two range bounds. Should not include the
+                           ip of the master Ex. 10.1.1.2-10.1.1.20
+                           [default: 10.1.1.2-10.1.1.122]
+
+    --workers=WORKERS      The parametrized hostnames of workers
+                           attatched to the bridge.
+                           Ex. red002
+                           Ex. red[002-003]
+
+    --purge                Include option if a full reinstallation of
+                           dnsmasq is desired
+
+    --background           Runs the restart command in the background.
+                           stdout to bridge_restart.log
+
+    --nohup                Restarts only the dnsmasq portion of the
+                           bridge. This is done to surely prevent
+                           SIGHUP if using ssh.
+
+    --rate=RATE            The rate in seconds for repeating the test
+                           If ommitted its done just once.
+
+Description:
+
+  Command used to set up a bride so that all nodes route the traffic
+  trough the master PI.
+
+  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
+      creates the bridge on the current device
+      The create command does not restart the network.
+
+  bridge set HOSTS ADDRESSES 
+      the set command assigns the given static 
+      ip addresses to the given hostnames.
+
+  bridge status
+      Returns the status of the bridge and its linked services.
+
+  bridge restart [--nohup]
+      restarts the bridge on the master without rebooting. 
+
+  bridge test NAMES
+      A test to see if the bridges are configured correctly and one
+      hase internet access on teh specified hosts.
+
+  bridge list NAMES
+      Lists information about the bridges (may not be needed)
+
+  bridge check NAMES [--config] [--connection]
+      provides information about the network configuration
+      and netwokrk access. Thisis not a comprehensive speedtest
+      for which we use test.
+
+  bridge info
+      prints relevant information about the configured bridge
+
+
+Design Changes:
+  We still may need the master to be part of other commands in case
+  for example the check is different for master and worker
 
 ```
 <!--MANUAL-BRIDGE-->
-
-
-
-
-
-
-
-
 
 
 
@@ -719,6 +800,97 @@ Description:
 <!--MANUAL-HOST-->
 
 
+
+
+### Manual Page for the `pi` command
+
+Note to execute the command on the commandline you have to type in
+`cms pi` and not jsut `pi`.
+
+
+**Note**: Please note that the command `hadoop`, `spark`, and `k3` are
+experimental and do not yet work.  In fact the hadoop and spark
+deployment are not fullfilling our standard and should not be
+used. They will be put into a different command soon so they are not
+confusing the used in this README. The command is likely to be called
+`pidev`. Once the command is graduated it will be moved into the main
+command pi.
+
+
+<!--MANUAL-PI-->
+```
+  pi led reset [NAMES]
+  pi led (red|green) VALUE
+  pi led (red|green) VALUE NAMES [--user=USER]
+  pi led list NAMES [--user=USER]
+  pi led blink (red|green) NAMES [--user=USER] [--rate=SECONDS]
+  pi led sequence (red|green) NAMES [--user=USER] [--rate=SECONDS]
+  pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+  pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+  pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
+  pi hadoop setup [--master=MASTER] [--workers=WORKERS]
+  pi hadoop start [--master=MASTER] [--workers=WORKERS]
+  pi hadoop stop [--master=MASTER] [--workers=WORKERS]
+  pi hadoop test [--master=MASTER] [--workers=WORKERS]
+  pi hadoop check [--master=MASTER] [--workers=WORKERS]
+  pi spark setup [--master=MASTER] [--workers=WORKERS]
+  pi spark start --master=MASTER
+  pi spark stop --master=MASTER
+  pi spark test --master=MASTER
+  pi spark check [--master=MASTER] [--workers=WORKERS]
+  pi spark uninstall --master=MASTER [--workers=WORKERS]
+  pi k3 install [--master=MASTER] [--workers=WORKERS] [--step=COMMAND]
+  pi k3 join --master=MASTER --workers=WORKERS
+  pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
+  pi k3 delete [--master=MASTER] [--workers=WORKERS]
+  pi k3 test [--master=MASTER] [--workers=WORKERS]
+  pi k3 view
+  pi script list SERVICE [--details]
+  pi script list SERVICE NAMES
+  pi script list
+  pi wifi SSID [PASSWORD] [--dryrun]
+
+This command does some useful things.
+
+Arguments:
+    FILE   a file name
+
+Options:
+    -f      specify the file
+
+
+Description:
+
+  This command switches on and off the LEDs of the specified PIs. If
+  the hostname is ommitted. IT is assumed that the code is executed on
+  a PI and its LED are set. To list the PIs LED status you can use the
+  list command
+
+  Examples:
+
+      cms pi led list  "red,red[01-03]"
+
+          lists the LED status of the given hosts
+
+      cms pi led red off  "red,red[01-03]"
+
+          switches off the led of the given PIs
+
+      cms pi led red on  "red,red[01-03]"
+
+          switches on the led of the given PIs
+
+      cms pi led red blink  "red,red[01-03]"
+
+          switches on and off the led of the given PIs
+
+      cms pi led red sequence  "red,red[01-03]"
+
+          goes in sequential order and switches on and off the led of
+          the given PIs
+
+```
+<!--MANUAL-PI-->
 
 
 
