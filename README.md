@@ -111,7 +111,8 @@ system, and install cloudmesh.
 
 ```
 pi@masterpi:~ $ pip install pip -U
-pi@masterpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
+pi@masterpi:~ $ curl -Ls https://raw.githubusercontent.com/cloudmesh/get/main/pi/index.html | sh 
+# Note: in the future, the command above will be replaced by curl -Ls http://cloudmesh.github.io/get/pi | sh
 ```
 
 This will take a moment...
