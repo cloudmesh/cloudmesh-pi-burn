@@ -959,4 +959,18 @@ Here, we provide some usefule FAQs and hints.
 > sshfs master: master -o auto_cache
 > ```
 
+### The `get` script has an issue, how can I used the development get script.
+
+Instead of using the link
+
+* <http://cloudmesh.github.io/get/pi>
+
+please use
+
+* <https://raw.githubusercontent.com/cloudmesh/get/main/pi>
+
+This allows us to test also modifications to the get script before we
+push them to the official community repository.
+
+
 
