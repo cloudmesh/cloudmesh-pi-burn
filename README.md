@@ -716,7 +716,7 @@ Here, we provide some usefule FAQs and hints.
 > Please craete a `./.ssh/config file that containes the following:
 >
 > ```
->  Host master
+>  Host red
 >       HostName xxx.xxx.xxx.xxx
 >       User pi
 >       IdentityFile ~/.ssh/id_rsa.pub
