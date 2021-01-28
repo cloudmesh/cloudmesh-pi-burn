@@ -720,8 +720,8 @@ Here, we provide some usefule FAQs and hints.
 >       HostName xxx.xxx.xxx.xxx
 >       User pi
 >       IdentityFile ~/.ssh/id_rsa.pub
->
->
+> ```
+> 
 > Now let us create a directory in which we mount the remote PI directories
 >
 > ```
