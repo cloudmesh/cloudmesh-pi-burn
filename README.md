@@ -35,6 +35,7 @@ laszewski@gmail.com*
     - [I  used the \[bridge command\](#quickstart-for-restricted-wifi-access) during quickstart. How do I restart my cluster to preserve the network configuration?](#i--used-the-bridge-commandquickstart-for-restricted-wifi-access-during-quickstart-how-do-i-restart-my-cluster-to-preserve-the-network-configuration)
     - [Can I use the LEDs on the PI Motherboard?](#can-i-use-the-leds-on-the-pi-motherboard)
     - [How can I use pychar, to edit files or access files in general from my Laptop on the PI?](#how-can-i-use-pychar-to-edit-files-or-access-files-in-general-from-my-laptop-on-the-pi)
+    - [The `get` script has an issue, how can I used the development get script.](#the-get-script-has-an-issue-how-can-i-used-the-development-get-script)
 
 <!--TOC-->
 
@@ -625,8 +626,10 @@ Examples: ( \ is not shown)
 
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
+
 ```
 <!--MANUAL-BURN-->
+
 
 
 
@@ -735,8 +738,10 @@ Design Changes:
   We still may need the master to be part of other commands in case
   for example the check is different for master and worker
 
+
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
@@ -755,6 +760,7 @@ Note to execute the command on the commandline you have to type in
     host key list NAMES [--output=FORMAT]
     host key gather NAMES [--authorized_keys] [FILE]
     host key scatter NAMES FILE
+    host tunnel create NAMES [--port=PORT]
 
 This command does some useful things.
 
@@ -764,6 +770,7 @@ Arguments:
 Options:
     --dryrun   shows what would be done but does not execute
     --output=FORMAT  the format of the output
+    --port=PORT starting local port for tunnel assignment
 
 Description:
 
@@ -841,8 +848,19 @@ Description:
           | red03 | True    | red03  |
           +-------+---------+--------+
 
+    host tunnel create NAMES [--port=PORT]
+
+      This command is used to create a persistent local port
+      forward on the host to permit ssh tunnelling from the wlan to
+      the physical network (eth). This registers an autossh service in
+      systemd with the defualt port starting at 8001.
+
+      Example:
+          cms host tunnel create red00[1-3]
+
 ```
 <!--MANUAL-HOST-->
+
 
 
 
@@ -864,7 +882,6 @@ command pi.
 There is some very usefull aditional information about how to use the LED and temperature monitoring programs at
 
 * <https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/main/README.md>
-
 
 <!--MANUAL-PI-->
 ```
@@ -938,8 +955,10 @@ Description:
           goes in sequential order and switches on and off the led of
           the given PIs
 
+
 ```
 <!--MANUAL-PI-->
+
 
 
 
