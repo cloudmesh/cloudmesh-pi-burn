@@ -460,7 +460,7 @@ Page section.
 
 ```
 (ENV3) pi@managerpi:~ $ ssh red001
-pi@red001:~ $ ssh masterpi  #bug if master is still named raspberrypi then the worker might resolve it as 127.0.0.1. Use raspberrypi.local instead.
+pi@red001:~ $ ssh masterpi  #bug if manager is still named raspberrypi then the worker might resolve it as 127.0.0.1. Use raspberrypi.local instead.
 (ENV3) pi@managerpi:~ $ exit
 pi@red001:~ $ ssh red002
 pi@red002:~ $ exit
