@@ -438,13 +438,13 @@ Page section.
 (ENV3) pi@masterpi:~ $ cms host key create red00[1-3]
 ```
 
-**Step 2.** On the master gather all worker and master ssh keys into a file.
+**Step 2.** On the master gather the worker, master, and your laptop public ssh keys into a file.
 
 ```
-(ENV3) pi@masterpi:~ $ cms host key gather red00[1-3] keys.txt
+(ENV3) pi@masterpi:~ $ cms host key gather red00[1-3],you@yourlaptop.local keys.txt
 ```
 
-**Step 3.** On the master scatter the keys to all the workers and master ~/.ssh/authorized_hosts file
+**Step 3.** On the master scatter the public keys to all the workers and master ~/.ssh/authorized_hosts file
 
 ```
 (ENV3) pi@masterpi:~ $ cms host key scatter red00[1-3],localhost keys.txt
@@ -465,6 +465,50 @@ pi@red001:~ $ ssh masterpi  #bug if master is still named raspberrypi then the w
 pi@red001:~ $ ssh red002
 pi@red002:~ $ exit
 pi@red001:~ $ exit
+```
+
+**Step 6.** (For Bridge setup) Create SSH tunnels on the master to enable ssh acces from your laptop to the workers
+
+```
+(ENV3) pi@masterpi:~ $ cms host tunnel create red00[1-3]
+```
+
+**Step 7.** (For Bridge setup) Copy the specified command output to your ~/.ssh/config file on your laptop
+
+```
+host tunnel create red00[1-3]
+
+Using wlan0 IP = 192.168.1.17
+Using cluster hostname = raspberrypi
+
+Tunnels created.
+
+Please place the following in your remote machine's (i.e. laptop) ~/.ssh/config file to alias simple ssh access (i.e. ssh red001).
+
+# ----------------------------------------------------------------------
+# copy to ~/.ssh/config on remote host (i.e laptop)
+# ----------------------------------------------------------------------
+
+Host red001
+     HostName raspberrypi.local
+     User pi
+     Port 8001
+
+Host red002
+     HostName raspberrypi.local
+     User pi
+     Port 8002
+
+Host red003
+     HostName raspberrypi.local
+     User pi
+     Port 8003
+```
+
+**Step 8.** (For Bridge setup) Verify SSH reachability from the laptop to workers
+
+```
+you@yourlaptop:~ $ ssh red001
 ```
 
 ## Manual Pages
