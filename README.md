@@ -389,21 +389,6 @@ Note how we are able to omit the pi user and .local extension
 
 The cluster is now complete. For information on rebooting clusters (ie. if you shut it down for the day and wish to reboot), see [FAQ/Hints](#faqhints)
 
-## Quickstart Guide for Mesh Networks 
-
-This section is still under development.
-
-In case you have a Mesh Network, the setup can typically be even more
-simplifies as we can attach the unmanaged router directly to a Mesh
-node via a network cable. IN that case the node is directly connected
-to the internet and uses the DHCP feature from the Mesh router (see
-Figure 2).
-
-![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-mesh.png)
-
-Figure 2: Networking with Mesh network
-
-You will not need the bridge command to setup the network.
 
 ## Set up of the SSH keys and SSH tunnel
 
@@ -1036,5 +1021,20 @@ please use
 This allows us to test also modifications to the get script before we
 push them to the official community repository.
 
+### Can I use a Mesh Network for the setup?
+
+This section is still under development.
+
+In case you have a Mesh Network, the setup can typically be even more
+simplifies as we can attach the unmanaged router directly to a Mesh
+node via a network cable. IN that case the node is directly connected
+to the internet and uses the DHCP feature from the Mesh router (see
+Figure 2).
+
+![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-mesh.png)
+
+Figure 2: Networking with Mesh network
+
+You will not need the bridge command to setup the network.
 
 
