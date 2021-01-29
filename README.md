@@ -411,7 +411,7 @@ This section is still under development.
 One important aspect of the cluster is to setup authentication 
 with ssh, so we can easily login from the Laptop to each of the PI 
 workers and the PI manager. Furthermore, we like to be able to 
-login from the PI Master to each of the workers. In addition, 
+login from the PI manager to each of the workers. In addition, 
 we like to be able to login between the workers.
 
 To simplify the setup of this we have developed a command 
@@ -432,45 +432,45 @@ More infor and a concrete example will be documented here shortly.
 The manual page for `cms host` is provided in the Manual 
 Page section.
 
-**Step 1.** On the master create ssh keys for each of the workers.
+**Step 1.** On the manager create ssh keys for each of the workers.
 
 ```
-(ENV3) pi@masterpi:~ $ cms host key create red00[1-3]
+(ENV3) pi@managerpi:~ $ cms host key create red00[1-3]
 ```
 
-**Step 2.** On the master gather the worker, master, and your laptop public ssh keys into a file.
+**Step 2.** On the manager gather the worker, manager, and your laptop public ssh keys into a file.
 
 ```
-(ENV3) pi@masterpi:~ $ cms host key gather red00[1-3],you@yourlaptop.local keys.txt
+(ENV3) pi@managerpi:~ $ cms host key gather red00[1-3],you@yourlaptop.local keys.txt
 ```
 
-**Step 3.** On the master scatter the public keys to all the workers and master ~/.ssh/authorized_hosts file
+**Step 3.** On the manager scatter the public keys to all the workers and manager ~/.ssh/authorized_hosts file
 
 ```
-(ENV3) pi@masterpi:~ $ cms host key scatter red00[1-3],localhost keys.txt
+(ENV3) pi@managerpi:~ $ cms host key scatter red00[1-3],localhost keys.txt
 ```
 
 **Step 4.** Remove undeeded keys.txt file
 
 ```
-(ENV3) pi@masterpi:~ $ rm keys.txt
+(ENV3) pi@managerpi:~ $ rm keys.txt
 ```
 
-**Step 5.** Verify SSH reachability from worker to master and worker to worker.
+**Step 5.** Verify SSH reachability from worker to manager and worker to worker.
 
 ```
-(ENV3) pi@masterpi:~ $ ssh red001
+(ENV3) pi@managerpi:~ $ ssh red001
 pi@red001:~ $ ssh masterpi  #bug if master is still named raspberrypi then the worker might resolve it as 127.0.0.1. Use raspberrypi.local instead.
-(ENV3) pi@masterpi:~ $ exit
+(ENV3) pi@managerpi:~ $ exit
 pi@red001:~ $ ssh red002
 pi@red002:~ $ exit
 pi@red001:~ $ exit
 ```
 
-**Step 6.** (For Bridge setup) Create SSH tunnels on the master to enable ssh acces from your laptop to the workers
+**Step 6.** (For Bridge setup) Create SSH tunnels on the manager to enable ssh acces from your laptop to the workers
 
 ```
-(ENV3) pi@masterpi:~ $ cms host tunnel create red00[1-3]
+(ENV3) pi@managerpi:~ $ cms host tunnel create red00[1-3]
 ```
 
 **Step 7.** (For Bridge setup) Copy the specified command output to your ~/.ssh/config file on your laptop
@@ -479,7 +479,7 @@ pi@red001:~ $ exit
 host tunnel create red00[1-3]
 
 Using wlan0 IP = 192.168.1.17
-Using cluster hostname = raspberrypi
+Using cluster hostname = managerpi
 
 Tunnels created.
 
@@ -490,17 +490,17 @@ Please place the following in your remote machine's (i.e. laptop) ~/.ssh/config 
 # ----------------------------------------------------------------------
 
 Host red001
-     HostName raspberrypi.local
+     HostName managerpi.local
      User pi
      Port 8001
 
 Host red002
-     HostName raspberrypi.local
+     HostName managerpi.local
      User pi
      Port 8002
 
 Host red003
-     HostName raspberrypi.local
+     HostName managerpi.local
      User pi
      Port 8003
 ```
