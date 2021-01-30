@@ -455,6 +455,13 @@ pi@red001:~ $ exit
 
 **Step 6.** (For Bridge setup) Create SSH tunnels on the manager to enable ssh acces from your laptop to the workers
 
+For now we manually install autossh, to test the new cms host tunnel program. Later we add it to the main master setup script.
+
+```
+(ENV3) pi@managerpi:~ $ yes y | sudo apt install autossh
+```
+
+
 ```
 (ENV3) pi@managerpi:~ $ cms host tunnel create red00[1-3]
 ```
