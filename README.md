@@ -984,7 +984,7 @@ Here, we provide some usefule FAQs and hints.
 > manual page
 
 
-### How can I use pychar, to edit files or access files in general from my Laptop on the PI?
+### How can I use pycharm, to edit files or access files in general from my Laptop on the PI?
 
 > This is easily possible with the help of SSHFS. To install it we
 > refer you to See also: <https://github.com/libfuse/sshfs> SSHFS: add
@@ -1008,7 +1008,7 @@ Here, we provide some usefule FAQs and hints.
 > sshfs master: master -o auto_cache
 > ```
 
-### The `get` script has an issue, how can I used the development get script.
+### How can I enhance the `get` script?
 
 Instead of using the link
 
@@ -1020,6 +1020,10 @@ please use
 
 This allows us to test also modifications to the get script before we
 push them to the official community repository.
+
+You can create a pull request at
+
+* <https://github.com/cloudmesh/get/blob/main/pi/index.html>
 
 ### Can I use a Mesh Network for the setup?
 
