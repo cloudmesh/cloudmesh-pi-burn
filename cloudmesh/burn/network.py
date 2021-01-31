@@ -3,6 +3,13 @@ import socket
 import subprocess
 
 
+# TODO: ther eseems to be some overlap with hardware.py and some functions in
+#       hardware introduced that are not used here such as getfqdn and hostname.
+#       Should it be removed form hardware, or should this be changed here to
+#       use the methods from hardware?
+#
+# TODO: get method is not implemented
+
 class Network:
 
     @staticmethod

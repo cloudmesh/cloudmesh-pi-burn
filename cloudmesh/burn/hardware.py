@@ -6,12 +6,24 @@ class Hardware(object):
 
     @staticmethod
     def is_pi():
-        return \
-            os.uname()[4][:3] == 'arm' and \
-            'Raspberry' in Hardware.model()
+        """
+        Checks if its called on a PI
+
+        :return: returns true if this is called on a Pi
+        :rtype: bool
+        """
+        return os.uname()[4][:3] == 'arm' and 'Raspberry' in Hardware.model()
 
     @staticmethod
     def get_mac(interface='eth0'):
+        """
+        Get the mac address
+
+        :param interface: the network interface name
+        :type interface: str
+        :return: mac address
+        :rtype: str
+        """
         # noinspection PyBroadException
         try:
             address = open('/sys/class/net/%s/address' % interface).read()
@@ -21,6 +33,12 @@ class Hardware(object):
 
     @staticmethod
     def get_ethernet():
+        """
+        TODO: describe
+
+        :return:
+        :rtype:
+        """
         interface = None
         # noinspection PyBroadException
         try:
@@ -34,6 +52,12 @@ class Hardware(object):
 
     @staticmethod
     def model():
+        """
+        TODO: describe
+
+        :return:
+        :rtype:
+        """
         # noinspection PyBroadException
         try:
             model_str = open('/sys/firmware/devicetree/base/model').read()
@@ -44,10 +68,22 @@ class Hardware(object):
 
     @staticmethod
     def hostname():
+        """
+        The hostname
+
+        :return: the hostname
+        :rtype: str
+        """
         return socket.gethostname()
 
     @staticmethod
     def fqdn():
+        """
+        TODO: describe
+
+        :return:
+        :rtype:
+        """
         return socket.getfqdn()
 
 

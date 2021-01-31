@@ -1,8 +1,3 @@
-#
-# Example image link
-#
-# https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/2019-09-26-raspbian-buster-lite.zip
-
 import os
 import textwrap
 import zipfile
@@ -31,36 +26,51 @@ class Image(object):
     # /home/user/.cloudmesh/images/raspbian-2019.img
 
     def __init__(self, name="latest"):
+        name = name or "latest"
         self.directory = os.path.expanduser('~/.cloudmesh/cmburn/images')
         self.cache = Path(
             os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
         os.system('mkdir -p ' + self.directory)
         self.image_name = name
+
+        self.raspberry_lite_images = \
+            "https://downloads.raspberrypi.org/raspios_lite_armhf/images"
+        self.raspberry_full_images = \
+            "https://downloads.raspberrypi.org/raspios_full_armhf/images"
+
         if name == 'latest':
             self.fullpath = self.directory + '/' + self.latest_version() + '.img'
         else:
             self.fullpath = self.directory + '/' + self.image_name + '.img'
 
+
     def version_cache_create(self, refresh=False):
+        # not used
+        # bug only for lite, needs repo as parameter
         data = []
 
         if refresh or not self.cache.exists():
             os.system("mkdir -p ~/.cloudmesh/cmburn")
             print("finding repos ...", end="")
-            repos = ["https://downloads.raspberrypi.org/raspbian_lite/images/"]
+            repos = [self.raspberry_lite_images]
             for repo in repos:
                 versions, downloads = Image().versions(repo)
-                print("These images are available at")
+                print(" These images are available at")
                 for version, download in zip(versions, downloads):
-                    print("{}: {}".format(version, download))
-                    data.append({version: download})
+                    entry = {
+                        "version": version,
+                        "url": download,
+                        "date": version.split("-", 1)[1]
+                    }
+                    print (entry)
+                    data.append(entry)
             writefile(self.cache, yaml.dump(data))
         else:
             data = yaml.load(readfile(self.cache), Loader=yaml.SafeLoader)
             for entry in data:
                 version = list(entry.keys())[0]
                 download = entry[version]
-                print("{}: {}".format(version, download))
+                print(f"{version}: {download}")
 
     def version_cache_read(self):
         data = yaml.load(readfile(self.cache), Loader=yaml.SafeLoader)
@@ -70,13 +80,6 @@ class Image(object):
         """
         Fetch and list available image versions and their download URLs
         """
-        # image locations
-        #
-        # https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2019-09-30/
-
-        #
-        # versions can be found with https://downloads.raspberrypi.org/raspbian_lite/images/
-        #
 
         result = requests.get(repo, verify=False)
         lines = result.text.split(' ')
@@ -87,14 +90,13 @@ class Image(object):
                 line = line.split('href="')[1]
                 line = line.split('/')[0]
                 v.append(line)
-                download = self.find_image_zip(line)
+                download = self.find_image_zip(repo, line)
                 d.append(download)
         return v, d
 
-    def find_image_zip(self, version):
+    def find_image_zip(self, repo, version):
 
-        url = "https://downloads.raspberrypi.org/raspbian_lite/images/{}/".format(
-            version)
+        url = f"{repo}/{version}/"
 
         result = requests.get(url, verify=False)
         lines = result.text.split(' ')
@@ -102,13 +104,14 @@ class Image(object):
             if '.zip"' in line and "</td>" in line:
                 line = line.split('href="')[1]
                 line = line.split('"')[0]
-                link = f"https://downloads.raspberrypi.org/raspbian_lite/images/{version}/{line}"
+                link = f"{repo}/{version}/{line}"
                 return link
         return None
 
     def latest_version(self):
+        # bug must read from ~/.cloudmesh/cmburn/distributions.yaml
         source_url = requests.head(
-            "https://downloads.raspberrypi.org/raspbian_lite_latest",
+            f"{self.raspberry_lite_images}/raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip",
             allow_redirects=True).url
         return os.path.basename(source_url)[:-4]
 
@@ -121,7 +124,7 @@ class Image(object):
         """
 
         if self.image_name == 'latest':
-            self.image_name = "https://downloads.raspberrypi.org/raspbian_lite_latest"
+            self.image_name = f"{self.raspberry_lite_images}/raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip"
 
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
@@ -174,7 +177,9 @@ class Image(object):
         zipfile.ZipFile(zip_filename).extractall()
 
     def verify(self):
-        # verify if the image is ok, use SHA
+        """
+        verify if the image is ok, use SHA
+        """
         raise NotImplementedError
 
     def rm(self):
