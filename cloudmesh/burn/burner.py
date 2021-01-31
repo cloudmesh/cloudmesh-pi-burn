@@ -193,10 +193,23 @@ class Burner(object):
 
         print("dryrun:    ", self.dryrun)
 
-        result = USB.fdisk("/dev/mmcblk0")
-        if print_stdout:
-            banner("Operating System SD Card")
-            print(result)
+        if os_is_pi():
+            banner("This is  Raspberry PI")
+        elif os_is_mac():
+            banner("This is Mac")
+        elif os_is_windows():
+            banner("This is a Windows COmputer")
+        elif os_is_linux():
+            banner("This is a Linux Computer")
+        else:
+            Console.error ("unkown OS")
+            sys.exit(1)
+
+        if os_is_pi():
+            result = USB.fdisk("/dev/mmcblk0")
+            if print_stdout:
+                banner("Operating System SD Card")
+                print(result)
 
         details = USB.get_from_usb()
 
