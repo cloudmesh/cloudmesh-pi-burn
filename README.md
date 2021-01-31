@@ -1048,4 +1048,25 @@ Figure 2: Networking with Mesh network
 
 You will not need the bridge command to setup the network.
 
+### Can I use cms burn on Linux?
+
+We used to have cm burn fully supported on Linux. However it is no longer supported. 
+
+However, we just started an effort to figure out if we can make it work again on Linux
+
+To download the latest rasbian Pi image use
+
+```
+cms burn image get
+```
+
+To see what SDCard writers you have attached, you can use the command
+
+```
+cms burn info
+```
+
+It will issue a probe of USB devices and see if SDCards can be found.
+
+
 
