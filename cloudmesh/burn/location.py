@@ -60,7 +60,6 @@ class Location:
         """
         self.os = os or "raspberry"
         self.host = host or "raspberry"
-        print (self.os, self.host)
 
     @property
     def root_volume(self):
@@ -134,8 +133,6 @@ class Location:
         r = Shell.run("mount -l").splitlines()
         root_fs = self.root_volume
         boot_fs = self.boot_volume
-        print (root_fs)
-        print(boot_fs)
 
         details = {}
         for line in r:
@@ -148,8 +145,8 @@ class Location:
                     .replace("]", "")\
                     .split("|")
                 detail = {
-                    "dev": entry[0],
-                    "fs": entry[1],
+                    "device": entry[0],
+                    "path": entry[1],
                     "type": entry[2],
                     "parameters": entry[3],
                     "name": entry[4],
@@ -164,9 +161,13 @@ class Location:
         #if os_is_linux():
         #    Location.mount(root_fs,)
 
-    def unmount(self):
+    def unmount_card(self):
         root_fs = self.root_volume
         boot_fs = self.boot_volume
+
+        if os_is_linux():
+            location = Location(os="raspberry", host="ubuntu")
+            m = location.mount_ls()
 
 
 

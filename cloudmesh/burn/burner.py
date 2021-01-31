@@ -24,6 +24,7 @@ from cloudmesh.burn.location import os_is_mac
 from cloudmesh.burn.location import os_is_pi
 from cloudmesh.burn.location import os_is_windows
 
+
 # TODO: make sure everything is compatible with --dryrun
 
 def sudo_writefile(filename, content, append=False):
@@ -165,7 +166,7 @@ class Burner(object):
         elif os_is_linux():
             banner("This is a Linux Computer")
         else:
-            Console.error ("unkown OS")
+            Console.error("unkown OS")
             sys.exit(1)
 
         if os_is_pi():
@@ -241,9 +242,9 @@ class Burner(object):
                                     "Removable",
                                     "Writeable"]))
 
-            #lsusb = USB.get_from_lsusb()
-            #from pprint import pprint
-            #pprint (lsusb)
+            # lsusb = USB.get_from_lsusb()
+            # from pprint import pprint
+            # pprint (lsusb)
 
             # endors = USB.get_vendor()
             # print(vendors)
@@ -259,7 +260,6 @@ class Burner(object):
         if print_stdout:
 
             if os_is_linux():
-
                 location = Location(os="raspberry", host="ubuntu")
                 m = location.mount_ls()
 
@@ -278,9 +278,7 @@ class Burner(object):
                                         "Type",
                                         "Fs",
                                         "Parameters"
-                                        ]))
-
-
+                                    ]))
 
         # Convert details into a dict where the key for each entry is the device
         details = {detail['dev']: detail for detail in details}
@@ -517,7 +515,7 @@ class Burner(object):
         self.system(f'sudo mount {device}2 {mountpoint}')
         self.system(f'sudo mount {device}1 {mountpoint}/boot')
 
-    def unmount(self, device):
+    def unmount(self, device=None):
         """
         Unmounts the current SD card
 
@@ -527,18 +525,41 @@ class Burner(object):
         if not self.dryrun:
             self.system('sudo sync')  # flush any pending/in-process writes
 
-        # unmount p1 (/boot) and then p2 (/)
-        self.system(f'sudo umount {device}1')
-        # noinspection PyBroadException
-        # try:
-        #     print(f"trying to unmount {device}1")
-        #     self.system(f'sudo umount {device}1')
-        # except:
-        #     pass
+        if device is None:
 
-        # Occasionally there are issues with unmounting. Pause for good effect.
-        self.system('sleep 1')
-        self.system(f'sudo umount {device}2')
+            if os_is_linux():
+                location = Location(os="raspberry", host="ubuntu")
+                m = location.mount_ls()
+
+                for mountpoint in m:
+                    entry = m[mountpoint]
+                    path = entry["path"]
+                    ismount = os.path.ismount(path)
+
+                    if ismount:
+                        try:
+                            Shell.umount(entry["path"])
+                            Console.ok(f"Unmounting {path}")
+                        except Exception as e:
+                            Console.error(f"could not unmount {path} Exception {e}")
+                    else:
+                        Console.error(f"{path} is not a mount point")
+            else:
+                Console.error("Please specify the mount path")
+        else:
+
+            # unmount p1 (/boot) and then p2 (/)
+            self.system(f'sudo umount {device}1')
+            # noinspection PyBroadException
+            # try:
+            #     print(f"trying to unmount {device}1")
+            #     self.system(f'sudo umount {device}1')
+            # except:
+            #     pass
+
+            # Occasionally there are issues with unmounting. Pause for good effect.
+            self.system('sleep 1')
+            self.system(f'sudo umount {device}2')
 
     def enable_ssh(self, mountpoint):
         """
@@ -630,7 +651,6 @@ class Burner(object):
         :return: True if successful
         :rtype: bool
         """
-
 
         raise NotImplementedError
 
