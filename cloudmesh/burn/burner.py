@@ -1,7 +1,6 @@
 import crypt
 import os
 import pathlib
-import platform
 import random
 import re
 import string
@@ -19,7 +18,11 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
-
+from cloudmesh.burn.location import Location
+from cloudmesh.burn.location import os_is_linux
+from cloudmesh.burn.location import os_is_mac
+from cloudmesh.burn.location import os_is_pi
+from cloudmesh.burn.location import os_is_windows
 
 # TODO: make sure everything is compatible with --dryrun
 
@@ -73,46 +76,6 @@ def sudo_readfile(filename, split=True):
         result = result.split('\n')
 
     return result
-
-
-def os_is_windows():
-    """
-    Checks if the os is windows
-
-    :return: True is windows
-    :rtype: bool
-    """
-    return platform.system() == "Windows"
-
-
-def os_is_linux():
-    """
-    Checks if the os is linux
-
-    :return: True is linux
-    :rtype: bool
-    """
-    return platform.system() == "Linux" and "raspberry" not in platform.uname()
-
-
-def os_is_mac():
-    """
-    Checks if the os is macOS
-
-    :return: True is macOS
-    :rtype: bool
-    """
-    return platform.system() == "Darwin"
-
-
-def os_is_pi():
-    """
-    Checks if the os is Raspberry OS
-
-    :return: True is Raspberry OS
-    :rtype: bool
-    """
-    return "raspberry" in platform.uname()
 
 
 # def dmesg():
@@ -278,7 +241,9 @@ class Burner(object):
                                     "Removable",
                                     "Writeable"]))
 
-            lsusb = USB.get_from_lsusb()
+            #lsusb = USB.get_from_lsusb()
+            #from pprint import pprint
+            #pprint (lsusb)
 
             # endors = USB.get_vendor()
             # print(vendors)
@@ -290,6 +255,32 @@ class Burner(object):
             # for line in udev.splitlines():
             #    if any(word in line for word in attributes):
             #        print(line)
+
+        if print_stdout:
+
+            if os_is_linux():
+
+                location = Location(os="raspberry", host="ubuntu")
+                m = location.mount_ls()
+
+                banner("Mount points")
+                print(Printer.write(m,
+                                    order=[
+                                        "name",
+                                        "dev",
+                                        "type",
+                                        "fs",
+                                        "parameters"
+                                    ],
+                                    header=[
+                                        "Name",
+                                        "Device",
+                                        "Type",
+                                        "Fs",
+                                        "Parameters"
+                                        ]))
+
+
 
         # Convert details into a dict where the key for each entry is the device
         details = {detail['dev']: detail for detail in details}
