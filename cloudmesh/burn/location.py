@@ -105,30 +105,6 @@ class Location:
                 return Path(f"/media/{user}/system-boot")
         return "undefined"
 
-    @staticmethod
-    def mount(source, target, fs, options=''):
-        """
-        mount('/dev/sdb1', '/mnt', 'ext4', options='rw')
-
-        @param target: the tagret to be mounted. Ex. /dev/sdb1
-        @type target: str
-        @param fs: the mount point. Example /mnt/a
-        @type fs: str
-        @param options: read and write options. default rw
-        @type options: str
-        @return: rteurn value
-        @rtype: int
-        """
-
-        libc = ctypes.CDLL(ctypes.util.find_library('c'), use_errno=True)
-        libc.mount.argtypes = (ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_ulong, ctypes.c_char_p)
-
-        ret = libc.mount(source.encode(), target.encode(), fs.encode(), 0, options.encode())
-        if ret < 0:
-            errno = ctypes.get_errno()
-            raise OSError(errno,
-                          f"Error mounting {source} ({fs}) on {target} with options '{options}': {os.strerror(errno)}")
-
     def mount_ls(self):
         r = Shell.run("mount -l").splitlines()
         root_fs = self.root_volume
