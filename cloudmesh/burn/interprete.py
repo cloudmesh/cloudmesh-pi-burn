@@ -117,8 +117,8 @@ def interprete(arguments):
 
     elif arguments.wifi:
 
-        password = arguments.PASSWD
-        ssid = arguments.SSID
+        password = arguments.passwd
+        ssid = arguments.ssid
 
         if password is None:
             password = getpass("Please enter the Wifi password; ")
@@ -142,54 +142,55 @@ def interprete(arguments):
     elif arguments.sdcard:
         # check_root(dryrun=dryrun)
 
-        image = arguments.IMAGE
-        device = arguments.DEVICE
+        image = arguments.image
+        device = arguments.device
         execute("burn", burner.burn_sdcard(image, device))
         return ""
 
     elif arguments.mount:
         # check_root(dryrun=dryrun)
 
-        device = arguments.DEVICE
-        mp = arguments.MOUNTPOINT
+        device = arguments.device
+        mp = arguments.mount
         execute("mount", burner.mount(device, mp))
         return ""
 
-    elif arguments.set and arguments.host:
-        # check_root(dryrun=dryrun)
+    elif arguments.set:
 
-        hostname = arguments.HOSTNAME
-        mp = arguments.MOUNTPOINT
-        execute("set hostname", burner.set_hostname(hostname, mp))
-        return ""
 
-    elif arguments.set and arguments.ip:
-        # check_root(dryrun=dryrun)
+        if arguments.host:
+            # check_root(dryrun=dryrun)
 
-        ip = arguments.IP
-        mp = arguments.MOUNTPOINT
-        execute("set ip", burner.set_static_ip(ip, mp))
-        return ""
+            hostname = arguments.hostname
+            mp = arguments.mount
+            execute("set hostname", burner.set_hostname(hostname, mp))
 
-    elif arguments.set and arguments.key:
-        # check_root(dryrun=dryrun)
+        if arguments.ip:
+            # check_root(dryrun=dryrun)
 
-        key = arguments.KEY
-        mp = arguments.MOUNTPOINT
-        execute("set key", burner.set_key(key, mp))
-        return ""
+            ip = arguments.ip
+            mp = arguments.mount
+            execute("set ip", burner.set_static_ip(ip, mp))
+
+        if  arguments.key:
+            # check_root(dryrun=dryrun)
+
+            key = arguments.key
+            mp = arguments.mount
+            execute("set key", burner.set_key(key, mp))
+            return ""
 
     elif arguments.enable and arguments.ssh:
         # check_root(dryrun=dryrun)
 
-        mp = arguments.MOUNTPOINT
+        mp = arguments.mount
         execute("enable ssh", burner.enable_ssh(mp))
         return ""
 
     elif arguments.unmount:
         # check_root(dryrun=dryrun)
 
-        device = arguments.DEVICE
+        device = arguments.device
         execute("unmount", burner.unmount(device))
         return ""
 
@@ -201,11 +202,11 @@ def interprete(arguments):
         return ""
 
     elif arguments.delete and arguments['image']:
-        execute("image rm", Image(arguments.IMAGE).rm())
+        execute("image rm", Image(arguments.image).rm())
         return ""
 
     elif arguments.get and arguments['image']:
-        execute("image fetch", Image(arguments.URL).fetch())
+        execute("image fetch", Image(arguments.url).fetch())
         return ""
 
     elif arguments.create:
@@ -244,8 +245,7 @@ def interprete(arguments):
 
         hostnames = Parameter.expand(arguments.hostname)
 
-        ips = None if not arguments.ipaddr else Parameter.expand(
-            arguments.ipaddr)
+        ips = None if not arguments.ip else Parameter.expand(arguments.ip)
         key = arguments.sshkey
         mp = '/mount/pi'
         blocksize = arguments.blocksize
