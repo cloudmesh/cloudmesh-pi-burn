@@ -881,7 +881,7 @@ class Burner(object):
         sudo_writefile(path, wifi)
 
     # TODO
-    def format_device(self, device='dev/sdX', hostname=None):
+    def format_device(self, device='dev/sdX', hostname=None, title="UNTITLED"):
         """
         Formats device with one FAT32 partition
 
@@ -940,7 +940,7 @@ class Burner(object):
                 sudo eject -t {device}
                 sudo parted {device} --script -- mklabel msdos
                 sudo parted {device} --script -- mkpart primary fat32 1MiB 100%
-                sudo mkfs.vfat -F32 {device}1
+                sudo mkfs.vfat -n {title} -F32 {device}1
                 sudo parted {device} --script print""".strip().splitlines()
             for line in script:
                 print (line)
@@ -949,8 +949,25 @@ class Burner(object):
         else:
             raise NotImplementedError("Not implemented for this OS")
 
+    def load_device(self, device='dev/sdX'):
+        """
+        Loads the USB device via trayload
 
+        :param device: The defice on which we format
+        :type device: str
+        :param hostname: the hostname
+        :type hostname: str
+        """
+        if os_is_pi():
+            Console.error("Not yet implemented")
 
+        elif os_is_linux():
+
+            banner(f"load {device}")
+            os.system(f"sudo eject -t {device}")
+
+        else:
+            raise Console.error("Not implemented for this OS")
 
     # This is to prevent desktop access of th pie (directly plugging monitor, keyboard, mouse into pi, etc.)
     #

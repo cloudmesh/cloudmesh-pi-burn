@@ -27,6 +27,7 @@ class BurnCommand(PluginCommand):
         ::
 
             Usage:
+              burn load --device=DEVICE
               burn format --device=DEVICE
               burn install
               burn network list [--ip=IP] [--used]
@@ -226,13 +227,14 @@ class BurnCommand(PluginCommand):
             StopWatch.status("image versions", True)
             return ""
 
+        elif arguments.load:
+
+            execute("backup", burner.load_device(device=arguments.device))
+            return ""
 
         elif arguments.format:
 
-            device = arguments.DEVICE
-
-            execute("backup",
-                burner.format_device(device=arguments.device))
+            execute("backup", burner.format_device(device=arguments.device))
             return ""
 
         elif arguments.network and arguments["list"]:
