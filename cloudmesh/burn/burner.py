@@ -583,10 +583,19 @@ class Burner(object):
                            ssh is enabled. by adding a file ssh
         :type mountpoint: str
         """
-        # touch mountpoint/boot/ssh
-        command = f'sudo touch {mountpoint}/boot/ssh'
-        self.system(command)
+        if os_is_pi():
+            # touch mountpoint/boot/ssh
+            command = f'sudo touch {mountpoint}/boot/ssh'
+            self.system(command)
+        elif os_is_linux():
+            card = SDCard(os="raspberry", host="ubuntu")
 
+            print ("OOOO")
+            command = f"sudo touch {card.boot_volume}/ssh"
+            self.system(command)
+
+        else:
+            raise NotImplementedError
     # IMPROVE
 
     # TODO: docstring
