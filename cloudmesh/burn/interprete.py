@@ -72,8 +72,8 @@ def interprete(arguments):
                     data["full"].append(entry)
             writefile(cache, yaml.dump(data))
         else:
-            #data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)
-            #for entry in data:
+            # data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)
+            # for entry in data:
             #   version = list(entry.keys())[0]
             #    download = entry[version]
             #    print(f"{version}: {download}")
@@ -82,7 +82,6 @@ def interprete(arguments):
         StopWatch.stop("image versions")
         StopWatch.status("image versions", True)
         return ""
-
 
     elif arguments.network and arguments["list"]:
 
@@ -143,7 +142,7 @@ def interprete(arguments):
     #
     # BUG THIS IS WAY TO EARLY AND MAY NEED TO BE LAST
     #
-    #elif arguments.burn:
+    # elif arguments.burn:
     #    # check_root(dryrun=dryrun)
 
     #    image = arguments.IMAGE
@@ -211,7 +210,6 @@ def interprete(arguments):
     elif arguments.get and arguments['image']:
         execute("image fetch", Image(arguments.URL).fetch())
         return ""
-
 
     elif arguments.create:
 

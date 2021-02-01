@@ -7,47 +7,7 @@ from cloudmesh.common.Shell import Shell
 import platform
 
 
-def os_is_windows():
-    """
-    Checks if the os is windows
-
-    :return: True is windows
-    :rtype: bool
-    """
-    return platform.system() == "Windows"
-
-
-def os_is_linux():
-    """
-    Checks if the os is linux
-
-    :return: True is linux
-    :rtype: bool
-    """
-    return platform.system() == "Linux" and "raspberry" not in platform.uname()
-
-
-def os_is_mac():
-    """
-    Checks if the os is macOS
-
-    :return: True is macOS
-    :rtype: bool
-    """
-    return platform.system() == "Darwin"
-
-
-def os_is_pi():
-    """
-    Checks if the os is Raspberry OS
-
-    :return: True is Raspberry OS
-    :rtype: bool
-    """
-    return "raspberry" in platform.uname()
-
-
-class Location:
+class SDCard:
 
     def __init__(self, os=None, host=None):
         """
@@ -72,7 +32,7 @@ class Location:
         :return: the location
         :rtype: str
         """
-        if self.os == "raspberry" and self.host =="darwin":
+        if self.os == "raspberry" and self.host == "darwin":
             raise "not supported without paragon"
             # return "/volume/???"
         elif self.host == 'ubuntu':
@@ -94,9 +54,9 @@ class Location:
         """
         if self.host == "darwin":
             if "raspberry" in self.os:
-                return  Path("/Volume/boot")
+                return Path("/Volume/boot")
             elif "ubuntu" in self.os:
-                return  Path("/Volume/system-boot")
+                return Path("/Volume/system-boot")
         elif self.host == "ubuntu":
             user = os.environ.get('USER')
             if "raspberry" in self.os:
@@ -112,14 +72,14 @@ class Location:
 
         details = {}
         for line in r:
-            if str(root_fs) in line or str(boot_fs)  in line:
+            if str(root_fs) in line or str(boot_fs) in line:
                 entry = \
-                    line.replace(" on ", "|")\
-                    .replace(" type ", "|")\
-                    .replace(" (","|")\
-                    .replace(") [","|")\
-                    .replace("]", "")\
-                    .split("|")
+                    line.replace(" on ", "|") \
+                        .replace(" type ", "|") \
+                        .replace(" (", "|") \
+                        .replace(") [", "|") \
+                        .replace("]", "") \
+                        .split("|")
                 detail = {
                     "device": entry[0],
                     "path": entry[1],
@@ -130,11 +90,11 @@ class Location:
                 details[detail["name"]] = detail
         return details
 
-    def mount_card(self):
+    def mount(self):
         root_fs = self.root_volume
         boot_fs = self.boot_volume
 
-        #if os_is_linux():
+        # if os_is_linux():
         #    Location.mount(root_fs,)
 
     def unmount_card(self):
@@ -142,8 +102,5 @@ class Location:
         boot_fs = self.boot_volume
 
         if os_is_linux():
-            location = Location(os="raspberry", host="ubuntu")
+            location = SDCard(os="raspberry", host="ubuntu")
             m = location.mount_ls()
-
-
-

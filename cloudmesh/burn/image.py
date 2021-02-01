@@ -40,7 +40,6 @@ class Image(object):
         else:
             self.fullpath = self.directory + '/' + self.image_name + '.img'
 
-
     def version_cache_create(self, refresh=False):
         # not used
         # bug only for lite, needs repo as parameter
@@ -59,7 +58,7 @@ class Image(object):
                         "url": download,
                         "date": version.split("-", 1)[1]
                     }
-                    print (entry)
+                    print(entry)
                     data.append(entry)
             writefile(self.cache, yaml.dump(data))
         else:
@@ -121,7 +120,8 @@ class Image(object):
         """
 
         if self.image_name == 'latest':
-            self.image_name = f"{self.raspberry_lite_images}/raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip"
+            self.image_name = f"{self.raspberry_lite_images}/" \
+                              "raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip"
 
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)

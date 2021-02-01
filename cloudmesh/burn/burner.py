@@ -18,11 +18,11 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.burn.location import Location
-from cloudmesh.burn.location import os_is_linux
-from cloudmesh.burn.location import os_is_mac
-from cloudmesh.burn.location import os_is_pi
-from cloudmesh.burn.location import os_is_windows
+from cloudmesh.burn.sdcard import SDCard
+from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_mac
+from cloudmesh.burn.util import os_is_pi
+from cloudmesh.burn.util import os_is_windows
 
 
 # TODO: make sure everything is compatible with --dryrun
@@ -260,7 +260,7 @@ class Burner(object):
         if print_stdout:
 
             if os_is_linux():
-                location = Location(os="raspberry", host="ubuntu")
+                location = SDCard(os="raspberry", host="ubuntu")
                 m = location.mount_ls()
 
                 banner("Mount points")
@@ -528,7 +528,7 @@ class Burner(object):
         if device is None:
 
             if os_is_linux():
-                location = Location(os="raspberry", host="ubuntu")
+                location = SDCard(os="raspberry", host="ubuntu")
                 m = location.mount_ls()
 
                 for mountpoint in m:
