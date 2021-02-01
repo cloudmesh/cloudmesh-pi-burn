@@ -95,6 +95,7 @@ class SDCard:
                         .replace(") [", "|") \
                         .replace("]", "") \
                         .split("|")
+                print (entry)
                 detail = {
                     "device": entry[0],
                     "path": entry[1],

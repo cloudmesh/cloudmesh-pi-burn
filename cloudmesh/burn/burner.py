@@ -267,16 +267,16 @@ class Burner(object):
                 print(Printer.write(m,
                                     order=[
                                         "name",
-                                        "dev",
+                                        "path",
                                         "type",
-                                        "fs",
+                                        "device",
                                         "parameters"
                                     ],
                                     header=[
                                         "Name",
-                                        "Device",
+                                        "Path",
                                         "Type",
-                                        "Fs",
+                                        "Device",
                                         "Parameters"
                                     ]))
 
@@ -493,27 +493,39 @@ class Burner(object):
 
         # mount p2 (/) and then p1 (/boot)
 
-        if not self.dryrun:
-            # wait for the OS to detect the filesystems
-            # in burner.info(), formatted will be true if the card has FAT32
-            #   filesystems on it
-            counter = 0
-            max_tries = 5
-            b = Burner()
-            while counter < max_tries:
-                time.sleep(1)
-                formatted = b.info(print_stdout=False)[device]['formatted']
-                if formatted:
-                    break
-                counter += 1
-                if counter == max_tries:
-                    print("Timed out waiting for OS to detect filesystem"
-                          " on the burned card")
-                    sys.exit(1)
+        if os_is_linux():
+            card = SDCard(os="raspberry", host="ubuntu")
+            print ("YYY")
 
-        self.system(f'sudo mkdir -p {mountpoint}')
-        self.system(f'sudo mount {device}2 {mountpoint}')
-        self.system(f'sudo mount {device}1 {mountpoint}/boot')
+            print (card.ls())
+            print (card.root_volume)
+            print (card.boot_volume)
+            details = USB.get_from_dmesg()
+            from pprint import pprint
+            pprint (details)
+            pass
+        if os_is_pi():
+            if not self.dryrun:
+                # wait for the OS to detect the filesystems
+                # in burner.info(), formatted will be true if the card has FAT32
+                #   filesystems on it
+                counter = 0
+                max_tries = 5
+                b = Burner()
+                while counter < max_tries:
+                    time.sleep(1)
+                    formatted = b.info(print_stdout=False)[device]['formatted']
+                    if formatted:
+                        break
+                    counter += 1
+                    if counter == max_tries:
+                        print("Timed out waiting for OS to detect filesystem"
+                              " on the burned card")
+                        sys.exit(1)
+
+            self.system(f'sudo mkdir -p {mountpoint}')
+            self.system(f'sudo mount {device}2 {mountpoint}')
+            self.system(f'sudo mount {device}1 {mountpoint}/boot')
 
     def unmount(self, device=None):
         """
@@ -528,8 +540,8 @@ class Burner(object):
         if device is None:
 
             if os_is_linux():
-                location = SDCard(os="raspberry", host="ubuntu")
-                m = location.mount_ls()
+                sdcard = SDCard(os="raspberry", host="ubuntu")
+                m = sdcard.ls()
 
                 for mountpoint in m:
                     entry = m[mountpoint]
