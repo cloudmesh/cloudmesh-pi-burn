@@ -352,17 +352,10 @@ class Burner(object):
 
             # find device
 
-
-
-            command = f'sudo dd bs={blocksize} if={image_path} of={device}'
-
+            command = f"dd if={image_path} | pv -w 80 | sudo dd of={device} status=progress bs={blocksize}"
             print (command)
-            # result = subprocess.getoutput(command)
+            os.system(command)
 
-            result = "None"
-            if "failed to open" in result:
-                Console.error("The image could not be found")
-                sys.exit(1)
 
         else:
             raise NotImplementedError("Only implemented to be run on a PI")

@@ -1063,6 +1063,7 @@ For now you can do the following:
 Then use 
 
 ```bash
+sudo apt-get install pv dialog
 cms burn mount
 cms burn enable ssh
 cms burn unmount
