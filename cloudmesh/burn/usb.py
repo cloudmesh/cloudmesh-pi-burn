@@ -36,7 +36,7 @@ class USB(object):
         """
         try:
             return self.vendors[vendor][product]
-        except:
+        except Exception as e:
             return "unkown"
 
     def load_vendor_description(self):
@@ -73,7 +73,7 @@ class USB(object):
                 else:
                     vendor_id, vendor = line.strip().split(" ", 1)
                     data[vendor_id] = {}
-            except:
+            except Exception as e:
                 pass
         self.vendors = data
         return data
@@ -204,12 +204,14 @@ class USB(object):
         return all
 
     @staticmethod
-    def get_from_dmesg():
+    def get_from_dmesg(pluggedin=True):
         """
         Get information for USB and other direct attached devices from
         dmsg. It includes information such if the device is readable or writable,
         and if a card is formatted with FAT32.
 
+        :param pluggedin: Only listed the plugged in USB devices
+        :type pluggedin: bool
         :return: list of dicts
         :rtype: lits of dicts
         """
@@ -222,10 +224,8 @@ class USB(object):
                 sdci, key, what = line.split(" ", 2)
                 comment = line.split("Direct-Access")[1].strip()
                 what = " ".join(comment.split("  ")[:2])
-                try:
+                if key not in details:
                     details[key] = {}
-                except:
-                    pass
                 details[key]["key"] = key
                 details[key]["direct-access"] = True
                 details[key]["info"] = what
@@ -239,6 +239,8 @@ class USB(object):
 
             elif line.startswith("sd") and "] " in line:
                 prefix, key, device, comment = line.split(" ", 3)
+                if key not in details:
+                    details[key] = {}
                 details[key]["key"] = key
                 if "Attached SCSI removable disk" in comment:
                     details[key]["removable"] = True
@@ -256,12 +258,13 @@ class USB(object):
                 details[key]['readable'] = "cannot open" in _fdisk
                 details[key]['empty'] = "linux" in _fdisk
                 details[key]['formatted'] = "FAT32" not in _fdisk
+                details[key]['active'] = os.path.exists(details[key]['dev'])
         # remove opbets without size
 
         found = []
         for name in details:
             entry = details[name]
-            if 'size' in list(entry.keys()):
+            if 'size' in list(entry.keys()) and (entry['active'] or not pluggedin):
                 found.append(entry)
 
         return found

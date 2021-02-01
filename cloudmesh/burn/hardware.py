@@ -27,7 +27,7 @@ class Hardware(object):
         # noinspection PyBroadException
         try:
             address = open('/sys/class/net/%s/address' % interface).read()
-        except:
+        except Exception as e:
             address = "00:00:00:00:00:00"
         return address[0:17]
 
@@ -46,7 +46,7 @@ class Hardware(object):
                 for directory in dirs:
                     if directory[:3] == 'enx' or directory[:3] == 'eth':
                         interface = directory
-        except:
+        except Exception as e:
             interface = "None"
         return interface
 
@@ -61,7 +61,7 @@ class Hardware(object):
         # noinspection PyBroadException
         try:
             model_str = open('/sys/firmware/devicetree/base/model').read()
-        except:
+        except Exception as e:
             model_str = "unkown"
 
         return model_str

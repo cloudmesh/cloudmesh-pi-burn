@@ -128,18 +128,6 @@ by the installation script.
 pi@masterpi:~ $ source ~/ENV3/bin/activate
 ```
 
-There is currently an issue with the version of numpy the pi4 has installed. To fix run the below command. To see more info about see <https://numpy.org/devdocs/user/troubleshooting-importerror.html#raspberry-pi>.
-
-```
-(ENV3) pi@masterpi:~ $ sudo apt-get install libatlas-base-dev
-```
-
-To verify run the below command. You should see no errors.
-
-```
-(ENV3) pi@masterpi:~ $ cms help
-```
-
 **Step 3.** Download the latest Raspberry Pi Lite OS
 
 The following command will download the latest images for Raspberry
@@ -392,31 +380,31 @@ The cluster is now complete. For information on rebooting clusters (ie. if you s
 
 ## Set up of the SSH keys and SSH tunnel
 
-This section is still under development.
-
-One important aspect of the cluster is to setup authentication 
-with ssh, so we can easily login from the Laptop to each of the PI 
+One important aspect of a cluster is to setup authentication via 
+ssh in a convenient way, so we can easily login from the 
+laptop to each of the PI 
 workers and the PI manager. Furthermore, we like to be able to 
 login from the PI manager to each of the workers. In addition, 
 we like to be able to login between the workers.
 
-To simplify the setup of this we have developed a command 
-`cms host` with the options. To generate on multiple machines 
-on the network keys, to gather them and to redistribute or 
-scatter them so that we can easily authenticate as discussed 
-previously.
+We have chosen a very simple setup while relying on ssh tunnel.
 
-One important part of this is that the key on the Laptop must 
+To simplify the setup of this we have developed a command 
+`cms host` that gathers and scatters keys onto all machines, 
+as well as, sets up the tunnel.
+
+It is essential that that the key on the laptop must 
 not be password less. This is also valid for any machine that is directly 
-added to the network such as in the Mesh notwork. 
+added to the network such as in the mesh notwork. 
 
 To avoid password less keys we recommend you to use `ssh-add` 
-or `ssh-keychain`.
+or `ssh-keychain` which will ask you for one.
 
-More infor and a concrete example will be documented here shortly.
+> Note: More information and a concrete example will be documented 
+> here shortly.
 
 The manual page for `cms host` is provided in the Manual 
-Page section.
+Pages section.
 
 **Step 1.** On the manager create ssh keys for each of the workers.
 
@@ -424,13 +412,15 @@ Page section.
 (ENV3) pi@managerpi:~ $ cms host key create red00[1-3]
 ```
 
-**Step 2.** On the manager gather the worker, manager, and your laptop public ssh keys into a file.
+**Step 2.** On the manager gather the worker, manager, 
+and your laptop public ssh keys into a file.
 
 ```
 (ENV3) pi@managerpi:~ $ cms host key gather red00[1-3],you@yourlaptop.local keys.txt
 ```
 
-**Step 3.** On the manager scatter the public keys to all the workers and manager ~/.ssh/authorized_hosts file
+**Step 3.** On the manager scatter the public keys to all 
+the workers and manager ~/.ssh/authorized_hosts file
 
 ```
 (ENV3) pi@managerpi:~ $ cms host key scatter red00[1-3],localhost keys.txt
@@ -453,7 +443,8 @@ pi@red002:~ $ exit
 pi@red001:~ $ exit
 ```
 
-**Step 6.** (For Bridge setup) Create SSH tunnels on the manager to enable ssh acces from your laptop to the workers
+**Step 6.** (For Bridge setup) Create SSH tunnels on the manager 
+to enable ssh acces from your laptop to the workers
 
 For now we manually install autossh, to test the new cms host tunnel program. Later we add it to the main master setup script.
 
@@ -466,7 +457,8 @@ For now we manually install autossh, to test the new cms host tunnel program. La
 (ENV3) pi@managerpi:~ $ cms host tunnel create red00[1-3]
 ```
 
-**Step 7.** (For Bridge setup) Copy the specified command output to your ~/.ssh/config file on your laptop
+**Step 7.** (For Bridge setup) Copy the specified command output to 
+your `~/.ssh/config` file on your laptop
 
 ```
 host tunnel create red00[1-3]
@@ -497,6 +489,15 @@ Host red003
      User pi
      Port 8003
 ```
+
+> Note: We will in future provide an addition to the command so you 
+> can remove and add
+> them directly from the commandline
+> 
+> ```
+> cms host tunnel config create red00[1-3]
+> cms host tunnel config delete red00[1-3]
+> ```
 
 **Step 8.** (For Bridge setup) Verify SSH reachability from the laptop to workers
 
@@ -1050,9 +1051,7 @@ You will not need the bridge command to setup the network.
 
 ### Can I use cms burn on Linux?
 
-We used to have cm burn fully supported on Linux. However it is no longer supported. 
-
-However, we just started an effort to figure out if we can make it work again on Linux
+Nlt everything is supported.
 
 To download the latest rasbian Pi image use
 
@@ -1068,5 +1067,14 @@ cms burn info
 
 It will issue a probe of USB devices and see if SDCards can be found.
 
+Identify the `/dev/sdX`, where X is a letter such as b,c,d, ... It
+will likely never be a.
 
+sudo apt-get install pv
+cms burn sdcard --dev=/dev/sdX
+cms burn mount --device=/dev/sdX
+cms burn enable ssh
+cms burn unmount
+```
 
+Take the SDCard into the PI and set it up there. as documented.

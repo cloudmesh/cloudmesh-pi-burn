@@ -1,47 +1,66 @@
-from cloudmesh.burn.interprete import interprete
+import os
+from getpass import getpass
+from pathlib import Path
 
+import oyaml as yaml
+from cloudmesh.burn.burner import Burner
+from cloudmesh.burn.burner import MultiBurner
+from cloudmesh.burn.burner import gen_strong_pass
+from cloudmesh.burn.image import Image
+from cloudmesh.burn.network import Network
+from cloudmesh.burn.util import readfile
+from cloudmesh.burn.util import writefile
+from cloudmesh.common.StopWatch import StopWatch
+from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.debug import VERBOSE
+from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.util import Console
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 
-
 class BurnCommand(PluginCommand):
 
-    # noinspection PyUnusedLocal
     @command
     def do_burn(self, args, arguments):
         """
         ::
 
             Usage:
+              burn install
+              burn load --device=DEVICE
+              burn format --device=DEVICE
+              burn mount [--device=DEVICE]
+              burn unmount [--device=DEVICE]
               burn network list [--ip=IP] [--used]
               burn network
-              burn info [DEVICE]
+              burn info [--device=DEVICE]
               burn detect
               burn image versions [--refresh]
               burn image ls
-              burn image delete [IMAGE]
-              burn image get [URL]
+              burn image delete [--image=IMAGE]
+              burn image get [--url=URL]
+              burn backup [--device=DEVICE] [--to=DESTINATION]
+              burn copy [--device=DEVICE] [--from=DESTINATION]
+              burn shrink [--image=IMAGE]
               burn create [--image=IMAGE]
-                                     [--device=DEVICE]
-                                     [--hostname=HOSTNAME]
-                                     [--ipaddr=IP]
-                                     [--sshkey=KEY]
-                                     [--blocksize=BLOCKSIZE]
-                                     [--dryrun]
-                                     [--passwd=PASSWD]
-                                     [--ssid=SSID]
-                                     [--wifipassword=PSK]
-                                     [--format]
-              burn burn [IMAGE] [DEVICE] --[dryrun]
-              burn mount [DEVICE] [MOUNTPOINT]
-              burn set host [HOSTNAME] [MOUNTPOINT]
-              burn set ip [IP] [MOUNTPOINT]
-              burn set key [KEY] [MOUNTPOINT]
-              burn enable ssh [MOUNTPOINT]
-              burn unmount [DEVICE]
-              burn wifi SSID [PASSWD] [-ni]
+                          [--device=DEVICE]
+                          [--hostname=HOSTNAME]
+                          [--ip=IP]
+                          [--sshkey=KEY]
+                          [--blocksize=BLOCKSIZE]
+                          [--dryrun]
+                          [--passwd=PASSWD]
+                          [--ssid=SSID]
+                          [--wifipassword=PSK]
+                          [--format]
+              burn sdcard [--image=IMAGE] [--device=DEVICE] [--dryrun]
+              burn set [--hostname=HOSTNAME]
+                       [--ip=IP]
+                       [--key=KEY]
+                       [--mount=MOUNTPOINT]
+              burn enable ssh [--mount=MOUNTPOINT]
+              burn wifi SSID [--passwd=PASSWD] [-ni]
 
             Options:
               -h --help              Show this screen.
@@ -50,7 +69,7 @@ class BurnCommand(PluginCommand):
                                      e.g. 2019-09-26-raspbian-buster.img
               --device=DEVICE        The device, e.g. /dev/mmcblk0
               --hostname=HOSTNAME    The hostname
-              --ipaddr=IP            The IP address
+              --ip=IP                The IP address
               --key=KEY              The name of the SSH key file
               --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
 
@@ -104,12 +123,12 @@ class BurnCommand(PluginCommand):
                      | wlan0   | 192.168.1.12   | 192.168.1.255  |
                      +---------+----------------+----------------+
 
-            Examples: ( \ is not shown)
+            Examples: ( \\ is not shown)
 
                > cms burn create --image=2019-09-26-raspbian-buster-lite
                >                 --device=/dev/mmcblk0
                >                 --hostname=red[5-7]
-               >                 --ipaddr=192.168.1.[5-7]
+               >                 --ip=192.168.1.[5-7]
                >                 --sshkey=id_rsa
 
                > cms burn image get latest
@@ -123,19 +142,294 @@ class BurnCommand(PluginCommand):
         """
 
         map_parameters(arguments,
-                       "refresh"
+                       "refresh",
                        "device",
                        "hostname",
-                       "ipaddr",
+                       "ip",
                        "sshkey",
                        "blocksize",
-                       #  "dryrun",
-                       "passwd",
+                       "dryrun",
                        "ssid",
+                       "url",
+                       "key",
+                       "passwd",
                        "wifipassword",
-                       "version")
+                       "version",
+                       "to")
+        arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
+        arguments.FROM = arguments["--from"]
+        arguments.IMAGE = arguments["--image"]
 
-        VERBOSE(arguments)
+        # VERBOSE(arguments)
 
-        return interprete(arguments)
+
+        def execute(label, function):
+            StopWatch.start(label)
+            result = function
+            StopWatch.stop(label)
+            StopWatch.status(label, True)
+            return result
+
+        dryrun = arguments['--dryrun']
+
+        StopWatch.start("info")
+        burner = Burner(dryrun=dryrun)
+        StopWatch.stop("info")
+        StopWatch.status("info", True)
+
+        if arguments.versions and arguments['image']:
+
+            StopWatch.start("image versions")
+            image = Image()
+            data = {
+                "lite": [],
+                "full": []
+            }
+            cache = Path(
+                os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
+            if arguments["--refresh"] or not cache.exists():
+                os.system("mkdir -p ~/.cloudmesh/cmburn")
+                print("finding lite repos ...", end="")
+                repos = [f"{image.raspberry_lite_images}"]
+                for repo in repos:
+                    versions, downloads = Image().versions(repo)
+                    print("These images are available at")
+                    for version, download in zip(versions, downloads):
+                        entry = {
+                            "version": version,
+                            "url": download,
+                            "date": version.split("-", 1)[1],
+                            "type": "lite"
+                        }
+                        data["lite"].append(entry)
+
+                print("finding lite repos ...", end="")
+                repos = [f"{image.raspberry_full_images}"]
+                for repo in repos:
+                    versions, downloads = Image().versions(repo)
+                    print("These images are available at")
+                    for version, download in zip(versions, downloads):
+                        entry = {
+                            "version": version,
+                            "url": download,
+                            "date": version.split("-", 1)[1],
+                            "type": "full"
+                        }
+                        data["full"].append(entry)
+                writefile(cache, yaml.dump(data))
+
+            data = readfile(cache)
+            data = yaml.safe_load(readfile(cache))
+            # convert to array
+            result = data["lite"] + data["full"]
+
+            print(Printer.write(
+                result,
+                order=['date', 'version', "type", "url"],
+                header=['Date', 'Version', "Type", "Url"],
+            )
+            )
+
+            StopWatch.stop("image versions")
+            StopWatch.status("image versions", True)
+            return ""
+
+        elif arguments.load:
+            execute("load", burner.load_device(device=arguments.device))
+            return ""
+
+        elif arguments["format"]: # as format is a python word, we need to use an index
+            execute("format", burner.format_device(device=arguments.device))
+            return ""
+
+        elif arguments.network and arguments["list"]:
+
+            print ("A4")
+
+            ip = arguments.ip or Network.address()[0]['local']
+
+            details = Network.nmap(ip=ip)
+
+            if arguments.used:
+
+                print(','.join([x['ip'] for x in details]))
+
+            else:
+                print(Printer.write(
+                    details,
+                    order=['name', "ip", "status", "latency", ],
+                    header=['Name', "IP", "Status", "Latency", ]
+                )
+                )
+            return ""
+
+        elif arguments.network:
+
+            # print (Network.nmap())
+            details = Network.address()
+
+            print(Printer.write(
+                details,
+                order=['label', "local", "broadcast"],
+                header=["Label", "Local", "Broadcast"]
+            )
+            )
+            return ""
+
+        elif arguments.wifi:
+
+            password = arguments.passwd
+            ssid = arguments.ssid
+
+            if password is None:
+                password = getpass("Please enter the Wifi password; ")
+
+            StopWatch.stop("wifi")
+            # burner.configure_wifi(ssid, password)
+            StopWatch.stop("wifi")
+            StopWatch.status("wifi", True)
+            return ""
+
+        elif arguments.detect:
+
+            execute("detect", burner.detect())
+            return ""
+
+        elif arguments.info:
+
+            execute("info", burner.info())
+            return ""
+
+        elif arguments.install:
+
+            execute("install", burner.install())
+            return ""
+
+        elif arguments.shrink:
+
+            execute("shrink", burner.shrink(image=arguments.IMAGE))
+            return ""
+
+        elif arguments.backup:
+            execute("backup", burner.backup(device=arguments.device, to_file=arguments.to))
+            return ""
+
+        elif arguments["copy"]: # as copy is a reserved word we need to use the index
+            execute("copy", burner.copy(device=arguments.device, from_file=arguments.FROM))
+            return ""
+
+        elif arguments.sdcard:
+            execute("sdcard", burner.burn_sdcard(arguments.IMAGE, arguments.device))
+            return ""
+
+        elif arguments.mount:
+            execute("mount", burner.mount(arguments.device))
+            return ""
+
+        elif arguments.unmount:
+            execute("unmount", burner.unmount(arguments.device))
+            return ""
+
+        elif arguments.set:
+
+            if arguments.host:
+
+                execute("set hostname", burner.set_hostname(arguments.hostname, arguments.MOUNTPOINT))
+
+            if arguments.ip:
+
+                execute("set ip", burner.set_static_ip(arguments.ip, arguments.MOUNTPOINT))
+
+            if arguments.key:
+
+                execute("set key", burner.set_key(arguments.key, arguments.MOUNTPOINT))
+
+            return ""
+
+        elif arguments.enable and arguments.ssh:
+
+            execute("enable ssh", burner.enable_ssh(arguments.MOUNTPOINT))
+            return ""
+
+
+        # elif arguments.versions and arguments.image:
+        #    image = Image()
+
+        elif arguments.ls and arguments['image']:
+            execute("image ls", Image().ls())
+            return ""
+
+        elif arguments.delete and arguments.IMAGE:
+            execute("image rm", Image(arguments.IMAGE).rm())
+            return ""
+
+        elif arguments.get and arguments['image']:
+            execute("image fetch", Image(arguments.url).fetch())
+            return ""
+
+        elif arguments.create:
+
+            if arguments["--passwd"]:
+                passwd = arguments["--passwd"]
+            elif "PASSWD" in os.environ:
+                passwd = os.environ["PASSWD"]
+            else:
+                # Shouldn't go here...
+                passwd = gen_strong_pass()
+
+            psk = None
+            if arguments["--ssid"]:
+                ssid = arguments["--ssid"]
+                if arguments["--wifipassword"]:
+                    psk = arguments["--wifipassword"]
+                else:
+                    psk = None
+            else:
+                if arguments["--wifipassword"]:
+                    print("Can't have wifi password with no ssid")
+                    return
+                else:
+                    ssid = None
+
+            # check_root(dryrun=dryrun)
+
+            image = 'latest' or arguments.IMAGE
+
+            environ_DEV = os.environ['DEV'] if 'DEV' in os.environ else None
+            devices = arguments["--device"] or environ_DEV or None
+
+            if devices is not None:
+                devices = Parameter.expand_string(devices)
+
+            hostnames = Parameter.expand(arguments.hostname)
+
+            ips = None if not arguments.ip else Parameter.expand(arguments.ip)
+            key = arguments.sshkey
+            mp = '/mount/pi'
+            blocksize = arguments.blocksize
+
+            StopWatch.start("total")
+
+            multi = MultiBurner()
+            multi.burn_all(
+                image=image,
+                device=devices,
+                blocksize=blocksize,
+                progress=True,
+                hostnames=hostnames,
+                # not difference between names and name, maybe we shoudl allign
+                ips=ips,
+                key=key,
+                password=passwd,
+                ssid=ssid,
+                psk=psk)
+
+            StopWatch.stop("total")
+            StopWatch.status("total", True)
+
+            StopWatch.benchmark(sysinfo=False, csv=False)
+            return ""
+
+        Console.error("see manual page: cms help burn")
+        return ""

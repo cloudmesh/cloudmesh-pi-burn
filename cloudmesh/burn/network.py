@@ -40,7 +40,7 @@ class Network:
                         element.update(n)
                         if 'broadcast' in n.keys():
                             result.append(element)
-            except:
+            except Exception as e:
                 pass
         return result
 
