@@ -260,8 +260,8 @@ class Burner(object):
         if print_stdout:
 
             if os_is_linux():
-                location = SDCard(os="raspberry", host="ubuntu")
-                m = location.mount_ls()
+                card = SDCard(os="raspberry", host="ubuntu")
+                m = card.ls()
 
                 banner("Mount points")
                 print(Printer.write(m,

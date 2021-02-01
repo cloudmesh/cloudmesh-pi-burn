@@ -1,9 +1,9 @@
 import os
+import platform
+import sys
 from pathlib import Path
 
 import requests
-
-import sys
 
 # noinspection PyPep8
 if True:

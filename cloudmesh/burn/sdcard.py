@@ -1,10 +1,7 @@
+import os
 from pathlib import Path
-import os
-import ctypes
-import ctypes.util
-import os
+
 from cloudmesh.common.Shell import Shell
-import platform
 
 
 class SDCard:
@@ -66,6 +63,12 @@ class SDCard:
         return "undefined"
 
     def ls(self):
+        """
+        List all file systems on the SDCard. This is for the PI rootfs and boot
+
+        @return: A dict representing the file systems on the SDCCards
+        @rtype: dict
+        """
         r = Shell.run("mount -l").splitlines()
         root_fs = self.root_volume
         boot_fs = self.boot_volume
@@ -91,6 +94,14 @@ class SDCard:
         return details
 
     def mount(self):
+        """
+        mounts the file systems on the SDCard. If Raspbian is burned it is
+        boot and rootfs
+
+        @return: TBD
+        @rtype: TBD
+        """
+        raise NotImplementedError
         root_fs = self.root_volume
         boot_fs = self.boot_volume
 
@@ -98,6 +109,15 @@ class SDCard:
         #    Location.mount(root_fs,)
 
     def unmount(self):
+        """
+        unmounts the file systems associated with the SDCard
+
+        @return:
+        @rtype:
+        """
+
+        raise NotImplementedError
+
         root_fs = self.root_volume
         boot_fs = self.boot_volume
 
