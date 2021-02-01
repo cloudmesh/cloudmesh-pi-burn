@@ -328,14 +328,20 @@ class Burner(object):
         :param blocksize: the blocksize used when writing, default 4M
         :type blocksize: str
         """
-        image_path = Image(image).fullpath
+        if not os_is_pi():
+            raise NotImplementedError("Only implemented to be run on a PI")
 
-        result = subprocess.getoutput(
-            f'sudo dd bs={blocksize} if={image_path} of={device}')
+        if os_is_pi():
+            image_path = Image(image).fullpath
 
-        if "failed to open" in result:
-            Console.error("The image could not be found")
-            sys.exit(1)
+            result = subprocess.getoutput(
+                f'sudo dd bs={blocksize} if={image_path} of={device}')
+
+            if "failed to open" in result:
+                Console.error("The image could not be found")
+                sys.exit(1)
+        else:
+            raise NotImplementedError
 
     def set_hostname(self, hostname, mountpoint):
         """
@@ -658,7 +664,7 @@ class Burner(object):
     # ok osx
     def activate_ssh(self, public_key, debug=False, interactive=False):
         """
-        Sets the public key path and copies the it to the SD card
+        Sets the public key path and copies it to the SD card
 
         TODO: this has bugs as we have not yet thought about debug,
               interactive, yesno yesno we can take form cloudmesh.common
@@ -823,6 +829,8 @@ class Burner(object):
         :param hostname: the hostname
         :type hostname: str
         """
+        if not os_is_pi():
+            raise NotImplementedError("Only implemented to be run on a PI")
 
         Console.info("Formatting device...")
         self.unmount(device)
