@@ -10,6 +10,7 @@ import textwrap
 import time
 
 import sys
+import subprocess
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.usb import USB
 from cloudmesh.common.Printer import Printer
@@ -19,61 +20,8 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
-
-
-# TODO: make sure everything is compatible with --dryrun
-
-def sudo_writefile(filename, content, append=False):
-    """
-    Write a file into the file with the given filename using sudo
-    The file is first created in ~/.cloudmesh/tmp/tmp.txt
-
-    TODO: append is not implemented
-
-    :param filename: The filename
-    :type filename: str
-    :param content: The content of the file
-    :type content: str
-    :param append: if True the content will be appended to the existing file
-    :type append: bool
-    :return: The new content of the file
-    :rtype: str
-    """
-    os.system('mkdir -p ~/.cloudmesh/tmp')
-    tmp = "~/.cloudmesh/tmp/tmp.txt"
-
-    if append:
-        content = sudo_readfile(filename, split=False) + content
-
-    writefile(tmp, content)
-
-    result = subprocess.getstatusoutput(f"sudo cp {tmp} {filename}")
-
-    # If exit code is not 0
-    if result[0] != 0:
-        Console.warning(f"{filename} was not created correctly -> {result[1]}")
-
-    return result[1]
-
-
-def sudo_readfile(filename, split=True):
-    """
-    Reads the file specified via sudo by filename and returns its content
-
-    :param filename: The filename
-    :type filename: str
-    :param split: if True splits the lines and returns a list
-    :type split: bool
-    :return: either str or list of the file content
-    :rtype: str or list
-    """
-    result = subprocess.getoutput(f"sudo cat {filename}")
-
-    if split:
-        result = result.split('\n')
-
-    return result
-
+from cloudmesh.common.util import sudo_readfile
+from cloudmesh.common.util import sudo_writefile
 
 def os_is_windows():
     """
@@ -386,92 +334,129 @@ class Burner(object):
             print("Write to /etc/hosts")
             print('127.0.1.1 ' + hostname + '\n')
 
-    def set_static_ip(self, ip, mountpoint, iface="eth0", mask="16"):
-        """
-        Sets the static ip on the sd card for the specified interface
-        Also writes to master hosts file for easy access
+    def set_static_ip(self, ip, mountpoint, iface="eth0", mask="24"):
+        # TODO:
+        # router_ip statically set to default ip configured with cms bridge create. Rewrite to consider the IP of the master on iface
+        router_ip = '10.1.1.1'
 
-        :param ip: ips address
-        :type ip: str
-        :param mountpoint: the mountpunt of the device on which the ip
-                           is found
-        :type mountpoint: str
-        :param iface: the network Interface
-        :type iface: str
-        :param mask: the subnet Mask
-        :type mask: str
-        :return:
-        :rtype:
-        """
+        iface = f'interface {iface}'
+        static_ip = f'static ip_address={ip}/{mask}'
+        static_routers = f'static routers={router_ip}'
 
-        # Adds the ip and hostname to /etc/hosts if it isn't already there.
-        def add_to_hosts(ip):
-            # with open('/etc/hosts', 'r') as host_file:
-            #     hosts = host_file.readlines()
-            hosts = sudo_readfile('/etc/hosts')
+        curr_config = sudo_readfile(f'{mountpoint}/etc/dhcpcd.conf')
+        if iface in curr_config:
+            Console.warning("Found previous settings. Overwriting")
+            # If setting already present, replace it and the static ip line
+            index = curr_config.index(iface)
+            try:
+                if 'static ip_address' not in curr_config[index + 1]:
+                    Console.warning(
+                        "Missing static ip_address assignment. Overwriting line")
+                curr_config[index + 1] = static_ip
 
-            replaced = False
-            for i in range(len(hosts)):
-                ip_host = hosts[i].split()
+            except IndexError:
+                Console.error(f'{mountpoint}/etc/dhcpcd.conf ends abruptly. Aborting')
+                sys.exit(1)
 
-                if len(ip_host) > 1:
-                    if ip_host[0] == ip:
-                        ip_host[1] = self.hostname
-                        hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
-                        replaced = True
-
-                    elif ip_host[1] == self.hostname:
-                        ip_host[0] = ip
-                        hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
-                        replaced = True
-            if not replaced:
-                hosts.append(f"{ip}\t{self.hostname}\n")
-
-            # with open('/etc/hosts', 'w') as host_file:
-            #     host_file.writelines(hosts)
-            config = ""
-            for line in hosts:
-                config = config + line + '\n'
-
-            sudo_writefile('/etc/hosts', config)
-
-        # Add static IP and hostname to master's hosts file and configure worker with static IP
-        if not self.dryrun:
-            add_to_hosts(ip)
-
-            # Configure static LAN IP
-            if iface == "eth0":
-                interfaces_conf = textwrap.dedent(f"""
-                auto {iface}
-                iface {iface} inet static
-                    address {ip}/{mask}
-                """)
-                # with open(f'{mountpoint}/etc/network/interfaces',
-                #           'a') as config:
-                #     config.write(interfaces_conf)
-                sudo_writefile(f'{mountpoint}/etc/network/interfaces',
-                               interfaces_conf, append=True)
-
-            # Configure static wifi IP
-            elif iface == "wlan0":
-                dnss = \
-                    self.system("cat /etc/resolv.conf | grep nameserver").split()[
-                        1]  # index 0 is "nameserver" so ignore
-                routerss = self.system(
-                    "ip route | grep default | awk '{print $3}'")  # omit the \n at the end
-                dhcp_conf = textwrap.dedent(f"""
-                        interface wlan0
-                        static ip_address={ip}
-                        static routers={routerss}
-                        static domain_name_servers={dnss}
-                        """)
-                # with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
-                #     config.write(dhcp_conf)
-                sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf,
-                               append=True)
         else:
-            print('interface eth0\n')
-            print(f'static ip_address={ip}/{mask}')
+            curr_config.append(iface)
+            curr_config.append(static_ip)
+            curr_config.append(static_routers)
+            curr_config.append('\n')
+            # curr_config.append('nolink\n')
+
+        sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', '\n'.join(curr_config))
+        Console.ok(f'Successfully wrote to {mountpoint}/etc/dhcpcd.conf')
+
+    # TODO:
+    # Deprecated function as dhcpcd.conf is the recommended file for configuring static network configs. Should we keep this?
+    #
+    # def set_static_ip2(self, ip, mountpoint, iface="eth0", mask="16"):
+    #     """
+    #     Sets the static ip on the sd card for the specified interface
+    #     Also writes to master hosts file for easy access
+
+    #     :param ip: ips address
+    #     :type ip: str
+    #     :param mountpoint: the mountpunt of the device on which the ip
+    #                        is found
+    #     :type mountpoint: str
+    #     :param iface: the network Interface
+    #     :type iface: str
+    #     :param mask: the subnet Mask
+    #     :type mask: str
+    #     :return:
+    #     :rtype:
+    #     """
+
+    #     # Adds the ip and hostname to /etc/hosts if it isn't already there.
+    #     def add_to_hosts(ip):
+    #         # with open('/etc/hosts', 'r') as host_file:
+    #         #     hosts = host_file.readlines()
+    #         hosts = sudo_readfile('/etc/hosts')
+
+    #         replaced = False
+    #         for i in range(len(hosts)):
+    #             ip_host = hosts[i].split()
+
+    #             if len(ip_host) > 1:
+    #                 if ip_host[0] == ip:
+    #                     ip_host[1] = self.hostname
+    #                     hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
+    #                     replaced = True
+
+    #                 elif ip_host[1] == self.hostname:
+    #                     ip_host[0] = ip
+    #                     hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
+    #                     replaced = True
+    #         if not replaced:
+    #             hosts.append(f"{ip}\t{self.hostname}\n")
+
+    #         # with open('/etc/hosts', 'w') as host_file:
+    #         #     host_file.writelines(hosts)
+    #         config = ""
+    #         for line in hosts:
+    #             config = config + line + '\n'
+
+    #         sudo_writefile('/etc/hosts', config)
+
+    #     # Add static IP and hostname to master's hosts file and configure worker with static IP
+    #     if not self.dryrun:
+    #         add_to_hosts(ip)
+
+    #         # Configure static LAN IP
+    #         if iface == "eth0":
+    #             interfaces_conf = textwrap.dedent(f"""
+    #             auto {iface}
+    #             iface {iface} inet static
+    #                 address {ip}/{mask}
+    #             """)
+    #             # with open(f'{mountpoint}/etc/network/interfaces',
+    #             #           'a') as config:
+    #             #     config.write(interfaces_conf)
+    #             sudo_writefile(f'{mountpoint}/etc/network/interfaces',
+    #                            interfaces_conf, append=True)
+
+    #         # Configure static wifi IP
+    #         elif iface == "wlan0":
+    #             dnss = \
+    #                 self.system("cat /etc/resolv.conf | grep nameserver").split()[
+    #                     1]  # index 0 is "nameserver" so ignore
+    #             routerss = self.system(
+    #                 "ip route | grep default | awk '{print $3}'")  # omit the \n at the end
+    #             dhcp_conf = textwrap.dedent(f"""
+    #                     interface wlan0
+    #                     static ip_address={ip}
+    #                     static routers={routerss}
+    #                     static domain_name_servers={dnss}
+    #                     """)
+    #             # with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
+    #             #     config.write(dhcp_conf)
+    #             sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf,
+    #                            append=True)
+    #     else:
+    #         print('interface eth0\n')
+    #         print(f'static ip_address={ip}/{mask}')
 
     def set_key(self, name, mountpoint):
         """
