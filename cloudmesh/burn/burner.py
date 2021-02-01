@@ -618,15 +618,22 @@ class Burner(object):
         if not self.dryrun:
             self.system('sudo sync')  # flush any pending/in-process writes
 
+        print (device)
         if device is None:
 
             if os_is_linux():
                 user = os.environ["USER"]
                 os.system(f"sudo umount /media/{user}/boot")
-                os.system(f"sudo rmdir /media/{user}/boot")
-
                 os.system(f"sudo umount /media/{user}/rootfs")
-                os.system(f"sudo rmdir /media/{user}/rootfs")
+
+                time.sleep(3)
+
+                rm = [f"sudo rmdir /media/{user}/boot",
+                           f"sudo rmdir /media/{user}/rootfs"]
+
+                for command in rm:
+                    print (rm)
+                    os.system(command)
 
             else:
                 Console.error("Please specify the mount path")

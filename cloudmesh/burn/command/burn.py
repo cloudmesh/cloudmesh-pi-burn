@@ -27,9 +27,11 @@ class BurnCommand(PluginCommand):
         ::
 
             Usage:
+              burn install
               burn load --device=DEVICE
               burn format --device=DEVICE
-              burn install
+              burn mount [--device=DEVICE]
+              burn unmount [--device=DEVICE]
               burn network list [--ip=IP] [--used]
               burn network
               burn info [--device=DEVICE]
@@ -53,8 +55,6 @@ class BurnCommand(PluginCommand):
                           [--wifipassword=PSK]
                           [--format]
               burn sdcard [--image=IMAGE] [--device=DEVICE] [--dryrun]
-              burn mount [--device=DEVICE]
-              burn unmount [--device=DEVICE]
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
                        [--key=KEY]
@@ -229,16 +229,16 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.load:
-
             execute("load", burner.load_device(device=arguments.device))
             return ""
 
-        elif arguments.format:
-
+        elif arguments["format"]: # as format is a python word, we need to use an index
             execute("format", burner.format_device(device=arguments.device))
             return ""
 
         elif arguments.network and arguments["list"]:
+
+            print ("A4")
 
             ip = arguments.ip or Network.address()[0]['local']
 
@@ -305,28 +305,22 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.backup:
-
             execute("backup", burner.backup(device=arguments.device, to_file=arguments.to))
             return ""
 
-        elif arguments.copy:
-
+        elif arguments["copy"]: # as copy is a reserved word we need to use the index
             execute("copy", burner.copy(device=arguments.device, from_file=arguments.FROM))
             return ""
 
         elif arguments.sdcard:
-
             execute("sdcard", burner.burn_sdcard(arguments.IMAGE, arguments.device))
             return ""
 
         elif arguments.mount:
-
-            print("PPPP")
             execute("mount", burner.mount(arguments.device))
             return ""
 
         elif arguments.unmount:
-
             execute("unmount", burner.unmount(arguments.device))
             return ""
 
