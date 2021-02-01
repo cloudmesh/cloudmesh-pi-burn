@@ -114,6 +114,12 @@ class Burner(object):
         self.hostname = None
         self.keypath = None
 
+    def shrink(self, image=None):
+        if imake is None:
+            Console.error("Image must have a value")
+        raise NotImplementedError
+        # TODO: implement
+
     def backup(self, device=None, to_file=None):
         if device is None:
             Console.error("Device must have a value")
