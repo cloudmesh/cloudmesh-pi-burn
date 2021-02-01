@@ -76,9 +76,9 @@ class Test_burn:
         assert "cloudmesh-pi-cluster" in str(result)
         assert "cloudmesh-inventory" in str(result)
 
-    def test_pishrink_install(self):
+    def test_install(self):
         HEADING()
-        cmd = "cms burn shrink install"
+        cmd = "cms burn install"
         Benchmark.Start()
         result = Shell.run(cmd)
         Benchmark.Stop()
@@ -98,11 +98,10 @@ class Test_burn:
         HEADING()
         global user
         global device
-        cmd = f"cms burn sdcard mount --device={device}"
+        cmd = f"cms burn sdcard --device={device}"
         Benchmark.Start()
         os.system(cmd)
         Benchmark.Stop()
-
 
     def test_mount(self):
         HEADING()
@@ -110,9 +109,8 @@ class Test_burn:
         global device
         cmd = f"cms burn mount --device={device}"
         Benchmark.Start()
-        result = Shell.run(cmd)
+        result = os.system(cmd)
         Benchmark.Stop()
-        print(result)
         result = Shell.run(f"ls /media/{user}/boot").splitlines()
         assert len(result) > 0
         result = Shell.run(f"ls /media/{user}/rootfs").splitlines()
@@ -124,9 +122,8 @@ class Test_burn:
         global device
         cmd = f"cms burn unmount --device={device}"
         Benchmark.Start()
-        result = Shell.run(cmd)
+        result = os.system(cmd)
         Benchmark.Stop()
-        print(result)
         result = Shell.run(f"ls /media/{user}/boot").splitlines()
         assert len(result) == 0
         result = Shell.run(f"ls /media/{user}/rootfs").splitlines()

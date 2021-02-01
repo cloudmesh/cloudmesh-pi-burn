@@ -125,9 +125,10 @@ class Burner(object):
         print(command)
         os.system(command)
 
-    def shrink_install(self):
+    def install(self):
         """
         Installs /usr/local/bin/pishrink.sh
+        Installes parted
         @return:
         @rtype:
         """
@@ -139,6 +140,7 @@ class Burner(object):
                 wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
                 chmod +x pishrink.sh
                 sudo mv pishrink.sh /usr/local/bin
+                sudo apt install parted -y > $HOME/tmp.log
                 """
 
             result = JobScript.execute(script)
@@ -894,43 +896,51 @@ class Burner(object):
         :param hostname: the hostname
         :type hostname: str
         """
-        if not os_is_pi():
+        if os_is_pi():
+            Console.info("Formatting device...")
+            self.unmount(device)
+            StopWatch.start(f"format {device} {hostname}")
+
+            pipeline = textwrap.dedent("""d
+    
+                                        d
+                                        
+                                        d
+    
+                                        d
+    
+                                        n
+                                        p
+                                        1
+    
+    
+                                        t
+                                        b""")
+
+            command = f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}'
+            result = subprocess.getoutput(command)
+
+            StopWatch.stop(f"format {device} {hostname}")
+            StopWatch.status(f"format {device} {hostname}", True)
+
+            #
+            # TODO: we should have a test here
+            #
+            StopWatch.benchmark(sysinfo=True, csv=False)
+
+            Console.ok("Formating completed ...")
+
+            Console.info("Wait while the card is written ...")
+
+        elif os_is_linux():
+
+            print ("format")
+
+        else:
             raise NotImplementedError("Only implemented to be run on a PI")
 
-        Console.info("Formatting device...")
-        self.unmount(device)
-        StopWatch.start(f"format {device} {hostname}")
-
-        pipeline = textwrap.dedent("""d
-
-                                    d
-                                    
-                                    d
-
-                                    d
-
-                                    n
-                                    p
-                                    1
 
 
-                                    t
-                                    b""")
-
-        command = f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}'
-        result = subprocess.getoutput(command)
-
-        StopWatch.stop(f"format {device} {hostname}")
-        StopWatch.status(f"format {device} {hostname}", True)
-
-        #
-        # TODO: we should have a test here
-        #
-        StopWatch.benchmark(sysinfo=True, csv=False)
-
-        Console.ok("Formating completed ...")
-
-        Console.info("Wait while the card is written ...")
 
     # This is to prevent desktop access of th pie (directly plugging monitor, keyboard, mouse into pi, etc.)
     #

@@ -28,6 +28,7 @@ class BurnCommand(PluginCommand):
         ::
 
             Usage:
+              burn install
               burn network list [--ip=IP] [--used]
               burn network
               burn info [--device=DEVICE]
@@ -38,7 +39,6 @@ class BurnCommand(PluginCommand):
               burn image get [--url=URL]
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
-              burn shrink install
               burn shrink [--image=IMAGE]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
@@ -168,7 +168,7 @@ class BurnCommand(PluginCommand):
             StopWatch.stop(label)
             StopWatch.status(label, True)
             return result
-        
+
         dryrun = arguments['--dryrun']
 
         StopWatch.start("info")
@@ -282,9 +282,9 @@ class BurnCommand(PluginCommand):
             execute("info", burner.info())
             return ""
 
-        elif arguments.shrink and arguments.install:
+        elif arguments.install:
 
-            execute("shrink install", burner.shrink_install())
+            execute("install", burner.install())
             return ""
 
         elif arguments.shrink:
