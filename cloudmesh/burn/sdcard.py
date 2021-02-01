@@ -65,7 +65,7 @@ class SDCard:
                 return Path(f"/media/{user}/system-boot")
         return "undefined"
 
-    def mount_ls(self):
+    def ls(self):
         r = Shell.run("mount -l").splitlines()
         root_fs = self.root_volume
         boot_fs = self.boot_volume
@@ -97,7 +97,7 @@ class SDCard:
         # if os_is_linux():
         #    Location.mount(root_fs,)
 
-    def unmount_card(self):
+    def unmount(self):
         root_fs = self.root_volume
         boot_fs = self.boot_volume
 
