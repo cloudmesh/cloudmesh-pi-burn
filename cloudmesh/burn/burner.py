@@ -1,7 +1,6 @@
 import crypt
 import os
 import pathlib
-import platform
 import random
 import re
 import string
@@ -19,6 +18,11 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
+from cloudmesh.burn.sdcard import SDCard
+from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_mac
+from cloudmesh.burn.util import os_is_pi
+from cloudmesh.burn.util import os_is_windows
 
 
 # TODO: make sure everything is compatible with --dryrun
@@ -73,46 +77,6 @@ def sudo_readfile(filename, split=True):
         result = result.split('\n')
 
     return result
-
-
-def os_is_windows():
-    """
-    Checks if the os is windows
-
-    :return: True is windows
-    :rtype: bool
-    """
-    return platform.system() == "Windows"
-
-
-def os_is_linux():
-    """
-    Checks if the os is linux
-
-    :return: True is linux
-    :rtype: bool
-    """
-    return platform.system() == "Linux" and "raspberry" not in platform.uname()
-
-
-def os_is_mac():
-    """
-    Checks if the os is macOS
-
-    :return: True is macOS
-    :rtype: bool
-    """
-    return platform.system() == "Darwin"
-
-
-def os_is_pi():
-    """
-    Checks if the os is Raspberry OS
-
-    :return: True is Raspberry OS
-    :rtype: bool
-    """
-    return "raspberry" in platform.uname()
 
 
 # def dmesg():
@@ -193,10 +157,23 @@ class Burner(object):
 
         print("dryrun:    ", self.dryrun)
 
-        result = USB.fdisk("/dev/mmcblk0")
-        if print_stdout:
-            banner("Operating System SD Card")
-            print(result)
+        if os_is_pi():
+            banner("This is  Raspberry PI")
+        elif os_is_mac():
+            banner("This is Mac")
+        elif os_is_windows():
+            banner("This is a Windows COmputer")
+        elif os_is_linux():
+            banner("This is a Linux Computer")
+        else:
+            Console.error("unkown OS")
+            sys.exit(1)
+
+        if os_is_pi():
+            result = USB.fdisk("/dev/mmcblk0")
+            if print_stdout:
+                banner("Operating System SD Card")
+                print(result)
 
         details = USB.get_from_usb()
 
@@ -265,7 +242,9 @@ class Burner(object):
                                     "Removable",
                                     "Writeable"]))
 
-            lsusb = USB.get_from_lsusb()
+            # lsusb = USB.get_from_lsusb()
+            # from pprint import pprint
+            # pprint (lsusb)
 
             # endors = USB.get_vendor()
             # print(vendors)
@@ -277,6 +256,29 @@ class Burner(object):
             # for line in udev.splitlines():
             #    if any(word in line for word in attributes):
             #        print(line)
+
+        if print_stdout:
+
+            if os_is_linux():
+                card = SDCard(os="raspberry", host="ubuntu")
+                m = card.ls()
+
+                banner("Mount points")
+                print(Printer.write(m,
+                                    order=[
+                                        "name",
+                                        "path",
+                                        "type",
+                                        "device",
+                                        "parameters"
+                                    ],
+                                    header=[
+                                        "Name",
+                                        "Path",
+                                        "Type",
+                                        "Device",
+                                        "Parameters"
+                                    ]))
 
         # Convert details into a dict where the key for each entry is the device
         details = {detail['dev']: detail for detail in details}
@@ -315,7 +317,7 @@ class Burner(object):
 
         return res[1]
 
-    def burn(self, image, device, blocksize="4M"):
+    def burn_sdcard(self, image, device, blocksize="4M"):
         """
         Burns the SD Card with an image
 
@@ -326,14 +328,37 @@ class Burner(object):
         :param blocksize: the blocksize used when writing, default 4M
         :type blocksize: str
         """
-        image_path = Image(image).fullpath
+        if os_is_pi():
 
-        result = subprocess.getoutput(
-            f'sudo dd bs={blocksize} if={image_path} of={device}')
+            image_path = Image(image).fullpath
 
-        if "failed to open" in result:
-            Console.error("The image could not be found")
-            sys.exit(1)
+
+            result = subprocess.getoutput(
+                f'sudo dd bs={blocksize} if={image_path} of={device}')
+
+            if "failed to open" in result:
+                Console.error("The image could not be found")
+                sys.exit(1)
+        elif os_is_linux():
+            image_path = Image(image).fullpath
+
+            print (image_path)
+            print(device)
+            print (blocksize)
+            if device is None:
+                #or device == "none":
+                Console.error("Please specify a device")
+
+
+            # find device
+
+            command = f"dd if={image_path} | pv -w 80 | sudo dd of={device} status=progress bs={blocksize}"
+            print (command)
+            os.system(command)
+
+
+        else:
+            raise NotImplementedError("Only implemented to be run on a PI")
 
     def set_hostname(self, hostname, mountpoint):
         """
@@ -486,34 +511,57 @@ class Burner(object):
                            is found
         :type mountpoint: str
         """
+        if os_is_linux():
+            card = SDCard(os="raspberry", host="ubuntu")
+            dmesg = USB.get_from_dmesg()
 
-        # TODO: make sure the mountpoint has no trailing /
+            for usbcard in dmesg:
 
-        # mount p2 (/) and then p1 (/boot)
+                dev = usbcard['dev']
+                sd1 = f"{dev}1"
+                sd2 = f"{dev}2"
+                try:
+                    if os.path.exists(sd1):
+                        Console.ok(f"mounting {sd1} {card.boot_volume}")
+                        self.system(f"sudo mkdir -p {card.boot_volume}")
+                        self.system(f"sudo mount -t vfat {sd1} {card.boot_volume}")
+                except Exception as e:
+                    print (e)
+                try:
+                    if os.path.exists(sd2):
+                        Console.ok(f"mounting {sd2} {card.root_volume}")
+                        self.system(f"sudo mkdir -p {card.root_volume}")
+                        self.system(f"sudo mount -t ext4 {sd2} {card.root_volume}")
+                except Exception as e:
+                    print(e)
 
-        if not self.dryrun:
-            # wait for the OS to detect the filesystems
-            # in burner.info(), formatted will be true if the card has FAT32
-            #   filesystems on it
-            counter = 0
-            max_tries = 5
-            b = Burner()
-            while counter < max_tries:
-                time.sleep(1)
-                formatted = b.info(print_stdout=False)[device]['formatted']
-                if formatted:
-                    break
-                counter += 1
-                if counter == max_tries:
-                    print("Timed out waiting for OS to detect filesystem"
-                          " on the burned card")
-                    sys.exit(1)
+        if os_is_pi():
 
-        self.system(f'sudo mkdir -p {mountpoint}')
-        self.system(f'sudo mount {device}2 {mountpoint}')
-        self.system(f'sudo mount {device}1 {mountpoint}/boot')
+            # mount p2 (/) and then p1 (/boot)
 
-    def unmount(self, device):
+            if not self.dryrun:
+                # wait for the OS to detect the filesystems
+                # in burner.info(), formatted will be true if the card has FAT32
+                #   filesystems on it
+                counter = 0
+                max_tries = 5
+                b = Burner()
+                while counter < max_tries:
+                    time.sleep(1)
+                    formatted = b.info(print_stdout=False)[device]['formatted']
+                    if formatted:
+                        break
+                    counter += 1
+                    if counter == max_tries:
+                        print("Timed out waiting for OS to detect filesystem"
+                              " on the burned card")
+                        sys.exit(1)
+
+            self.system(f'sudo mkdir -p {mountpoint}')
+            self.system(f'sudo mount {device}2 {mountpoint}')
+            self.system(f'sudo mount {device}1 {mountpoint}/boot')
+
+    def unmount(self, device=None):
         """
         Unmounts the current SD card
 
@@ -523,18 +571,32 @@ class Burner(object):
         if not self.dryrun:
             self.system('sudo sync')  # flush any pending/in-process writes
 
-        # unmount p1 (/boot) and then p2 (/)
-        self.system(f'sudo umount {device}1')
-        # noinspection PyBroadException
-        # try:
-        #     print(f"trying to unmount {device}1")
-        #     self.system(f'sudo umount {device}1')
-        # except:
-        #     pass
+        if device is None:
 
-        # Occasionally there are issues with unmounting. Pause for good effect.
-        self.system('sleep 1')
-        self.system(f'sudo umount {device}2')
+            if os_is_linux():
+                user = os.environ["USER"]
+                os.system(f"sudo umount /media/{user}/boot")
+                os.system(f"sudo rmdir /media/{user}/boot")
+
+                os.system(f"sudo umount /media/{user}/rootfs")
+                os.system(f"sudo rmdir /media/{user}/rootfs")
+
+            else:
+                Console.error("Please specify the mount path")
+        else:
+
+            # unmount p1 (/boot) and then p2 (/)
+            self.system(f'sudo umount {device}1')
+            # noinspection PyBroadException
+            # try:
+            #     print(f"trying to unmount {device}1")
+            #     self.system(f'sudo umount {device}1')
+            # except:
+            #     pass
+
+            # Occasionally there are issues with unmounting. Pause for good effect.
+            self.system('sleep 1')
+            self.system(f'sudo umount {device}2')
 
     def enable_ssh(self, mountpoint):
         """
@@ -544,10 +606,19 @@ class Burner(object):
                            ssh is enabled. by adding a file ssh
         :type mountpoint: str
         """
-        # touch mountpoint/boot/ssh
-        command = f'sudo touch {mountpoint}/boot/ssh'
-        self.system(command)
+        if os_is_pi():
+            # touch mountpoint/boot/ssh
+            command = f'sudo touch {mountpoint}/boot/ssh'
+            self.system(command)
+        elif os_is_linux():
+            card = SDCard(os="raspberry", host="ubuntu")
 
+            print ("OOOO")
+            command = f"sudo touch {card.boot_volume}/ssh"
+            self.system(command)
+
+        else:
+            raise NotImplementedError
     # IMPROVE
 
     # TODO: docstring
@@ -610,7 +681,7 @@ class Burner(object):
     # ok osx
     def activate_ssh(self, public_key, debug=False, interactive=False):
         """
-        Sets the public key path and copies the it to the SD card
+        Sets the public key path and copies it to the SD card
 
         TODO: this has bugs as we have not yet thought about debug,
               interactive, yesno yesno we can take form cloudmesh.common
@@ -626,7 +697,6 @@ class Burner(object):
         :return: True if successful
         :rtype: bool
         """
-
 
         raise NotImplementedError
 
@@ -776,6 +846,8 @@ class Burner(object):
         :param hostname: the hostname
         :type hostname: str
         """
+        if not os_is_pi():
+            raise NotImplementedError("Only implemented to be run on a PI")
 
         Console.info("Formatting device...")
         self.unmount(device)

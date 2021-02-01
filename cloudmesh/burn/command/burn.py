@@ -17,31 +17,32 @@ class BurnCommand(PluginCommand):
             Usage:
               burn network list [--ip=IP] [--used]
               burn network
-              burn info [DEVICE]
+              burn info [--device=DEVICE]
               burn detect
               burn image versions [--refresh]
               burn image ls
-              burn image delete [IMAGE]
-              burn image get [URL]
+              burn image delete [--image=IMAGE]
+              burn image get [--url=URL]
               burn create [--image=IMAGE]
-                                     [--device=DEVICE]
-                                     [--hostname=HOSTNAME]
-                                     [--ipaddr=IP]
-                                     [--sshkey=KEY]
-                                     [--blocksize=BLOCKSIZE]
-                                     [--dryrun]
-                                     [--passwd=PASSWD]
-                                     [--ssid=SSID]
-                                     [--wifipassword=PSK]
-                                     [--format]
-              burn burn [IMAGE] [DEVICE] --[dryrun]
-              burn mount [DEVICE] [MOUNTPOINT]
-              burn set host [HOSTNAME] [MOUNTPOINT]
-              burn set ip [IP] [MOUNTPOINT]
-              burn set key [KEY] [MOUNTPOINT]
-              burn enable ssh [MOUNTPOINT]
-              burn unmount [DEVICE]
-              burn wifi SSID [PASSWD] [-ni]
+                          [--device=DEVICE]
+                          [--hostname=HOSTNAME]
+                          [--ip=IP]
+                          [--sshkey=KEY]
+                          [--blocksize=BLOCKSIZE]
+                          [--dryrun]
+                          [--passwd=PASSWD]
+                          [--ssid=SSID]
+                          [--wifipassword=PSK]
+                          [--format]
+              burn sdcard [--image=IMAGE] [--device=DEVICE] [--dryrun]
+              burn mount [--device=DEVICE] [--mount=MOUNTPOINT]
+              burn set [--hostname=HOSTNAME]
+                       [--ip=IP]
+                       [--key=KEY]
+                       [--mount=MOUNTPOINT]
+              burn enable ssh [--mount=MOUNTPOINT]
+              burn unmount [--device=DEVICE]
+              burn wifi SSID [--passwd=PASSWD] [-ni]
 
             Options:
               -h --help              Show this screen.
@@ -50,7 +51,7 @@ class BurnCommand(PluginCommand):
                                      e.g. 2019-09-26-raspbian-buster.img
               --device=DEVICE        The device, e.g. /dev/mmcblk0
               --hostname=HOSTNAME    The hostname
-              --ipaddr=IP            The IP address
+              --ip=IP                The IP address
               --key=KEY              The name of the SSH key file
               --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
 
@@ -109,7 +110,7 @@ class BurnCommand(PluginCommand):
                > cms burn create --image=2019-09-26-raspbian-buster-lite
                >                 --device=/dev/mmcblk0
                >                 --hostname=red[5-7]
-               >                 --ipaddr=192.168.1.[5-7]
+               >                 --ip=192.168.1.[5-7]
                >                 --sshkey=id_rsa
 
                > cms burn image get latest
@@ -123,17 +124,20 @@ class BurnCommand(PluginCommand):
         """
 
         map_parameters(arguments,
-                       "refresh"
+                       "refresh",
                        "device",
                        "hostname",
-                       "ipaddr",
+                       "ip",
                        "sshkey",
                        "blocksize",
-                       #  "dryrun",
-                       "passwd",
+                       "dryrun",
                        "ssid",
+                       "url",
+                       "key",
+                       "passwd",
                        "wifipassword",
                        "version")
+        arguments.mountpoint = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
 
         VERBOSE(arguments)

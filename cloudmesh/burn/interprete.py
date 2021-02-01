@@ -16,7 +16,7 @@ from cloudmesh.burn.network import Network
 from cloudmesh.burn.util import readfile, writefile
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
-
+from cloudmesh.common.util import Console
 
 def execute(label, function):
     StopWatch.start(label)
@@ -26,7 +26,7 @@ def execute(label, function):
 
 
 def interprete(arguments):
-    dryrun = arguments['dryrun']
+    dryrun = arguments['--dryrun']
 
     StopWatch.start("info")
     burner = Burner(dryrun=dryrun)
@@ -72,8 +72,8 @@ def interprete(arguments):
                     data["full"].append(entry)
             writefile(cache, yaml.dump(data))
         else:
-            #data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)
-            #for entry in data:
+            # data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)
+            # for entry in data:
             #   version = list(entry.keys())[0]
             #    download = entry[version]
             #    print(f"{version}: {download}")
@@ -82,7 +82,6 @@ def interprete(arguments):
         StopWatch.stop("image versions")
         StopWatch.status("image versions", True)
         return ""
-
 
     elif arguments.network and arguments["list"]:
 
@@ -118,8 +117,8 @@ def interprete(arguments):
 
     elif arguments.wifi:
 
-        password = arguments.PASSWD
-        ssid = arguments.SSID
+        password = arguments.passwd
+        ssid = arguments.ssid
 
         if password is None:
             password = getpass("Please enter the Wifi password; ")
@@ -140,60 +139,58 @@ def interprete(arguments):
         execute("burn", burner.info())
         return ""
 
-    #
-    # BUG THIS IS WAY TO EARLY AND MAY NEED TO BE LAST
-    #
-    #elif arguments.burn:
-    #    # check_root(dryrun=dryrun)
+    elif arguments.sdcard:
+        # check_root(dryrun=dryrun)
 
-    #    image = arguments.IMAGE
-    #    device = arguments.DEVICE
-    #    execute("burn", burner.burn(image, device))
-    #    return ""
+        image = arguments.image
+        device = arguments.device
+        execute("burn", burner.burn_sdcard(image, device))
+        return ""
 
     elif arguments.mount:
         # check_root(dryrun=dryrun)
 
-        device = arguments.DEVICE
-        mp = arguments.MOUNTPOINT
+        device = arguments.device
+        mp = arguments.mountpoint
         execute("mount", burner.mount(device, mp))
         return ""
 
-    elif arguments.set and arguments.host:
-        # check_root(dryrun=dryrun)
+    elif arguments.set:
 
-        hostname = arguments.HOSTNAME
-        mp = arguments.MOUNTPOINT
-        execute("set hostname", burner.set_hostname(hostname, mp))
-        return ""
 
-    elif arguments.set and arguments.ip:
-        # check_root(dryrun=dryrun)
+        if arguments.host:
+            # check_root(dryrun=dryrun)
 
-        ip = arguments.IP
-        mp = arguments.MOUNTPOINT
-        execute("set ip", burner.set_static_ip(ip, mp))
-        return ""
+            hostname = arguments.hostname
+            mp = arguments.mountpoint
+            execute("set hostname", burner.set_hostname(hostname, mp))
 
-    elif arguments.set and arguments.key:
-        # check_root(dryrun=dryrun)
+        if arguments.ip:
+            # check_root(dryrun=dryrun)
 
-        key = arguments.KEY
-        mp = arguments.MOUNTPOINT
-        execute("set key", burner.set_key(key, mp))
-        return ""
+            ip = arguments.ip
+            mp = arguments.mountpoint
+            execute("set ip", burner.set_static_ip(ip, mp))
+
+        if  arguments.key:
+            # check_root(dryrun=dryrun)
+
+            key = arguments.key
+            mp = arguments.mountpoint
+            execute("set key", burner.set_key(key, mp))
+            return ""
 
     elif arguments.enable and arguments.ssh:
         # check_root(dryrun=dryrun)
 
-        mp = arguments.MOUNTPOINT
+        mp = arguments.mountpoint
         execute("enable ssh", burner.enable_ssh(mp))
         return ""
 
     elif arguments.unmount:
         # check_root(dryrun=dryrun)
 
-        device = arguments.DEVICE
+        device = arguments.device
         execute("unmount", burner.unmount(device))
         return ""
 
@@ -205,13 +202,12 @@ def interprete(arguments):
         return ""
 
     elif arguments.delete and arguments['image']:
-        execute("image rm", Image(arguments.IMAGE).rm())
+        execute("image rm", Image(arguments.image).rm())
         return ""
 
     elif arguments.get and arguments['image']:
-        execute("image fetch", Image(arguments.URL).fetch())
+        execute("image fetch", Image(arguments.url).fetch())
         return ""
-
 
     elif arguments.create:
 
@@ -249,8 +245,7 @@ def interprete(arguments):
 
         hostnames = Parameter.expand(arguments.hostname)
 
-        ips = None if not arguments.ipaddr else Parameter.expand(
-            arguments.ipaddr)
+        ips = None if not arguments.ip else Parameter.expand(arguments.ip)
         key = arguments.sshkey
         mp = '/mount/pi'
         blocksize = arguments.blocksize
@@ -277,4 +272,5 @@ def interprete(arguments):
         StopWatch.benchmark(sysinfo=False, csv=False)
         return ""
 
+    Console.error("see manual page: cms help burn")
     return ""

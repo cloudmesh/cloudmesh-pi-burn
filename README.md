@@ -128,18 +128,6 @@ by the installation script.
 pi@masterpi:~ $ source ~/ENV3/bin/activate
 ```
 
-There is currently an issue with the version of numpy the pi4 has installed. To fix run the below command. To see more info about see <https://numpy.org/devdocs/user/troubleshooting-importerror.html#raspberry-pi>.
-
-```
-(ENV3) pi@masterpi:~ $ sudo apt-get install libatlas-base-dev
-```
-
-To verify run the below command. You should see no errors.
-
-```
-(ENV3) pi@masterpi:~ $ cms help
-```
-
 **Step 3.** Download the latest Raspberry Pi Lite OS
 
 The following command will download the latest images for Raspberry
@@ -457,6 +445,13 @@ pi@red001:~ $ exit
 
 **Step 6.** (For Bridge setup) Create SSH tunnels on the manager 
 to enable ssh acces from your laptop to the workers
+
+For now we manually install autossh, to test the new cms host tunnel program. Later we add it to the main master setup script.
+
+```
+(ENV3) pi@managerpi:~ $ yes y | sudo apt install autossh
+```
+
 
 ```
 (ENV3) pi@managerpi:~ $ cms host tunnel create red00[1-3]
@@ -1054,4 +1049,37 @@ Figure 2: Networking with Mesh network
 
 You will not need the bridge command to setup the network.
 
+### Can I use cms burn on Linux?
 
+We used to have cm burn fully supported on Linux. However it is no longer supported. 
+
+However, we just started an effort to figure out if we can make it work again on Linux
+
+To download the latest rasbian Pi image use
+
+```
+cms burn image get
+```
+
+To see what SDCard writers you have attached, you can use the command
+
+```
+cms burn info
+```
+
+It will issue a probe of USB devices and see if SDCards can be found.
+
+For now you can do the following:
+
+1. use pi imager in linux to burn SDCARD
+
+Then use 
+
+```bash
+sudo apt-get install pv dialog
+cms burn mount
+cms burn enable ssh
+cms burn unmount
+```
+
+Take the SDCard into the PI and set it up there. as documented.
