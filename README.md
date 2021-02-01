@@ -1051,9 +1051,7 @@ You will not need the bridge command to setup the network.
 
 ### Can I use cms burn on Linux?
 
-We used to have cm burn fully supported on Linux. However it is no longer supported. 
-
-However, we just started an effort to figure out if we can make it work again on Linux
+Nlt everything is supported.
 
 To download the latest rasbian Pi image use
 
@@ -1069,15 +1067,12 @@ cms burn info
 
 It will issue a probe of USB devices and see if SDCards can be found.
 
-For now you can do the following:
+Identify the `/dev/sdX`, where X is a letter such as b,c,d, ... It
+will likely never be a.
 
-1. use pi imager in linux to burn SDCARD
-
-Then use 
-
-```bash
-sudo apt-get install pv dialog
-cms burn mount
+sudo apt-get install pv
+cms burn sdcard --dev=/dev/sdX
+cms burn mount --device=/dev/sdX
 cms burn enable ssh
 cms burn unmount
 ```
