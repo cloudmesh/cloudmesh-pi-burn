@@ -392,31 +392,31 @@ The cluster is now complete. For information on rebooting clusters (ie. if you s
 
 ## Set up of the SSH keys and SSH tunnel
 
-This section is still under development.
-
-One important aspect of the cluster is to setup authentication 
-with ssh, so we can easily login from the Laptop to each of the PI 
+One important aspect of a cluster is to setup authentication via 
+ssh in a convenient way, so we can easily login from the 
+laptop to each of the PI 
 workers and the PI manager. Furthermore, we like to be able to 
 login from the PI manager to each of the workers. In addition, 
 we like to be able to login between the workers.
 
-To simplify the setup of this we have developed a command 
-`cms host` with the options. To generate on multiple machines 
-on the network keys, to gather them and to redistribute or 
-scatter them so that we can easily authenticate as discussed 
-previously.
+We have chosen a very simple setup while relying on ssh tunnel.
 
-One important part of this is that the key on the Laptop must 
+To simplify the setup of this we have developed a command 
+`cms host` that gathers and scatters keys onto all machines, 
+as well as, sets up the tunnel.
+
+It is essential that that the key on the laptop must 
 not be password less. This is also valid for any machine that is directly 
-added to the network such as in the Mesh notwork. 
+added to the network such as in the mesh notwork. 
 
 To avoid password less keys we recommend you to use `ssh-add` 
-or `ssh-keychain`.
+or `ssh-keychain` which will ask you for one.
 
-More infor and a concrete example will be documented here shortly.
+> Note: More information and a concrete example will be documented 
+> here shortly.
 
 The manual page for `cms host` is provided in the Manual 
-Page section.
+Pages section.
 
 **Step 1.** On the manager create ssh keys for each of the workers.
 
@@ -424,13 +424,15 @@ Page section.
 (ENV3) pi@managerpi:~ $ cms host key create red00[1-3]
 ```
 
-**Step 2.** On the manager gather the worker, manager, and your laptop public ssh keys into a file.
+**Step 2.** On the manager gather the worker, manager, 
+and your laptop public ssh keys into a file.
 
 ```
 (ENV3) pi@managerpi:~ $ cms host key gather red00[1-3],you@yourlaptop.local keys.txt
 ```
 
-**Step 3.** On the manager scatter the public keys to all the workers and manager ~/.ssh/authorized_hosts file
+**Step 3.** On the manager scatter the public keys to all 
+the workers and manager ~/.ssh/authorized_hosts file
 
 ```
 (ENV3) pi@managerpi:~ $ cms host key scatter red00[1-3],localhost keys.txt
@@ -453,13 +455,15 @@ pi@red002:~ $ exit
 pi@red001:~ $ exit
 ```
 
-**Step 6.** (For Bridge setup) Create SSH tunnels on the manager to enable ssh acces from your laptop to the workers
+**Step 6.** (For Bridge setup) Create SSH tunnels on the manager 
+to enable ssh acces from your laptop to the workers
 
 ```
 (ENV3) pi@managerpi:~ $ cms host tunnel create red00[1-3]
 ```
 
-**Step 7.** (For Bridge setup) Copy the specified command output to your ~/.ssh/config file on your laptop
+**Step 7.** (For Bridge setup) Copy the specified command output to 
+your `~/.ssh/config` file on your laptop
 
 ```
 host tunnel create red00[1-3]
@@ -490,6 +494,15 @@ Host red003
      User pi
      Port 8003
 ```
+
+> Note: We will in future provide an addition to the command so you 
+> can remove and add
+> them directly from the commandline
+> 
+> ```
+> cms host tunnel config create red00[1-3]
+> cms host tunnel config delete red00[1-3]
+> ```
 
 **Step 8.** (For Bridge setup) Verify SSH reachability from the laptop to workers
 
