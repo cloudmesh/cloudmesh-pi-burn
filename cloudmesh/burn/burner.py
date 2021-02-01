@@ -165,7 +165,7 @@ class Burner(object):
             Console.error("Device must have a value")
         if from_file is None:
             Console.error("From file must have a value")
-        burner.burn_sdcard(from_file, device)
+        self.burn_sdcard(from_file, device)
 
     def detect(self):
         """
@@ -364,7 +364,7 @@ class Burner(object):
 
         return res[1]
 
-    def burn_sdcard(self, image, device, blocksize="4M"):
+    def burn_sdcard(self, image=None, device=None, blocksize="4M"):
         """
         Burns the SD Card with an image
 
@@ -399,8 +399,8 @@ class Burner(object):
             # find device
 
             command = f"dd if={image_path} |" \
-                      " pv -w 80 |" \
-                      " sudo dd of={device} bs={blocksize} conv=fsync status=progress"
+                      f" pv -w 80 |" \
+                      f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
             print(command)
             os.system(command)
 
