@@ -332,9 +332,9 @@ class Burner(object):
 
             image_path = Image(image).fullpath
 
+            command = f"sudo dd bs={blocksize} if={image_path} of={device}"
 
-            result = subprocess.getoutput(
-                f'sudo dd bs={blocksize} if={image_path} of={device}')
+            result = subprocess.getoutput(command)
 
             if "failed to open" in result:
                 Console.error("The image could not be found")
@@ -352,7 +352,9 @@ class Burner(object):
 
             # find device
 
-            command = f"dd if={image_path} | pv -w 80 | sudo dd of={device} status=progress bs={blocksize}"
+            command = f"dd if={image_path} |"\
+                      " pv -w 80 |"\
+                      " sudo dd of={device} bs={blocksize} conv=fsync status=progress"
             print (command)
             os.system(command)
 
