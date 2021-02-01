@@ -2,7 +2,10 @@ import os
 from pathlib import Path
 
 from cloudmesh.common.Shell import Shell
-
+from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_windows
+from cloudmesh.burn.util import os_is_mac
+from cloudmesh.burn.util import os_is_pi
 
 class SDCard:
 
@@ -38,6 +41,10 @@ class SDCard:
                 return Path(f"/media/{user}/rootfs")
             if "ubuntu" in self.os:
                 return Path(f"/media/{user}/writable")
+        elif host == "raspberty":
+            raise NotImplementedError
+        elif host == "windows":
+            raise NotImplementedError
         return "undefined"
 
     @property
@@ -60,6 +67,10 @@ class SDCard:
                 return Path(f"/media/{user}/boot")
             elif "ubuntu" in self.os:
                 return Path(f"/media/{user}/system-boot")
+        elif host == "raspberty":
+            raise NotImplementedError
+        elif host == "windows":
+            raise NotImplementedError
         return "undefined"
 
     def ls(self):
@@ -69,6 +80,7 @@ class SDCard:
         @return: A dict representing the file systems on the SDCCards
         @rtype: dict
         """
+
         r = Shell.run("mount -l").splitlines()
         root_fs = self.root_volume
         boot_fs = self.boot_volume
@@ -92,35 +104,3 @@ class SDCard:
                 }
                 details[detail["name"]] = detail
         return details
-
-    def mount(self):
-        """
-        mounts the file systems on the SDCard. If Raspbian is burned it is
-        boot and rootfs
-
-        @return: TBD
-        @rtype: TBD
-        """
-        raise NotImplementedError
-        root_fs = self.root_volume
-        boot_fs = self.boot_volume
-
-        # if os_is_linux():
-        #    Location.mount(root_fs,)
-
-    def unmount(self):
-        """
-        unmounts the file systems associated with the SDCard
-
-        @return:
-        @rtype:
-        """
-
-        raise NotImplementedError
-
-        root_fs = self.root_volume
-        boot_fs = self.boot_volume
-
-        if os_is_linux():
-            location = SDCard(os="raspberry", host="ubuntu")
-            m = location.mount_ls()
