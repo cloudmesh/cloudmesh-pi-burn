@@ -340,11 +340,15 @@ class Burner(object):
                 Console.error("The image could not be found")
                 sys.exit(1)
         elif os_is_linux():
+            image_path = Image(image).fullpath
+
+            print (image_path)
+            print(device)
+            print (blocksize)
             if device is None:
                 #or device == "none":
                 Console.error("Please specify a device")
 
-            image_path = Image(image).fullpath
 
             # find device
 

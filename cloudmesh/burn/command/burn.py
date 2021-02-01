@@ -124,7 +124,7 @@ class BurnCommand(PluginCommand):
         """
 
         map_parameters(arguments,
-                       "refresh"
+                       "refresh",
                        "device",
                        "hostname",
                        "ip",
