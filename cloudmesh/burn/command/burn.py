@@ -161,7 +161,7 @@ class BurnCommand(PluginCommand):
         arguments.FROM = arguments["--from"]
         arguments.IMAGE = arguments["--image"]
 
-        VERBOSE(arguments)
+        # VERBOSE(arguments)
 
 
         def execute(label, function):

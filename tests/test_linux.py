@@ -1,7 +1,7 @@
 ###############################################################
-# pip install .; pytest -v --capture=no tests/test_linux.py::Test_linux.test_pishrink_install
 # pytest -v --capture=no tests/test_linux.py
 # pytest -v  tests/test_linux.py
+# pytest -v --capture=no tests/test_linux.py::Test_linux.test_pishrink_install
 ###############################################################
 
 import os
@@ -31,35 +31,37 @@ user = os.environ["USER"]
 
 
 """
+Tests to be integrated, possibly in new tes, such as image into Test_01_image.py
+
 burn network list [--ip=IP] [--used]
-              burn network
-              burn info [--device=DEVICE]
-              burn detect
-              burn image versions [--refresh]
-              burn image ls
-              burn image delete [--image=IMAGE]
-              burn image get [--url=URL]
-              burn backup [--device=DEVICE] [--to=DESTINATION]
-              burn copy [--device=DEVICE] [--from=DESTINATION]
-              burn shrink [--image=IMAGE]
-              burn create [--image=IMAGE]
-                          [--device=DEVICE]
-                          [--hostname=HOSTNAME]
-                          [--ip=IP]
-                          [--sshkey=KEY]
-                          [--blocksize=BLOCKSIZE]
-                          [--dryrun]
-                          [--passwd=PASSWD]
-                          [--ssid=SSID]
-                          [--wifipassword=PSK]
-                          [--format]
-              burn sdcard [--image=IMAGE] [--device=DEVICE] [--dryrun]
-              burn set [--hostname=HOSTNAME]
-                       [--ip=IP]
-                       [--key=KEY]
-                       [--mount=MOUNTPOINT]
-              burn enable ssh [--mount=MOUNTPOINT]
-              burn wifi SSID [--passwd=PASSWD] [-ni]
+burn network
+burn info [--device=DEVICE]
+burn detect
+burn image versions [--refresh]
+burn image ls
+burn image delete [--image=IMAGE]
+burn image get [--url=URL]
+burn backup [--device=DEVICE] [--to=DESTINATION]
+burn copy [--device=DEVICE] [--from=DESTINATION]
+burn shrink [--image=IMAGE]
+burn create [--image=IMAGE]
+          [--device=DEVICE]
+          [--hostname=HOSTNAME]
+          [--ip=IP]
+          [--sshkey=KEY]
+          [--blocksize=BLOCKSIZE]
+          [--dryrun]
+          [--passwd=PASSWD]
+          [--ssid=SSID]
+          [--wifipassword=PSK]
+          [--format]
+burn sdcard [--image=IMAGE] [--device=DEVICE] [--dryrun]
+burn set [--hostname=HOSTNAME]
+       [--ip=IP]
+       [--key=KEY]
+       [--mount=MOUNTPOINT]
+burn enable ssh [--mount=MOUNTPOINT]
+burn wifi SSID [--passwd=PASSWD] [-ni]
 """
 
 
