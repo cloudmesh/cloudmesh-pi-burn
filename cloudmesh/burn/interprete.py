@@ -151,7 +151,7 @@ def interprete(arguments):
         # check_root(dryrun=dryrun)
 
         device = arguments.device
-        mp = arguments.mount
+        mp = arguments.mountpoint
         execute("mount", burner.mount(device, mp))
         return ""
 
@@ -162,28 +162,28 @@ def interprete(arguments):
             # check_root(dryrun=dryrun)
 
             hostname = arguments.hostname
-            mp = arguments.mount
+            mp = arguments.mountpoint
             execute("set hostname", burner.set_hostname(hostname, mp))
 
         if arguments.ip:
             # check_root(dryrun=dryrun)
 
             ip = arguments.ip
-            mp = arguments.mount
+            mp = arguments.mountpoint
             execute("set ip", burner.set_static_ip(ip, mp))
 
         if  arguments.key:
             # check_root(dryrun=dryrun)
 
             key = arguments.key
-            mp = arguments.mount
+            mp = arguments.mountpoint
             execute("set key", burner.set_key(key, mp))
             return ""
 
     elif arguments.enable and arguments.ssh:
         # check_root(dryrun=dryrun)
 
-        mp = arguments.mount
+        mp = arguments.mountpoint
         execute("enable ssh", burner.enable_ssh(mp))
         return ""
 

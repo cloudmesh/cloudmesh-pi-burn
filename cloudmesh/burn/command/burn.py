@@ -135,10 +135,10 @@ class BurnCommand(PluginCommand):
                        "ssid",
                        "url",
                        "key",
-                       "mount",
                        "passwd",
                        "wifipassword",
                        "version")
+        arguments.mountpoint = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
 
         VERBOSE(arguments)
