@@ -273,6 +273,7 @@ class Burner(object):
                                     # "device",
                                     # "bus",
                                     # "sg",
+                                    "active",
                                     "info",
                                     "readable",
                                     "formatted",
@@ -286,12 +287,13 @@ class Burner(object):
                                     # "Device",
                                     # "Bus",
                                     # "Sg",
+                                    "Plugged-in",
                                     "Info",
                                     "Readable",
                                     "Formatted",
                                     "Empty",
                                     "Size",
-                                    "Aaccess",
+                                    "Access",
                                     "Removable",
                                     "Writeable"]))
 

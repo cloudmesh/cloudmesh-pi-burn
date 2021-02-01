@@ -256,6 +256,7 @@ class USB(object):
                 details[key]['readable'] = "cannot open" in _fdisk
                 details[key]['empty'] = "linux" in _fdisk
                 details[key]['formatted'] = "FAT32" not in _fdisk
+                details[key]['active'] = os.path.exists(details[key]['dev'])
         # remove opbets without size
 
         found = []
