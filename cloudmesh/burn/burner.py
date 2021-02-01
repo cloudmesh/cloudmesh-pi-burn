@@ -488,11 +488,6 @@ class Burner(object):
                            is found
         :type mountpoint: str
         """
-
-        # TODO: make sure the mountpoint has no trailing /
-
-        # mount p2 (/) and then p1 (/boot)
-
         if os_is_linux():
             card = SDCard(os="raspberry", host="ubuntu")
             dmesg = USB.get_from_dmesg()
@@ -518,6 +513,9 @@ class Burner(object):
                     print(e)
 
         if os_is_pi():
+
+            # mount p2 (/) and then p1 (/boot)
+
             if not self.dryrun:
                 # wait for the OS to detect the filesystems
                 # in burner.info(), formatted will be true if the card has FAT32
@@ -559,24 +557,6 @@ class Burner(object):
 
                 os.system(f"sudo umount /media/{user}/rootfs")
                 os.system(f"sudo rmdir /media/{user}/rootfs")
-
-
-                #sdcard = SDCard(os="raspberry", host="ubuntu")
-                #m = sdcard.ls()
-
-                #for mountpoint in m:
-                #    entry = m[mountpoint]
-                #    path = entry["path"]
-                #    ismount = os.path.ismount(path)
-                #
-                #    if ismount:
-                #        try:
-                #            Shell.umount(entry["path"])
-                #            Console.ok(f"Unmounting {path}")
-                #        except Exception as e:
-                #            Console.error(f"could not unmount {path} Exception {e}")
-                #    else:
-                #        Console.error(f"{path} is not a mount point")
 
             else:
                 Console.error("Please specify the mount path")
