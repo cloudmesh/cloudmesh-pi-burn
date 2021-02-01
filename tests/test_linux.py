@@ -62,6 +62,7 @@ burn network list [--ip=IP] [--used]
               burn wifi SSID [--passwd=PASSWD] [-ni]
 """
 
+
 @pytest.mark.incremental
 class Test_burn:
 
@@ -76,6 +77,9 @@ class Test_burn:
         assert "cloudmesh-pi-cluster" in str(result)
         assert "cloudmesh-inventory" in str(result)
 
+        sys.stdout.flush()
+        sys.stderr.flush()
+
     def test_install(self):
         HEADING()
         cmd = "cms burn install"
@@ -84,6 +88,9 @@ class Test_burn:
         Benchmark.Stop()
         print(result)
         assert os.path.exists("/usr/local/bin/pishrink.sh")
+
+        sys.stdout.flush()
+        sys.stderr.flush()
 
     def test_info(self):
         HEADING()
@@ -94,14 +101,43 @@ class Test_burn:
         print(result)
         assert "Linux Foundation" in result
 
-    def test_burn_sdcard(self):
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+    def test_burn_format(self):
         HEADING()
         global user
         global device
+
+        os.system(f"cms burn load --device={device}")
+
+        cmd = f"cms burn format --device={device}"
+        Benchmark.Start()
+        os.system(cmd)
+        Benchmark.Stop()
+
+        os.system(f"eject {device}")
+
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+
+
+    def test_burn_sdcard(self):
+        HEADING()
+
+        global user
+        global device
+
+        os.system(f"cms burn load --device={device}")
+
         cmd = f"cms burn sdcard --device={device}"
         Benchmark.Start()
         os.system(cmd)
         Benchmark.Stop()
+
+        sys.stdout.flush()
+        sys.stderr.flush()
 
     def test_mount(self):
         HEADING()
@@ -116,6 +152,9 @@ class Test_burn:
         result = Shell.run(f"ls /media/{user}/rootfs").splitlines()
         assert len(result) > 0
 
+        sys.stdout.flush()
+        sys.stderr.flush()
+
     def test_unmount(self):
         HEADING()
         global user
@@ -124,10 +163,13 @@ class Test_burn:
         Benchmark.Start()
         result = os.system(cmd)
         Benchmark.Stop()
-        result = Shell.run(f"ls /media/{user}/boot").splitlines()
+        result = Shell.run(f"ls /media/{user}/boot").strip().splitlines()
         assert len(result) == 0
-        result = Shell.run(f"ls /media/{user}/rootfs").splitlines()
+        result = Shell.run(f"ls /media/{user}/rootfs").strip().splitlines()
         assert len(result) == 0
+
+        sys.stdout.flush()
+        sys.stderr.flush()
 
     def test_benchmark(self):
         HEADING()

@@ -53,13 +53,13 @@ class BurnCommand(PluginCommand):
                           [--wifipassword=PSK]
                           [--format]
               burn sdcard [--image=IMAGE] [--device=DEVICE] [--dryrun]
-              burn mount [--device=DEVICE] [--mount=MOUNTPOINT]
+              burn mount [--device=DEVICE]
+              burn unmount [--device=DEVICE]
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
                        [--key=KEY]
                        [--mount=MOUNTPOINT]
               burn enable ssh [--mount=MOUNTPOINT]
-              burn unmount [--device=DEVICE]
               burn wifi SSID [--passwd=PASSWD] [-ni]
 
             Options:
@@ -156,12 +156,13 @@ class BurnCommand(PluginCommand):
                        "wifipassword",
                        "version",
                        "to")
-        arguments.mountpoint = arguments["--mount"]
+        arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
         arguments.IMAGE = arguments["--image"]
 
         VERBOSE(arguments)
+
 
         def execute(label, function):
             StopWatch.start(label)
@@ -229,12 +230,12 @@ class BurnCommand(PluginCommand):
 
         elif arguments.load:
 
-            execute("backup", burner.load_device(device=arguments.device))
+            execute("load", burner.load_device(device=arguments.device))
             return ""
 
         elif arguments.format:
 
-            execute("backup", burner.format_device(device=arguments.device))
+            execute("format", burner.format_device(device=arguments.device))
             return ""
 
         elif arguments.network and arguments["list"]:
@@ -305,69 +306,51 @@ class BurnCommand(PluginCommand):
 
         elif arguments.backup:
 
-            execute("backup",
-                    burner.backup(device=arguments.device, to_file=arguments.to))
+            execute("backup", burner.backup(device=arguments.device, to_file=arguments.to))
             return ""
 
         elif arguments.copy:
 
-            execute("copy",
-                    burner.copy(device=arguments.device, from_file=arguments.FROM))
+            execute("copy", burner.copy(device=arguments.device, from_file=arguments.FROM))
             return ""
 
         elif arguments.sdcard:
-            # check_root(dryrun=dryrun)
 
-            image = arguments.IMAGE
-            device = arguments.device
-            execute("sdcard", burner.burn_sdcard(image, device))
+            execute("sdcard", burner.burn_sdcard(arguments.IMAGE, arguments.device))
             return ""
 
         elif arguments.mount:
-            # check_root(dryrun=dryrun)
 
-            device = arguments.device
-            mp = arguments.mountpoint
-            execute("mount", burner.mount(device, mp))
+            print("PPPP")
+            execute("mount", burner.mount(arguments.device))
+            return ""
+
+        elif arguments.unmount:
+
+            execute("unmount", burner.unmount(arguments.device))
             return ""
 
         elif arguments.set:
 
             if arguments.host:
-                # check_root(dryrun=dryrun)
 
-                hostname = arguments.hostname
-                mp = arguments.mountpoint
-                execute("set hostname", burner.set_hostname(hostname, mp))
+                execute("set hostname", burner.set_hostname(arguments.hostname, arguments.MOUNTPOINT))
 
             if arguments.ip:
-                # check_root(dryrun=dryrun)
 
-                ip = arguments.ip
-                mp = arguments.mountpoint
-                execute("set ip", burner.set_static_ip(ip, mp))
+                execute("set ip", burner.set_static_ip(arguments.ip, arguments.MOUNTPOINT))
 
             if arguments.key:
-                # check_root(dryrun=dryrun)
 
-                key = arguments.key
-                mp = arguments.mountpoint
-                execute("set key", burner.set_key(key, mp))
-                return ""
+                execute("set key", burner.set_key(arguments.key, arguments.MOUNTPOINT))
+
+            return ""
 
         elif arguments.enable and arguments.ssh:
-            # check_root(dryrun=dryrun)
 
-            mp = arguments.mountpoint
-            execute("enable ssh", burner.enable_ssh(mp))
+            execute("enable ssh", burner.enable_ssh(arguments.MOUNTPOINT))
             return ""
 
-        elif arguments.unmount:
-            # check_root(dryrun=dryrun)
-
-            device = arguments.device
-            execute("unmount", burner.unmount(device))
-            return ""
 
         # elif arguments.versions and arguments.image:
         #    image = Image()

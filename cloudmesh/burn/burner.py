@@ -162,11 +162,9 @@ class Burner(object):
             print(command)
             os.system(command)
 
-    def copy(self, device=None, from_file=None):
+    def copy(self, device=None, from_file="latest"):
         if device is None:
             Console.error("Device must have a value")
-        if from_file is None:
-            Console.error("From file must have a value")
         self.burn_sdcard(from_file, device)
 
     def detect(self):
@@ -547,8 +545,7 @@ class Burner(object):
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
         self.system(f'mkdir -p {mountpoint}/home/pi/.ssh/')
-        self.system(
-            f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
+        self.system(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
     def mount(self, device, mountpoint="/mount/pi"):
         """
@@ -560,6 +557,7 @@ class Burner(object):
                            is found
         :type mountpoint: str
         """
+
         if os_is_linux():
             card = SDCard(os="raspberry", host="ubuntu")
             dmesg = USB.get_from_dmesg()
@@ -584,7 +582,7 @@ class Burner(object):
                 except Exception as e:
                     print(e)
 
-        if os_is_pi():
+        elif os_is_pi():
 
             # mount p2 (/) and then p1 (/boot)
 
@@ -661,8 +659,6 @@ class Burner(object):
             self.system(command)
         elif os_is_linux():
             card = SDCard(os="raspberry", host="ubuntu")
-
-            print("OOOO")
             command = f"sudo touch {card.boot_volume}/ssh"
             self.system(command)
 
@@ -1268,8 +1264,8 @@ class MultiBurner(object):
         burner.set_hostname(hostname, mp)
         burner.disable_terminal_login(mp, password)
         if ssid:
-            Console.warning(
-                "Warning: In the future, try to interface with the workers via ethernet/switch rather than WiFi")
+            Console.warning("In the future, try to interface with the workers via "
+                            "ethernet/switch rather than WiFi")
             burner.configure_wifi(ssid, psk, mp)
         burner.enable_ssh(mp)
         burner.disable_password_ssh(mp)
