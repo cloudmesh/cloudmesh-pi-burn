@@ -495,15 +495,28 @@ class Burner(object):
 
         if os_is_linux():
             card = SDCard(os="raspberry", host="ubuntu")
-            print ("YYY")
+            probe = USB.get_from_dmesg()
 
-            print (card.ls())
-            print (card.root_volume)
-            print (card.boot_volume)
-            details = USB.get_from_dmesg()
-            from pprint import pprint
-            pprint (details)
-            pass
+            for usbcard in probe:
+
+                dev = usbcard['dev']
+                sd1 = f"{dev}1"
+                sd2 = f"{dev}2"
+                try:
+                    if os.path.exists(sd1):
+                        Console.ok(f"mounting {sd1} {card.boot_volume}")
+                        self.system(f"sudo mkdir -p {card.boot_volume}")
+                        self.system(f"sudo mount -t vfat {sd1} {card.boot_volume}")
+                except Exception as e:
+                    print (e)
+                try:
+                    if os.path.exists(sd2):
+                        Console.ok(f"mounting {sd2} {card.root_volume}")
+                        self.system(f"sudo mkdir -p {card.root_volume}")
+                        self.system(f"sudo mount -t ext4 {sd2} {card.root_volume}")
+                except Exception as e:
+                    print(e)
+
         if os_is_pi():
             if not self.dryrun:
                 # wait for the OS to detect the filesystems
@@ -540,22 +553,31 @@ class Burner(object):
         if device is None:
 
             if os_is_linux():
-                sdcard = SDCard(os="raspberry", host="ubuntu")
-                m = sdcard.ls()
+                user = os.environ["USER"]
+                os.system(f"sudo umount /media/{user}/boot")
+                os.system(f"sudo rmdir /media/{user}/boot")
 
-                for mountpoint in m:
-                    entry = m[mountpoint]
-                    path = entry["path"]
-                    ismount = os.path.ismount(path)
+                os.system(f"sudo umount /media/{user}/rootfs")
+                os.system(f"sudo rmdir /media/{user}/rootfs")
 
-                    if ismount:
-                        try:
-                            Shell.umount(entry["path"])
-                            Console.ok(f"Unmounting {path}")
-                        except Exception as e:
-                            Console.error(f"could not unmount {path} Exception {e}")
-                    else:
-                        Console.error(f"{path} is not a mount point")
+
+                #sdcard = SDCard(os="raspberry", host="ubuntu")
+                #m = sdcard.ls()
+
+                #for mountpoint in m:
+                #    entry = m[mountpoint]
+                #    path = entry["path"]
+                #    ismount = os.path.ismount(path)
+                #
+                #    if ismount:
+                #        try:
+                #            Shell.umount(entry["path"])
+                #            Console.ok(f"Unmounting {path}")
+                #        except Exception as e:
+                #            Console.error(f"could not unmount {path} Exception {e}")
+                #    else:
+                #        Console.error(f"{path} is not a mount point")
+
             else:
                 Console.error("Please specify the mount path")
         else:
