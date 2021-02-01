@@ -122,6 +122,11 @@ class Burner(object):
         # TODO: implement
 
     def shrink_install(self):
+        """
+        Installs /usr/local/bin/pishrink.sh
+        @return:
+        @rtype:
+        """
 
         if os_is_linux():
             banner("Installing pishrink.sh into /usr/local/bin")
@@ -137,7 +142,7 @@ class Burner(object):
                                 order=["name", "command", "status", "stdout", "returncode"]))
         else:
             raise NotImplementedError
-        
+
     def backup(self, device=None, to_file=None):
         if device is None:
             Console.error("Device must have a value")

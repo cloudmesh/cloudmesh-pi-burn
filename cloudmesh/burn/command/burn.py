@@ -284,21 +284,24 @@ class BurnCommand(PluginCommand):
         elif arguments.shrink and arguments.install:
 
             execute("shrink install", burner.shrink_install())
-
+            return ""
 
         elif arguments.shrink:
 
             execute("shrink", burner.shrink(to_file=arguments.image))
+            return ""
 
         elif arguments.backup:
 
             execute("backup",
                     burner.backup(device=arguments.device, to_file=arguments.to))
+            return ""
 
         elif arguments.copy:
 
             execute("copy",
                     burner.copy(device=arguments.device, from_file=arguments.FROM))
+            return ""
 
         elif arguments.sdcard:
             # check_root(dryrun=dryrun)
