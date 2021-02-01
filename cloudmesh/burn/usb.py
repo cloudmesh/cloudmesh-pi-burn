@@ -204,12 +204,14 @@ class USB(object):
         return all
 
     @staticmethod
-    def get_from_dmesg():
+    def get_from_dmesg(pluggedin=True):
         """
         Get information for USB and other direct attached devices from
         dmsg. It includes information such if the device is readable or writable,
         and if a card is formatted with FAT32.
 
+        :param pluggedin: Only listed the plugged in USB devices
+        :type pluggedin: bool
         :return: list of dicts
         :rtype: lits of dicts
         """
@@ -262,7 +264,7 @@ class USB(object):
         found = []
         for name in details:
             entry = details[name]
-            if 'size' in list(entry.keys()):
+            if 'size' in list(entry.keys()) and (entry['active'] or not pluggedin):
                 found.append(entry)
 
         return found
