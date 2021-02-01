@@ -122,7 +122,7 @@ class Burner(object):
             Console.error("Image must have a value")
         image = path_expand(image)
         command = f"sudo /usr/local/bin/pishrink.sh {image}"
-        print (command)
+        print(command)
         os.system(command)
 
     def shrink_install(self):
@@ -319,22 +319,10 @@ class Burner(object):
                 m = card.ls()
 
                 banner("Mount points")
-                if len(m) !=0:
+                if len(m) != 0:
                     print(Printer.write(m,
-                                        order=[
-                                            "name",
-                                            "path",
-                                            "type",
-                                            "device",
-                                            "parameters"
-                                        ],
-                                        header=[
-                                            "Name",
-                                            "Path",
-                                            "Type",
-                                            "Device",
-                                            "Parameters"
-                                        ]))
+                                        order=["name", "path", "type", "device", "parameters"],
+                                        header=["Name", "Path", "Type", "Device", "Parameters"]))
                 else:
                     Console.warning("No mount points found. Use cms burn mount")
                     print()
@@ -401,22 +389,20 @@ class Burner(object):
         elif os_is_linux():
             image_path = Image(image).fullpath
 
-            print (image_path)
+            print(image_path)
             print(device)
-            print (blocksize)
+            print(blocksize)
             if device is None:
-                #or device == "none":
+                # or device == "none":
                 Console.error("Please specify a device")
-
 
             # find device
 
-            command = f"dd if={image_path} |"\
-                      " pv -w 80 |"\
+            command = f"dd if={image_path} |" \
+                      " pv -w 80 |" \
                       " sudo dd of={device} bs={blocksize} conv=fsync status=progress"
-            print (command)
+            print(command)
             os.system(command)
-
 
         else:
             raise NotImplementedError("Only implemented to be run on a PI")
@@ -587,7 +573,7 @@ class Burner(object):
                         self.system(f"sudo mkdir -p {card.boot_volume}")
                         self.system(f"sudo mount -t vfat {sd1} {card.boot_volume}")
                 except Exception as e:
-                    print (e)
+                    print(e)
                 try:
                     if os.path.exists(sd2):
                         Console.ok(f"mounting {sd2} {card.root_volume}")
@@ -674,12 +660,13 @@ class Burner(object):
         elif os_is_linux():
             card = SDCard(os="raspberry", host="ubuntu")
 
-            print ("OOOO")
+            print("OOOO")
             command = f"sudo touch {card.boot_volume}/ssh"
             self.system(command)
 
         else:
             raise NotImplementedError
+
     # IMPROVE
 
     # TODO: docstring

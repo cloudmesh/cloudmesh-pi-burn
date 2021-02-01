@@ -7,6 +7,7 @@ from cloudmesh.burn.util import os_is_windows
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 
+
 class SDCard:
 
     def __init__(self, os=None, host=None):
@@ -89,13 +90,13 @@ class SDCard:
         for line in r:
             if str(root_fs) in line or str(boot_fs) in line:
                 entry = \
-                    line.replace(" on ", "|") \
-                        .replace(" type ", "|") \
-                        .replace(" (", "|") \
-                        .replace(") [", "|") \
-                        .replace("]", "") \
+                    line.replace(" on ", "|")\
+                        .replace(" type ", "|")\
+                        .replace(" (", "|")\
+                        .replace(") [", "|")\
+                        .replace("]", "")\
                         .split("|")
-                print (entry)
+                print(entry)
                 detail = {
                     "device": entry[0],
                     "path": entry[1],

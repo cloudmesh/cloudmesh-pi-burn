@@ -22,7 +22,6 @@ from cloudmesh.shell.command import map_parameters
 
 class BurnCommand(PluginCommand):
 
-    # noinspection PyUnusedLocal
     @command
     def do_burn(self, args, arguments):
         """
@@ -123,7 +122,7 @@ class BurnCommand(PluginCommand):
                      | wlan0   | 192.168.1.12   | 192.168.1.255  |
                      +---------+----------------+----------------+
 
-            Examples: ( \ is not shown)
+            Examples: ( \\ is not shown)
 
                > cms burn create --image=2019-09-26-raspbian-buster-lite
                >                 --device=/dev/mmcblk0

@@ -36,7 +36,7 @@ class USB(object):
         """
         try:
             return self.vendors[vendor][product]
-        except:
+        except Exception as e:
             return "unkown"
 
     def load_vendor_description(self):
@@ -73,7 +73,7 @@ class USB(object):
                 else:
                     vendor_id, vendor = line.strip().split(" ", 1)
                     data[vendor_id] = {}
-            except:
+            except Exception as e:
                 pass
         self.vendors = data
         return data
@@ -226,7 +226,7 @@ class USB(object):
                 what = " ".join(comment.split("  ")[:2])
                 try:
                     details[key] = {}
-                except:
+                except Exception as e:
                     pass
                 details[key]["key"] = key
                 details[key]["direct-access"] = True
