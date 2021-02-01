@@ -5,26 +5,28 @@ import random
 import re
 import string
 import subprocess
+import sys
 import textwrap
 import time
 
-import sys
 from cloudmesh.burn.image import Image
-from cloudmesh.burn.usb import USB
-from cloudmesh.common.Printer import Printer
-from cloudmesh.common.Shell import Shell
-from cloudmesh.common.StopWatch import StopWatch
-from cloudmesh.common.console import Console
-from cloudmesh.common.util import banner
-from cloudmesh.common.util import writefile
-from cloudmesh.common.util import yn_choice
 from cloudmesh.burn.sdcard import SDCard
+from cloudmesh.burn.usb import USB
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_windows
-from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.JobScript import JobScript
+from cloudmesh.common.Printer import Printer
+from cloudmesh.common.Shell import Shell
+from cloudmesh.common.StopWatch import StopWatch
+from cloudmesh.common.Tabulate import Printer
+from cloudmesh.common.console import Console
+from cloudmesh.common.util import banner
+from cloudmesh.common.util import path_expand
+from cloudmesh.common.util import writefile
+from cloudmesh.common.util import yn_choice
+
 
 # TODO: make sure everything is compatible with --dryrun
 
@@ -143,13 +145,19 @@ class Burner(object):
         else:
             raise NotImplementedError
 
-    def backup(self, device=None, to_file=None):
+    def backup(self, device=None, to_file=None, blocksize="4M"):
         if device is None:
             Console.error("Device must have a value")
         if to_file is None:
             Console.error("To file must have a value")
-        raise NotImplementedError
-        # TODO: implement
+        else:
+            to_file = path_expand(to_file)
+            command = f"sudo dd if={device} bs={blocksize} |" \
+                      f" pv -w 80 |" \
+                      f"dd of={to_file} bs={blocksize} conv=fsync status=progress"
+            print(command)
+            os.system(command)
+
 
     def copy(self, device=None, from_file=None):
         if device is None:
