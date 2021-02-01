@@ -495,9 +495,9 @@ class Burner(object):
 
         if os_is_linux():
             card = SDCard(os="raspberry", host="ubuntu")
-            probe = USB.get_from_dmesg()
+            dmesg = USB.get_from_dmesg()
 
-            for usbcard in probe:
+            for usbcard in dmesg:
 
                 dev = usbcard['dev']
                 sd1 = f"{dev}1"
