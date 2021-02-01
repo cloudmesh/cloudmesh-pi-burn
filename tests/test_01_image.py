@@ -45,7 +45,7 @@ class Test_burn:
 
     def test_versions(self):
         HEADING()
-        cmd = "cms burn versions --refresh"
+        cmd = "cms burn image versions --refresh"
         Benchmark.Start()
         result = Shell.run(cmd)
         Benchmark.Stop()

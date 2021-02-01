@@ -199,7 +199,8 @@ class BurnCommand(PluginCommand):
                         entry = {
                             "version": version,
                             "url": download,
-                            "date": version.split("-", 1)[1]
+                            "date": version.split("-", 1)[1],
+                            "type": "lite"
                         }
                         data["lite"].append(entry)
 
@@ -212,18 +213,24 @@ class BurnCommand(PluginCommand):
                         entry = {
                             "version": version,
                             "url": download,
-                            "date": version.split("-", 1)[1]
+                            "date": version.split("-", 1)[1],
+                            "type": "full"
                         }
                         data["full"].append(entry)
                 writefile(cache, yaml.dump(data))
-            else:
-                # data = yaml.load(readfile(cache), Loader=yaml.SafeLoader)
-                # for entry in data:
-                #   version = list(entry.keys())[0]
-                #    download = entry[version]
-                #    print(f"{version}: {download}")
-                data = readfile(cache)
-                print(data)
+
+            data = readfile(cache)
+            data = yaml.safe_load(readfile(cache))
+            # convert to array
+            result = data["lite"] + data["full"]
+
+            print(Printer.write(
+                result,
+                order=['date', 'version', "type", "url"],
+                header=['Date', 'Version', "Type", "Url"],
+            )
+            )
+
             StopWatch.stop("image versions")
             StopWatch.status("image versions", True)
             return ""
