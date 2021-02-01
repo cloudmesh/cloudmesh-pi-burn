@@ -317,7 +317,7 @@ class Burner(object):
 
         return res[1]
 
-    def burn(self, image, device, blocksize="4M"):
+    def burn_sdcard(self, image, device, blocksize="4M"):
         """
         Burns the SD Card with an image
 
@@ -328,11 +328,10 @@ class Burner(object):
         :param blocksize: the blocksize used when writing, default 4M
         :type blocksize: str
         """
-        if not os_is_pi():
-            raise NotImplementedError("Only implemented to be run on a PI")
-
         if os_is_pi():
+
             image_path = Image(image).fullpath
+
 
             result = subprocess.getoutput(
                 f'sudo dd bs={blocksize} if={image_path} of={device}')
@@ -340,8 +339,29 @@ class Burner(object):
             if "failed to open" in result:
                 Console.error("The image could not be found")
                 sys.exit(1)
+        elif os_is_linux():
+            if device is None:
+                #or device == "none":
+                Console.error("Please specify a device")
+
+            image_path = Image(image).fullpath
+
+            # find device
+
+
+
+            command = f'sudo dd bs={blocksize} if={image_path} of={device}'
+
+            print (command)
+            # result = subprocess.getoutput(command)
+
+            result = "None"
+            if "failed to open" in result:
+                Console.error("The image could not be found")
+                sys.exit(1)
+
         else:
-            raise NotImplementedError
+            raise NotImplementedError("Only implemented to be run on a PI")
 
     def set_hostname(self, hostname, mountpoint):
         """

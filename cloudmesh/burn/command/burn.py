@@ -17,31 +17,31 @@ class BurnCommand(PluginCommand):
             Usage:
               burn network list [--ip=IP] [--used]
               burn network
-              burn info [DEVICE]
+              burn info [--device=DEVICE]
               burn detect
               burn image versions [--refresh]
               burn image ls
-              burn image delete [IMAGE]
-              burn image get [URL]
+              burn image delete [--image=IMAGE]
+              burn image get [--url=URL]
               burn create [--image=IMAGE]
-                                     [--device=DEVICE]
-                                     [--hostname=HOSTNAME]
-                                     [--ipaddr=IP]
-                                     [--sshkey=KEY]
-                                     [--blocksize=BLOCKSIZE]
-                                     [--dryrun]
-                                     [--passwd=PASSWD]
-                                     [--ssid=SSID]
-                                     [--wifipassword=PSK]
-                                     [--format]
-              burn burn [IMAGE] [DEVICE] --[dryrun]
-              burn mount [DEVICE] [MOUNTPOINT]
-              burn set host [HOSTNAME] [MOUNTPOINT]
-              burn set ip [IP] [MOUNTPOINT]
-              burn set key [KEY] [MOUNTPOINT]
-              burn enable ssh [MOUNTPOINT]
-              burn unmount [DEVICE]
-              burn wifi SSID [PASSWD] [-ni]
+                          [--device=DEVICE]
+                          [--hostname=HOSTNAME]
+                          [--ipaddr=IP]
+                          [--sshkey=KEY]
+                          [--blocksize=BLOCKSIZE]
+                          [--dryrun]
+                          [--passwd=PASSWD]
+                          [--ssid=SSID]
+                          [--wifipassword=PSK]
+                          [--format]
+              burn sdcard [--image=IMAGE] [--device=DEVICE] [--dryrun]
+              burn mount [--device=DEVICE] [--mount=MOUNTPOINT]
+              burn set host [--hostname=HOSTNAME] [--mount=MOUNTPOINT]
+              burn set ip [--ipaddr=IP] [--mount=MOUNTPOINT]
+              burn set key [--key=KEY] [--mount=MOUNTPOINT]
+              burn enable ssh [--mount=MOUNTPOINT]
+              burn unmount [--device=DEVICE]
+              burn wifi SSID [--passwd=PASSWD] [-ni]
 
             Options:
               -h --help              Show this screen.
@@ -129,9 +129,13 @@ class BurnCommand(PluginCommand):
                        "ipaddr",
                        "sshkey",
                        "blocksize",
-                       #  "dryrun",
+                       "dryrun",
                        "passwd",
                        "ssid",
+                       "url",
+                       "key",
+                       "mount",
+                       "passwd",
                        "wifipassword",
                        "version")
         arguments.FORMAT = arguments["--format"]

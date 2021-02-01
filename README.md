@@ -1056,5 +1056,16 @@ cms burn info
 
 It will issue a probe of USB devices and see if SDCards can be found.
 
+For now you can do the following:
 
+1. use pi imager in linux to burn SDCARD
 
+Then use 
+
+```bash
+cms burn mount
+cms burn enable ssh
+cms burn unmount
+```
+
+Take the SDCard into the PI and set it up there. as documented.

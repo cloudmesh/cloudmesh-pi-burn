@@ -16,7 +16,7 @@ from cloudmesh.burn.network import Network
 from cloudmesh.burn.util import readfile, writefile
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
-
+from cloudmesh.common.util import Console
 
 def execute(label, function):
     StopWatch.start(label)
@@ -26,7 +26,7 @@ def execute(label, function):
 
 
 def interprete(arguments):
-    dryrun = arguments['dryrun']
+    dryrun = arguments['--dryrun']
 
     StopWatch.start("info")
     burner = Burner(dryrun=dryrun)
@@ -139,16 +139,13 @@ def interprete(arguments):
         execute("burn", burner.info())
         return ""
 
-    #
-    # BUG THIS IS WAY TO EARLY AND MAY NEED TO BE LAST
-    #
-    # elif arguments.burn:
-    #    # check_root(dryrun=dryrun)
+    elif arguments.sdcard:
+        # check_root(dryrun=dryrun)
 
-    #    image = arguments.IMAGE
-    #    device = arguments.DEVICE
-    #    execute("burn", burner.burn(image, device))
-    #    return ""
+        image = arguments.IMAGE
+        device = arguments.DEVICE
+        execute("burn", burner.burn_sdcard(image, device))
+        return ""
 
     elif arguments.mount:
         # check_root(dryrun=dryrun)
@@ -275,4 +272,5 @@ def interprete(arguments):
         StopWatch.benchmark(sysinfo=False, csv=False)
         return ""
 
+    Console.error("see manual page: cms help burn")
     return ""
