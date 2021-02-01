@@ -158,14 +158,12 @@ class Burner(object):
             print(command)
             os.system(command)
 
-
     def copy(self, device=None, from_file=None):
         if device is None:
             Console.error("Device must have a value")
         if from_file is None:
             Console.error("From file must have a value")
-        raise NotImplementedError
-        # TODO: implement
+        burner.burn_sdcard(from_file, device)
 
     def detect(self):
         """
