@@ -39,6 +39,7 @@ class BurnCommand(PluginCommand):
               burn image get [--url=URL]
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
+              burn shrink [--image=DESTINATION]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -158,7 +159,6 @@ class BurnCommand(PluginCommand):
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
 
-
         VERBOSE(arguments)
 
         def execute(label, function):
@@ -166,7 +166,6 @@ class BurnCommand(PluginCommand):
             function
             StopWatch.stop(label)
             StopWatch.status(label, True)
-
 
         dryrun = arguments['--dryrun']
 
@@ -273,32 +272,34 @@ class BurnCommand(PluginCommand):
 
         elif arguments.detect:
 
-            execute("burn", burner.detect())
+            execute("detect", burner.detect())
             return ""
 
         elif arguments.info:
 
-            execute("burn", burner.info())
+            execute("info", burner.info())
             return ""
+
+        elif arguments.shrink:
+
+            execute("burn", burner.shrink(to_file=arguments.image))
 
         elif arguments.backup:
 
-            execute("burn", burner.backup(
-                device=arguments.device,
-                to_file=arguments.to))
+            execute("burn",
+                    burner.backup(device=arguments.device, to_file=arguments.to))
 
         elif arguments.copy:
 
-            execute("burn", burner.copy(
-                device=arguments.device,
-                from_file=arguments.FROM))
+            execute("copy",
+                    burner.copy(device=arguments.device, from_file=arguments.FROM))
 
         elif arguments.sdcard:
             # check_root(dryrun=dryrun)
 
             image = arguments.image
             device = arguments.device
-            execute("burn", burner.burn_sdcard(image, device))
+            execute("sdcard", burner.burn_sdcard(image, device))
             return ""
 
         elif arguments.mount:
