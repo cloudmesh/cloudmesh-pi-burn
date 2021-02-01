@@ -192,6 +192,9 @@ class BurnCommand(PluginCommand):
                 os.system("mkdir -p ~/.cloudmesh/cmburn")
                 print("finding lite repos ...", end="")
                 repos = [f"{image.raspberry_lite_images}"]
+                latest = {
+                    'date': "1900-01-01"
+                }
                 for repo in repos:
                     versions, downloads = Image().versions(repo)
                     print("These images are available at")
@@ -203,9 +206,16 @@ class BurnCommand(PluginCommand):
                             "type": "lite"
                         }
                         data["lite"].append(entry)
+                        if entry["date"] >= latest['date']:
+                            latest = dict(entry)
+                            latest["version"] = "latest"
+                    data["lite"].append(latest)
 
                 print("finding lite repos ...", end="")
                 repos = [f"{image.raspberry_full_images}"]
+                latest = {
+                    'date': "1900-01-01"
+                }
                 for repo in repos:
                     versions, downloads = Image().versions(repo)
                     print("These images are available at")
@@ -217,6 +227,11 @@ class BurnCommand(PluginCommand):
                             "type": "full"
                         }
                         data["full"].append(entry)
+                    if entry["date"] >= latest['date']:
+                        latest = dict(entry)
+                        latest["version"] = "latest"
+                data["full"].append(latest)
+
                 writefile(cache, yaml.dump(data))
 
             data = readfile(cache)
