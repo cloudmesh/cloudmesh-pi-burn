@@ -164,10 +164,11 @@ class BurnCommand(PluginCommand):
 
         def execute(label, function):
             StopWatch.start(label)
-            function
+            result = function
             StopWatch.stop(label)
             StopWatch.status(label, True)
-
+            return result
+        
         dryrun = arguments['--dryrun']
 
         StopWatch.start("info")
