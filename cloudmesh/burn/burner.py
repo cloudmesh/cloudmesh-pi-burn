@@ -634,9 +634,9 @@ class Burner(object):
                 for command in rm:
                     print (rm)
                     os.system(command)
-
             else:
-                Console.error("Please specify the mount path")
+                Console.error("not implemented for this OS")
+
         else:
 
             # unmount p1 (/boot) and then p2 (/)
