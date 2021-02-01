@@ -39,6 +39,7 @@ class BurnCommand(PluginCommand):
               burn image get [--url=URL]
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
+              burn shrink install
               burn shrink [--image=DESTINATION]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
@@ -280,13 +281,18 @@ class BurnCommand(PluginCommand):
             execute("info", burner.info())
             return ""
 
+        elif arguments.shrink and arguments.install:
+
+            execute("shrink install", burner.shrink_install())
+
+
         elif arguments.shrink:
 
-            execute("burn", burner.shrink(to_file=arguments.image))
+            execute("shrink", burner.shrink(to_file=arguments.image))
 
         elif arguments.backup:
 
-            execute("burn",
+            execute("backup",
                     burner.backup(device=arguments.device, to_file=arguments.to))
 
         elif arguments.copy:

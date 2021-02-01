@@ -23,7 +23,8 @@ from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_windows
-
+from cloudmesh.common.Tabulate import Printer
+from cloudmesh.common.JobScript import JobScript
 
 # TODO: make sure everything is compatible with --dryrun
 
@@ -120,6 +121,23 @@ class Burner(object):
         raise NotImplementedError
         # TODO: implement
 
+    def shrink_install(self):
+
+        if os_is_linux():
+            banner("Installing pishrink.sh into /usr/local/bin")
+            script = \
+                """
+                wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
+                chmod +x pishrink.sh
+                sudo mv pishrink.sh /usr/local/bin
+                """
+
+            result = JobScript.execute(script)
+            print(Printer.write(result,
+                                order=["name", "command", "status", "stdout", "returncode"]))
+        else:
+            raise NotImplementedError
+        
     def backup(self, device=None, to_file=None):
         if device is None:
             Console.error("Device must have a value")
