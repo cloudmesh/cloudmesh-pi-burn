@@ -31,16 +31,14 @@ user = os.environ["USER"]
 
 
 """
-Tests to be integrated, possibly in new tes, such as image into Test_01_image.py
+Tests to be integrated, 
+
+Note image tests are in  test_01_image.py
 
 burn network list [--ip=IP] [--used]
 burn network
 burn info [--device=DEVICE]
 burn detect
-burn image versions [--refresh]
-burn image ls
-burn image delete [--image=IMAGE]
-burn image get [--url=URL]
 burn backup [--device=DEVICE] [--to=DESTINATION]
 burn copy [--device=DEVICE] [--from=DESTINATION]
 burn shrink [--image=IMAGE]
