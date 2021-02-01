@@ -319,21 +319,25 @@ class Burner(object):
                 m = card.ls()
 
                 banner("Mount points")
-                print(Printer.write(m,
-                                    order=[
-                                        "name",
-                                        "path",
-                                        "type",
-                                        "device",
-                                        "parameters"
-                                    ],
-                                    header=[
-                                        "Name",
-                                        "Path",
-                                        "Type",
-                                        "Device",
-                                        "Parameters"
-                                    ]))
+                if len(m) !=0:
+                    print(Printer.write(m,
+                                        order=[
+                                            "name",
+                                            "path",
+                                            "type",
+                                            "device",
+                                            "parameters"
+                                        ],
+                                        header=[
+                                            "Name",
+                                            "Path",
+                                            "Type",
+                                            "Device",
+                                            "Parameters"
+                                        ]))
+                else:
+                    Console.warning("No mount points found. Use cms burn mount")
+                    print()
 
         # Convert details into a dict where the key for each entry is the device
         details = {detail['dev']: detail for detail in details}
