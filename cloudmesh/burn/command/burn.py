@@ -131,7 +131,6 @@ class BurnCommand(PluginCommand):
                        "sshkey",
                        "blocksize",
                        "dryrun",
-                       "passwd",
                        "ssid",
                        "url",
                        "key",
