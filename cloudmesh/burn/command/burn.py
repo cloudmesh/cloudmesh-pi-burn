@@ -40,7 +40,7 @@ class BurnCommand(PluginCommand):
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
               burn shrink install
-              burn shrink [--image=DESTINATION]
+              burn shrink [--image=IMAGE]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -159,6 +159,7 @@ class BurnCommand(PluginCommand):
         arguments.mountpoint = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
+        arguments.IMAGE = arguments["--image"]
 
         VERBOSE(arguments)
 
@@ -288,7 +289,7 @@ class BurnCommand(PluginCommand):
 
         elif arguments.shrink:
 
-            execute("shrink", burner.shrink(to_file=arguments.image))
+            execute("shrink", burner.shrink(image=arguments.IMAGE))
             return ""
 
         elif arguments.backup:
@@ -306,7 +307,7 @@ class BurnCommand(PluginCommand):
         elif arguments.sdcard:
             # check_root(dryrun=dryrun)
 
-            image = arguments.image
+            image = arguments.IMAGE
             device = arguments.device
             execute("sdcard", burner.burn_sdcard(image, device))
             return ""
@@ -364,8 +365,8 @@ class BurnCommand(PluginCommand):
             execute("image ls", Image().ls())
             return ""
 
-        elif arguments.delete and arguments['image']:
-            execute("image rm", Image(arguments.image).rm())
+        elif arguments.delete and arguments.IMAGE:
+            execute("image rm", Image(arguments.IMAGE).rm())
             return ""
 
         elif arguments.get and arguments['image']:
@@ -398,7 +399,7 @@ class BurnCommand(PluginCommand):
 
             # check_root(dryrun=dryrun)
 
-            image = 'latest' if not arguments['image'] else arguments['image']
+            image = 'latest' or arguments.IMAGE
 
             environ_DEV = os.environ['DEV'] if 'DEV' in os.environ else None
             devices = arguments["--device"] or environ_DEV or None

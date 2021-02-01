@@ -118,10 +118,12 @@ class Burner(object):
         self.keypath = None
 
     def shrink(self, image=None):
-        if imake is None:
+        if image is None:
             Console.error("Image must have a value")
-        raise NotImplementedError
-        # TODO: implement
+        image = path_expand(image)
+        command = f"sudo /usr/local/bin/pishrink.sh {image}"
+        print (command)
+        os.system(command)
 
     def shrink_install(self):
         """
