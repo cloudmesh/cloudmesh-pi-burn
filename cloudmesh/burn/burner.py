@@ -114,6 +114,22 @@ class Burner(object):
         self.hostname = None
         self.keypath = None
 
+    def backup(self, device=None, to_file=None):
+        if device is None:
+            Console.error("Device must have a value")
+        if to_file is None:
+            Console.error("To file must have a value")
+        raise NotImplementedError
+        # TODO: implement
+
+    def copy(self, device=None, from_file=None):
+        if device is None:
+            Console.error("Device must have a value")
+        if from_file is None:
+            Console.error("From file must have a value")
+        raise NotImplementedError
+        # TODO: implement
+
     def detect(self):
         """
         Detects if a USB card writer can be found. and just prints the result
