@@ -19,7 +19,6 @@ from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 
-
 class BurnCommand(PluginCommand):
 
     @command
@@ -28,6 +27,7 @@ class BurnCommand(PluginCommand):
         ::
 
             Usage:
+              burn format --device=DEVICE
               burn install
               burn network list [--ip=IP] [--used]
               burn network
@@ -224,6 +224,15 @@ class BurnCommand(PluginCommand):
                 print(data)
             StopWatch.stop("image versions")
             StopWatch.status("image versions", True)
+            return ""
+
+
+        elif arguments.format:
+
+            device = arguments.DEVICE
+
+            execute("backup",
+                burner.format_device(device=arguments.device))
             return ""
 
         elif arguments.network and arguments["list"]:

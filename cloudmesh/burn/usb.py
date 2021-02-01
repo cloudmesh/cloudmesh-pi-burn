@@ -224,10 +224,8 @@ class USB(object):
                 sdci, key, what = line.split(" ", 2)
                 comment = line.split("Direct-Access")[1].strip()
                 what = " ".join(comment.split("  ")[:2])
-                try:
+                if key not in details:
                     details[key] = {}
-                except Exception as e:
-                    pass
                 details[key]["key"] = key
                 details[key]["direct-access"] = True
                 details[key]["info"] = what
@@ -241,6 +239,8 @@ class USB(object):
 
             elif line.startswith("sd") and "] " in line:
                 prefix, key, device, comment = line.split(" ", 3)
+                if key not in details:
+                    details[key] = {}
                 details[key]["key"] = key
                 if "Attached SCSI removable disk" in comment:
                     details[key]["removable"] = True

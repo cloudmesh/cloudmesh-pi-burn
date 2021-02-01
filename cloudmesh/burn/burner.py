@@ -881,7 +881,7 @@ class Burner(object):
         sudo_writefile(path, wifi)
 
     # TODO
-    def format_device(self, device='dev/sda', hostname=None):
+    def format_device(self, device='dev/sdX', hostname=None):
         """
         Formats device with one FAT32 partition
 
@@ -934,10 +934,20 @@ class Burner(object):
 
         elif os_is_linux():
 
-            print ("format")
+            banner("format {device}")
+
+            script = f"""
+                sudo eject -t {device}
+                sudo parted {device} --script -- mklabel msdos
+                sudo parted {device} --script -- mkpart primary fat32 1MiB 100%
+                sudo mkfs.vfat -F32 {device}1
+                sudo parted {device} --script print""".strip().splitlines()
+            for line in script:
+                print (line)
+                os.system(line)
 
         else:
-            raise NotImplementedError("Only implemented to be run on a PI")
+            raise NotImplementedError("Not implemented for this OS")
 
 
 
