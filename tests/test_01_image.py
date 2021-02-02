@@ -61,7 +61,7 @@ class Test_burn:
     def test_get_latest(self):
         HEADING()
         Benchmark.Start()
-        os.system("cms burn image get --tag=latest")
+        os.system("cms burn image get latest lite")
         Benchmark.Stop()
         result = Shell.run("cms burn image ls")
         assert "2021-01-11-raspios-buster-armhf-lite" in str(result)
