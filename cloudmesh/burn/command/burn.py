@@ -181,7 +181,12 @@ class BurnCommand(PluginCommand):
 
         if arguments.firmware and arguments.check:
 
-            execute("firmware check", burner.firmware_check())
+            execute("firmware check", burner.firmware(action="check"))
+            return ""
+
+        elif arguments.firmware and arguments.update:
+
+            execute("firmware update", burner.firmware(action="update"))
             return ""
 
         elif arguments.versions and arguments['image']:
