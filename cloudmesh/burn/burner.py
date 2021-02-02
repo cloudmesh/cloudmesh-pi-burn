@@ -30,6 +30,8 @@ from cloudmesh.common.util import yn_choice
 from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.systeminfo import get_platform
+from cloudmesh.common.util import readfile
+
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
@@ -111,7 +113,8 @@ class Burner(object):
             data["ssh"] = str(e)
         # hostname
 
-        Console.error("probe hostname not yet implemented")
+        content = readfile(f"{card.root_volume}/etc/hostname").strip()
+        data['hostname'] = content
 
         # ip
 
