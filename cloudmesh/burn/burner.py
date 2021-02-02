@@ -402,15 +402,27 @@ class Burner(object):
         :type blocksize: str
         """
 
-        print (tag)
-        print (device)
-
         image = Image().find(tag=tag)
 
+        if image is None:
+            Console.error("No matching image found.")
+            return ""
+        elif len(image) > 1:
+            Console.error("Too manay images found")
+            print(Printer.write(image,
+                                order=["tag", "version"],
+                                header=["Tag", "Version"]))
+            return ""
+
+        image = image[0]
         print (image)
+        print ()
+
+        path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+
+        print (path)
 
         return
-
         if os_is_pi():
 
             image_path = Image(image).fullpath

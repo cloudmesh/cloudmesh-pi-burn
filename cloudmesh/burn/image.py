@@ -143,6 +143,11 @@ class Image(object):
 
         return os.path.basename(source_url)[:-4]
 
+    @staticmethod
+    def get_name(url):
+        return os.path.basename(url).replace('.zip', '')
+
+
     def fetch(self, url=None, tag=None):
         """
         Download the image from the URL in self.image_name
