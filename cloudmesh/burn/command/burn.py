@@ -33,7 +33,6 @@ class BurnCommand(PluginCommand):
               burn network list [--ip=IP] [--used]
               burn network
               burn info [--device=DEVICE]
-              burn detect
               burn image versions [--refresh] [--yaml]
               burn image ls
               burn image delete [--image=IMAGE]
@@ -272,11 +271,6 @@ class BurnCommand(PluginCommand):
             # burner.configure_wifi(ssid, password)
             StopWatch.stop("wifi")
             StopWatch.status("wifi", True)
-            return ""
-
-        elif arguments.detect:
-
-            execute("detect", burner.detect())
             return ""
 
         elif arguments.info:
