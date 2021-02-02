@@ -1078,3 +1078,39 @@ cms burn unmount
 ```
 
 Take the SDCard into the PI and set it up there. as documented.
+
+### What is the status of the implementation?
+
+| Feature         | PI  | Ubuntu | Mac     | Windows |
+| --------------- | --- | ------ | ------- | ------- |
+| image versions  |  ?  | g +    | g +     |         |
+| image ls        |     | g +    | g +     |         |
+| image delete    |     |   -    |  -      |         |
+| image get       |     | 1 -    | 1 -     |         |
+| info            |     | g +    |  -      |         |
+| detect*         |     |        |         |         |
+| network         |     |        |         |         |
+| backup          |     | g +    |         |         |
+| copy            |     | g +    |         |         |
+| shrinnk install |     | g +    |  -      |         |
+| shrinnk         |     | g +?   |  -      |         |
+| sdcard          |     | g +?   |         |         |
+| mount           |  ?  | g +    |         |         |
+| unmount         |  ?  | g +    |         |         |
+| enable ssh      |     |        |         |         |
+| wifi --ssd=2    |     |        |         |         |
+| set             |     |        |         |         |
+| create          |     |        |         |         |
+
+* g = gregor
+* r = richie
+* an = anthony
+* ad = adam
+* as = asuri
+* ar = arjun
+
+* 2 = change and add --ssd so its uniform
+* ? = needs test
+* - = broken
+1 = get needs to use the image versions refresh cache
+
