@@ -23,8 +23,7 @@ if not os_is_linux():
 
 Benchmark.debug()
 
-cloud = "ubuntu"
-device = "/dev/sdb"
+cloud = sys.platform
 user = os.environ["USER"]
 
 
