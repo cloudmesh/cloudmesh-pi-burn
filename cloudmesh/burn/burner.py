@@ -453,6 +453,7 @@ class Burner(object):
         #     print(command)
         # else:
         #     os.system(command)
+
         res = subprocess.getstatusoutput(command)
         # If exit code is not 0, warn user
         if res[0] != 0 and res[0] != 32:
@@ -687,6 +688,7 @@ class Burner(object):
             for usbcard in dmesg:
 
                 dev = usbcard['dev']
+                print(dev)
                 sd1 = f"{dev}1"
                 sd2 = f"{dev}2"
                 try:
