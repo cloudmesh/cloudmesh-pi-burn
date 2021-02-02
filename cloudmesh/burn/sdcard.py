@@ -6,21 +6,22 @@ from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_windows
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
-
+from cloudmesh.common.systeminfo import get_platform
+from cloudmesh.common.console import Console
 
 class SDCard:
 
-    def __init__(self, os=None, host=None):
+    def __init__(self, card_os=None, host=None):
         """
         Creates mount point strings based on OS and the host where it is executed
 
         :param os: the os that is part of the mount. Default: raspberry
         :type os: str
         :param host: the host on which we execute the command
-        :type host: possible values: raspeberry, darwin, ubuntu
+        :type host: possible values: raspeberry, darwin, linux
         """
-        self.os = os or "raspberry"
-        self.host = host or "raspberry"
+        self.card_os = card_os or "raspberry"
+        self.host = host or get_platform()
 
     @property
     def root_volume(self):
@@ -33,19 +34,24 @@ class SDCard:
         :return: the location
         :rtype: str
         """
-        if self.os == "raspberry" and self.host == "darwin":
-            raise "not supported without paragon"
-            # return "/volume/???"
-        elif self.host == 'ubuntu':
-            user = os.environ.get('USER')
-            if "raspberry" in self.os:
+        user = os.environ.get('USER')
+        if self.card_os == "raspberry" and self.host == "darwin":
+            #return Path(f"/Volume/rootfs")
+            Console.error("Requires and ext4 writable file system."
+                          " Commercial solutions available.")
+            return "notimplemented"
+        elif self.host == 'linux':
+            if "raspberry" in self.card_os:
                 return Path(f"/media/{user}/rootfs")
-            if "ubuntu" in self.os:
+            if "linux" in self.card_os:
                 return Path(f"/media/{user}/writable")
-        elif host == "raspberry":
-            raise NotImplementedError
-        elif host == "windows":
-            raise NotImplementedError
+        elif self.host == "raspberry":
+            if "raspberry" in self.card_os:
+                return Path(f"/mount/{user}/rootfs")
+            if "linux" in self.card_os:
+                return Path(f"/mount/{user}/writable")
+        elif self.host == "windows":
+            Console.error("Windows is not yet supported")
         return "undefined"
 
     @property
@@ -58,19 +64,22 @@ class SDCard:
         :rtype: str
         """
         if self.host == "darwin":
-            if "raspberry" in self.os:
+            if "raspberry" in self.card_os:
                 return Path("/Volume/boot")
-            elif "ubuntu" in self.os:
+            elif "linux" in self.card_os:
                 return Path("/Volume/system-boot")
-        elif self.host == "ubuntu":
+        elif self.host == "linux":
             user = os.environ.get('USER')
-            if "raspberry" in self.os:
+            if "raspberry" in self.card_os:
                 return Path(f"/media/{user}/boot")
-            elif "ubuntu" in self.os:
+            elif "linux" in self.card_os:
                 return Path(f"/media/{user}/system-boot")
-        elif host == "raspberry":
-            raise NotImplementedError
-        elif host == "windows":
+        elif self.host == "raspberry":
+            if "raspberry" in self.card_os:
+                return Path("/mount/pi/boot")
+            elif "linux" in self.card_os:
+                return Path("mount/pi/system-boot")
+        elif self.host == "windows":
             raise NotImplementedError
         return "undefined"
 

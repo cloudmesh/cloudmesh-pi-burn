@@ -28,8 +28,8 @@ class BurnCommand(PluginCommand):
               burn install
               burn load --device=DEVICE
               burn format --device=DEVICE
-              burn mount [--device=DEVICE]
-              burn unmount [--device=DEVICE]
+              burn mount [--device=DEVICE] [--os=OS]
+              burn unmount [--device=DEVICE] [--os=OS]
               burn network list [--ip=IP] [--used]
               burn network
               burn info [--device=DEVICE]
@@ -157,7 +157,8 @@ class BurnCommand(PluginCommand):
                        "passwd",
                        "wifipassword",
                        "version",
-                       "to")
+                       "to",
+                       "os")
         arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
@@ -308,11 +309,13 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.mount:
-            execute("mount", burner.mount(arguments.device))
+            execute("mount", burner.mount(device=arguments.device,
+                                          card_os=arguments.os))
             return ""
 
         elif arguments.unmount:
-            execute("unmount", burner.unmount(arguments.device))
+            execute("unmount", burner.unmount(device=arguments.device,
+                                              card_os=arguments.os))
             return ""
 
         elif arguments.set:

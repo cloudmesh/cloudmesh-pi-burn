@@ -47,6 +47,15 @@ def gen_strong_pass():
         string.punctuation
     return ''.join(random.choice(password_characters) for i in range(length))
 
+def windows_not_supported(f):
+    def wrapper(*args,**kwargs):
+        host = get_platform()
+        if host == "windows":
+            Console.error("Not supported on windows")
+            return ""
+        else:
+            return f(*args, **kwargs)
+    return wrapper
 
 # noinspection PyPep8
 class Burner(object):
@@ -65,6 +74,7 @@ class Burner(object):
         self.hostname = None
         self.keypath = None
 
+    @windows_not_supported
     def check(self, device="/dev/sdX"):
         """
         This method checks what configurations are placed on the PI se card
@@ -74,6 +84,9 @@ class Burner(object):
         @return:
         @rtype:
         """
+
+        if Burner.windows_not_supported(): return ""
+
         data = {
             "wifi": False,
             "ssh":False,
@@ -116,7 +129,7 @@ class Burner(object):
 
         Console.error("probe wifipassword not yet implemented")
 
-
+    @windows_not_supported
     def firmware(self, action="check"):
         """
         Checks or update the firmware
@@ -143,7 +156,7 @@ class Burner(object):
                 os.system("sudo rpi-eeprom-update -a")
                 os.system("sudo reboot")
 
-
+    @windows_not_supported
     def shrink(self, image=None):
         if image is None:
             Console.error("Image must have a value")
@@ -152,6 +165,7 @@ class Burner(object):
         print(command)
         os.system(command)
 
+    @windows_not_supported
     def install(self):
         """
         Installs /usr/local/bin/pishrink.sh
@@ -176,6 +190,7 @@ class Burner(object):
         else:
             raise NotImplementedError
 
+    @windows_not_supported
     def backup(self, device=None, to_file=None, blocksize="4M"):
         if device is None:
             Console.error("Device must have a value")
@@ -189,11 +204,13 @@ class Burner(object):
             print(command)
             os.system(command)
 
+    @windows_not_supported
     def copy(self, device=None, from_file="latest"):
         if device is None:
             Console.error("Device must have a value")
         self.burn_sdcard(from_file, device)
 
+    @windows_not_supported
     def detect(self):
         """
         Detects if a USB card writer can be found. and just prints the result
@@ -222,6 +239,7 @@ class Burner(object):
             print("\n".join(writer))
             print()
 
+    @windows_not_supported
     def info(self, print_stdout=True):
         """
         Finds out information about USB devices
@@ -342,7 +360,7 @@ class Burner(object):
         if print_stdout:
 
             if os_is_linux():
-                card = SDCard(os="raspberry", host="ubuntu")
+                card = SDCard(os="raspberry")
                 m = card.ls()
 
                 banner("Mount points")
@@ -391,6 +409,7 @@ class Burner(object):
 
         return res[1]
 
+    @windows_not_supported
     def burn_sdcard(self, tag="latest", device=None, blocksize="4M"):
         """
         Burns the SD Card with an image
@@ -448,6 +467,7 @@ class Burner(object):
         else:
             raise NotImplementedError("Only implemented to be run on a PI")
 
+    @windows_not_supported
     def set_hostname(self, hostname, mountpoint):
         """
         Sets the hostname on the sd card
@@ -486,7 +506,24 @@ class Burner(object):
             print("Write to /etc/hosts")
             print('127.0.1.1 ' + hostname + '\n')
 
+    @windows_not_supported
     def set_static_ip(self, ip, mountpoint, iface="eth0", mask="24"):
+        """
+        Sets the static ip on the sd card for the specified interface
+        Also writes to master hosts file for easy access
+
+        :param ip: ips address
+        :type ip: str
+        :param mountpoint: the mountpunt of the device on which the ip
+                           is found
+        :type mountpoint: str
+        :param iface: the network Interface
+        :type iface: str
+        :param mask: the subnet Mask
+        :type mask: str
+        :return:
+        :rtype:
+        """
         # TODO:
         # router_ip statically set to default ip configured with cms bridge create. Rewrite to consider the IP of the master on iface
         router_ip = '10.1.1.1'
@@ -609,6 +646,7 @@ class Burner(object):
     #         print('interface eth0\n')
     #         print(f'static ip_address={ip}/{mask}')
 
+    @windows_not_supported
     def set_key(self, name, mountpoint):
         """
         Copies the public key into the .ssh/authorized_keys file on the sd card
@@ -624,7 +662,9 @@ class Burner(object):
         self.system(f'mkdir -p {mountpoint}/home/pi/.ssh/')
         self.system(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
-    def mount(self, device, mountpoint="/mount/pi"):
+    @windows_not_supported
+    def mount(self, device="/dev/sdX", card_os="rasberry", host=None,
+              mountpoint="/mount/pi"):
         """
         Mounts the current SD card
 
@@ -634,10 +674,15 @@ class Burner(object):
                            is found
         :type mountpoint: str
         """
+        host = host or get_platform()
+        card = SDCard(card_os=card_os,host=host)
+        dmesg = USB.get_from_dmesg()
 
-        if os_is_linux():
-            card = SDCard(os="raspberry", host="ubuntu")
-            dmesg = USB.get_from_dmesg()
+        #TODO Need a better way to itentify which sd card to use for mounting
+        # instead of iterating over all of them
+
+        if not self.dryrun:
+            self.system('sudo sync')  # flush any pending/in-process writes
 
             for usbcard in dmesg:
 
@@ -659,75 +704,55 @@ class Burner(object):
                 except Exception as e:
                     print(e)
 
-        elif os_is_pi():
-
-            # mount p2 (/) and then p1 (/boot)
-
-            if not self.dryrun:
+        #Keeping in case this was needed. Worked without it in testing.
+        #elif os_is_pi():
+        #    if not self.dryrun:
                 # wait for the OS to detect the filesystems
-                # in burner.info(), formatted will be true if the card has FAT32
+                # in burner.info(), formatted will be true if the card has
+                #        FAT32
                 #   filesystems on it
-                counter = 0
-                max_tries = 5
-                b = Burner()
-                while counter < max_tries:
-                    time.sleep(1)
-                    formatted = b.info(print_stdout=False)[device]['formatted']
-                    if formatted:
-                        break
-                    counter += 1
-                    if counter == max_tries:
-                        print("Timed out waiting for OS to detect filesystem"
-                              " on the burned card")
-                        sys.exit(1)
+        #        counter = 0
+        #        max_tries = 5
+        #        b = Burner()
+        #        while counter < max_tries:
+        #            time.sleep(1)
+        #            formatted = b.info(print_stdout=False)[device]['formatted']
+        #            if formatted:
+        #                break
+        #            counter += 1
+        #            if counter == max_tries:
+        #                print("Timed out waiting for OS to detect filesystem"
+        #                      " on the burned card")
+        #                sys.exit(1)
 
-            self.system(f'sudo mkdir -p {mountpoint}')
-            self.system(f'sudo mount {device}2 {mountpoint}')
-            self.system(f'sudo mount {device}1 {mountpoint}/boot')
-
-    def unmount(self, device=None):
+    @windows_not_supported
+    def unmount(self, device="/dev/sdX", card_os="rasberry", host=None):
         """
         Unmounts the current SD card
 
         :param device: device to unmount, e.g. /dev/sda
         :type device: str
         """
+
+        host = host or get_platform()
+        card = SDCard(card_os=card_os, host=host)
+
         if not self.dryrun:
             self.system('sudo sync')  # flush any pending/in-process writes
 
-        if device is None:
+            os.system(f"sudo umount {card.boot_volume}")
+            os.system(f"sudo umount {card.root_volume}")
 
-            if os_is_linux():
-                user = os.environ["USER"]
-                os.system(f"sudo umount /media/{user}/boot")
-                os.system(f"sudo umount /media/{user}/rootfs")
+            time.sleep(3)
 
-                time.sleep(3)
+            rm = [f"sudo rmdir {card.boot_volume}",
+                  f"sudo rmdir {card.boot_volume}"]
 
-                rm = [f"sudo rmdir /media/{user}/boot",
-                      f"sudo rmdir /media/{user}/rootfs"]
+            for command in rm:
+                print(rm)
+                os.system(command)
 
-                for command in rm:
-                    print(rm)
-                    os.system(command)
-            else:
-                Console.error("not implemented for this OS")
-
-        else:
-
-            # unmount p1 (/boot) and then p2 (/)
-            self.system(f'sudo umount {device}1')
-            # noinspection PyBroadException
-            # try:
-            #     print(f"trying to unmount {device}1")
-            #     self.system(f'sudo umount {device}1')
-            # except:
-            #     pass
-
-            # Occasionally there are issues with unmounting. Pause for good effect.
-            self.system('sleep 1')
-            self.system(f'sudo umount {device}2')
-
+    @windows_not_supported
     def enable_ssh(self, mountpoint):
         """
         Enables ssh on next boot of sd card
@@ -741,7 +766,7 @@ class Burner(object):
             command = f'sudo touch {mountpoint}/boot/ssh'
             self.system(command)
         elif os_is_linux():
-            card = SDCard(os="raspberry", host="ubuntu")
+            card = SDCard(os="raspberry")
             command = f"sudo touch {card.boot_volume}/ssh"
             self.system(command)
 
@@ -751,6 +776,7 @@ class Burner(object):
     # IMPROVE
 
     # TODO: docstring
+    @windows_not_supported
     def disable_password_ssh(self, mountpoint):
         # sshd_config = self.filename("/etc/ssh/sshd_config")
         sshd_config = f'{mountpoint}/etc/ssh/sshd_config'
@@ -808,6 +834,7 @@ class Burner(object):
 
     # IMPROVE
     # ok osx
+    @windows_not_supported
     def activate_ssh(self, public_key, debug=False, interactive=False):
         """
         Sets the public key path and copies it to the SD card
@@ -907,6 +934,7 @@ class Burner(object):
                 f.write(new_rc_local)
         self.disable_password_ssh()
 
+    @windows_not_supported
     def configure_wifi(self,
                        ssid,
                        psk=None,
@@ -960,6 +988,7 @@ class Burner(object):
         sudo_writefile(path, wifi)
 
     # TODO
+    @windows_not_supported
     def format_device(self, device='dev/sdX', hostname=None, title="UNTITLED"):
         """
         Formats device with one FAT32 partition
@@ -992,6 +1021,7 @@ class Burner(object):
         else:
             raise NotImplementedError("Not implemented for this OS")
 
+    @windows_not_supported
     def load_device(self, device='dev/sdX'):
         """
         Loads the USB device via trayload
@@ -1018,6 +1048,7 @@ class Burner(object):
     # Plugging pi directly into desktop, however, will still prompt for a user and password.
     # I can't figure out how to disable it
 
+    @windows_not_supported
     def disable_terminal_login(self, mountpoint, password):
         """
         disables and replaces the password with a random string so that by
