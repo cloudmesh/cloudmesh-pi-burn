@@ -1083,10 +1083,10 @@ Take the SDCard into the PI and set it up there. as documented.
 
 | Feature         | PI  | Ubuntu | Mac     | Windows |
 | --------------- | --- | ------ | ------- | ------- |
-| image versions  |     | gt +   | g +     |         |
-| image ls        |     | gt +   | g +     |         |
-| image delete    |     | gt +   | g +     |         |
-| image get       |     | gt +   | g +     |         |
+| image versions  | a   | gt +   | g +     |         |
+| image ls        | a   | gt +   | g +     |         |
+| image delete    | a   | gt +   | g +     |         |
+| image get       | a   | gt +   | g +     |         |
 | info            |     | g +    | g +/- 3 |         |
 | detect*         |     |        |         |         |
 | network         |     | g +?   |         |         |
