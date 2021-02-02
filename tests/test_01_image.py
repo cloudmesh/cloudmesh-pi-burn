@@ -50,7 +50,11 @@ class Test_burn:
         result = Shell.run(cmd)
         Benchmark.Stop()
         print(result)
-        assert "TBD" in str(result)
+        assert "+-" in str(result)
+        assert "latest" in str(result)
+        assert "raspios_lite_armhf-2021-01-12" in str(result)
+        assert "https://downloads.raspberrypi.org/raspios_lite_armhf/images/"\
+               "raspios_lite_armhf-2021-01-12/2021-01-11-raspios-buster-armhf-lite.zip" in str(result)
 
     def test_get_latest(self):
         HEADING()
