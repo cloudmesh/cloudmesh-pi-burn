@@ -65,7 +65,7 @@ def os_is_pi():
     :return: True is Raspberry OS
     :rtype: bool
     """
-    return "raspberry" in platform.uname()
+    return "raspberrypi" in platform.uname()
 
 
 def writefile(filename, content):
