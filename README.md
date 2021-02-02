@@ -1083,7 +1083,7 @@ Take the SDCard into the PI and set it up there. as documented.
 
 | Feature         | PI  | Ubuntu | Mac     | Windows |
 | --------------- | --- | ------ | ------- | ------- |
-| image versions  |  ?  | g +    | g +     |         |
+| image versions  |     | g +    | g +     |         |
 | image ls        |     | g +    | g +     |         |
 | image delete    |     |   -    |  -      |         |
 | image get       |     | 1 -    | 1 -     |         |
@@ -1095,12 +1095,13 @@ Take the SDCard into the PI and set it up there. as documented.
 | shrinnk install |     | g +    |  -      |         |
 | shrinnk         |     | g +?   |  -      |         |
 | sdcard          |     | g +?   |         |         |
-| mount           |  ?  | g +    |         |         |
-| unmount         |  ?  | g +    |         |         |
+| mount           |   d | g +    |         |         |
+| unmount         |   d | g +    |         |         |
 | enable ssh      |     |        |         |         |
 | wifi --ssd=2    |     |        |         |         |
 | set             |     |        |         |         |
 | create          |     |        |         |         |
+| format          |   d | g +    |         |         |
 
 * g = gregor
 * r = richie
@@ -1109,6 +1110,7 @@ Take the SDCard into the PI and set it up there. as documented.
 * as = asuri
 * ar = arjun
 
+* d = diffrent implementation between Linux and PI (compare)
 * 2 = change and add --ssd so its uniform
 * ? = needs test
 * - = broken
