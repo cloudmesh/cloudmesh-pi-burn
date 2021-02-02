@@ -116,6 +116,58 @@ class Burner(object):
         self.hostname = None
         self.keypath = None
 
+    def check(self, device="/dev/sdX"):
+        """
+        This method checks what configurations are placed on the PI se card
+
+        @param device:
+        @type device:
+        @return:
+        @rtype:
+        """
+        data = {
+            "wifi": False,
+            "ssh":False,
+            "hostname": None,
+            "ip": None,
+            "password": None,
+            "ssid": None,
+            "wifipassword": None
+        }
+
+        card = SDCard()
+
+        # wifi
+
+        Console.error("probe wifi not yet implemented")
+
+        # ssh
+
+        self.mount(device)
+
+        data["ssh"] = os.path.exists(card.boot_volume)
+
+        # hostname
+
+        Console.error("probe hostname not yet implemented")
+
+        # ip
+
+        Console.error("probe ip not yet implemented")
+
+        # passwod
+
+        Console.error("probe password not yet implemented")
+
+        # ssid
+
+        Console.error("probe ssid not yet implemented")
+
+        # wifipassword
+
+        Console.error("probe wifipassword not yet implemented")
+
+
     def firmware(self, action="check"):
         """
         Checks or update the firmware

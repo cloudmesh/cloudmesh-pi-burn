@@ -59,6 +59,7 @@ class BurnCommand(PluginCommand):
                        [--mount=MOUNTPOINT]
               burn enable ssh [--mount=MOUNTPOINT]
               burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+              burn check [--device=DEVICE]
 
             Options:
               -h --help              Show this screen.
@@ -186,6 +187,11 @@ class BurnCommand(PluginCommand):
         elif arguments.firmware and arguments.update:
 
             execute("firmware update", burner.firmware(action="update"))
+            return ""
+
+        if arguments.check:
+
+            execute("check", burner.check(device=arguments.device))
             return ""
 
         elif arguments.versions and arguments['image']:
