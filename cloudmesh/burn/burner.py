@@ -116,6 +116,22 @@ class Burner(object):
         self.hostname = None
         self.keypath = None
 
+    def firmware_check (self):
+        if not os_is_pi():
+            Console.error("This command can only be run on a PI")
+        else:
+            Console.error("To be implemented")
+
+            command = f"sudo rpi-eeprom-update"
+            print(command)
+            os.system(command)
+
+            #
+            # update with
+            #
+            # sudo rpi-eeprom-update -a
+            # sudo reboot
+
     def shrink(self, image=None):
         if image is None:
             Console.error("Image must have a value")

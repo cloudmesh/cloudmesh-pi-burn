@@ -28,6 +28,7 @@ class BurnCommand(PluginCommand):
         ::
 
             Usage:
+              burn firmware check
               burn install
               burn load --device=DEVICE
               burn format --device=DEVICE
@@ -178,7 +179,12 @@ class BurnCommand(PluginCommand):
         StopWatch.stop("info")
         StopWatch.status("info", True)
 
-        if arguments.versions and arguments['image']:
+        if arguments.firmware and arguments.check:
+
+            execute("firmware check", burner.firmware_check())
+            return ""
+
+        elif arguments.versions and arguments['image']:
 
             StopWatch.start("image versions")
 
