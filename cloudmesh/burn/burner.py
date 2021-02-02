@@ -116,21 +116,32 @@ class Burner(object):
         self.hostname = None
         self.keypath = None
 
-    def firmware_check (self):
+    def firmware(self, action="check"):
+        """
+        Checks or update the firmware
+        :param action: the cations to be performed. It is "check" or "update"
+        :type action: str
+        """
         if not os_is_pi():
             Console.error("This command can only be run on a PI")
         else:
-            Console.error("To be implemented")
+            if action == "check":
+                Console.error("To be implemented")
 
-            command = f"sudo rpi-eeprom-update"
-            print(command)
-            os.system(command)
+                command = f"sudo rpi-eeprom-update"
+                print(command)
+                os.system(command)
 
-            #
-            # update with
-            #
-            # sudo rpi-eeprom-update -a
-            # sudo reboot
+                os.system ("vcgencmd bootloader_version")
+
+                print("For more information see:")
+                print()
+                print("* https://www.raspberrypi.org/documentation/hardware/raspberrypi/booteeprom.md")
+                print()
+            elif action == "update":
+                os.system("sudo rpi-eeprom-update -a")
+                os.system("sudo reboot")
+
 
     def shrink(self, image=None):
         if image is None:
