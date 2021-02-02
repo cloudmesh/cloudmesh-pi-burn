@@ -19,6 +19,7 @@ from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 
+
 class BurnCommand(PluginCommand):
 
     @command
@@ -39,7 +40,7 @@ class BurnCommand(PluginCommand):
               burn image versions [--refresh] [--yaml]
               burn image ls
               burn image delete [--image=IMAGE]
-              burn image get [--url=URL]
+              burn image get [--url=URL] [--tag=VERSION]
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
               burn shrink [--image=IMAGE]
@@ -163,7 +164,6 @@ class BurnCommand(PluginCommand):
 
         # VERBOSE(arguments)
 
-
         def execute(label, function):
             StopWatch.start(label)
             result = function
@@ -181,63 +181,8 @@ class BurnCommand(PluginCommand):
         if arguments.versions and arguments['image']:
 
             StopWatch.start("image versions")
-            image = Image()
-            data = {
-                "lite": [],
-                "full": []
-            }
-            cache = Path(
-                os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
-            if arguments["--refresh"] or not cache.exists():
-                os.system("mkdir -p ~/.cloudmesh/cmburn")
-                print("finding lite repos ...", end="")
-                repos = [f"{image.raspberry_lite_images}"]
-                latest = {
-                    'date': "1900-01-01"
-                }
-                for repo in repos:
-                    versions, downloads = Image().versions(repo)
-                    print("These images are available at")
-                    for version, download in zip(versions, downloads):
-                        entry = {
-                            "version": version,
-                            "url": download,
-                            "date": version.split("-", 1)[1],
-                            "type": "lite"
-                        }
-                        data["lite"].append(entry)
-                        if entry["date"] >= latest['date']:
-                            latest = dict(entry)
-                            latest["version"] = "latest"
-                    data["lite"].append(latest)
 
-                print("finding lite repos ...", end="")
-                repos = [f"{image.raspberry_full_images}"]
-                latest = {
-                    'date': "1900-01-01"
-                }
-                for repo in repos:
-                    versions, downloads = Image().versions(repo)
-                    print("These images are available at")
-                    for version, download in zip(versions, downloads):
-                        entry = {
-                            "version": version,
-                            "url": download,
-                            "date": version.split("-", 1)[1],
-                            "type": "full"
-                        }
-                        data["full"].append(entry)
-                    if entry["date"] >= latest['date']:
-                        latest = dict(entry)
-                        latest["version"] = "latest"
-                data["full"].append(latest)
-
-                writefile(cache, yaml.dump(data))
-
-            data = readfile(cache)
-            data = yaml.safe_load(readfile(cache))
-            # convert to array
-            result = data["lite"] + data["full"]
+            result = Image.create_version_cache(refresh=arguments["--refresh"])
 
             output = "table"
             if arguments["--yaml"]:
@@ -245,8 +190,8 @@ class BurnCommand(PluginCommand):
 
             print(Printer.write(
                 result,
-                order=['date', 'version', "type", "url"],
-                header=['Date', 'Version', "Type", "Url"],
+                order=["tag", 'date', "type", 'version', "url"],
+                header=["Tag", 'Date', "Type", 'Version', "Url"],
                 output=output
             )
             )
@@ -259,13 +204,13 @@ class BurnCommand(PluginCommand):
             execute("load", burner.load_device(device=arguments.device))
             return ""
 
-        elif arguments["format"]: # as format is a python word, we need to use an index
+        elif arguments["format"]:  # as format is a python word, we need to use an index
             execute("format", burner.format_device(device=arguments.device))
             return ""
 
         elif arguments.network and arguments["list"]:
 
-            print ("A4")
+            print("A4")
 
             ip = arguments.ip or Network.address()[0]['local']
 
@@ -335,7 +280,7 @@ class BurnCommand(PluginCommand):
             execute("backup", burner.backup(device=arguments.device, to_file=arguments.to))
             return ""
 
-        elif arguments["copy"]: # as copy is a reserved word we need to use the index
+        elif arguments["copy"]:  # as copy is a reserved word we need to use the index
             execute("copy", burner.copy(device=arguments.device, from_file=arguments.FROM))
             return ""
 
@@ -354,15 +299,12 @@ class BurnCommand(PluginCommand):
         elif arguments.set:
 
             if arguments.host:
-
                 execute("set hostname", burner.set_hostname(arguments.hostname, arguments.MOUNTPOINT))
 
             if arguments.ip:
-
                 execute("set ip", burner.set_static_ip(arguments.ip, arguments.MOUNTPOINT))
 
             if arguments.key:
-
                 execute("set key", burner.set_key(arguments.key, arguments.MOUNTPOINT))
 
             return ""
@@ -371,7 +313,6 @@ class BurnCommand(PluginCommand):
 
             execute("enable ssh", burner.enable_ssh(arguments.MOUNTPOINT))
             return ""
-
 
         # elif arguments.versions and arguments.image:
         #    image = Image()
@@ -384,8 +325,19 @@ class BurnCommand(PluginCommand):
             execute("image rm", Image(arguments.IMAGE).rm())
             return ""
 
-        elif arguments.get and arguments['image']:
-            execute("image fetch", Image(arguments.url).fetch())
+        elif arguments["get"] and arguments['image'] and arguments["--url"]:
+            image = Image()
+            execute("image fetch", image.fetch(url=arguments.url))
+            return ""
+
+        elif arguments["get"] and arguments['image'] and arguments["--tag"]:
+            image = Image()
+            execute("image fetch", image.fetch(tag=arguments["--tag"]))
+            return ""
+
+        elif arguments["get"] and arguments['image']:
+            image = Image()
+            execute("image fetch", image.fetch(tag="latest"))
             return ""
 
         elif arguments.create:

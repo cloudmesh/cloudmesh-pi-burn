@@ -17,7 +17,6 @@ from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_windows
 from cloudmesh.common.JobScript import JobScript
-from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
@@ -618,7 +617,6 @@ class Burner(object):
         if not self.dryrun:
             self.system('sudo sync')  # flush any pending/in-process writes
 
-        print (device)
         if device is None:
 
             if os_is_linux():
@@ -629,10 +627,10 @@ class Burner(object):
                 time.sleep(3)
 
                 rm = [f"sudo rmdir /media/{user}/boot",
-                           f"sudo rmdir /media/{user}/rootfs"]
+                      f"sudo rmdir /media/{user}/rootfs"]
 
                 for command in rm:
-                    print (rm)
+                    print(rm)
                     os.system(command)
             else:
                 Console.error("not implemented for this OS")
@@ -946,7 +944,7 @@ class Burner(object):
                 sudo mkfs.vfat -n {title} -F32 {device}1
                 sudo parted {device} --script print""".strip().splitlines()
             for line in script:
-                print (line)
+                print(line)
                 os.system(line)
 
         else:
