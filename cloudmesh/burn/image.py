@@ -49,7 +49,7 @@ class Image(object):
         for entry in data:
             match = True
             for t in tag:
-                match = match and t in entry["tag"]
+                print(t, entry["tag"], t in entry["tag"])
             if match:
                 found.append(entry)
         return found
@@ -86,7 +86,7 @@ class Image(object):
                     data[kind].append(entry)
                     if entry["date"] >= latest['date']:
                         latest = dict(entry)
-                        latest["tag"] = "latest"
+                        latest["tag"] = f"latest-{kind}"
 
                 data[kind].append(latest)
 
