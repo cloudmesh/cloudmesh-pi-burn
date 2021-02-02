@@ -135,13 +135,17 @@ class Burner(object):
             "wifipassword": None
         }
 
+        card = SDCard()
+
         # wifi
 
         Console.error("probe wifi not yet implemented")
 
         # ssh
 
-        Console.error("probe ssh not yet implemented")
+        self.mount(device)
+
+        data["ssh"] = os.path.exists(card.boot_volume)
 
         # hostname
 
