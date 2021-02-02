@@ -43,6 +43,11 @@ burn image get [--url=URL]
 @pytest.mark.incremental
 class Test_burn:
 
+    def test_erase_images(self):
+        HEADING()
+        os.system("rm -f ~/.cloudmesh/cmburn/images/2021-01-11-raspios-buster-armhf-lite.*")
+        os.system("rm -f ~/.cloudmesh/cmburn/images/2020-12-02-raspios-buster-armhf-lite.*")
+
     def test_versions(self):
         HEADING()
         cmd = "cms burn image versions --refresh"
@@ -58,21 +63,11 @@ class Test_burn:
 
     def test_get_latest(self):
         HEADING()
-        cmd = "cms burn get latest"
         Benchmark.Start()
-        result = Shell.run(cmd)
+        os.system("cms burn image get --tag=latest")
         Benchmark.Stop()
-        print(result)
-        assert "TBD" in str(result)
-
-    def test_get_specific(self):
-        HEADING()
-        cmd = "cms burn get latest"
-        Benchmark.Start()
-        result = Shell.run(cmd)
-        Benchmark.Stop()
-        print(result)
-        assert "TBD" in str(result)
+        result = Shell.run("cms burn image ls")
+        assert "2021-01-11-raspios-buster-armhf-lite" in str(result)
 
     def test_ls(self):
         HEADING()
@@ -81,19 +76,27 @@ class Test_burn:
         result = Shell.run(cmd)
         Benchmark.Stop()
         print(result)
-        assert "TBD" in str(result)
+        assert "2021-01-11-raspios-buster-armhf-lite" in str(result)
+
+    def test_get_specific(self):
+        HEADING()
+        Benchmark.Start()
+        os.system("cms burn image get --tag=lite-2020-12-04")
+        Benchmark.Stop()
+        result = Shell.run("cms burn image ls")
+        assert "2020-12-02-raspios-buster-armhf-lite" in str(result)
 
     def test_delete_specific(self):
         HEADING()
-        cmd = "cms burn info"
+        cmd = "cms burn image delete --image=2020-12-02-raspios-buster-armhf-lite"
         Benchmark.Start()
         result = Shell.run(cmd)
         Benchmark.Stop()
         print(result)
-        assert "TBD" in result
-        # do an ls and see if its deleted or us os.path.exists
+        result = Shell.run("cms burn image ls")
+        assert "2020-12-02-raspios-buster-armhf-lite" not in str(result)
 
     def test_benchmark(self):
         HEADING()
-        Benchmark.print(sysinfo=False, csv=True, tag=cloud)
+        Benchmark.print(sysinfo=True, csv=True, tag=cloud)
 
