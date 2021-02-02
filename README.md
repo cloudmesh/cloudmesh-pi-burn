@@ -1123,3 +1123,14 @@ Take the SDCard into the PI and set it up there. as documented.
 ```
 brew install libusb
 ``````
+
+### Are there any unit tests?
+
+As `cms burn` may delete format, delete, and remove files during unit testing users are supposed to first review the 
+tests before running them. Please look at the source and see if you can run a test. 
+
+we have the following tests:
+
+* `pytest -v --capture=no tests/test_01_image.py`
+  * This test removes files forom ~/.cloudmesh/cmburn/images
+  * See also:  [test_01_image.py](https://github.com/cloudmesh/cloudmesh-pi-burn/blob/main/tests/test_01_image.py)
