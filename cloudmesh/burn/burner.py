@@ -476,7 +476,7 @@ class Burner(object):
             f = sudo_readfile(f'{mountpoint}/etc/hosts')
             # lines = [l for l in f.readlines()][:-1]  # ignore the last line
             lines = f[:-1]
-            newlastline = '127.0.1.1 ' + hostname + '\n'
+            newlastline = '\n127.0.1.1 ' + hostname + '\n'
 
         if not self.dryrun:
             new_hostsfile_contents = ''.join(lines) + newlastline
