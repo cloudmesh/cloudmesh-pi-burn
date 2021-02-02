@@ -1083,25 +1083,25 @@ Take the SDCard into the PI and set it up there. as documented.
 
 | Feature         | PI  | Ubuntu | Mac     | Windows |
 | --------------- | --- | ------ | ------- | ------- |
-| image versions  |     | g +    | g +     |         |
-| image ls        |     | g +    | g +     |         |
-| image delete    |     | g +    | g +     |         |
-| image get       |     | g +    | g +     |         |
+| image versions  |     | gt +   | g +     |         |
+| image ls        |     | gt +   | g +     |         |
+| image delete    |     | gt +   | g +     |         |
+| image get       |     | gt +   | g +     |         |
 | info            |     | g +    | g +/- 3 |         |
 | detect*         |     |        |         |         |
 | network         |     | g +?   |         |         |
 | backup          |     | g +    |         |         |
 | copy            |     | g +    |         |         |
-| shrinnk install |     | g +    |  -      |         |
-| shrinnk         |     | g +?   |  -      |         |
-| sdcard          |     | g +?   |         |         |
-| mount           |   d | g +    |         |         |
-| unmount         |   d | g +    |         |         |
+| shrink install  |     | gt +   |  -      |         |
+| shrink          |     | g+?   |  -      |         |
+| sdcard          |     | gt -   |         |         |
+| mount           |   d | gt +   |         |         |
+| unmount         |   d | gt +   |         |         |
 | enable ssh      |     |        |         |         |
 | wifi            |   - |   -    |  -      | -       |
 | set             |     |        |         |         |
 | create          |     |        |         |         |
-| format          |   d | g +    |         |         |
+| format          |   d | gt +   |         |         |
 | firmware        |   ? | NA     |  NA     | NA      |
 
 * g = gregor
@@ -1117,6 +1117,7 @@ Take the SDCard into the PI and set it up there. as documented.
 * - = broken
 1 = get needs to use the image versions refresh cache
 3 = does not report when the USB card is found
+t = has a unit test
 
 ### What packages do I need to run the info command on macOS
 

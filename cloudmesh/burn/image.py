@@ -41,6 +41,19 @@ class Image(object):
         data = yaml.load(readfile(self.cache), Loader=yaml.SafeLoader)
         return data
 
+
+    @staticmethod
+    def find(tag=['latest']):
+        found = []
+        data = Image.create_version_cache(refresh=False)
+        for entry in data:
+            match = True
+            for t in tag:
+                match = match and t in entry["tag"]
+            if match:
+                found.append(entry)
+        return found
+
     @staticmethod
     def create_version_cache(refresh=False):
 

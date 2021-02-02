@@ -56,7 +56,7 @@ class BurnCommand(PluginCommand):
                           [--ssid=SSID]
                           [--wifipassword=PSK]
                           [--format]
-              burn sdcard [--image=IMAGE] [--device=DEVICE] [--dryrun]
+              burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
                        [--key=KEY]
@@ -75,6 +75,9 @@ class BurnCommand(PluginCommand):
               --key=KEY              The name of the SSH key file
               --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
 
+            Arguments:
+                TAG                  Keyword tags to identify an image
+                                     [default: latest]
             Files:
               This is not fully thought through and needs to be documented
               ~/.cloudmesh/images
@@ -297,7 +300,9 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.sdcard:
-            execute("sdcard", burner.burn_sdcard(arguments.IMAGE, arguments.device))
+            arguments.TAG = arguments.TAG or ["latest"]
+
+            execute("sdcard", burner.burn_sdcard(tag=arguments.TAG, device=arguments.device))
             return ""
 
         elif arguments.mount:

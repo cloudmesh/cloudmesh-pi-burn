@@ -390,7 +390,7 @@ class Burner(object):
 
         return res[1]
 
-    def burn_sdcard(self, image=None, device=None, blocksize="4M"):
+    def burn_sdcard(self, tag="latest", device=None, blocksize="4M"):
         """
         Burns the SD Card with an image
 
@@ -401,6 +401,16 @@ class Burner(object):
         :param blocksize: the blocksize used when writing, default 4M
         :type blocksize: str
         """
+
+        print (tag)
+        print (device)
+
+        image = Image().find(tag=tag)
+
+        print (image)
+
+        return
+
         if os_is_pi():
 
             image_path = Image(image).fullpath
