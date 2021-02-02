@@ -86,8 +86,6 @@ class Burner(object):
         @rtype:
         """
 
-        if Burner.windows_not_supported(): return ""
-
         data = {
             "wifi": False,
             "ssh":False,
@@ -106,10 +104,11 @@ class Burner(object):
 
         # ssh
 
-        self.mount(device)
-
-        data["ssh"] = os.path.exists(card.boot_volume)
-
+        try:
+            self.mount(device)
+            data["ssh"] = os.path.exists(card.boot_volume)
+        except Exception as e:
+            data["ssh"] = str(e)
         # hostname
 
         Console.error("probe hostname not yet implemented")
@@ -129,6 +128,22 @@ class Burner(object):
         # wifipassword
 
         Console.error("probe wifipassword not yet implemented")
+
+        # gregor
+
+        banner("Card Check")
+        print(Printer.attribute(
+            data,
+            order=[
+                "wifi",
+                "ssh",
+                "hostname",
+                "ip",
+                "password",
+                "ssid",
+                "wifipassword"
+            ]
+        ))
 
     @windows_not_supported
     def firmware(self, action="check"):
