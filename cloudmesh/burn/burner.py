@@ -717,7 +717,7 @@ class Burner(object):
             time.sleep(3)
 
             rm = [f"sudo rmdir {card.boot_volume}",
-                  f"sudo rmdir {card.boot_volume}"]
+                  f"sudo rmdir {card.root_volume}"]
 
             for command in rm:
                 print(rm)
