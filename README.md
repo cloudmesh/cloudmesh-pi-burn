@@ -1087,7 +1087,7 @@ Take the SDCard into the PI and set it up there. as documented.
 | image ls        |     | g +    | g +     |         |
 | image delete    |     | g +    | g +     |         |
 | image get       |     | g +    | g +     |         |
-| info            |     | g +    |  -      |         |
+| info            |     | g +    | g +/- 3 |         |
 | detect*         |     |        |         |         |
 | network         |     |        |         |         |
 | backup          |     | g +    |         |         |
@@ -1116,4 +1116,10 @@ Take the SDCard into the PI and set it up there. as documented.
 * ? = needs test
 * - = broken
 1 = get needs to use the image versions refresh cache
+3 = does not report when the USB card is found
 
+### What packages do I need to run the info command on macOS
+
+```
+brew install libusb
+``````
