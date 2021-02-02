@@ -36,7 +36,7 @@ class BurnCommand(PluginCommand):
               burn network
               burn info [--device=DEVICE]
               burn detect
-              burn image versions [--refresh]
+              burn image versions [--refresh] [--yaml]
               burn image ls
               burn image delete [--image=IMAGE]
               burn image get [--url=URL]
@@ -239,10 +239,15 @@ class BurnCommand(PluginCommand):
             # convert to array
             result = data["lite"] + data["full"]
 
+            output = "table"
+            if arguments["--yaml"]:
+                output = "yaml"
+
             print(Printer.write(
                 result,
                 order=['date', 'version', "type", "url"],
                 header=['Date', 'Version', "Type", "Url"],
+                output=output
             )
             )
 
