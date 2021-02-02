@@ -201,15 +201,19 @@ class Image(object):
         """
         raise NotImplementedError
 
-    def rm(self, tag=None, kind="lite"):
+    def rm(self, image="lite"):
         """
         Delete a downloaded image
         """
-        tag = tag or "latest"
-        if tag == "latest":
-            tag = latest_version(kind="lite")
+        # tag = tag or "latest"
+        # if tag == "latest":
+        #   tag = latest_version(kind="lite")
 
-        Path(Path(self.directory) / Path(tag + '.img')).unlink()
+        for ending in [".img", ".zip"]:
+            try:
+                Path(Path(self.directory) / Path(image + ending)).unlink()
+            except Exception as e:
+                pass
 
     def ls(self):
         """

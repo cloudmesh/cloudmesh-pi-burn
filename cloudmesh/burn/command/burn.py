@@ -322,7 +322,7 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.delete and arguments.IMAGE:
-            execute("image rm", Image(arguments.IMAGE).rm())
+            execute("image rm", Image().rm(arguments.IMAGE))
             return ""
 
         elif arguments["get"] and arguments['image'] and arguments["--url"]:
