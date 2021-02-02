@@ -18,7 +18,7 @@ from cloudmesh.common.util import Console
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-
+from cloudmesh.burn.util import os_is_pi
 
 class BurnCommand(PluginCommand):
 
@@ -62,7 +62,7 @@ class BurnCommand(PluginCommand):
                        [--key=KEY]
                        [--mount=MOUNTPOINT]
               burn enable ssh [--mount=MOUNTPOINT]
-              burn wifi SSID [--passwd=PASSWD] [-ni]
+              burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
 
             Options:
               -h --help              Show this screen.
@@ -221,8 +221,6 @@ class BurnCommand(PluginCommand):
 
         elif arguments.network and arguments["list"]:
 
-            print("A4")
-
             ip = arguments.ip or Network.address()[0]['local']
 
             details = Network.nmap(ip=ip)
@@ -249,11 +247,14 @@ class BurnCommand(PluginCommand):
                 details,
                 order=['label', "local", "broadcast"],
                 header=["Label", "Local", "Broadcast"]
-            )
+                )
             )
             return ""
 
         elif arguments.wifi:
+
+            Console.error("This command is not yet implemented")
+            return ""
 
             password = arguments.passwd
             ssid = arguments.ssid
@@ -389,29 +390,33 @@ class BurnCommand(PluginCommand):
 
             ips = None if not arguments.ip else Parameter.expand(arguments.ip)
             key = arguments.sshkey
-            mp = '/mount/pi'
-            blocksize = arguments.blocksize
 
-            StopWatch.start("total")
+            if os_is_pi():
+                mp = '/mount/pi'
+                blocksize = arguments.blocksize
 
-            multi = MultiBurner()
-            multi.burn_all(
-                image=image,
-                device=devices,
-                blocksize=blocksize,
-                progress=True,
-                hostnames=hostnames,
-                # not difference between names and name, maybe we shoudl allign
-                ips=ips,
-                key=key,
-                password=passwd,
-                ssid=ssid,
-                psk=psk)
+                StopWatch.start("total")
 
-            StopWatch.stop("total")
-            StopWatch.status("total", True)
+                multi = MultiBurner()
+                multi.burn_all(
+                    image=image,
+                    device=devices,
+                    blocksize=blocksize,
+                    progress=True,
+                    hostnames=hostnames,
+                    # not difference between names and name, maybe we shoudl allign
+                    ips=ips,
+                    key=key,
+                    password=passwd,
+                    ssid=ssid,
+                    psk=psk)
 
-            StopWatch.benchmark(sysinfo=False, csv=False)
+                StopWatch.stop("total")
+                StopWatch.status("total", True)
+
+                StopWatch.benchmark(sysinfo=False, csv=False)
+            else:
+                Console.error("This command is only supported ona Pi")
             return ""
 
         Console.error("see manual page: cms help burn")

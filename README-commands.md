@@ -1,12 +1,42 @@
-## On macOS
+#dsik utilities
 
+## mount
+
+macOS:
+
+```
 mount | fgrep " /Volumes"
 /dev/disk2s1 on /Volumes/UNTITLED (msdos, local, nodev, nosuid, noowners)
+```
 
+Linux:
+
+```
+mount | fgrep /media
+/dev/sdb2 on /media/green/rootfs type ext4 (rw,relatime)
+```
+
+## df
+
+macOS:
+
+```
 df -H | fgrep " /Volumes"
 /dev/disk2s1      32G   1.9M    32G     1%       0           0  100%   /Volumes/UNTITLED
+```
 
+Linux:
 
+```
+df -H | fgrep " /media"
+/dev/sdb2       1.6G  1.2G  294M  80% /media/green/rootfs
+```
+
+## diskutil
+
+Only on macOS?
+
+```
 diskutil list external
 /dev/disk2 (external, physical):
    #:                       TYPE NAME                    SIZE       IDENTIFIER
@@ -67,8 +97,9 @@ grey@gamera cm % diskutil list -plist external
 	</array>
 </dict>
 </plist>
+```
 
-
+```
 diskutil info disk2s1
    Device Identifier:         disk2s1
    Device Node:               /dev/disk2s1
@@ -108,3 +139,4 @@ diskutil info disk2s1
    Media Removal:             Software-Activated
 
    Solid State:               Info not available
+```

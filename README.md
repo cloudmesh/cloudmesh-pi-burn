@@ -1089,7 +1089,7 @@ Take the SDCard into the PI and set it up there. as documented.
 | image get       |     | g +    | g +     |         |
 | info            |     | g +    | g +/- 3 |         |
 | detect*         |     |        |         |         |
-| network         |     |        |         |         |
+| network         |     | g +?   |         |         |
 | backup          |     | g +    |         |         |
 | copy            |     | g +    |         |         |
 | shrinnk install |     | g +    |  -      |         |
@@ -1098,7 +1098,7 @@ Take the SDCard into the PI and set it up there. as documented.
 | mount           |   d | g +    |         |         |
 | unmount         |   d | g +    |         |         |
 | enable ssh      |     |        |         |         |
-| wifi --ssd=2    |     |        |         |         |
+| wifi            |   - |   -    |  -      | -       |
 | set             |     |        |         |         |
 | create          |     |        |         |         |
 | format          |   d | g +    |         |         |
