@@ -49,7 +49,7 @@ class Image(object):
         for entry in data:
             match = True
             for t in tag:
-                print(t, entry["tag"], t in entry["tag"])
+                match = match and t in entry["tag"]
             if match:
                 found.append(entry)
         return found
