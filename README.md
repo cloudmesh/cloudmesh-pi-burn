@@ -1085,8 +1085,8 @@ Take the SDCard into the PI and set it up there. as documented.
 | --------------- | --- | ------ | ------- | ------- |
 | image versions  |  ?  | g +    | g +     |         |
 | image ls        |     | g +    | g +     |         |
-| image delete    |     |   -    |  -      |         |
-| image get       |     | 1 -    | 1 -     |         |
+| image delete    |     | g +    |  -      |         |
+| image get       |     | g +    | 1 -     |         |
 | info            |     | g +    |  -      |         |
 | detect*         |     |        |         |         |
 | network         |     |        |         |         |
