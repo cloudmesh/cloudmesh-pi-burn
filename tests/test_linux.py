@@ -112,19 +112,14 @@ class Test_burn:
         global user
         global device
 
-        os.system(f"cms burn load --device={device}")
-
-        cmd = f"cms burn format --device={device}"
         Benchmark.Start()
-        os.system(cmd)
+        os.system(f"cms burn format--device={device}")
         Benchmark.Stop()
 
         os.system(f"eject {device}")
 
         sys.stdout.flush()
         sys.stderr.flush()
-
-
 
     def test_burn_sdcard(self):
         HEADING()

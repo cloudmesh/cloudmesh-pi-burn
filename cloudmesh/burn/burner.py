@@ -29,6 +29,7 @@ from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
+from cloudmesh.common.systeminfo import get_platform
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
