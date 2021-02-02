@@ -418,14 +418,9 @@ class Burner(object):
         print (image)
         print ()
 
-        path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+        image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
 
-        print (path)
-
-        return
         if os_is_pi():
-
-            image_path = Image(image).fullpath
 
             command = f"sudo dd bs={blocksize} if={image_path} of={device}"
 
@@ -435,7 +430,6 @@ class Burner(object):
                 Console.error("The image could not be found")
                 sys.exit(1)
         elif os_is_linux():
-            image_path = Image(image).fullpath
 
             print(image_path)
             print(device)
