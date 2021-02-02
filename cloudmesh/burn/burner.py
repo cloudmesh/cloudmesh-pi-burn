@@ -518,7 +518,6 @@ class Burner(object):
             # curr_config.append('nolink\n')
 
         sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', '\n'.join(curr_config))
-        Console.ok(f'Successfully wrote to {mountpoint}/etc/dhcpcd.conf')
 
     # TODO:
     # Deprecated function as dhcpcd.conf is the recommended file for configuring static network configs. Should we keep this?
@@ -965,9 +964,6 @@ class Burner(object):
         """
         Formats device with one FAT32 partition
 
-        WARNING: This is a potential risky way of automating
-                 the process using fdisk. ONly use on SDCards that you can lose.
-
         WARNING: make sure you have the right device, this comamnd could
                  potentially erase your OS
 
@@ -976,43 +972,8 @@ class Burner(object):
         :param hostname: the hostname
         :type hostname: str
         """
-        if os_is_pi():
-            Console.info("Formatting device...")
-            self.unmount(device)
-            StopWatch.start(f"format {device} {hostname}")
 
-            pipeline = textwrap.dedent("""d
-    
-                                        d
-                                        
-                                        d
-    
-                                        d
-    
-                                        n
-                                        p
-                                        1
-    
-    
-                                        t
-                                        b""")
-
-            command = f'(echo "{pipeline}"; sleep 1; echo "w") | sudo fdisk {device}'
-            result = subprocess.getoutput(command)
-
-            StopWatch.stop(f"format {device} {hostname}")
-            StopWatch.status(f"format {device} {hostname}", True)
-
-            #
-            # TODO: we should have a test here
-            #
-            StopWatch.benchmark(sysinfo=True, csv=False)
-
-            Console.ok("Formating completed ...")
-
-            Console.info("Wait while the card is written ...")
-
-        elif os_is_linux():
+        if os_is_linux() or os_is_pi():
 
             banner("format {device}")
 
@@ -1025,6 +986,8 @@ class Burner(object):
             for line in script:
                 print(line)
                 os.system(line)
+
+            console.ok("Formatted SD Card")
 
         else:
             raise NotImplementedError("Not implemented for this OS")

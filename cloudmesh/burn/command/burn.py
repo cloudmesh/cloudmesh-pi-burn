@@ -317,7 +317,7 @@ class BurnCommand(PluginCommand):
 
         elif arguments.set:
 
-            if arguments.host:
+            if arguments.hostname:
                 execute("set hostname", burner.set_hostname(arguments.hostname, arguments.MOUNTPOINT))
 
             if arguments.ip:
