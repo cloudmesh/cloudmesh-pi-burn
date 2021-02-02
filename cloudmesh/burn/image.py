@@ -10,6 +10,7 @@ import urllib3
 from cloudmesh.burn.util import readfile, writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
+from cloudmesh.common.Tabulate import Printer
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -86,7 +87,7 @@ class Image(object):
                     data[kind].append(entry)
                     if entry["date"] >= latest['date']:
                         latest = dict(entry)
-                        latest["tag"] = "latest"
+                        latest["tag"] = f"latest-{kind}"
 
                 data[kind].append(latest)
 
@@ -143,6 +144,11 @@ class Image(object):
 
         return os.path.basename(source_url)[:-4]
 
+    @staticmethod
+    def get_name(url):
+        return os.path.basename(url).replace('.zip', '')
+
+
     def fetch(self, url=None, tag=None):
         """
         Download the image from the URL in self.image_name
@@ -153,9 +159,23 @@ class Image(object):
 
         if url is None:
             data = Image().create_version_cache(refresh=False)
-            for image in data:
-                if image["tag"] == tag:
-                    break
+
+            image = Image().find(tag=tag)
+
+            if image is None:
+                Console.error("No matching image found.")
+                return ""
+            elif len(image) > 1:
+                Console.error("Too manay images found")
+                print(Printer.write(image,
+                                    order=["tag", "version"],
+                                    header=["Tag", "Version"]))
+                return ""
+
+            image = image[0]
+
+            image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+
 
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)

@@ -402,18 +402,23 @@ class Burner(object):
         :type blocksize: str
         """
 
-        print (tag)
-        print (device)
-
         image = Image().find(tag=tag)
 
-        print (image)
+        if image is None:
+            Console.error("No matching image found.")
+            return ""
+        elif len(image) > 1:
+            Console.error("Too manay images found")
+            print(Printer.write(image,
+                                order=["tag", "version"],
+                                header=["Tag", "Version"]))
+            return ""
 
-        return
+        image = image[0]
+
+        image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
 
         if os_is_pi():
-
-            image_path = Image(image).fullpath
 
             command = f"sudo dd bs={blocksize} if={image_path} of={device}"
 
@@ -423,7 +428,6 @@ class Burner(object):
                 Console.error("The image could not be found")
                 sys.exit(1)
         elif os_is_linux():
-            image_path = Image(image).fullpath
 
             print(image_path)
             print(device)
