@@ -402,7 +402,6 @@ class BurnCommand(PluginCommand):
             key = arguments.sshkey
 
             if os_is_pi():
-                mp = '/mount/pi'
                 blocksize = arguments.blocksize
 
                 StopWatch.start("total")

@@ -47,9 +47,9 @@ class SDCard:
                 return Path(f"/media/{user}/writable")
         elif self.host == "raspberry":
             if "raspberry" in self.card_os:
-                return Path(f"/mount/{user}/rootfs")
+                return Path(f"/media/{user}/rootfs")
             if "linux" in self.card_os:
-                return Path(f"/mount/{user}/writable")
+                return Path(f"/media/{user}/writable")
         elif self.host == "windows":
             Console.error("Windows is not yet supported")
         return "undefined"
@@ -63,24 +63,24 @@ class SDCard:
         :return: the location
         :rtype: str
         """
+        user = os.environ.get('USER')
         if self.host == "darwin":
             if "raspberry" in self.card_os:
                 return Path("/Volume/boot")
             elif "linux" in self.card_os:
                 return Path("/Volume/system-boot")
         elif self.host == "linux":
-            user = os.environ.get('USER')
             if "raspberry" in self.card_os:
                 return Path(f"/media/{user}/boot")
             elif "linux" in self.card_os:
                 return Path(f"/media/{user}/system-boot")
         elif self.host == "raspberry":
             if "raspberry" in self.card_os:
-                return Path("/mount/pi/boot")
+                return Path(f"/media/{user}/boot")
             elif "linux" in self.card_os:
-                return Path("mount/pi/system-boot")
+                return Path(f"/media/{user}/system-boot")
         elif self.host == "windows":
-            raise NotImplementedError
+            Console.error("Windows is not yet supported")
         return "undefined"
 
     def ls(self):

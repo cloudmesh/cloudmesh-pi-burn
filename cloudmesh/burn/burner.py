@@ -665,16 +665,12 @@ class Burner(object):
         self.system(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
     @windows_not_supported
-    def mount(self, device="/dev/sdX", card_os="rasberry", host=None,
-              mountpoint="/mount/pi"):
+    def mount(self, device="/dev/sdX", card_os="rasberry", host=None):
         """
         Mounts the current SD card
 
         :param device: device to mount, e.g. /dev/sda
         :type device: str
-        :param mountpoint: the mountpunt of the device on which the pi user
-                           is found
-        :type mountpoint: str
         """
         host = host or get_platform()
         card = SDCard(card_os=card_os,host=host)
@@ -941,7 +937,6 @@ class Burner(object):
     def configure_wifi(self,
                        ssid,
                        psk=None,
-                       mountpoint='/mount/pi',
                        interactive=False):
         """
         Sets the wifi. Only works for psk based wifi
@@ -950,8 +945,6 @@ class Burner(object):
         :type ssid: str
         :param psk: the psk
         :type psk: str
-        :param mountpoint: the mont pount
-        :type mountpoint: str
         :param interactive: true if you like to run it interactively
         :type interactive: bool
         """
@@ -978,8 +971,8 @@ class Burner(object):
                     }}""".format(network=ssid))
 
         # Per fix provided by Gregor, we use this path to get around rfkill block on boot
-        path = f"{mountpoint}/boot/wpa_supplicant.conf"
-        # path = f"{mp}/etc/wpa_supplicant/wpa_supplicant.conf"
+        card = SDCard(card_os=card_os, host=host)
+        path = f"{card.boot_volume}wpa_supplicant.conf"
         if self.dryrun:
             print("DRY RUN - skipping:")
             print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
@@ -1317,8 +1310,13 @@ class MultiBurner(object):
         :return:
         :rtype:
         """
-
-        mp = '/mount/pi'
+        #TODO
+        card_os="broken"
+        host="broken"
+        raise NotImplementedError
+        card = SDCard(card_os=card_os, host=host)
+        mp = card.boot_volume
+        mp = os.path.dirname(mp)
         if key is None:
             key = '~/.ssh/id_rsa.pub'
 
