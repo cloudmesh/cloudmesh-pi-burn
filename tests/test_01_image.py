@@ -15,18 +15,16 @@ from cloudmesh.common.util import HEADING
 from cloudmesh.common.console import Console
 
 from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_windows
 
-
-if not os_is_linux():
-    Console.error("OS is not Ubuntu, test can not be performed")
+if os_is_windows():
+    Console.error("OS is not supported on windows")
     sys.exit(1)
 
 Benchmark.debug()
 
 cloud = sys.platform
 user = os.environ["USER"]
-
-
 
 
 """
