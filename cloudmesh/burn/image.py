@@ -158,9 +158,23 @@ class Image(object):
 
         if url is None:
             data = Image().create_version_cache(refresh=False)
-            for image in data:
-                if image["tag"] == tag:
-                    break
+
+            image = Image().find(tag=tag)
+
+            if image is None:
+                Console.error("No matching image found.")
+                return ""
+            elif len(image) > 1:
+                Console.error("Too manay images found")
+                print(Printer.write(image,
+                                    order=["tag", "version"],
+                                    header=["Tag", "Version"]))
+                return ""
+
+            image = image[0]
+
+            image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+
 
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)

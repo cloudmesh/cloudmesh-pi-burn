@@ -41,7 +41,7 @@ class BurnCommand(PluginCommand):
               burn image versions [--refresh] [--yaml]
               burn image ls
               burn image delete [--image=IMAGE]
-              burn image get [--url=URL] [--tag=VERSION]
+              burn image get [--url=URL] [TAG...]
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
               burn shrink [--image=IMAGE]
@@ -347,9 +347,9 @@ class BurnCommand(PluginCommand):
             execute("image fetch", image.fetch(url=arguments.url))
             return ""
 
-        elif arguments["get"] and arguments['image'] and arguments["--tag"]:
+        elif arguments["get"] and arguments['image'] and arguments["TAG"]:
             image = Image()
-            execute("image fetch", image.fetch(tag=arguments["--tag"]))
+            execute("image fetch", image.fetch(tag=arguments["TAG"]))
             return ""
 
         elif arguments["get"] and arguments['image']:

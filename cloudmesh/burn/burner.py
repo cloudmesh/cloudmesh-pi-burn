@@ -415,8 +415,6 @@ class Burner(object):
             return ""
 
         image = image[0]
-        print (image)
-        print ()
 
         image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
 
