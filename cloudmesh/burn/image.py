@@ -10,6 +10,7 @@ import urllib3
 from cloudmesh.burn.util import readfile, writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
+from cloudmesh.common.Tabulate import Printer
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 

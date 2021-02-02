@@ -1,24 +1,20 @@
 import os
 from getpass import getpass
-from pathlib import Path
 
-import oyaml as yaml
 from cloudmesh.burn.burner import Burner
 from cloudmesh.burn.burner import MultiBurner
 from cloudmesh.burn.burner import gen_strong_pass
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
-from cloudmesh.burn.util import readfile
-from cloudmesh.burn.util import writefile
+from cloudmesh.burn.util import os_is_pi
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
-from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import Console
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-from cloudmesh.burn.util import os_is_pi
+
 
 class BurnCommand(PluginCommand):
 
