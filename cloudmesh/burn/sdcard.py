@@ -42,7 +42,7 @@ class SDCard:
                 return Path(f"/media/{user}/rootfs")
             if "ubuntu" in self.os:
                 return Path(f"/media/{user}/writable")
-        elif host == "raspberty":
+        elif host == "raspberry":
             raise NotImplementedError
         elif host == "windows":
             raise NotImplementedError

@@ -1,23 +1,20 @@
 import os
 from getpass import getpass
-from pathlib import Path
 
-import oyaml as yaml
 from cloudmesh.burn.burner import Burner
 from cloudmesh.burn.burner import MultiBurner
 from cloudmesh.burn.burner import gen_strong_pass
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
-from cloudmesh.burn.util import readfile
-from cloudmesh.burn.util import writefile
+from cloudmesh.burn.util import os_is_pi
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
-from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import Console
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
+
 
 class BurnCommand(PluginCommand):
 
@@ -27,6 +24,7 @@ class BurnCommand(PluginCommand):
         ::
 
             Usage:
+              burn firmware check
               burn install
               burn load --device=DEVICE
               burn format --device=DEVICE
@@ -36,10 +34,10 @@ class BurnCommand(PluginCommand):
               burn network
               burn info [--device=DEVICE]
               burn detect
-              burn image versions [--refresh]
+              burn image versions [--refresh] [--yaml]
               burn image ls
               burn image delete [--image=IMAGE]
-              burn image get [--url=URL]
+              burn image get [--url=URL] [TAG...]
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
               burn shrink [--image=IMAGE]
@@ -54,13 +52,14 @@ class BurnCommand(PluginCommand):
                           [--ssid=SSID]
                           [--wifipassword=PSK]
                           [--format]
-              burn sdcard [--image=IMAGE] [--device=DEVICE] [--dryrun]
+              burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
                        [--key=KEY]
                        [--mount=MOUNTPOINT]
               burn enable ssh [--mount=MOUNTPOINT]
-              burn wifi SSID [--passwd=PASSWD] [-ni]
+              burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+              burn check [--device=DEVICE]
 
             Options:
               -h --help              Show this screen.
@@ -73,6 +72,9 @@ class BurnCommand(PluginCommand):
               --key=KEY              The name of the SSH key file
               --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
 
+            Arguments:
+                TAG                  Keyword tags to identify an image
+                                     [default: latest]
             Files:
               This is not fully thought through and needs to be documented
               ~/.cloudmesh/images
@@ -163,7 +165,6 @@ class BurnCommand(PluginCommand):
 
         # VERBOSE(arguments)
 
-
         def execute(label, function):
             StopWatch.start(label)
             result = function
@@ -178,56 +179,36 @@ class BurnCommand(PluginCommand):
         StopWatch.stop("info")
         StopWatch.status("info", True)
 
-        if arguments.versions and arguments['image']:
+        if arguments.firmware and arguments.check:
+
+            execute("firmware check", burner.firmware(action="check"))
+            return ""
+
+        elif arguments.firmware and arguments.update:
+
+            execute("firmware update", burner.firmware(action="update"))
+            return ""
+
+        if arguments.check:
+
+            execute("check", burner.check(device=arguments.device))
+            return ""
+
+        elif arguments.versions and arguments['image']:
 
             StopWatch.start("image versions")
-            image = Image()
-            data = {
-                "lite": [],
-                "full": []
-            }
-            cache = Path(
-                os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
-            if arguments["--refresh"] or not cache.exists():
-                os.system("mkdir -p ~/.cloudmesh/cmburn")
-                print("finding lite repos ...", end="")
-                repos = [f"{image.raspberry_lite_images}"]
-                for repo in repos:
-                    versions, downloads = Image().versions(repo)
-                    print("These images are available at")
-                    for version, download in zip(versions, downloads):
-                        entry = {
-                            "version": version,
-                            "url": download,
-                            "date": version.split("-", 1)[1],
-                            "type": "lite"
-                        }
-                        data["lite"].append(entry)
 
-                print("finding lite repos ...", end="")
-                repos = [f"{image.raspberry_full_images}"]
-                for repo in repos:
-                    versions, downloads = Image().versions(repo)
-                    print("These images are available at")
-                    for version, download in zip(versions, downloads):
-                        entry = {
-                            "version": version,
-                            "url": download,
-                            "date": version.split("-", 1)[1],
-                            "type": "full"
-                        }
-                        data["full"].append(entry)
-                writefile(cache, yaml.dump(data))
+            result = Image.create_version_cache(refresh=arguments["--refresh"])
 
-            data = readfile(cache)
-            data = yaml.safe_load(readfile(cache))
-            # convert to array
-            result = data["lite"] + data["full"]
+            output = "table"
+            if arguments["--yaml"]:
+                output = "yaml"
 
             print(Printer.write(
                 result,
-                order=['date', 'version', "type", "url"],
-                header=['Date', 'Version', "Type", "Url"],
+                order=["tag", 'date', "type", 'version', "url"],
+                header=["Tag", 'Date', "Type", 'Version', "Url"],
+                output=output
             )
             )
 
@@ -239,13 +220,11 @@ class BurnCommand(PluginCommand):
             execute("load", burner.load_device(device=arguments.device))
             return ""
 
-        elif arguments["format"]: # as format is a python word, we need to use an index
+        elif arguments["format"]:  # as format is a python word, we need to use an index
             execute("format", burner.format_device(device=arguments.device))
             return ""
 
         elif arguments.network and arguments["list"]:
-
-            print ("A4")
 
             ip = arguments.ip or Network.address()[0]['local']
 
@@ -273,11 +252,14 @@ class BurnCommand(PluginCommand):
                 details,
                 order=['label', "local", "broadcast"],
                 header=["Label", "Local", "Broadcast"]
-            )
+                )
             )
             return ""
 
         elif arguments.wifi:
+
+            Console.error("This command is not yet implemented")
+            return ""
 
             password = arguments.passwd
             ssid = arguments.ssid
@@ -315,12 +297,14 @@ class BurnCommand(PluginCommand):
             execute("backup", burner.backup(device=arguments.device, to_file=arguments.to))
             return ""
 
-        elif arguments["copy"]: # as copy is a reserved word we need to use the index
+        elif arguments["copy"]:  # as copy is a reserved word we need to use the index
             execute("copy", burner.copy(device=arguments.device, from_file=arguments.FROM))
             return ""
 
         elif arguments.sdcard:
-            execute("sdcard", burner.burn_sdcard(arguments.IMAGE, arguments.device))
+            arguments.TAG = arguments.TAG or ["latest"]
+
+            execute("sdcard", burner.burn_sdcard(tag=arguments.TAG, device=arguments.device))
             return ""
 
         elif arguments.mount:
@@ -334,15 +318,12 @@ class BurnCommand(PluginCommand):
         elif arguments.set:
 
             if arguments.host:
-
                 execute("set hostname", burner.set_hostname(arguments.hostname, arguments.MOUNTPOINT))
 
             if arguments.ip:
-
                 execute("set ip", burner.set_static_ip(arguments.ip, arguments.MOUNTPOINT))
 
             if arguments.key:
-
                 execute("set key", burner.set_key(arguments.key, arguments.MOUNTPOINT))
 
             return ""
@@ -352,7 +333,6 @@ class BurnCommand(PluginCommand):
             execute("enable ssh", burner.enable_ssh(arguments.MOUNTPOINT))
             return ""
 
-
         # elif arguments.versions and arguments.image:
         #    image = Image()
 
@@ -361,11 +341,22 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.delete and arguments.IMAGE:
-            execute("image rm", Image(arguments.IMAGE).rm())
+            execute("image rm", Image().rm(arguments.IMAGE))
             return ""
 
-        elif arguments.get and arguments['image']:
-            execute("image fetch", Image(arguments.url).fetch())
+        elif arguments["get"] and arguments['image'] and arguments["--url"]:
+            image = Image()
+            execute("image fetch", image.fetch(url=arguments.url))
+            return ""
+
+        elif arguments["get"] and arguments['image'] and arguments["TAG"]:
+            image = Image()
+            execute("image fetch", image.fetch(tag=arguments["TAG"]))
+            return ""
+
+        elif arguments["get"] and arguments['image']:
+            image = Image()
+            execute("image fetch", image.fetch(tag="latest"))
             return ""
 
         elif arguments.create:
@@ -406,29 +397,33 @@ class BurnCommand(PluginCommand):
 
             ips = None if not arguments.ip else Parameter.expand(arguments.ip)
             key = arguments.sshkey
-            mp = '/mount/pi'
-            blocksize = arguments.blocksize
 
-            StopWatch.start("total")
+            if os_is_pi():
+                mp = '/mount/pi'
+                blocksize = arguments.blocksize
 
-            multi = MultiBurner()
-            multi.burn_all(
-                image=image,
-                device=devices,
-                blocksize=blocksize,
-                progress=True,
-                hostnames=hostnames,
-                # not difference between names and name, maybe we shoudl allign
-                ips=ips,
-                key=key,
-                password=passwd,
-                ssid=ssid,
-                psk=psk)
+                StopWatch.start("total")
 
-            StopWatch.stop("total")
-            StopWatch.status("total", True)
+                multi = MultiBurner()
+                multi.burn_all(
+                    image=image,
+                    device=devices,
+                    blocksize=blocksize,
+                    progress=True,
+                    hostnames=hostnames,
+                    # not difference between names and name, maybe we shoudl allign
+                    ips=ips,
+                    key=key,
+                    password=passwd,
+                    ssid=ssid,
+                    psk=psk)
 
-            StopWatch.benchmark(sysinfo=False, csv=False)
+                StopWatch.stop("total")
+                StopWatch.status("total", True)
+
+                StopWatch.benchmark(sysinfo=False, csv=False)
+            else:
+                Console.error("This command is only supported ona Pi")
             return ""
 
         Console.error("see manual page: cms help burn")

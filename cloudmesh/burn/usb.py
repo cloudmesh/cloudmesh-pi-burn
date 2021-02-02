@@ -148,6 +148,7 @@ class USB(object):
 
         lsusb = USB.get_from_lsusb()
         busses = usb.busses()
+
         details = []
         for bus in busses:
             devices = bus.devices
@@ -179,6 +180,7 @@ class USB(object):
         :rtype: list of dicts
         """
         lsusb = subprocess.getoutput("lsusb").splitlines()
+
         all = {}
         for line in lsusb:
             line = line.replace("Bus ", "")
@@ -187,19 +189,23 @@ class USB(object):
             line = line.replace(":", "", 1)
             line = line.replace(":", " ", 1)
             content = line.split(" ")
-            bus = int(content[0])
-            addr = int(content[1])
 
-            data = {
-                'bus': bus,
-                'addr': addr,
-                'ivendor': int(content[2], 16),
-                'iproduct': int(content[3], 16),
-                'vendor': content[2],
-                'product': content[3],
-                'comment': ' '.join(content[4:])
-            }
-            all[f"{bus}-{addr}"] = data
+            try:
+                bus = int(content[0])
+                addr = int(content[1])
+
+                data = {
+                    'bus': bus,
+                    'addr': addr,
+                    'ivendor': int(content[2], 16),
+                    'iproduct': int(content[3], 16),
+                    'vendor': content[2],
+                    'product': content[3],
+                    'comment': ' '.join(content[4:])
+                }
+                all[f"{bus}-{addr}"] = data
+            except Exception as e:
+                pass
 
         return all
 

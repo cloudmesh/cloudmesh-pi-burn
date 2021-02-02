@@ -19,7 +19,6 @@ from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_windows
 from cloudmesh.common.JobScript import JobScript
-from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
@@ -65,6 +64,85 @@ class Burner(object):
         self.dryrun = dryrun
         self.hostname = None
         self.keypath = None
+
+    def check(self, device="/dev/sdX"):
+        """
+        This method checks what configurations are placed on the PI se card
+
+        @param device:
+        @type device:
+        @return:
+        @rtype:
+        """
+        data = {
+            "wifi": False,
+            "ssh":False,
+            "hostname": None,
+            "ip": None,
+            "password": None,
+            "ssid": None,
+            "wifipassword": None
+        }
+
+        card = SDCard()
+
+        # wifi
+
+        Console.error("probe wifi not yet implemented")
+
+        # ssh
+
+        self.mount(device)
+
+        data["ssh"] = os.path.exists(card.boot_volume)
+
+        # hostname
+
+        Console.error("probe hostname not yet implemented")
+
+        # ip
+
+        Console.error("probe ip not yet implemented")
+
+        # passwod
+
+        Console.error("probe password not yet implemented")
+
+        # ssid
+
+        Console.error("probe ssid not yet implemented")
+
+        # wifipassword
+
+        Console.error("probe wifipassword not yet implemented")
+
+
+    def firmware(self, action="check"):
+        """
+        Checks or update the firmware
+        :param action: the cations to be performed. It is "check" or "update"
+        :type action: str
+        """
+        if not os_is_pi():
+            Console.error("This command can only be run on a PI")
+        else:
+            if action == "check":
+                Console.error("To be implemented")
+
+                command = f"sudo rpi-eeprom-update"
+                print(command)
+                os.system(command)
+
+                os.system ("vcgencmd bootloader_version")
+
+                print("For more information see:")
+                print()
+                print("* https://www.raspberrypi.org/documentation/hardware/raspberrypi/booteeprom.md")
+                print()
+            elif action == "update":
+                os.system("sudo rpi-eeprom-update -a")
+                os.system("sudo reboot")
+
 
     def shrink(self, image=None):
         if image is None:
@@ -313,7 +391,7 @@ class Burner(object):
 
         return res[1]
 
-    def burn_sdcard(self, image=None, device=None, blocksize="4M"):
+    def burn_sdcard(self, tag="latest", device=None, blocksize="4M"):
         """
         Burns the SD Card with an image
 
@@ -324,9 +402,24 @@ class Burner(object):
         :param blocksize: the blocksize used when writing, default 4M
         :type blocksize: str
         """
-        if os_is_pi():
 
-            image_path = Image(image).fullpath
+        image = Image().find(tag=tag)
+
+        if image is None:
+            Console.error("No matching image found.")
+            return ""
+        elif len(image) > 1:
+            Console.error("Too manay images found")
+            print(Printer.write(image,
+                                order=["tag", "version"],
+                                header=["Tag", "Version"]))
+            return ""
+
+        image = image[0]
+
+        image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+
+        if os_is_pi():
 
             command = f"sudo dd bs={blocksize} if={image_path} of={device}"
 
@@ -336,7 +429,6 @@ class Burner(object):
                 Console.error("The image could not be found")
                 sys.exit(1)
         elif os_is_linux():
-            image_path = Image(image).fullpath
 
             print(image_path)
             print(device)
@@ -604,7 +696,6 @@ class Burner(object):
         if not self.dryrun:
             self.system('sudo sync')  # flush any pending/in-process writes
 
-        print (device)
         if device is None:
 
             if os_is_linux():
@@ -615,10 +706,10 @@ class Burner(object):
                 time.sleep(3)
 
                 rm = [f"sudo rmdir /media/{user}/boot",
-                           f"sudo rmdir /media/{user}/rootfs"]
+                      f"sudo rmdir /media/{user}/rootfs"]
 
                 for command in rm:
-                    print (rm)
+                    print(rm)
                     os.system(command)
             else:
                 Console.error("not implemented for this OS")
@@ -932,7 +1023,7 @@ class Burner(object):
                 sudo mkfs.vfat -n {title} -F32 {device}1
                 sudo parted {device} --script print""".strip().splitlines()
             for line in script:
-                print (line)
+                print(line)
                 os.system(line)
 
         else:

@@ -44,7 +44,8 @@ def os_is_linux():
     :return: True is linux
     :rtype: bool
     """
-    return platform.system() == "Linux" and "raspberry" not in platform.uname()
+    return platform.system() == "Linux" and "raspberrypi" not in \
+           platform.uname()
 
 
 def os_is_mac():
@@ -64,7 +65,7 @@ def os_is_pi():
     :return: True is Raspberry OS
     :rtype: bool
     """
-    return "raspberry" in platform.uname()
+    return "raspberrypi" in platform.uname()
 
 
 def writefile(filename, content):

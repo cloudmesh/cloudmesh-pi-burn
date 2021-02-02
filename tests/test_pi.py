@@ -21,6 +21,9 @@ cloud = "ubuntu"
 device = "/dev/sdb"
 user = os.environ["USER"]
 
+sys.exit(1)
+
+
 if not os_is_linux():
     Console.error("OS is not Ubuntu, test can not be performed")
     sys.exit(1)

@@ -1078,3 +1078,60 @@ cms burn unmount
 ```
 
 Take the SDCard into the PI and set it up there. as documented.
+
+### What is the status of the implementation?
+
+| Feature         | PI   | Ubuntu | Mac     | Windows |
+| --------------- | ---- | ------ | ------- | ------- |
+| image versions  | at + | gt +   | gt +    |         |
+| image ls        | at + | gt +   | gt +    |         |
+| image delete    | at + | gt +   | gt +    |         |
+| image get       | at + | gt +   | gt +    |         |
+| info            | a  + | g +    | g +/- 3 |         |
+| detect*         |      |        |         |         |
+| network         |      | g +?   |         |         |
+| backup          | a    | g +    |         |         |
+| copy            |      | g +    |         |         |
+| shrink install  | a    | gt +   |  -      |         |
+| shrink          | a    | g+?    |  -      |         |
+| sdcard          |      | gt -   |         |         |
+| mount           | a  d | gt +   |         |         |
+| unmount         | a  d | gt +   |         |         |
+| enable ssh      |      |        |         |         |
+| wifi            |   -  |   -    |  -      | -       |
+| set             |      |        |         |         |
+| create          |      |        |         |         |
+| format          | a d  | gt +   |         |         |
+| firmware        | a ?  | NA     |  NA     | NA      |
+
+* g = gregor
+* r = richie
+* a = anthony
+* ad = adam
+* as = asuri
+* ar = arjun
+
+* d = diffrent implementation between Linux and PI (compare)
+* 2 = change and add --ssd so its uniform
+* ? = needs test
+* - = broken
+1 = get needs to use the image versions refresh cache
+3 = does not report when the USB card is found
+t = has a unit test
+
+### What packages do I need to run the info command on macOS
+
+```
+brew install libusb
+``````
+
+### Are there any unit tests?
+
+As `cms burn` may delete format, delete, and remove files during unit testing users are supposed to first review the 
+tests before running them. Please look at the source and see if you can run a test. 
+
+we have the following tests:
+
+* `pytest -v --capture=no tests/test_01_image.py`
+  * This test removes files forom ~/.cloudmesh/cmburn/images
+  * See also:  [test_01_image.py](https://github.com/cloudmesh/cloudmesh-pi-burn/blob/main/tests/test_01_image.py)
