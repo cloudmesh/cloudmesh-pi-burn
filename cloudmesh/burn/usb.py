@@ -257,6 +257,8 @@ class USB(object):
                                                                             "")
                 if "Write Protect is" in comment:
                     details[key]["writeable"] = "off" in comment
+                else:
+                    details[key]["writeable"] = True
                 name = details[key]["name"] = device.replace("[", "").replace(
                     "]", "")
                 dev = details[key]["dev"] = f"/dev/{name}"
