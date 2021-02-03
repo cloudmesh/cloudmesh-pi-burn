@@ -107,8 +107,8 @@ First we need to configure the Master Pi
 
 **Step 1.** Installing Cloudmesh on the Master Pi
 
-Update pip and the simple curl command below will generate an ssh-key, update your
-system, and install cloudmesh.
+Update pip and the simple curl command below will generate an ssh-key,
+update your system, and install cloudmesh.
 
 ```
 pi@masterpi:~ $ pip install pip -U
@@ -142,13 +142,16 @@ We can verify our image's downloaded with the following.
 (ENV3) pi@masterpi:~ $ cms burn image ls
 ```
 
-**Note.** We can use the following command to list the current Raspberry Pi OS versions (full and lite)
+**Note.** We can use the following command to list the current
+  Raspberry Pi OS versions (full and lite)
 
 ```
 (ENV3) pi@masterpi:~ $ cms burn image versions --refresh
 ```
 
-This will list the Tags and Types of each available OS. We can then modify the `image get` command for versions we are interested in. For example,
+This will list the Tags and Types of each available OS. We can then
+modify the `image get` command for versions we are interested in. For
+example,
 
 ```
 (ENV3) pi@masterpi:~ $ cms burn image get full-2020-05-28
@@ -156,7 +159,9 @@ This will list the Tags and Types of each available OS. We can then modify the `
 
 **Step 4**. Setup SD Card Writer
 
-Plug your SD Card Writer into the Pi. Ensure you have an SD Card inserted into your writer. Run the following command to find the path to your SD Card.
+Plug your SD Card Writer into the Pi. Ensure you have an SD Card
+inserted into your writer. Run the following command to find the path
+to your SD Card.
 
 ```
 (ENV3) pi@masterpi:~ $ cms burn info
@@ -172,7 +177,8 @@ Plug your SD Card Writer into the Pi. Ensure you have an SD Card inserted into y
 +----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
 ```
 
-> `cms burn info` has other useful information, but for the purposes of this guide we omit it. 
+> `cms burn info` has other useful information, but for the purposes
+> of this guide we omit it.
 
 We can see from the information displayed that our SD card's path is
 `/dev/sda`. Of course, this may vary. 
@@ -186,9 +192,15 @@ SD card is connected.
 
 Step 1. Burning the SD Card
 
-Choose a hostname for your card. We will use `red001` with ip `10.1.1.2`. The IP address `10.1.1.1` is reserved for the burner pi (ie. `masterpi`).
+Choose a hostname for your card. We will use `red001` with ip
+`10.1.1.2`. The IP address `10.1.1.1` is reserved for the burner pi
+(ie. `masterpi`).
 
-> Note we are using the subnet `10.1.1.0/24` in this guide. We currently recommend you do the same, otherwise the WiFi bridge will not configure correctly. We will change this in the future to support other [Private IP Ranges](https://www.arin.net/reference/research/statistics/address_filters/)
+> Note we are using the subnet `10.1.1.0/24` in this guide. We
+> currently recommend you do the same, otherwise the WiFi bridge will
+> not configure correctly. We will change this in the future to
+> support other
+> [Private IP Ranges](https://www.arin.net/reference/research/statistics/address_filters/)
 
 ```
 (ENV3) pi@masterpi:~ $ cms burn create --hostname=red001 --ip=10.1.1.2 --device=/dev/sda --tag=latest-lite
@@ -234,16 +246,18 @@ Figure 1: Networking Bridge
 
 **Step 0.** Review and Setup
 
-At this point we assume that you have used `cms burn` to create all SD cards for the
-Pi's with static IP addresses in the subnet range `10.1.1.0/24` (excluding `10.1.1.1`. See step 1 for details)
+At this point we assume that you have used `cms burn` to create all SD
+cards for the Pi's with static IP addresses in the subnet range
+`10.1.1.0/24` (excluding `10.1.1.1`. See step 1 for details)
 
-We are also continuing to use `masterpi` (which is where we burn the worker SD cards).
+We are also continuing to use `masterpi` (which is where we burn the
+worker SD cards).
 
 We will now use `cms bridge` to connect the worker Pis to the
 internet. Let us again reference the diagram of our network setup. You
-should now begin connecting your Pis together via network
-switch (unmanaged or managed) if you have not done so already. Ensure that `masterpi` is also connected into the network
-switch.
+should now begin connecting your Pis together via network switch
+(unmanaged or managed) if you have not done so already. Ensure that
+`masterpi` is also connected into the network switch.
 
 **Step 1.** Configuring our Bridge
 
@@ -267,7 +281,8 @@ We should now reboot.
 
 **Step 2.** Verifying internet connection 
 
-At this point, our workers should have internet access. Let us SSH into one and ping google.com to verify.
+At this point, our workers should have internet access. Let us SSH
+into one and ping google.com to verify.
 
 ```
 (ENV3) pi@masterpi:~ $ ssh red001
@@ -285,26 +300,26 @@ PING google.com (142.250.64.238) 56(84) bytes of data.
 rtt min/avg/max/mdev = 47.924/48.169/48.511/0.291 ms
 ```
 
-Note how we are able to omit the pi user and .local extension. We have successfuly configured our bridge.
+Note how we are able to omit the pi user and .local extension. We have
+successfuly configured our bridge.
 
 ## Set up of the SSH keys and SSH tunnel
 
-One important aspect of a cluster is to setup authentication via 
-ssh in a convenient way, so we can easily login from the 
-laptop to each of the PI 
-workers and the PI manager. Furthermore, we like to be able to 
-login from the PI manager to each of the workers. In addition, 
-we like to be able to login between the workers.
+One important aspect of a cluster is to setup authentication via ssh
+in a convenient way, so we can easily login from the laptop to each of
+the PI workers and the PI manager. Furthermore, we like to be able to
+login from the PI manager to each of the workers. In addition, we like
+to be able to login between the workers.
 
 We have chosen a very simple setup while relying on ssh tunnel.
 
-To simplify the setup of this we have developed a command 
-`cms host` that gathers and scatters keys onto all machines, 
-as well as, sets up the tunnel.
+To simplify the setup of this we have developed a command `cms host`
+that gathers and scatters keys onto all machines, as well as, sets up
+the tunnel.
 
-It is essential that that the key on the laptop must 
-not be password less. This is also valid for any machine that is directly 
-added to the network such as in the mesh notwork. 
+It is essential that that the key on the laptop must not be password
+less. This is also valid for any machine that is directly added to the
+network such as in the mesh notwork.
 
 To avoid password less keys we recommend you to use `ssh-add` 
 or `ssh-keychain` which will ask you for one.
@@ -312,8 +327,8 @@ or `ssh-keychain` which will ask you for one.
 > Note: More information and a concrete example will be documented 
 > here shortly.
 
-The manual page for `cms host` is provided in the Manual 
-Pages section.
+The manual page for `cms host` is provided in the Manual Pages
+section.
 
 **Step 1.** On the manager create ssh keys for each of the workers.
 
@@ -321,15 +336,15 @@ Pages section.
 (ENV3) pi@managerpi:~ $ cms host key create red00[1-3]
 ```
 
-**Step 2.** On the manager gather the worker, manager, 
-and your laptop public ssh keys into a file.
+**Step 2.** On the manager gather the worker, manager, and your laptop
+public ssh keys into a file.
 
 ```
 (ENV3) pi@managerpi:~ $ cms host key gather red00[1-3],you@yourlaptop.local keys.txt
 ```
 
-**Step 3.** On the manager scatter the public keys to all 
-the workers and manager ~/.ssh/authorized_hosts file
+**Step 3.** On the manager scatter the public keys to all the workers
+and manager ~/.ssh/authorized_hosts file
 
 ```
 (ENV3) pi@managerpi:~ $ cms host key scatter red00[1-3],localhost keys.txt
@@ -355,7 +370,8 @@ pi@red001:~ $ exit
 **Step 6.** (For Bridge setup) Create SSH tunnels on the manager 
 to enable ssh acces from your laptop to the workers
 
-For now we manually install autossh, to test the new cms host tunnel program. Later we add it to the main master setup script.
+For now we manually install autossh, to test the new cms host tunnel
+program. Later we add it to the main master setup script.
 
 ```
 (ENV3) pi@managerpi:~ $ yes y | sudo apt install autossh
@@ -377,7 +393,8 @@ Using cluster hostname = managerpi
 
 Tunnels created.
 
-Please place the following in your remote machine's (i.e. laptop) ~/.ssh/config file to alias simple ssh access (i.e. ssh red001).
+Please place the following in your remote machine's (i.e. laptop)
+`~/.ssh/config` file to alias simple ssh access (i.e. `ssh red001`).
 
 # ----------------------------------------------------------------------
 # copy to ~/.ssh/config on remote host (i.e laptop)
@@ -408,7 +425,8 @@ Host red003
 > cms host tunnel config delete red00[1-3]
 > ```
 
-**Step 8.** (For Bridge setup) Verify SSH reachability from the laptop to workers
+**Step 8.** (For Bridge setup) Verify SSH reachability from the laptop
+  to workers
 
 ```
 you@yourlaptop:~ $ ssh red001
@@ -818,7 +836,8 @@ confusing the used in this README. The command is likely to be called
 `pidev`. Once the command is graduated it will be moved into the main
 command pi.
 
-There is some very usefull aditional information about how to use the LED and temperature monitoring programs at
+There is some very usefull aditional information about how to use the
+LED and temperature monitoring programs at
 
 * <https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/main/README.md>
 
@@ -1063,8 +1082,9 @@ brew install libusb
 
 ### Are there any unit tests?
 
-As `cms burn` may delete format, delete, and remove files during unit testing users are supposed to first review the 
-tests before running them. Please look at the source and see if you can run a test. 
+As `cms burn` may delete format, delete, and remove files during unit
+testing users are supposed to first review the tests before running
+them. Please look at the source and see if you can run a test.
 
 we have the following tests:
 
