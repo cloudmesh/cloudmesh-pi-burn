@@ -55,7 +55,6 @@ class BurnCommand(PluginCommand):
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
                        [--key=KEY]
-                       [--mount=MOUNTPOINT]
               burn enable ssh
               burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
               burn check [--device=DEVICE]
@@ -424,13 +423,13 @@ class BurnCommand(PluginCommand):
         elif arguments.set:
 
             if arguments.hostname:
-                execute("set hostname", burner.set_hostname(arguments.hostname, arguments.MOUNTPOINT))
+                execute("set hostname", burner.set_hostname(arguments.hostname))
 
             if arguments.ip:
-                execute("set ip", burner.set_static_ip(arguments.ip, arguments.MOUNTPOINT))
+                execute("set ip", burner.set_static_ip(arguments.ip))
 
             if arguments.key:
-                execute("set key", burner.set_key(arguments.key, arguments.MOUNTPOINT))
+                execute("set key", burner.set_key(arguments.key))
 
             return ""
 

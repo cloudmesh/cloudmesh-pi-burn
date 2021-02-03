@@ -478,7 +478,7 @@ class Burner(object):
             raise NotImplementedError("Only implemented to be run on a PI")
 
     @windows_not_supported
-    def set_hostname(self, hostname, mountpoint):
+    def set_hostname(self, hostname):
         """
         Sets the hostname on the sd card
 
@@ -489,6 +489,14 @@ class Burner(object):
         :type mountpoint: str
         """
         self.hostname = hostname
+        if os_is_pi():
+            card = SDCard()
+        elif os_is_linux():
+            card = SDCard(card_os="linux")
+        else:
+            raise NotImplementedError
+
+        mountpoint = card.root_volume
         # write the new hostname to /etc/hostname
         if not self.dryrun:
             self.system(
@@ -517,7 +525,7 @@ class Burner(object):
             print('127.0.1.1 ' + hostname + '\n')
 
     @windows_not_supported
-    def set_static_ip(self, ip, mountpoint, iface="eth0", mask="24"):
+    def set_static_ip(self, ip, iface="eth0", mask="24"):
         """
         Sets the static ip on the sd card for the specified interface
         Also writes to master hosts file for easy access
@@ -536,6 +544,16 @@ class Burner(object):
         """
         # TODO:
         # router_ip statically set to default ip configured with cms bridge create. Rewrite to consider the IP of the master on iface
+
+        if os_is_pi():
+            card = SDCard()
+        elif os_is_linux():
+            card = SDCard(card_os="linux")
+        else:
+            raise NotImplementedError
+
+        mountpoint = card.root_volume
+        Console.error(f'{self.hostname}')
         router_ip = '10.1.1.1'
 
         iface = f'interface {iface}'
@@ -657,7 +675,7 @@ class Burner(object):
     #         print(f'static ip_address={ip}/{mask}')
 
     @windows_not_supported
-    def set_key(self, name, mountpoint):
+    def set_key(self, name):
         """
         Copies the public key into the .ssh/authorized_keys file on the sd card
 
@@ -669,6 +687,14 @@ class Burner(object):
         """
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
+        if os_is_pi():
+            card = SDCard()
+        elif os_is_linux():
+            card = SDCard(card_os="linux")
+        else:
+            raise NotImplementedError
+
+        mountpoint = card.root_volume
         self.system(f'mkdir -p {mountpoint}/home/pi/.ssh/')
         self.system(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
@@ -1340,7 +1366,7 @@ class MultiBurner(object):
 
         burner.burn_sdcard(tag="latest-lite", device=device, blocksize=blocksize)
         burner.mount(device=device)
-        burner.set_hostname(hostname, root_volume)
+        burner.set_hostname(hostname)
         burner.disable_terminal_login(root_volume, password)
         if ssid:
             Console.warning("In the future, try to interface with the workers via "
@@ -1348,10 +1374,10 @@ class MultiBurner(object):
             burner.configure_wifi(ssid, psk)
         burner.enable_ssh()
         burner.disable_password_ssh()
-        burner.set_key(key, root_volume)
+        burner.set_key(key)
         if ip:
             interface = "wlan0" if ssid is not None else "eth0"
-            burner.set_static_ip(ip, root_volume, iface=interface)
+            burner.set_static_ip(ip, iface=interface)
 
         burner.unmount(device)
         # for some reason, need to do unmount twice for it to work properly
