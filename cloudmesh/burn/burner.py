@@ -537,15 +537,15 @@ class Burner(object):
             if len(ip_host) > 1:
                 if ip_host[0] == ip:
                     ip_host[1] = self.hostname
-                    hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
+                    hosts[i] = f"{ip_host[0]}\t{ip_host[1]}"
                     replaced = True
 
                 elif ip_host[1] == self.hostname:
                     ip_host[0] = ip
-                    hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
+                    hosts[i] = f"{ip_host[0]}\t{ip_host[1]}"
                     replaced = True
         if not replaced:
-            hosts.append(f"{ip}\t{self.hostname}\n")
+            hosts.append(f"{ip}\t{self.hostname}")
 
         config = ""
         for line in hosts:
