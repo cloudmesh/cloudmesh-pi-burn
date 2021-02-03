@@ -1,6 +1,8 @@
-cloudmesh-common
 cloudmesh-cmd5
+cloudmesh-sys
 cloudmesh-inventory
+cloudmesh-configuration
+cloudmesh-common
 wget
 python-hostlist
 docopt
