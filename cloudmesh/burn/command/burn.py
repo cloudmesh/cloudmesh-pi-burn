@@ -56,7 +56,7 @@ class BurnCommand(PluginCommand):
                        [--ip=IP]
                        [--key=KEY]
                        [--mount=MOUNTPOINT]
-              burn enable ssh [--mount=MOUNTPOINT]
+              burn enable ssh
               burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
               burn check [--device=DEVICE]
 
@@ -327,7 +327,7 @@ class BurnCommand(PluginCommand):
 
         elif arguments.enable and arguments.ssh:
 
-            execute("enable ssh", burner.enable_ssh(arguments.MOUNTPOINT))
+            execute("enable ssh", burner.enable_ssh())
             return ""
 
         # elif arguments.versions and arguments.image:
