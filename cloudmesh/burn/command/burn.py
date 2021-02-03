@@ -51,6 +51,7 @@ class BurnCommand(PluginCommand):
                           [--ssid=SSID]
                           [--wifipassword=PSK]
                           [--format]
+                          [--tag=TAG]
               burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
@@ -502,10 +503,10 @@ class BurnCommand(PluginCommand):
 
             ips = None if not arguments.ip else Parameter.expand(arguments.ip)
             key = arguments.sshkey
+            tag = arguments['--tag']
 
             if os_is_pi():
                 blocksize = arguments.blocksize
-
                 StopWatch.start("total")
 
                 multi = MultiBurner()
@@ -520,7 +521,8 @@ class BurnCommand(PluginCommand):
                     key=key,
                     password=passwd,
                     ssid=ssid,
-                    psk=psk)
+                    psk=psk,
+                    tag=tag)
 
                 StopWatch.stop("total")
                 StopWatch.status("total", True)

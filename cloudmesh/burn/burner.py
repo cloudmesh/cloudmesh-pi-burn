@@ -1203,7 +1203,8 @@ class MultiBurner(object):
                  password=None,
                  ssid=None,
                  psk=None,
-                 fromatting=True):
+                 fromatting=True,
+                 tag='latest-lite'):
         """
         TODO: provide documentation
 
@@ -1304,7 +1305,7 @@ class MultiBurner(object):
             ip = None if not ips else ips[i]
 
             self.burn(image, device, blocksize, progress, hostname,
-                      ip, key, password, ssid, psk, fromatting)
+                      ip, key, password, ssid, psk, fromatting, tag)
 
             count += 1
             Console.info(f'Burned card {count}')
@@ -1336,7 +1337,8 @@ class MultiBurner(object):
              password=None,
              ssid=None,
              psk=None,
-             fromatting=True):
+             fromatting=True,
+             tag='latest-lite'):
         """
         Burns the image on the specific device
 
@@ -1392,7 +1394,7 @@ class MultiBurner(object):
         if fromatting:
             burner.format_device(device=device, hostname=hostname)
 
-        burner.burn_sdcard(tag="latest-lite", device=device, blocksize=blocksize)
+        burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
         burner.mount(device=device)
         burner.set_hostname(hostname)
         burner.disable_terminal_login(root_volume, password)
