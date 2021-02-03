@@ -677,6 +677,7 @@ Examples: ( \ is not shown)
 
 
 
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -709,6 +710,7 @@ Description:
 
 
 
+
 ### Manual Page for the `host` command
 
 Note to execute the command on the commandline you have to type in
@@ -724,6 +726,7 @@ Note to execute the command on the commandline you have to type in
     host key list NAMES [--output=FORMAT]
     host key gather NAMES [--authorized_keys] [FILE]
     host key scatter NAMES FILE
+    host tunnel create NAMES [--port=PORT]
 
 This command does some useful things.
 
@@ -733,6 +736,7 @@ Arguments:
 Options:
     --dryrun   shows what would be done but does not execute
     --output=FORMAT  the format of the output
+    --port=PORT starting local port for tunnel assignment
 
 Description:
 
@@ -810,9 +814,19 @@ Description:
           | red03 | True    | red03  |
           +-------+---------+--------+
 
+    host tunnel create NAMES [--port=PORT]
+
+      This command is used to create a persistent local port
+      forward on the host to permit ssh tunnelling from the wlan to
+      the physical network (eth). This registers an autossh service in
+      systemd with the defualt port starting at 8001.
+
+      Example:
+          cms host tunnel create red00[1-3]
 
 ```
 <!--MANUAL-HOST-->
+
 
 
 
@@ -852,23 +866,6 @@ LED and temperature monitoring programs at
   pi temp NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
   pi free NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
   pi load NAMES [--rate=RATE] [--user=USER] [--output=FORMAT]
-  pi hadoop setup [--master=MASTER] [--workers=WORKERS]
-  pi hadoop start [--master=MASTER] [--workers=WORKERS]
-  pi hadoop stop [--master=MASTER] [--workers=WORKERS]
-  pi hadoop test [--master=MASTER] [--workers=WORKERS]
-  pi hadoop check [--master=MASTER] [--workers=WORKERS]
-  pi spark setup [--master=MASTER] [--workers=WORKERS]
-  pi spark start --master=MASTER
-  pi spark stop --master=MASTER
-  pi spark test --master=MASTER
-  pi spark check [--master=MASTER] [--workers=WORKERS]
-  pi spark uninstall --master=MASTER [--workers=WORKERS]
-  pi k3 install [--master=MASTER] [--workers=WORKERS] [--step=COMMAND]
-  pi k3 join --master=MASTER --workers=WORKERS
-  pi k3 uninstall [--master=MASTER] [--workers=WORKERS]
-  pi k3 delete [--master=MASTER] [--workers=WORKERS]
-  pi k3 test [--master=MASTER] [--workers=WORKERS]
-  pi k3 view
   pi script list SERVICE [--details]
   pi script list SERVICE NAMES
   pi script list
@@ -916,14 +913,6 @@ Description:
 
 ```
 <!--MANUAL-PI-->
-
-
-
-
-
-
-
-
 
 
 
