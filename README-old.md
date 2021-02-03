@@ -504,4 +504,269 @@ Than we will rewrite our program to attempt using the SDcard writers
 ```
 
 
+**Step 3.** Download the latest Raspberry Pi Lite OS
 
+The following command will download the latest images for Raspberry
+Lite OS.
+
+```
+(ENV3) pi@masterpi:~ $ cms burn image get latest
+```
+
+We can verify our image's downloaded with the following.
+
+```
+(ENV3) pi@masterpi:~ $ cms burn image ls
+```
+
+**Step 4**. Setup SD Card Writer
+
+Run the following command to setup your SD Card Writer with cms
+burn. It will provide a sequence of instructions to follow.
+
+```
+(ENV3) pi@masterpi:~ $ cms burn detect
+
+Make sure the USB Writer(s) is removed ...
+Is the writer(s) removed? y/n
+Now plug in the Writer(s) ...
+Is the writer(s) plugged in? y/n
+
+# ----------------------------------------------------------------------
+# Detected Card Writers
+# ----------------------------------------------------------------------
+
+Bus 001 Device 003: ID 1908:0226 GEMBIRD
+```
+
+Now insert a FAT32 formatted SD cards into your writer to create worker 
+SD cards.
+
+Running the following command will provide us information on our SD
+card's location on the system.
+
+```
+(ENV3) pi@masterpi:~ $ cms burn info
+...
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+| Path     | Info                 | Readable | Formatted | Empty | Size             | Aaccess | Removable | Writeable |
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+| /dev/sda | Generic Mass-Storage | True     | True      | False | 64.1 GB/59.7 GiB | True    | True      |           |
++----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
+```
+
+> `cms burn info` has other useful information, but for the purposes of this guide we omit it. 
+
+We can see from the information displayed that our SD card's path is
+`/dev/sda`. Of course, this may vary. Let us record this path for `cms
+burn` access.
+
+```
+(ENV3) pi@masterpi:~ $ export DEV=/dev/sda
+```
+
+`cms burn` is now properly configured and ready to begin burning
+cards. See the following sections on burning that are in accordance
+with your setup.
+
+### Single Card Burning
+
+Step 0. Ensure the SD card is inserted.
+
+We can run `cms burn info` again as we did above to verify our 
+SD card is connected.
+
+Step 1. Burning the SD Card
+
+Choose a hostname for your card. We will use `red001`.
+
+```
+(ENV3) pi@masterpi:~ $ cms burn create --hostname=red001
+```
+
+Wait for the card to burn. Once the process is complete, it is safe 
+to remove the SD card.
+
+
+### Burning Multiple SD Cards with a Single Burner
+
+Step 0. Ensure the first SD card is inserted into the burner.
+
+We can run `cms burn info` again as we did above to verify our SD 
+card is connected.
+
+Step 2. Burning the Cards
+
+`cms burn` supports logical incremenation of numbers/characters.
+
+For example, `red00[1-2]` is interpreted by cms burn as `[red001, red002]`.
+Similarly, `red[a-c]` is interpreted by cms burn as `[reda, redb, redc]`.
+
+We can burn 2 SD cards as follows:
+
+```
+(ENV3) pi@masterpi:~ $ cms burn create --hostname=red00[1-2]
+```
+
+The user will be prompted to swap the SD cards after each card burn if 
+there are still remaining cards to burn.
+
+One if the important aspects is how to set up networking. We have
+three options
+
+OPTION 1: The framework we use to set up default networking will use a DHCP
+server. This is configured at a later step with the command `cms
+bridge` that manages all ip addresses on the master. This is the
+easiest way to set up networking. There are two other options
+
+OPTION 2: Setup static IPs via the bridge command. `cms bridge` allows
+users to assign static IPs to nodes in their cluster. See
+[cms bridge documentation](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/main/cloudmesh/bridge/README.md#a-simple-command-to-setup-a-network-bridge-between-raspberry-pis-and-a-manager-pi-utilizing-dnsmasq)
+for more information.
+
+OPTION 3: If the user wishes to strictly assign a static IP at the
+time of burning, they may use the `--ipaddr=IP` as noted in the
+[cms burn manual](https://github.com/cloudmesh/cloudmesh-pi-burn#manual-burn). The
+behavior of this parameter is very similar to the hostnames
+parameter. For example, `10.1.1.[1-3]` evaluates to
+`[10.1.1.1, 10.1.1.2, 10.1.1.3]`
+
+Which option you use may depend on your persoanl preferences or your
+network requirements. If in doubt, start with OPTION 1.
+
+### Connecting Pis to the Internet via Bridge (OPTION 1)
+
+Figure 1 depicts how the network is set up with the help of the bridge command.
+
+![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-bridge.png)
+
+Figure 1: Networking Bridge
+
+Step 0. Recap and Setup
+
+At this point we assume that you have used `cms burn` to create all SD cards for the
+Pi's.
+
+We are also continuing to use `masterpi` (which is where we burn the worker SD cards).
+
+We will now use `cms bridge` to connect the worker Pis to the
+internet. Let us again reference the diagram of our network setup. You
+should now begin connecting your Pis together via network
+switch. Ensure that `masterpi` is also connected into the network
+switch.
+
+Step 1. Verify Local Connection to Workers
+
+Ensure your workers are booted and that your network switch is turned
+on. Once the Pis are done booting up, we will verify our local
+connections to them on the network switch via SSH.
+
+
+> Note: To figure out when a Pi is done completing its initial bootup process, 
+> the green light on the Pi will flash periodically until the bootup/setup is complete. 
+> Once there is just a red light for a period, the Pi is ready.
+
+
+Once your setup is configured in this manner, Pi Master should be able to ssh 
+into each node via its hostname. For example, if one of our workers is 
+`red001`, we may ssh to them as follows:
+
+```
+(ENV3) pi@masterpi:~ $ ssh pi@red001.local
+```
+
+If this is successful, you are ready to connect your workers to the internet.
+
+Step 2. Configuring our Bridge
+
+At this point, the master pi can talk to the workers via the network switch. However, these
+burned Pis do not have internet access. It can be very tedious to connect each Pi individually to our WiFi. So we provide a command to "bridge" internet access between the burner Pi and the burned Pis. This program should already be installed by the cloudmesh installation script.
+
+We can easily create our bridge as follows. 
+
+```
+(ENV3) pi@masterpi:~ $ cms bridge create --interface='wlan0'
+```
+
+This will take a moment while the dependencies are installed...
+
+> Note the `--interface` option indicates the interface 
+> used by the master pi to access the internet. 
+> In this case, since we are using WiFi, it is most 
+> likely `wlan0`. Other options such as `eth0` and `eth1` 
+> exist for ethernet connections.
+
+Once the installations are complete, let us restart the bridge to reflect these changes.
+
+```
+(ENV3) pi@masterpi:~ $ cms bridge restart --background
+```
+
+> Note the use of `--background` in this case is 
+> recommended as the process may potentially break a 
+> user's SSH pipeline (due to WiFi). If this is the case, 
+> the program will continue in the background without error 
+> and the user will be able to SSH shortly after.
+
+Once the process is complete, we can use the following command to list our connected devices.
+
+```
+(ENV3) pi@masterpi:~ $ cms bridge info
+bridge info
+
+# ----------------------------------------------------------------------
+#
+# IP range: 10.1.1.2 - 10.1.1.122
+# Manager IP: 10.1.1.1
+#
+# # LEASE HISTORY #
+# 2021-01-21 06:04:08 dc:a6:32:e8:01:a3 10.1.1.84 red001 01:dc:a6:32:e8:01:a3
+# 2021-01-21 06:04:08 dc:a6:32:e7:f0:fb 10.1.1.12 red003 01:dc:a6:32:e7:f0:fb
+# 2021-01-21 06:04:08 dc:a6:32:e8:02:cd 10.1.1.22 red004 01:dc:a6:32:e8:02:cd
+# 2021-01-21 06:04:08 dc:a6:32:e8:06:21 10.1.1.39 red002 01:dc:a6:32:e8:06:21
+# ----------------------------------------------------------------------
+```
+
+At this point, our workers should have internet access. Let us SSH into one and ping google.com to verify.
+
+```
+(ENV3) pi@masterpi:~ $ ssh red001
+
+pi@red001:~ $ ping google.com
+PING google.com (142.250.64.238) 56(84) bytes of data.
+64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=1 ttl=106 time=48.2 ms
+64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=2 ttl=106 time=48.3 ms
+64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=3 ttl=106 time=47.9 ms
+64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=4 ttl=106 time=47.10 ms
+64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=5 ttl=106 time=48.5 ms
+^C
+--- google.com ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 9ms
+rtt min/avg/max/mdev = 47.924/48.169/48.511/0.291 ms
+```
+
+Note how we are able to omit the pi user and .local extension
+
+The cluster is now complete. For information on rebooting clusters (ie. if you shut it down for the day and wish to reboot), see [FAQ/Hints](#faqhints)
+
+
+
+
+
+### I  used the [bridge command](#quickstart-for-restricted-wifi-access) during quickstart. How do I restart my cluster to preserve the network configuration?
+
+> Restarting the cluster is an inevitable task. Perhaps you need to
+> remove the cluster from your workspace, or you simply wish to save
+> on power. This is perfectly fine. However, to preserve the network
+> configuration provided by the bridge command, you should only boot
+> up your workers **after** your master has finished booting. This is
+> so that the `bridge` program can boot up and be operational before
+> the workers attempt to establish a connection. If the workers
+> establish a connection with the master before the `bridge` program
+> is active, the user will have no internet access for the workers.
+> In this case, you may also resolve this issue by simply rebooting
+> your workers.

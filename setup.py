@@ -33,6 +33,7 @@ requiers = """
 cloudmesh-common
 cloudmesh-cmd5
 cloudmesh-inventory
+cloudmesh-configuration
 wget
 python-hostlist
 docopt

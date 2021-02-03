@@ -23,7 +23,7 @@ laszewski@gmail.com*
     - [Master Pi](#master-pi)
     - [Single Card Burning](#single-card-burning)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
-    - [Connecting Pis to the Internet via Bridge (OPTION 1)](#connecting-pis-to-the-internet-via-bridge-option-1)
+    - [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge)
   - [Set up of the SSH keys and SSH tunnel](#set-up-of-the-ssh-keys-and-ssh-tunnel)
   - [Manual Pages](#manual-pages)
     - [Manual Page for the `burn` command](#manual-page-for-the-burn-command)
@@ -31,7 +31,6 @@ laszewski@gmail.com*
     - [Manual Page for the `host` command](#manual-page-for-the-host-command)
     - [Manual Page for the `pi` command](#manual-page-for-the-pi-command)
   - [FAQ and Hints](#faq-and-hints)
-    - [I  used the \[bridge command\](#quickstart-for-restricted-wifi-access) during quickstart. How do I restart my cluster to preserve the network configuration?](#i--used-the-bridge-commandquickstart-for-restricted-wifi-access-during-quickstart-how-do-i-restart-my-cluster-to-preserve-the-network-configuration)
     - [Can I use the LEDs on the PI Motherboard?](#can-i-use-the-leds-on-the-pi-motherboard)
     - [How can I use pycharm, to edit files or access files in general from my Laptop on the PI?](#how-can-i-use-pycharm-to-edit-files-or-access-files-in-general-from-my-laptop-on-the-pi)
     - [How can I enhance the `get` script?](#how-can-i-enhance-the-get-script)
@@ -121,8 +120,7 @@ This will take a moment...
 
 **Step 2.** Activate Python Virtual Environment
 
-Activate Python Virtual Environment, 
-if you have not already, enter the Python virtual environment provided
+If you have not already, enter the Python virtual environment provided
 by the installation script.
 
 ```
@@ -135,7 +133,7 @@ The following command will download the latest images for Raspberry
 Lite OS.
 
 ```
-(ENV3) pi@masterpi:~ $ cms burn image get latest
+(ENV3) pi@masterpi:~ $ cms burn image get latest-lite
 ```
 
 We can verify our image's downloaded with the following.
@@ -144,31 +142,21 @@ We can verify our image's downloaded with the following.
 (ENV3) pi@masterpi:~ $ cms burn image ls
 ```
 
+**Note.** We can use the following command to list the current Raspberry Pi OS versions (full and lite)
+
+```
+(ENV3) pi@masterpi:~ $ cms burn image versions --refresh
+```
+
+This will list the Tags and Types of each available OS. We can then modify the `image get` command for versions we are interested in. For example,
+
+```
+(ENV3) pi@masterpi:~ $ cms burn image get full-2020-05-28
+```
+
 **Step 4**. Setup SD Card Writer
 
-Run the following command to setup your SD Card Writer with cms
-burn. It will provide a sequence of instructions to follow.
-
-```
-(ENV3) pi@masterpi:~ $ cms burn detect
-
-Make sure the USB Writer(s) is removed ...
-Is the writer(s) removed? y/n
-Now plug in the Writer(s) ...
-Is the writer(s) plugged in? y/n
-
-# ----------------------------------------------------------------------
-# Detected Card Writers
-# ----------------------------------------------------------------------
-
-Bus 001 Device 003: ID 1908:0226 GEMBIRD
-```
-
-Now insert a FAT32 formatted SD cards into your writer to create worker 
-SD cards.
-
-Running the following command will provide us information on our SD
-card's location on the system.
+Plug your SD Card Writer into the Pi. Ensure you have an SD Card inserted into your writer. Run the following command to find the path to your SD Card.
 
 ```
 (ENV3) pi@masterpi:~ $ cms burn info
@@ -187,16 +175,7 @@ card's location on the system.
 > `cms burn info` has other useful information, but for the purposes of this guide we omit it. 
 
 We can see from the information displayed that our SD card's path is
-`/dev/sda`. Of course, this may vary. Let us record this path for `cms
-burn` access.
-
-```
-(ENV3) pi@masterpi:~ $ export DEV=/dev/sda
-```
-
-`cms burn` is now properly configured and ready to begin burning
-cards. See the following sections on burning that are in accordance
-with your setup.
+`/dev/sda`. Of course, this may vary. 
 
 ### Single Card Burning
 
@@ -207,15 +186,18 @@ SD card is connected.
 
 Step 1. Burning the SD Card
 
-Choose a hostname for your card. We will use `red001`.
+Choose a hostname for your card. We will use `red001` with ip `10.1.1.2`. The IP address `10.1.1.1` is reserved for the burner pi (ie. `masterpi`).
+
+> Note we are using the subnet `10.1.1.0/24` in this guide. We currently recommend you do the same, otherwise the WiFi bridge will not configure correctly. We will change this in the future to support other [Private IP Ranges](https://www.arin.net/reference/research/statistics/address_filters/)
 
 ```
-(ENV3) pi@masterpi:~ $ cms burn create --hostname=red001
+(ENV3) pi@masterpi:~ $ cms burn create --hostname=red001 --ip=10.1.1.2 --device=/dev/sda --tag=latest-lite
 ```
 
 Wait for the card to burn. Once the process is complete, it is safe 
 to remove the SD card.
 
+We can now proceed to [the bridge setup](#connecting-pis-to-the-internet-via-bridge )
 
 ### Burning Multiple SD Cards with a Single Burner
 
@@ -234,36 +216,15 @@ Similarly, `red[a-c]` is interpreted by cms burn as `[reda, redb, redc]`.
 We can burn 2 SD cards as follows:
 
 ```
-(ENV3) pi@masterpi:~ $ cms burn create --hostname=red00[1-2]
+(ENV3) pi@masterpi:~ $ cms burn create --hostname=red00[1-2] --ip=10.1.1.[2-3] --device=/dev/sda --tag=latest-lite
 ```
 
 The user will be prompted to swap the SD cards after each card burn if 
 there are still remaining cards to burn.
 
-One if the important aspects is how to set up networking. We have
-three options
+We can now proceed to the next section where we configure our bridge.
 
-OPTION 1: The framework we use to set up default networking will use a DHCP
-server. This is configured at a later step with the command `cms
-bridge` that manages all ip addresses on the master. This is the
-easiest way to set up networking. There are two other options
-
-OPTION 2: Setup static IPs via the bridge command. `cms bridge` allows
-users to assign static IPs to nodes in their cluster. See
-[cms bridge documentation](https://github.com/cloudmesh/cloudmesh-pi-cluster/blob/main/cloudmesh/bridge/README.md#a-simple-command-to-setup-a-network-bridge-between-raspberry-pis-and-a-manager-pi-utilizing-dnsmasq)
-for more information.
-
-OPTION 3: If the user wishes to strictly assign a static IP at the
-time of burning, they may use the `--ipaddr=IP` as noted in the
-[cms burn manual](https://github.com/cloudmesh/cloudmesh-pi-burn#manual-burn). The
-behavior of this parameter is very similar to the hostnames
-parameter. For example, `10.1.1.[1-3]` evaluates to
-`[10.1.1.1, 10.1.1.2, 10.1.1.3]`
-
-Which option you use may depend on your persoanl preferences or your
-network requirements. If in doubt, start with OPTION 1.
-
-### Connecting Pis to the Internet via Bridge (OPTION 1)
+### Connecting Pis to the Internet via Bridge 
 
 Figure 1 depicts how the network is set up with the help of the bridge command.
 
@@ -271,45 +232,20 @@ Figure 1 depicts how the network is set up with the help of the bridge command.
 
 Figure 1: Networking Bridge
 
-Step 0. Recap and Setup
+**Step 0.** Review and Setup
 
 At this point we assume that you have used `cms burn` to create all SD cards for the
-Pi's.
+Pi's with static IP addresses in the subnet range `10.1.1.0/24` (excluding `10.1.1.1`. See step 1 for details)
 
 We are also continuing to use `masterpi` (which is where we burn the worker SD cards).
 
 We will now use `cms bridge` to connect the worker Pis to the
 internet. Let us again reference the diagram of our network setup. You
 should now begin connecting your Pis together via network
-switch. Ensure that `masterpi` is also connected into the network
+switch (unmanaged or managed) if you have not done so already. Ensure that `masterpi` is also connected into the network
 switch.
 
-Step 1. Verify Local Connection to Workers
-
-Ensure your workers are booted and that your network switch is turned
-on. Once the Pis are done booting up, we will verify our local
-connections to them on the network switch via SSH.
-
-
-> Note: To figure out when a Pi is done completing its initial bootup process, 
-> the green light on the Pi will flash periodically until the bootup/setup is complete. 
-> Once there is just a red light for a period, the Pi is ready.
-
-
-Once your setup is configured in this manner, Pi Master should be able to ssh 
-into each node via its hostname. For example, if one of our workers is 
-`red001`, we may ssh to them as follows:
-
-```
-(ENV3) pi@masterpi:~ $ ssh pi@red001.local
-```
-
-If this is successful, you are ready to connect your workers to the internet.
-
-Step 2. Configuring our Bridge
-
-At this point, the master pi can talk to the workers via the network switch. However, these
-burned Pis do not have internet access. It can be very tedious to connect each Pi individually to our WiFi. So we provide a command to "bridge" internet access between the burner Pi and the burned Pis. This program should already be installed by the cloudmesh installation script.
+**Step 1.** Configuring our Bridge
 
 We can easily create our bridge as follows. 
 
@@ -317,44 +253,19 @@ We can easily create our bridge as follows.
 (ENV3) pi@masterpi:~ $ cms bridge create --interface='wlan0'
 ```
 
-This will take a moment while the dependencies are installed...
+We should now reboot.
+
+```
+(ENV3) pi@masterpi:~ $ sudo reboot
+```
 
 > Note the `--interface` option indicates the interface 
 > used by the master pi to access the internet. 
-> In this case, since we are using WiFi, it is most 
+> In this case, since we are using WiFi, it is 
 > likely `wlan0`. Other options such as `eth0` and `eth1` 
 > exist for ethernet connections.
 
-Once the installations are complete, let us restart the bridge to reflect these changes.
-
-```
-(ENV3) pi@masterpi:~ $ cms bridge restart --background
-```
-
-> Note the use of `--background` in this case is 
-> recommended as the process may potentially break a 
-> user's SSH pipeline (due to WiFi). If this is the case, 
-> the program will continue in the background without error 
-> and the user will be able to SSH shortly after.
-
-Once the process is complete, we can use the following command to list our connected devices.
-
-```
-(ENV3) pi@masterpi:~ $ cms bridge info
-bridge info
-
-# ----------------------------------------------------------------------
-#
-# IP range: 10.1.1.2 - 10.1.1.122
-# Manager IP: 10.1.1.1
-#
-# # LEASE HISTORY #
-# 2021-01-21 06:04:08 dc:a6:32:e8:01:a3 10.1.1.84 red001 01:dc:a6:32:e8:01:a3
-# 2021-01-21 06:04:08 dc:a6:32:e7:f0:fb 10.1.1.12 red003 01:dc:a6:32:e7:f0:fb
-# 2021-01-21 06:04:08 dc:a6:32:e8:02:cd 10.1.1.22 red004 01:dc:a6:32:e8:02:cd
-# 2021-01-21 06:04:08 dc:a6:32:e8:06:21 10.1.1.39 red002 01:dc:a6:32:e8:06:21
-# ----------------------------------------------------------------------
-```
+**Step 2.** Verifying internet connection 
 
 At this point, our workers should have internet access. Let us SSH into one and ping google.com to verify.
 
@@ -369,15 +280,12 @@ PING google.com (142.250.64.238) 56(84) bytes of data.
 64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=4 ttl=106 time=47.10 ms
 64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=5 ttl=106 time=48.5 ms
 ^C
---- google.com ping statistics ---
+--- google.com `ping statistics ---
 5 packets transmitted, 5 received, 0% packet loss, time 9ms
 rtt min/avg/max/mdev = 47.924/48.169/48.511/0.291 ms
 ```
 
-Note how we are able to omit the pi user and .local extension
-
-The cluster is now complete. For information on rebooting clusters (ie. if you shut it down for the day and wish to reboot), see [FAQ/Hints](#faqhints)
-
+Note how we are able to omit the pi user and .local extension. We have successfuly configured our bridge.
 
 ## Set up of the SSH keys and SSH tunnel
 
@@ -542,12 +450,12 @@ Note to execute the command on the commandline you have to type in
               [--ssid=SSID]
               [--wifipassword=PSK]
               [--format]
+              [--tag=TAG]
   burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
   burn set [--hostname=HOSTNAME]
            [--ip=IP]
            [--key=KEY]
-           [--mount=MOUNTPOINT]
-  burn enable ssh [--mount=MOUNTPOINT]
+  burn enable ssh
   burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
   burn check [--device=DEVICE]
 
@@ -740,8 +648,12 @@ Examples: ( \ is not shown)
 
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
+
 ```
 <!--MANUAL-BURN-->
+
+
+
 
 
 
@@ -754,106 +666,26 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BRIDGE-->
 ```
-  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
-  bridge set HOSTS ADDRESSES 
-  bridge restart [--nohup] [--background]
-  bridge status
-  bridge test HOSTS [--rate=RATE]
-  bridge list NAMES
-  bridge check NAMES [--configuration] [--connection]
-  bridge info
-
-Arguments:
-    HOSTS        Hostnames of connected devices. 
-                 Ex. red002
-                 Ex. red[002-003]
-
-    ADDRESSES    IP addresses to assign to HOSTS. Addresses
-                 should be in the network range configured.
-                 Ex. 10.1.1.2
-                 Ex. 10.1.1.[2-3]
-
-    NAMES        A parameterized list of hosts. The first hostname 
-                 in the list is the master through which the traffic 
-                 is routed. Example:
-                 blue,blue[002-003]
-
 Options:
     --interface=INTERFACE  The interface name [default: eth1]
                            You can also specify wlan0 if you wnat
                            to bridge through WIFI on the master
                            eth0 requires a USB to WIFI adapter
 
-    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to
-                           assign the master on the
-                           interface. Ex. 10.1.1.1
-
-    --range=IPRANGE        The inclusive range of IPs that can be
-                           assigned to connecting devices. Value
-                           should be a comma separated tuple of the
-                           two range bounds. Should not include the
-                           ip of the master Ex. 10.1.1.2-10.1.1.20
-                           [default: 10.1.1.2-10.1.1.122]
-
-    --workers=WORKERS      The parametrized hostnames of workers
-                           attatched to the bridge.
-                           Ex. red002
-                           Ex. red[002-003]
-
-    --purge                Include option if a full reinstallation of
-                           dnsmasq is desired
-
-    --background           Runs the restart command in the background.
-                           stdout to bridge_restart.log
-
-    --nohup                Restarts only the dnsmasq portion of the
-                           bridge. This is done to surely prevent
-                           SIGHUP if using ssh.
-
-    --rate=RATE            The rate in seconds for repeating the test
-                           If ommitted its done just once.
-
 Description:
 
   Command used to set up a bride so that all nodes route the traffic
   trough the master PI.
 
-  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
-      creates the bridge on the current device
-      The create command does not restart the network.
-
-  bridge set HOSTS ADDRESSES 
-      the set command assigns the given static 
-      ip addresses to the given hostnames.
-
-  bridge status
-      Returns the status of the bridge and its linked services.
-
-  bridge restart [--nohup]
-      restarts the bridge on the master without rebooting. 
-
-  bridge test NAMES
-      A test to see if the bridges are configured correctly and one
-      hase internet access on teh specified hosts.
-
-  bridge list NAMES
-      Lists information about the bridges (may not be needed)
-
-  bridge check NAMES [--config] [--connection]
-      provides information about the network configuration
-      and netwokrk access. Thisis not a comprehensive speedtest
-      for which we use test.
-
-  bridge info
-      prints relevant information about the configured bridge
-
-
-Design Changes:
-  We still may need the master to be part of other commands in case
-  for example the check is different for master and worker
+  bridge create [--interface=INTERFACE]
+      creates the bridge on the current device.
+      A reboot is required.
 
 ```
 <!--MANUAL-BRIDGE-->
+
+
+
 
 
 
@@ -874,7 +706,6 @@ Note to execute the command on the commandline you have to type in
     host key list NAMES [--output=FORMAT]
     host key gather NAMES [--authorized_keys] [FILE]
     host key scatter NAMES FILE
-    host tunnel create NAMES [--port=PORT]
 
 This command does some useful things.
 
@@ -884,7 +715,6 @@ Arguments:
 Options:
     --dryrun   shows what would be done but does not execute
     --output=FORMAT  the format of the output
-    --port=PORT starting local port for tunnel assignment
 
 Description:
 
@@ -962,17 +792,12 @@ Description:
           | red03 | True    | red03  |
           +-------+---------+--------+
 
-    host tunnel create NAMES [--port=PORT]
 
-      This command is used to create a persistent local port
-      forward on the host to permit ssh tunnelling from the wlan to
-      the physical network (eth). This registers an autossh service in
-      systemd with the defualt port starting at 8001.
-
-      Example:
-          cms host tunnel create red00[1-3]
 ```
 <!--MANUAL-HOST-->
+
+
+
 
 
 
@@ -1069,8 +894,12 @@ Description:
           goes in sequential order and switches on and off the led of
           the given PIs
 
+
 ```
 <!--MANUAL-PI-->
+
+
+
 
 
 
@@ -1082,20 +911,6 @@ Description:
 ## FAQ and Hints
 
 Here, we provide some usefule FAQs and hints.
-
-### I  used the [bridge command](#quickstart-for-restricted-wifi-access) during quickstart. How do I restart my cluster to preserve the network configuration?
-
-> Restarting the cluster is an inevitable task. Perhaps you need to
-> remove the cluster from your workspace, or you simply wish to save
-> on power. This is perfectly fine. However, to preserve the network
-> configuration provided by the bridge command, you should only boot
-> up your workers **after** your master has finished booting. This is
-> so that the `bridge` program can boot up and be operational before
-> the workers attempt to establish a connection. If the workers
-> establish a connection with the master before the `bridge` program
-> is active, the user will have no internet access for the workers.
-> In this case, you may also resolve this issue by simply rebooting
-> your workers.
 
 ### Can I use the LEDs on the PI Motherboard?
 
@@ -1174,10 +989,10 @@ You will not need the bridge command to setup the network.
 
 Nlt everything is supported.
 
-To download the latest rasbian Pi image use
+To download the latest Raspberry Pi OS Lite image use
 
 ```
-cms burn image get
+cms burn image get latest-lite
 ```
 
 To see what SDCard writers you have attached, you can use the command
