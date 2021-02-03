@@ -89,20 +89,17 @@ class Burner(object):
         """
 
         data = {
-            "wifi": False,
-            "ssh":False,
+            "ssh": None,
             "hostname": None,
             "ip": None,
             "password": None,
+            "wifi": None,
+            "psk": None,
             "ssid": None,
             "wifipassword": None
         }
 
         card = SDCard()
-
-        # wifi
-
-        Console.error("probe wifi not yet implemented")
 
         # ssh
 
@@ -124,15 +121,30 @@ class Burner(object):
 
         Console.error("probe password not yet implemented")
 
-        # ssid
+        # wifi
 
-        Console.error("probe ssid not yet implemented")
+        try:
+            location = f"{card.boot_volume}/wpa_supplicant.conf"
+            data["wifi"] = os.path.exists(location)
 
-        # wifipassword
+            if data["wifi"]:
+                lines = readfile(location).splitlines()
 
-        Console.error("probe wifipassword not yet implemented")
+                for line in lines:
+                    for tag in ["ssid", "wifipassword", "psk"]:
+                        if f"{tag} =" in line:
+                            data[tag] = line.split("{tag} =")[1]
 
-        # gregor
+            else:
+                data["wifi"] = False
+                data["ssid"] = None
+                data["wifipassword"] = None
+
+        except Exception as e:
+
+            data["wifi"] = False
+            data["ssid"] = None
+            data["wifipasswd"] = None
 
         banner("Card Check")
         print(Printer.attribute(
@@ -962,7 +974,7 @@ class Burner(object):
 
         # Per fix provided by Gregor, we use this path to get around rfkill block on boot
         card = SDCard(card_os=card_os, host=host)
-        path = f"{card.boot_volume}wpa_supplicant.conf"
+        path = f"{card.boot_volume}/wpa_supplicant.conf"
         if self.dryrun:
             print("DRY RUN - skipping:")
             print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
