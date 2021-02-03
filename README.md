@@ -23,7 +23,7 @@ laszewski@gmail.com*
     - [Master Pi](#master-pi)
     - [Single Card Burning](#single-card-burning)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
-    - [Connecting Pis to the Internet via Bridge (OPTION 1)](#connecting-pis-to-the-internet-via-bridge-option-1)
+    - [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge)
   - [Set up of the SSH keys and SSH tunnel](#set-up-of-the-ssh-keys-and-ssh-tunnel)
   - [Manual Pages](#manual-pages)
     - [Manual Page for the `burn` command](#manual-page-for-the-burn-command)
@@ -31,7 +31,6 @@ laszewski@gmail.com*
     - [Manual Page for the `host` command](#manual-page-for-the-host-command)
     - [Manual Page for the `pi` command](#manual-page-for-the-pi-command)
   - [FAQ and Hints](#faq-and-hints)
-    - [I  used the \[bridge command\](#quickstart-for-restricted-wifi-access) during quickstart. How do I restart my cluster to preserve the network configuration?](#i--used-the-bridge-commandquickstart-for-restricted-wifi-access-during-quickstart-how-do-i-restart-my-cluster-to-preserve-the-network-configuration)
     - [Can I use the LEDs on the PI Motherboard?](#can-i-use-the-leds-on-the-pi-motherboard)
     - [How can I use pycharm, to edit files or access files in general from my Laptop on the PI?](#how-can-i-use-pycharm-to-edit-files-or-access-files-in-general-from-my-laptop-on-the-pi)
     - [How can I enhance the `get` script?](#how-can-i-enhance-the-get-script)
@@ -451,12 +450,12 @@ Note to execute the command on the commandline you have to type in
               [--ssid=SSID]
               [--wifipassword=PSK]
               [--format]
+              [--tag=TAG]
   burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
   burn set [--hostname=HOSTNAME]
            [--ip=IP]
            [--key=KEY]
-           [--mount=MOUNTPOINT]
-  burn enable ssh [--mount=MOUNTPOINT]
+  burn enable ssh
   burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
   burn check [--device=DEVICE]
 
@@ -649,8 +648,12 @@ Examples: ( \ is not shown)
 
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
+
 ```
 <!--MANUAL-BURN-->
+
+
+
 
 
 
@@ -663,106 +666,26 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BRIDGE-->
 ```
-  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE] [--purge]
-  bridge set HOSTS ADDRESSES 
-  bridge restart [--nohup] [--background]
-  bridge status
-  bridge test HOSTS [--rate=RATE]
-  bridge list NAMES
-  bridge check NAMES [--configuration] [--connection]
-  bridge info
-
-Arguments:
-    HOSTS        Hostnames of connected devices. 
-                 Ex. red002
-                 Ex. red[002-003]
-
-    ADDRESSES    IP addresses to assign to HOSTS. Addresses
-                 should be in the network range configured.
-                 Ex. 10.1.1.2
-                 Ex. 10.1.1.[2-3]
-
-    NAMES        A parameterized list of hosts. The first hostname 
-                 in the list is the master through which the traffic 
-                 is routed. Example:
-                 blue,blue[002-003]
-
 Options:
     --interface=INTERFACE  The interface name [default: eth1]
                            You can also specify wlan0 if you wnat
                            to bridge through WIFI on the master
                            eth0 requires a USB to WIFI adapter
 
-    --ip=IPADDRESS         The ip address [default: 10.1.1.1] to
-                           assign the master on the
-                           interface. Ex. 10.1.1.1
-
-    --range=IPRANGE        The inclusive range of IPs that can be
-                           assigned to connecting devices. Value
-                           should be a comma separated tuple of the
-                           two range bounds. Should not include the
-                           ip of the master Ex. 10.1.1.2-10.1.1.20
-                           [default: 10.1.1.2-10.1.1.122]
-
-    --workers=WORKERS      The parametrized hostnames of workers
-                           attatched to the bridge.
-                           Ex. red002
-                           Ex. red[002-003]
-
-    --purge                Include option if a full reinstallation of
-                           dnsmasq is desired
-
-    --background           Runs the restart command in the background.
-                           stdout to bridge_restart.log
-
-    --nohup                Restarts only the dnsmasq portion of the
-                           bridge. This is done to surely prevent
-                           SIGHUP if using ssh.
-
-    --rate=RATE            The rate in seconds for repeating the test
-                           If ommitted its done just once.
-
 Description:
 
   Command used to set up a bride so that all nodes route the traffic
   trough the master PI.
 
-  bridge create [--interface=INTERFACE] [--ip=IPADDRESS] [--range=IPRANGE]
-      creates the bridge on the current device
-      The create command does not restart the network.
-
-  bridge set HOSTS ADDRESSES 
-      the set command assigns the given static 
-      ip addresses to the given hostnames.
-
-  bridge status
-      Returns the status of the bridge and its linked services.
-
-  bridge restart [--nohup]
-      restarts the bridge on the master without rebooting. 
-
-  bridge test NAMES
-      A test to see if the bridges are configured correctly and one
-      hase internet access on teh specified hosts.
-
-  bridge list NAMES
-      Lists information about the bridges (may not be needed)
-
-  bridge check NAMES [--config] [--connection]
-      provides information about the network configuration
-      and netwokrk access. Thisis not a comprehensive speedtest
-      for which we use test.
-
-  bridge info
-      prints relevant information about the configured bridge
-
-
-Design Changes:
-  We still may need the master to be part of other commands in case
-  for example the check is different for master and worker
+  bridge create [--interface=INTERFACE]
+      creates the bridge on the current device.
+      A reboot is required.
 
 ```
 <!--MANUAL-BRIDGE-->
+
+
+
 
 
 
@@ -783,7 +706,6 @@ Note to execute the command on the commandline you have to type in
     host key list NAMES [--output=FORMAT]
     host key gather NAMES [--authorized_keys] [FILE]
     host key scatter NAMES FILE
-    host tunnel create NAMES [--port=PORT]
 
 This command does some useful things.
 
@@ -793,7 +715,6 @@ Arguments:
 Options:
     --dryrun   shows what would be done but does not execute
     --output=FORMAT  the format of the output
-    --port=PORT starting local port for tunnel assignment
 
 Description:
 
@@ -871,17 +792,12 @@ Description:
           | red03 | True    | red03  |
           +-------+---------+--------+
 
-    host tunnel create NAMES [--port=PORT]
 
-      This command is used to create a persistent local port
-      forward on the host to permit ssh tunnelling from the wlan to
-      the physical network (eth). This registers an autossh service in
-      systemd with the defualt port starting at 8001.
-
-      Example:
-          cms host tunnel create red00[1-3]
 ```
 <!--MANUAL-HOST-->
+
+
+
 
 
 
@@ -978,8 +894,12 @@ Description:
           goes in sequential order and switches on and off the led of
           the given PIs
 
+
 ```
 <!--MANUAL-PI-->
+
+
+
 
 
 
@@ -1069,10 +989,10 @@ You will not need the bridge command to setup the network.
 
 Nlt everything is supported.
 
-To download the latest rasbian Pi image use
+To download the latest Raspberry Pi OS Lite image use
 
 ```
-cms burn image get
+cms burn image get latest-lite
 ```
 
 To see what SDCard writers you have attached, you can use the command
