@@ -93,6 +93,7 @@ class Burner(object):
             "hostname": None,
             "ip": None,
             "password": None,
+            "shadow": None,
             "wifi": None,
             "psk": None,
             "ssid": None,
@@ -115,11 +116,13 @@ class Burner(object):
 
         # ip
 
-        Console.error("probe ip not yet implemented")
+        data["ip"] = "not yet implemented"
 
         # passwod
 
-        Console.error("probe password not yet implemented")
+        data["password"] = "not yet implemented"
+
+        data["shadow"] = os.path.exists(f"{card.boot_volume}/etc/shadow")
 
         # wifi
 
@@ -150,11 +153,13 @@ class Burner(object):
         print(Printer.attribute(
             data,
             order=[
-                "wifi",
                 "ssh",
                 "hostname",
                 "ip",
                 "password",
+                "shadow",
+                "wifi",
+                "psk",
                 "ssid",
                 "wifipassword"
             ]
