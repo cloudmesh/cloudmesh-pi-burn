@@ -800,8 +800,10 @@ class Burner(object):
         if not self.dryrun:
             self.system('sudo sync')  # flush any pending/in-process writes
 
+            Console.ok(f"unmounting {card.boot_volume}")
             os.system(f"sudo umount {card.boot_volume}")
             time.sleep(3)
+            Console.ok(f"mounting  {card.root_volume}")
             os.system(f"sudo umount {card.root_volume}")
 
             time.sleep(3)
@@ -810,7 +812,6 @@ class Burner(object):
                   f"sudo rmdir {card.root_volume}"]
 
             for command in rm:
-                print(rm)
                 os.system(command)
 
     @windows_not_supported
