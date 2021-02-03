@@ -438,7 +438,7 @@ class Burner(object):
             Console.error("No matching image found.")
             return ""
         elif len(image) > 1:
-            Console.error("Too manay images found")
+            Console.error("Too many images found")
             print(Printer.write(image,
                                 order=["tag", "version"],
                                 header=["Tag", "Version"]))

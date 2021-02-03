@@ -1028,16 +1028,16 @@ Take the SDCard into the PI and set it up there. as documented.
 | network         |      | g +?   |         |         |
 | backup          | a    | g +    |         |         |
 | copy            |      | g +    |         |         |
-| shrink install  | a    | gt +   |  -      |         |
+| shrink install  | at +    | gt +   |  -      |         |
 | shrink          | a    | g+?    |  -      |         |
-| sdcard          |      | gt -   |         |         |
-| mount           | a  d | gt +   |         |         |
-| unmount         | a  d | gt +   |         |         |
+| sdcard          | at +     | gt -   |         |         |
+| mount           | at + | gt +   |         |         |
+| unmount         | a t + | gt +   |         |         |
 | enable ssh      |      |        |         |         |
 | wifi            |   -  |   -    |  -      | -       |
 | set             |      |        |         |         |
 | create          |      |        |         |         |
-| format          | a d  | gt +   |         |         |
+| format          | at +d  | gt +   |         |         |
 | firmware        | a ?  | NA     |  NA     | NA      |
 
 * g = gregor

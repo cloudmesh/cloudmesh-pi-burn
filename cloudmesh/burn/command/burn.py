@@ -406,7 +406,7 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.sdcard:
-            arguments.TAG = arguments.TAG or ["latest"]
+            arguments.TAG = arguments.TAG or ["latest-lite"]
 
             execute("sdcard", burner.burn_sdcard(tag=arguments.TAG, device=arguments.device))
             return ""

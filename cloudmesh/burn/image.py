@@ -44,7 +44,7 @@ class Image(object):
 
 
     @staticmethod
-    def find(tag=['latest']):
+    def find(tag=['latest-lite']):
         found = []
         data = Image.create_version_cache(refresh=False)
         for entry in data:
