@@ -112,8 +112,15 @@ update your system, and install cloudmesh.
 
 ```
 pi@masterpi:~ $ pip install pip -U
-pi@masterpi:~ $ curl -Ls https://raw.githubusercontent.com/cloudmesh/get/main/pi/index.html | sh 
-# Note: in the future, the command above will be replaced by curl -Ls http://cloudmesh.github.io/get/pi | sh
+pi@masterpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
+                # see note use different link for now
+```
+
+Note: at present we are still improving the pi script and thus you
+should for now use the command
+
+```
+pi@masterpi:~ $  curl -Ls https://raw.githubusercontent.com/cloudmesh/get/main/pi/index.html | sh 
 ```
 
 This will take a moment...
@@ -273,10 +280,9 @@ We should now reboot.
 (ENV3) pi@masterpi:~ $ sudo reboot
 ```
 
-> Note the `--interface` option indicates the interface 
-> used by the master pi to access the internet. 
-> In this case, since we are using WiFi, it is 
-> likely `wlan0`. Other options such as `eth0` and `eth1` 
+> Note the `--interface` option indicates the interface used by the
+> master pi to access the internet.  In this case, since we are using
+> WiFi, it is likely `wlan0`. Other options such as `eth0` and `eth1`
 > exist for ethernet connections.
 
 **Step 2.** Verifying internet connection 
@@ -360,7 +366,15 @@ and manager ~/.ssh/authorized_hosts file
 
 ```
 (ENV3) pi@managerpi:~ $ ssh red001
-pi@red001:~ $ ssh masterpi  #bug if manager is still named raspberrypi then the worker might resolve it as 127.0.0.1. Use raspberrypi.local instead.
+pi@red001:~ $ ssh masterpi
+```
+
+TODO: check this comment
+
+BUG: if the manager is still named raspberrypi then the
+worker might resolve it as 127.0.0.1. Use raspberrypi.local instead.
+
+```
 (ENV3) pi@managerpi:~ $ exit
 pi@red001:~ $ ssh red002
 pi@red002:~ $ exit
@@ -704,13 +718,6 @@ Description:
 <!--MANUAL-BRIDGE-->
 
 
-
-
-
-
-
-
-
 ### Manual Page for the `host` command
 
 Note to execute the command on the commandline you have to type in
@@ -827,15 +834,6 @@ Description:
 ```
 <!--MANUAL-HOST-->
 
-
-
-
-
-
-
-
-
-
 ### Manual Page for the `pi` command
 
 Note to execute the command on the commandline you have to type in
@@ -913,7 +911,6 @@ Description:
 
 ```
 <!--MANUAL-PI-->
-
 
 
 ## FAQ and Hints
@@ -1025,28 +1022,28 @@ Take the SDCard into the PI and set it up there. as documented.
 
 ### What is the status of the implementation?
 
-| Feature         | PI   | Ubuntu | Mac     | Windows |
-| --------------- | ---- | ------ | ------- | ------- |
-| image versions  | at + | gt +   | gt +    |         |
-| image ls        | at + | gt +   | gt +    |         |
-| image delete    | at + | gt +   | gt +    |         |
-| image get       | at + | gt +   | gt +    |         |
-| info            | a  + | g +    | g +/- 3 |         |
-| detect*         |      |        |         |         |
-| network         |      | g +?   |         |         |
-| backup          | a    | g +    |         |         |
-| copy            |      | g +    |         |         |
-| shrink install  | at +    | gt +   |  -      |         |
-| shrink          | a    | g+?    |  -      |         |
-| sdcard          | at +     | gt -   |         |         |
-| mount           | at + | gt +   |         |         |
-| unmount         | a t + | gt +   |         |         |
-| enable ssh      |      |        |         |         |
-| wifi            |   -  |   -    |  -      | -       |
-| set             |      |        |         |         |
-| create          |      |        |         |         |
-| format          | at +d  | gt +   |         |         |
-| firmware        | a ?  | NA     |  NA     | NA      |
+| Feature         | PI    | Ubuntu | Mac     | Windows |
+| --------------- | ----- | ------ | ------- | ------- |
+| image versions  | at +  | gt +   | gt +    |         |
+| image ls        | at +  | gt +   | gt +    |         |
+| image delete    | at +  | gt +   | gt +    |         |
+| image get       | at +  | gt +   | gt +    |         |
+| info            | a  +  | g +    | g +/- 3 |         |
+| detect*         |       |        |         |         |
+| network         |       | g +?   |         |         |
+| backup          | a     | g +    |         |         |
+| copy            |       | g +    |         |         |
+| shrink install  | at +  | gt +   |  -      |         |
+| shrink          | a     | g+?    |  -      |         |
+| sdcard          | at +  | gt -   |         |         |
+| mount           | at +  | gt +   |         |         |
+| unmount         | at +  | gt +   |         |         |
+| enable ssh      |       |        |         |         |
+| wifi            |   -   |   -    |  -      | -       |
+| set             |       |        |         |         |
+| create          |       |        |         |         |
+| format          | at +d | gt +   |         |         |
+| firmware        | a ?   | NA     |  NA     | NA      |
 
 * g = gregor
 * r = richie
