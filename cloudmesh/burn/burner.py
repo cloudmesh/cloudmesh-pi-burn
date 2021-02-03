@@ -210,7 +210,7 @@ class Burner(object):
         @rtype:
         """
 
-        if os_is_linux():
+        if os_is_linux() or os_is_pi():
             banner("Installing pishrink.sh into /usr/local/bin")
             script = \
                 """
@@ -803,7 +803,7 @@ class Burner(object):
             Console.ok(f"unmounting {card.boot_volume}")
             os.system(f"sudo umount {card.boot_volume}")
             time.sleep(3)
-            Console.ok(f"mounting  {card.root_volume}")
+            Console.ok(f"unmounting  {card.root_volume}")
             os.system(f"sudo umount {card.root_volume}")
 
             time.sleep(3)
@@ -1087,10 +1087,7 @@ class Burner(object):
         :param hostname: the hostname
         :type hostname: str
         """
-        if os_is_pi():
-            Console.error("Not yet implemented")
-
-        elif os_is_linux():
+        if os_is_linux() or os_is_pi():
 
             banner(f"load {device}")
             os.system(f"sudo eject -t {device}")

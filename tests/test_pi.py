@@ -1,7 +1,7 @@
 ###############################################################
-# pytest -v --capture=no tests/test_linux.py
-# pytest -v  tests/test_linux.py
-# pytest -v --capture=no tests/test_linux.py::Test_linux.test_pishrink_install
+# pytest -v --capture=no tests/test_pi.py
+# pytest -v  tests/test_pi.py
+# pytest -v --capture=no tests/test_pi.py::Test_burn::test_info
 ###############################################################
 
 import os
@@ -15,16 +15,16 @@ from cloudmesh.common.util import HEADING
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import yn_choice
 
-from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_pi
 
-cloud = "ubuntu"
+cloud = "raspberry"
 device = "/dev/sdb"
 user = os.environ["USER"]
 
-sys.exit(1)
+#sys.exit(1)
 
 
-if not os_is_linux():
+if not os_is_pi():
     Console.error("OS is not Ubuntu, test can not be performed")
     sys.exit(1)
 
@@ -73,6 +73,7 @@ burn wifi SSID [--passwd=PASSWD] [-ni]
 class Test_burn:
 
     def test_installer(self):
+        #passes
         HEADING()
         cmd = "cloudmesh-installer list pi"
         Benchmark.Start()
@@ -87,6 +88,7 @@ class Test_burn:
         sys.stderr.flush()
 
     def test_install(self):
+        #passes
         HEADING()
         cmd = "cms burn install"
         Benchmark.Start()
@@ -99,6 +101,7 @@ class Test_burn:
         sys.stderr.flush()
 
     def test_info(self):
+        #passes
         HEADING()
         cmd = "cms burn info"
         Benchmark.Start()
@@ -111,6 +114,7 @@ class Test_burn:
         sys.stderr.flush()
 
     def test_burn_format(self):
+        #passes
         HEADING()
         global user
         global device
@@ -120,9 +124,13 @@ class Test_burn:
         cmd = f"cms burn format --device={device}"
         Benchmark.Start()
         os.system(cmd)
+        result = Shell.run(cmd)
         Benchmark.Stop()
+        assert f"Disk {device}" in result
+        assert "primary" in result
+        assert "fat32" in result
 
-        os.system(f"eject {device}")
+        os.system(f"sudo eject {device}")
 
         sys.stdout.flush()
         sys.stderr.flush()

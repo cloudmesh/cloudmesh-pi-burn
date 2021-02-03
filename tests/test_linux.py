@@ -1,7 +1,7 @@
 ###############################################################
 # pytest -v --capture=no tests/test_linux.py
 # pytest -v  tests/test_linux.py
-# pytest -v --capture=no tests/test_linux.py::Test_linux.test_pishrink_install
+# pytest -v --capture=no tests/test_linux.py::Test_burn::test_info
 ###############################################################
 
 import os
