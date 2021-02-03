@@ -1,4 +1,4 @@
-# Title
+# Easy Raspberry PI Cluster Setup with Cloudmesh SDCard Burner
 
 ## Upload an image
 
@@ -7,7 +7,7 @@
 
 ## Category
 
-Hardware and Software
+Software
 
 ## Project Status
 
