@@ -55,8 +55,7 @@ class BurnCommand(PluginCommand):
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
                        [--key=KEY]
-                       [--mount=MOUNTPOINT]
-              burn enable ssh [--mount=MOUNTPOINT]
+              burn enable ssh
               burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
               burn check [--device=DEVICE]
 
@@ -267,7 +266,7 @@ class BurnCommand(PluginCommand):
                        "version",
                        "to",
                        "os")
-        arguments.MOUNTPOINT = arguments["--mount"]
+        # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
         arguments.IMAGE = arguments["--image"]
@@ -424,19 +423,19 @@ class BurnCommand(PluginCommand):
         elif arguments.set:
 
             if arguments.hostname:
-                execute("set hostname", burner.set_hostname(arguments.hostname, arguments.MOUNTPOINT))
+                execute("set hostname", burner.set_hostname(arguments.hostname))
 
             if arguments.ip:
-                execute("set ip", burner.set_static_ip(arguments.ip, arguments.MOUNTPOINT))
+                execute("set ip", burner.set_static_ip(arguments.ip))
 
             if arguments.key:
-                execute("set key", burner.set_key(arguments.key, arguments.MOUNTPOINT))
+                execute("set key", burner.set_key(arguments.key))
 
             return ""
 
         elif arguments.enable and arguments.ssh:
 
-            execute("enable ssh", burner.enable_ssh(arguments.MOUNTPOINT))
+            execute("enable ssh", burner.enable_ssh())
             return ""
 
         # elif arguments.versions and arguments.image:

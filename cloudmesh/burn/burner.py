@@ -419,7 +419,7 @@ class Burner(object):
         return res[1]
 
     @windows_not_supported
-    def burn_sdcard(self, tag="latest", device=None, blocksize="4M"):
+    def burn_sdcard(self, tag="latest-lite", device=None, blocksize="4M"):
         """
         Burns the SD Card with an image
 
@@ -431,6 +431,7 @@ class Burner(object):
         :type blocksize: str
         """
 
+        Console.info("Burning...")
         image = Image().find(tag=tag)
 
         if image is None:
@@ -477,7 +478,7 @@ class Burner(object):
             raise NotImplementedError("Only implemented to be run on a PI")
 
     @windows_not_supported
-    def set_hostname(self, hostname, mountpoint):
+    def set_hostname(self, hostname):
         """
         Sets the hostname on the sd card
 
@@ -488,6 +489,14 @@ class Burner(object):
         :type mountpoint: str
         """
         self.hostname = hostname
+        if os_is_pi():
+            card = SDCard()
+        elif os_is_linux():
+            card = SDCard(card_os="linux")
+        else:
+            raise NotImplementedError
+
+        mountpoint = card.root_volume
         # write the new hostname to /etc/hostname
         if not self.dryrun:
             self.system(
@@ -515,8 +524,37 @@ class Burner(object):
             print("Write to /etc/hosts")
             print('127.0.1.1 ' + hostname + '\n')
 
+        # Adds the ip and hostname to /etc/hosts if it isn't already there.
+    def add_to_hosts(self, ip):
+        # with open('/etc/hosts', 'r') as host_file:
+        #     hosts = host_file.readlines()
+        hosts = sudo_readfile('/etc/hosts')
+
+        replaced = False
+        for i in range(len(hosts)):
+            ip_host = hosts[i].split()
+
+            if len(ip_host) > 1:
+                if ip_host[0] == ip:
+                    ip_host[1] = self.hostname
+                    hosts[i] = f"{ip_host[0]}\t{ip_host[1]}"
+                    replaced = True
+
+                elif ip_host[1] == self.hostname:
+                    ip_host[0] = ip
+                    hosts[i] = f"{ip_host[0]}\t{ip_host[1]}"
+                    replaced = True
+        if not replaced:
+            hosts.append(f"{ip}\t{self.hostname}")
+
+        config = ""
+        for line in hosts:
+            config = config + line + '\n'
+
+        sudo_writefile('/etc/hosts', config)
+
     @windows_not_supported
-    def set_static_ip(self, ip, mountpoint, iface="eth0", mask="24"):
+    def set_static_ip(self, ip, iface="eth0", mask="24"):
         """
         Sets the static ip on the sd card for the specified interface
         Also writes to master hosts file for easy access
@@ -535,6 +573,17 @@ class Burner(object):
         """
         # TODO:
         # router_ip statically set to default ip configured with cms bridge create. Rewrite to consider the IP of the master on iface
+
+        if os_is_pi():
+            card = SDCard()
+        elif os_is_linux():
+            card = SDCard(card_os="linux")
+        else:
+            raise NotImplementedError
+
+        mountpoint = card.root_volume
+        if self.hostname is not None:
+            self.add_to_hosts(ip)
         router_ip = '10.1.1.1'
 
         iface = f'interface {iface}'
@@ -656,7 +705,7 @@ class Burner(object):
     #         print(f'static ip_address={ip}/{mask}')
 
     @windows_not_supported
-    def set_key(self, name, mountpoint):
+    def set_key(self, name):
         """
         Copies the public key into the .ssh/authorized_keys file on the sd card
 
@@ -668,16 +717,21 @@ class Burner(object):
         """
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
+        if os_is_pi():
+            card = SDCard()
+        elif os_is_linux():
+            card = SDCard(card_os="linux")
+        else:
+            raise NotImplementedError
+
+        mountpoint = card.root_volume
         self.system(f'mkdir -p {mountpoint}/home/pi/.ssh/')
         self.system(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
     @windows_not_supported
-    def mount(self, device="/dev/sdX", card_os="rasberry", host=None):
+    def mount(self, device=None, card_os="raspberry", host=None):
         """
         Mounts the current SD card
-
-        :param device: device to mount, e.g. /dev/sda
-        :type device: str
         """
         host = host or get_platform()
         card = SDCard(card_os=card_os,host=host)
@@ -691,7 +745,7 @@ class Burner(object):
 
             for usbcard in dmesg:
 
-                dev = usbcard['dev']
+                dev = device or usbcard['dev']
                 print(dev)
                 sd1 = f"{dev}1"
                 sd2 = f"{dev}2"
@@ -732,7 +786,7 @@ class Burner(object):
         #                sys.exit(1)
 
     @windows_not_supported
-    def unmount(self, device="/dev/sdX", card_os="rasberry", host=None):
+    def unmount(self, device=None, card_os="raspberry", host=None):
         """
         Unmounts the current SD card
 
@@ -747,32 +801,29 @@ class Burner(object):
             self.system('sudo sync')  # flush any pending/in-process writes
 
             os.system(f"sudo umount {card.boot_volume}")
+            time.sleep(3)
             os.system(f"sudo umount {card.root_volume}")
 
             time.sleep(3)
 
             rm = [f"sudo rmdir {card.boot_volume}",
-                  f"sudo rmdir {card.boot_volume}"]
+                  f"sudo rmdir {card.root_volume}"]
 
             for command in rm:
                 print(rm)
                 os.system(command)
 
     @windows_not_supported
-    def enable_ssh(self, mountpoint):
+    def enable_ssh(self):
         """
         Enables ssh on next boot of sd card
-
-        :param mountpoint: mount point of the /boot file system wher the
-                           ssh is enabled. by adding a file ssh
-        :type mountpoint: str
         """
         if os_is_pi():
-            # touch mountpoint/boot/ssh
-            command = f'sudo touch {mountpoint}/boot/ssh'
+            card = SDCard(card_os="raspberry")
+            command = f'sudo touch {card.boot_volume}/ssh'
             self.system(command)
         elif os_is_linux():
-            card = SDCard(os="raspberry")
+            card = SDCard(card_os="raspberry")
             command = f"sudo touch {card.boot_volume}/ssh"
             self.system(command)
 
@@ -783,9 +834,10 @@ class Burner(object):
 
     # TODO: docstring
     @windows_not_supported
-    def disable_password_ssh(self, mountpoint):
+    def disable_password_ssh(self):
         # sshd_config = self.filename("/etc/ssh/sshd_config")
-        sshd_config = f'{mountpoint}/etc/ssh/sshd_config'
+        card = SDCard(card_os="raspberry")
+        sshd_config = f'{card.root_volume}/etc/ssh/sshd_config'
         new_sshd_config = ""
         updated_params = False
 
@@ -1019,7 +1071,7 @@ class Burner(object):
                 print(line)
                 os.system(line)
 
-            console.ok("Formatted SD Card")
+            Console.ok("Formatted SD Card")
 
         else:
             raise NotImplementedError("Not implemented for this OS")
@@ -1318,12 +1370,9 @@ class MultiBurner(object):
         :rtype:
         """
         #TODO
-        card_os="broken"
-        host="broken"
-        raise NotImplementedError
-        card = SDCard(card_os=card_os, host=host)
-        mp = card.boot_volume
-        mp = os.path.dirname(mp)
+        card = SDCard()
+        boot_volume = card.boot_volume
+        root_volume = card.root_volume
         if key is None:
             key = '~/.ssh/id_rsa.pub'
 
@@ -1345,24 +1394,24 @@ class MultiBurner(object):
         if fromatting:
             burner.format_device(device=device, hostname=hostname)
 
-        burner.burn(image, device, blocksize=blocksize)
-        burner.mount(device, mp)
-        burner.set_hostname(hostname, mp)
-        burner.disable_terminal_login(mp, password)
+        burner.burn_sdcard(tag="latest-lite", device=device, blocksize=blocksize)
+        burner.mount(device=device)
+        burner.set_hostname(hostname)
+        burner.disable_terminal_login(root_volume, password)
         if ssid:
             Console.warning("In the future, try to interface with the workers via "
                             "ethernet/switch rather than WiFi")
-            burner.configure_wifi(ssid, psk, mp)
-        burner.enable_ssh(mp)
-        burner.disable_password_ssh(mp)
-        burner.set_key(key, mp)
+            burner.configure_wifi(ssid, psk)
+        burner.enable_ssh()
+        burner.disable_password_ssh()
+        burner.set_key(key)
         if ip:
             interface = "wlan0" if ssid is not None else "eth0"
-            burner.set_static_ip(ip, mp, iface=interface)
+            burner.set_static_ip(ip, iface=interface)
 
         burner.unmount(device)
         # for some reason, need to do unmount twice for it to work properly
-        burner.unmount(device)
+        # burner.unmount(device)
         time.sleep(2)
         StopWatch.stop(f"create {device} {hostname}")
         StopWatch.status(f"create {device} {hostname}", True)
