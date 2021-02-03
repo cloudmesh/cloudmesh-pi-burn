@@ -366,13 +366,13 @@ and manager ~/.ssh/authorized_hosts file
 
 ```
 (ENV3) pi@managerpi:~ $ ssh red001
-pi@red001:~ $ ssh masterpi
+pi@red001:~ $ ssh managerpi
 ```
 
 TODO: check this comment
 
 BUG: if the manager is still named raspberrypi then the
-worker might resolve it as 127.0.0.1. Use raspberrypi.local instead.
+worker might resolve it as 127.0.1.1. Use raspberrypi.local instead.
 
 ```
 (ENV3) pi@managerpi:~ $ exit
@@ -1042,7 +1042,7 @@ Take the SDCard into the PI and set it up there. as documented.
 | wifi            |   -   |   -    |  -      | -       |
 | set             |       |        |         |         |
 | create          |       |        |         |         |
-| format          | at +d | gt +   |         |         |
+| format          | at + | gt +   |         |         |
 | firmware        | a ?   | NA     |  NA     | NA      |
 
 * g = gregor

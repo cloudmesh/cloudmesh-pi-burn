@@ -158,7 +158,6 @@ class Test_burn:
         sys.stderr.flush()
 
     def test_mount(self):
-        #passes
         HEADING()
         card = SDCard(card_os="raspberry", host="raspberry")
         global user
@@ -176,7 +175,6 @@ class Test_burn:
         sys.stderr.flush()
 
     def test_unmount(self):
-        #passes
         HEADING()
         card = SDCard(card_os="raspberry", host="raspberry")
         global user
