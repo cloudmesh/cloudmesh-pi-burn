@@ -266,7 +266,7 @@ class BurnCommand(PluginCommand):
                        "version",
                        "to",
                        "os")
-        arguments.MOUNTPOINT = arguments["--mount"]
+        # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
         arguments.IMAGE = arguments["--image"]

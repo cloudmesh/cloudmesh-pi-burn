@@ -524,6 +524,35 @@ class Burner(object):
             print("Write to /etc/hosts")
             print('127.0.1.1 ' + hostname + '\n')
 
+        # Adds the ip and hostname to /etc/hosts if it isn't already there.
+    def add_to_hosts(self, ip):
+        # with open('/etc/hosts', 'r') as host_file:
+        #     hosts = host_file.readlines()
+        hosts = sudo_readfile('/etc/hosts')
+
+        replaced = False
+        for i in range(len(hosts)):
+            ip_host = hosts[i].split()
+
+            if len(ip_host) > 1:
+                if ip_host[0] == ip:
+                    ip_host[1] = self.hostname
+                    hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
+                    replaced = True
+
+                elif ip_host[1] == self.hostname:
+                    ip_host[0] = ip
+                    hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
+                    replaced = True
+        if not replaced:
+            hosts.append(f"{ip}\t{self.hostname}\n")
+
+        config = ""
+        for line in hosts:
+            config = config + line + '\n'
+
+        sudo_writefile('/etc/hosts', config)
+
     @windows_not_supported
     def set_static_ip(self, ip, iface="eth0", mask="24"):
         """
@@ -553,7 +582,8 @@ class Burner(object):
             raise NotImplementedError
 
         mountpoint = card.root_volume
-        Console.error(f'{self.hostname}')
+        if self.hostname is not None:
+            self.add_to_hosts(ip)
         router_ip = '10.1.1.1'
 
         iface = f'interface {iface}'
