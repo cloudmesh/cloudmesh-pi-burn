@@ -124,6 +124,115 @@ class BurnCommand(PluginCommand):
                      | wlan0   | 192.168.1.12   | 192.168.1.255  |
                      +---------+----------------+----------------+
 
+                cms burn firmware check
+
+                    checks if the firmware on the Pi is up to date
+
+                cms burn install
+
+                    installs a program to shring img files. THis is useful, after
+                    you created a backup to make the backup smaller and allow
+                    faster burning in case of recovery
+
+                cms burn load --device=DEVICE
+
+                    loads the sdcard into the USB drive. Thi sis similar to
+                    loading a cdrom drive. It s the oposite to eject
+
+                cms burn format --device=DEVICE
+
+                    formats the SDCard in the specified device. Be careful it is
+                    the correct device.  cms burn info will help you to identifying it
+
+                cms burn mount [--device=DEVICE] [--os=OS]
+
+                    mounts the file systems available on the SDCard
+
+                cms burn unmount [--device=DEVICE] [--os=OS]
+
+                    unmounts the mounted file systems from the SDCard
+
+                cms burn info [--device=DEVICE]
+
+                    provides useful information about the SDCard
+
+                cms burn image versions [--refresh] [--yaml]
+
+                    The images that you like to burn onto your SDCard can be cached locally with the image command.
+                    The available images for the PI can be found when using the --refresh option. If you do not
+                    specify it it reads a copy of the image list from our cache
+
+                cms burn image ls
+
+                    Lists all downloaded images in our cache. You can download
+                    them with the cms burn image get command
+
+                cms burn image delete [--image=IMAGE]
+
+                    deletes the specified image. The name can be found with the image ls command
+
+                cms burn image get [--url=URL] [TAG...]
+
+                    downloads a specific image or the latest image. The tag are a number of words
+                    separated by a space that must occur in the tag that you find in the versions command
+
+                cms burn backup [--device=DEVICE] [--to=DESTINATION]
+
+                    backs up a SDCard to the given location
+
+                cms burn copy [--device=DEVICE] [--from=DESTINATION]
+
+                    copies the file form the destination on the SDCard
+                    this is the same as the SDCard command. we will in future remove one
+
+                cms burn shrink [--image=IMAGE]
+
+                    shrinks the size of a backoup or image file that is on
+                    your local file system. It can only be used for .img files
+
+                cms burn create [--image=IMAGE]
+                                [--device=DEVICE]
+                                [--hostname=HOSTNAME]
+                                [--ip=IP]
+                                [--sshkey=KEY]
+                                [--blocksize=BLOCKSIZE]
+                                [--dryrun]
+                                [--passwd=PASSWD]
+                                [--ssid=SSID]
+                                [--wifipassword=PSK]
+                                [--format]
+
+                    This is a comprehensif cuntion that not only can format the SDCard, but also
+                    initializes it with specific falues
+
+
+                cms burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
+
+                    this burns the sd card, see also copy and create
+
+                cms burn set [--hostname=HOSTNAME]
+                             [--ip=IP]
+                             [--key=KEY]
+                             [--mount=MOUNTPOINT]
+
+                    this sets specific values on the sdcard after it has ben created
+                    with the creat, copy or sdcard command
+
+                    a --ssh is missing from this command
+
+                cms burn enable ssh [--mount=MOUNTPOINT]
+
+                    this enables the ssh server once it is booted
+
+                cms burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+
+                    this sets the wifi ssid and password afterthe card is created,
+                    copies, or sdcard is used
+
+                cms burn check [--device=DEVICE]
+
+                    this command lists the parameters that were set with the set or create command
+
             Examples: ( \\ is not shown)
 
                > cms burn create --image=2019-09-26-raspbian-buster-lite

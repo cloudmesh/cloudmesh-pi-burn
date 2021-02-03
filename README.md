@@ -24,7 +24,6 @@ laszewski@gmail.com*
     - [Single Card Burning](#single-card-burning)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
     - [Connecting Pis to the Internet via Bridge (OPTION 1)](#connecting-pis-to-the-internet-via-bridge-option-1)
-  - [Quickstart Guide for Mesh Networks](#quickstart-guide-for-mesh-networks)
   - [Set up of the SSH keys and SSH tunnel](#set-up-of-the-ssh-keys-and-ssh-tunnel)
   - [Manual Pages](#manual-pages)
     - [Manual Page for the `burn` command](#manual-page-for-the-burn-command)
@@ -34,8 +33,10 @@ laszewski@gmail.com*
   - [FAQ and Hints](#faq-and-hints)
     - [I  used the \[bridge command\](#quickstart-for-restricted-wifi-access) during quickstart. How do I restart my cluster to preserve the network configuration?](#i--used-the-bridge-commandquickstart-for-restricted-wifi-access-during-quickstart-how-do-i-restart-my-cluster-to-preserve-the-network-configuration)
     - [Can I use the LEDs on the PI Motherboard?](#can-i-use-the-leds-on-the-pi-motherboard)
-    - [How can I use pychar, to edit files or access files in general from my Laptop on the PI?](#how-can-i-use-pychar-to-edit-files-or-access-files-in-general-from-my-laptop-on-the-pi)
-    - [The `get` script has an issue, how can I used the development get script.](#the-get-script-has-an-issue-how-can-i-used-the-development-get-script)
+    - [How can I use pycharm, to edit files or access files in general from my Laptop on the PI?](#how-can-i-use-pycharm-to-edit-files-or-access-files-in-general-from-my-laptop-on-the-pi)
+    - [How can I enhance the `get` script?](#how-can-i-enhance-the-get-script)
+    - [Can I use a Mesh Network for the setup?](#can-i-use-a-mesh-network-for-the-setup)
+    - [Can I use cms burn on Linux?](#can-i-use-cms-burn-on-linux)
 
 <!--TOC-->
 
@@ -514,33 +515,41 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BURN-->
 ```
+  burn firmware check
+  burn install
+  burn load --device=DEVICE
+  burn format --device=DEVICE
+  burn mount [--device=DEVICE] [--os=OS]
+  burn unmount [--device=DEVICE] [--os=OS]
   burn network list [--ip=IP] [--used]
   burn network
-  burn info [DEVICE]
-  burn detect
-  burn image versions [--refresh]
+  burn info [--device=DEVICE]
+  burn image versions [--refresh] [--yaml]
   burn image ls
-  burn image delete [IMAGE]
-  burn image get [URL]
+  burn image delete [--image=IMAGE]
+  burn image get [--url=URL] [TAG...]
+  burn backup [--device=DEVICE] [--to=DESTINATION]
+  burn copy [--device=DEVICE] [--from=DESTINATION]
+  burn shrink [--image=IMAGE]
   burn create [--image=IMAGE]
-                         [--device=DEVICE]
-                         [--hostname=HOSTNAME]
-                         [--ipaddr=IP]
-                         [--sshkey=KEY]
-                         [--blocksize=BLOCKSIZE]
-                         [--dryrun]
-                         [--passwd=PASSWD]
-                         [--ssid=SSID]
-                         [--wifipassword=PSK]
-                         [--format]
-  burn burn [IMAGE] [DEVICE] --[dryrun]
-  burn mount [DEVICE] [MOUNTPOINT]
-  burn set host [HOSTNAME] [MOUNTPOINT]
-  burn set ip [IP] [MOUNTPOINT]
-  burn set key [KEY] [MOUNTPOINT]
-  burn enable ssh [MOUNTPOINT]
-  burn unmount [DEVICE]
-  burn wifi SSID [PASSWD] [-ni]
+              [--device=DEVICE]
+              [--hostname=HOSTNAME]
+              [--ip=IP]
+              [--sshkey=KEY]
+              [--blocksize=BLOCKSIZE]
+              [--dryrun]
+              [--passwd=PASSWD]
+              [--ssid=SSID]
+              [--wifipassword=PSK]
+              [--format]
+  burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
+  burn set [--hostname=HOSTNAME]
+           [--ip=IP]
+           [--key=KEY]
+           [--mount=MOUNTPOINT]
+  burn enable ssh [--mount=MOUNTPOINT]
+  burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+  burn check [--device=DEVICE]
 
 Options:
   -h --help              Show this screen.
@@ -549,10 +558,13 @@ Options:
                          e.g. 2019-09-26-raspbian-buster.img
   --device=DEVICE        The device, e.g. /dev/mmcblk0
   --hostname=HOSTNAME    The hostname
-  --ipaddr=IP            The IP address
+  --ip=IP                The IP address
   --key=KEY              The name of the SSH key file
   --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
 
+Arguments:
+    TAG                  Keyword tags to identify an image
+                         [default: latest]
 Files:
   This is not fully thought through and needs to be documented
   ~/.cloudmesh/images
@@ -603,12 +615,121 @@ Description:
          | wlan0   | 192.168.1.12   | 192.168.1.255  |
          +---------+----------------+----------------+
 
+    cms burn firmware check
+
+        checks if the firmware on the Pi is up to date
+
+    cms burn install
+
+        installs a program to shring img files. THis is useful, after
+        you created a backup to make the backup smaller and allow
+        faster burning in case of recovery
+
+    cms burn load --device=DEVICE
+
+        loads the sdcard into the USB drive. Thi sis similar to
+        loading a cdrom drive. It s the oposite to eject
+
+    cms burn format --device=DEVICE
+
+        formats the SDCard in the specified device. Be careful it is
+        the correct device.  cms burn info will help you to identifying it
+
+    cms burn mount [--device=DEVICE] [--os=OS]
+
+        mounts the file systems available on the SDCard
+
+    cms burn unmount [--device=DEVICE] [--os=OS]
+
+        unmounts the mounted file systems from the SDCard
+
+    cms burn info [--device=DEVICE]
+
+        provides useful information about the SDCard
+
+    cms burn image versions [--refresh] [--yaml]
+
+        The images that you like to burn onto your SDCard can be cached locally with the image command.
+        The available images for the PI can be found when using the --refresh option. If you do not
+        specify it it reads a copy of the image list from our cache
+
+    cms burn image ls
+
+        Lists all downloaded images in our cache. You can download
+        them with the cms burn image get command
+
+    cms burn image delete [--image=IMAGE]
+
+        deletes the specified image. The name can be found with the image ls command
+
+    cms burn image get [--url=URL] [TAG...]
+
+        downloads a specific image or the latest image. The tag are a number of words
+        separated by a space that must occur in the tag that you find in the versions command
+
+    cms burn backup [--device=DEVICE] [--to=DESTINATION]
+
+        backs up a SDCard to the given location
+
+    cms burn copy [--device=DEVICE] [--from=DESTINATION]
+
+        copies the file form the destination on the SDCard
+        this is the same as the SDCard command. we will in future remove one
+
+    cms burn shrink [--image=IMAGE]
+
+        shrinks the size of a backoup or image file that is on
+        your local file system. It can only be used for .img files
+
+    cms burn create [--image=IMAGE]
+                    [--device=DEVICE]
+                    [--hostname=HOSTNAME]
+                    [--ip=IP]
+                    [--sshkey=KEY]
+                    [--blocksize=BLOCKSIZE]
+                    [--dryrun]
+                    [--passwd=PASSWD]
+                    [--ssid=SSID]
+                    [--wifipassword=PSK]
+                    [--format]
+
+        This is a comprehensif cuntion that not only can format the SDCard, but also
+        initializes it with specific falues
+
+
+    cms burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
+
+        this burns the sd card, see also copy and create
+
+    cms burn set [--hostname=HOSTNAME]
+                 [--ip=IP]
+                 [--key=KEY]
+                 [--mount=MOUNTPOINT]
+
+        this sets specific values on the sdcard after it has ben created
+        with the creat, copy or sdcard command
+
+        a --ssh is missing from this command
+
+    cms burn enable ssh [--mount=MOUNTPOINT]
+
+        this enables the ssh server once it is booted
+
+    cms burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+
+        this sets the wifi ssid and password afterthe card is created,
+        copies, or sdcard is used
+
+    cms burn check [--device=DEVICE]
+
+        this command lists the parameters that were set with the set or create command
+
 Examples: ( \ is not shown)
 
    > cms burn create --image=2019-09-26-raspbian-buster-lite
    >                 --device=/dev/mmcblk0
    >                 --hostname=red[5-7]
-   >                 --ipaddr=192.168.1.[5-7]
+   >                 --ip=192.168.1.[5-7]
    >                 --sshkey=id_rsa
 
    > cms burn image get latest
@@ -619,9 +740,9 @@ Examples: ( \ is not shown)
 
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
-
 ```
 <!--MANUAL-BURN-->
+
 
 
 
@@ -731,9 +852,9 @@ Design Changes:
   We still may need the master to be part of other commands in case
   for example the check is different for master and worker
 
-
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
@@ -850,9 +971,9 @@ Description:
 
       Example:
           cms host tunnel create red00[1-3]
-
 ```
 <!--MANUAL-HOST-->
+
 
 
 
@@ -948,9 +1069,9 @@ Description:
           goes in sequential order and switches on and off the led of
           the given PIs
 
-
 ```
 <!--MANUAL-PI-->
+
 
 
 

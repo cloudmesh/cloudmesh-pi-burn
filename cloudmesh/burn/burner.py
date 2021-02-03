@@ -30,6 +30,8 @@ from cloudmesh.common.util import yn_choice
 from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.systeminfo import get_platform
+from cloudmesh.common.util import readfile
+
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
@@ -86,49 +88,82 @@ class Burner(object):
         @rtype:
         """
 
-        if Burner.windows_not_supported(): return ""
-
         data = {
-            "wifi": False,
-            "ssh":False,
+            "ssh": None,
             "hostname": None,
             "ip": None,
             "password": None,
+            "shadow": None,
+            "wifi": None,
+            "psk": None,
             "ssid": None,
             "wifipassword": None
         }
 
         card = SDCard()
 
-        # wifi
-
-        Console.error("probe wifi not yet implemented")
-
         # ssh
 
-        self.mount(device)
-
-        data["ssh"] = os.path.exists(card.boot_volume)
-
+        try:
+            self.mount(device)
+            data["ssh"] = os.path.exists(card.boot_volume)
+        except Exception as e:
+            data["ssh"] = str(e)
         # hostname
 
-        Console.error("probe hostname not yet implemented")
+        content = readfile(f"{card.root_volume}/etc/hostname").strip()
+        data['hostname'] = content
 
         # ip
 
-        Console.error("probe ip not yet implemented")
+        data["ip"] = "not yet implemented"
 
         # passwod
 
-        Console.error("probe password not yet implemented")
+        data["password"] = "not yet implemented"
 
-        # ssid
+        data["shadow"] = os.path.exists(f"{card.boot_volume}/etc/shadow")
 
-        Console.error("probe ssid not yet implemented")
+        # wifi
 
-        # wifipassword
+        try:
+            location = f"{card.boot_volume}/wpa_supplicant.conf"
+            data["wifi"] = os.path.exists(location)
 
-        Console.error("probe wifipassword not yet implemented")
+            if data["wifi"]:
+                lines = readfile(location).splitlines()
+
+                for line in lines:
+                    for tag in ["ssid", "wifipassword", "psk"]:
+                        if f"{tag} =" in line:
+                            data[tag] = line.split("{tag} =")[1]
+
+            else:
+                data["wifi"] = False
+                data["ssid"] = None
+                data["wifipassword"] = None
+
+        except Exception as e:
+
+            data["wifi"] = False
+            data["ssid"] = None
+            data["wifipasswd"] = None
+
+        banner("Card Check")
+        print(Printer.attribute(
+            data,
+            order=[
+                "ssh",
+                "hostname",
+                "ip",
+                "password",
+                "shadow",
+                "wifi",
+                "psk",
+                "ssid",
+                "wifipassword"
+            ]
+        ))
 
     @windows_not_supported
     def firmware(self, action="check"):
@@ -940,7 +975,7 @@ class Burner(object):
 
         # Per fix provided by Gregor, we use this path to get around rfkill block on boot
         card = SDCard(card_os=card_os, host=host)
-        path = f"{card.boot_volume}wpa_supplicant.conf"
+        path = f"{card.boot_volume}/wpa_supplicant.conf"
         if self.dryrun:
             print("DRY RUN - skipping:")
             print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
