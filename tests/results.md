@@ -1,5 +1,6 @@
 ## Test Results on Pi
 
+### test_pi.py
 Most cms burn functions are tested in test_pi.py.
 
 Successful completion of tests will create a bootable sd card with latest-lite.
@@ -9,7 +10,7 @@ the device. You can put in a custom device if you do not want the default.
 
 ### 15 pass and 1 fail
 
-1 fail because test_configure not yet implemented for pi.
+1 fail because test_wifi_configure not yet implemented for pi.
 
 ```
 (ENV3) pi@raspberrypi:~/cm/cloudmesh-pi-burn $ pytest -v --capture=no tests/test_pi.py
@@ -386,6 +387,8 @@ ip assigned by the test.
 $ ssh pi@10.10.10.10
 ```
 
+### test_clone.py
+
 Next I test cloning that same SD card.
 
 SD card cloning can take a long time to run, so I put it in a second test 
@@ -395,7 +398,7 @@ I was using a 4GB card so the test would not take too long. This test can not
 be run with an SD card of the equal size to the current OS SD card becuase 
 dd first copies the entire drive bit by bit.
 
-### 3 pass
+### 3/3 pass
 
 
 ```
@@ -544,3 +547,11 @@ image by booting with that card and connecting to it.
 ```
 ssh pi@10.10.10.10
 ```
+
+## Test results on linux (ubuntu 18.04)
+
+### test_pi.py
+
+
+
+### test_clone.py

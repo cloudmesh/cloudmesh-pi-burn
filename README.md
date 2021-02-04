@@ -1028,11 +1028,11 @@ Take the SDCard into the PI and set it up there. as documented.
 | image ls        | at +  | gt +   | gt +    |         |
 | image delete    | at +  | gt +   | gt +    |         |
 | image get       | at +  | gt +   | gt +    |         |
-| info            | a  +  | g +    | g +/- 3 |         |
+| info            | at +  | g +    | g +/- 3 |         |
 | detect*         |       |        |         |         |
 | network         | at +  | g +?   |         |         |
 | backup          | at +  | g +    |         |         |
-| copy            | at +   | g +    |         |         |
+| copy            | at +  | g +    |         |         |
 | shrink install  | at +  | gt +   |  -      |         |
 | shrink          | at +  | g+?    |  -      |         |
 | sdcard          | at +  | gt -   |         |         |
