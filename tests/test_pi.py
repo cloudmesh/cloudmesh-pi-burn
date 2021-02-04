@@ -68,7 +68,6 @@ burn sdcard [--image=IMAGE] [--device=DEVICE] [--dryrun]
 burn set [--hostname=HOSTNAME]
        [--ip=IP]
        [--key=KEY]
-       [--mount=MOUNTPOINT]
 burn enable ssh [--mount=MOUNTPOINT]
 burn wifi SSID [--passwd=PASSWD] [-ni]
 """
@@ -174,6 +173,77 @@ class Test_burn:
         sys.stdout.flush()
         sys.stderr.flush()
 
+    def test_enable_ssh(self):
+        HEADING()
+        card = SDCard(card_os="raspberry", host="raspberry")
+
+        if os.path.exists(f'{card.boot_volume}/ssh'):
+            cmd = f'sudo rm {card.boot_volume}/ssh'
+            os.system(cmd)
+
+        cmd = f'cms burn enable ssh'
+        Benchmark.Start()
+        result = Shell.run(cmd)
+        Benchmark.Stop()
+
+        assert os.path.exists(f'{card.boot_volume}/ssh')
+
+    def test_configure_wifi(self):
+        HEADING()
+        card = SDCard(card_os="raspberry", host="raspberry")
+
+        if os.path.exists(f"{card.boot_volume}/wpa_supplicant.conf"):
+            cmd = f'sudo rm {card.boot_volume}/wpa_supplicant.conf'
+            os.system(cmd)
+
+        cmd = f'cms burn wifi --ssid=test'
+        Benchmark.Start()
+        result = Shell.run(cmd)
+        Benchmark.Stop()
+
+        assert os.path.exists(f"{card.boot_volume}/wpa_supplicant.conf")
+
+    def test_set_hostname(self):
+        HEADING()
+        card = SDCard(card_os="raspberry", host="raspberry")
+
+        cmd = f'cms burn set --hostname=test'
+        Benchmark.Start()
+        os.system(cmd)
+        Benchmark.Stop()
+        cmd = f'sudo cat {card.root_volume}/etc/hostname'
+        result = Shell.run(cmd)
+        assert 'test' in result.split()
+
+    def test_set_ip(self):
+        HEADING()
+        card = SDCard(card_os="raspberry", host="raspberry")
+
+        cmd = f'cms burn set --ip=10.10.10.10'
+        Benchmark.Start()
+        os.system(cmd)
+        Benchmark.Stop()
+        cmd = f'sudo cat {card.root_volume}/etc/dhcpcd.conf'
+        result = Shell.run(cmd)
+        assert 'ip_address=10.10.10.10/24' in result.split()
+
+    def test_set_key(self):
+        HEADING()
+        card = SDCard(card_os="raspberry", host="raspberry")
+        test_key = 'ssh-rsa AAAAAAAA pi@raspberrypi'
+        f = open("test.pub", "w")
+        f.write(test_key)
+        f.close()
+
+        cmd = f'cms burn set --key=./test.pub'
+        Benchmark.Start()
+        os.system(cmd)
+        Benchmark.Stop()
+        cmd = f'sudo cat {card.root_volume}/home/{user}/.ssh/authorized_keys'
+        result = Shell.run(cmd)
+        os.system('rm ./test.pub')
+        assert test_key in result.strip()
+
     def test_unmount(self):
         HEADING()
         card = SDCard(card_os="raspberry", host="raspberry")
@@ -190,6 +260,35 @@ class Test_burn:
 
         sys.stdout.flush()
         sys.stderr.flush()
+
+    def test_network(self):
+        HEADING()
+        cmd = f"cms burn network"
+        Benchmark.Start()
+        result = Shell.run(cmd)
+        Benchmark.Stop()
+        ip_eth0 = Shell.run('ip address | grep eth0| grep -oE'
+                            ' "\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b" | head '
+                            '-1').strip()
+        ip_wlan0 = Shell.run('ip address | grep wlan0| grep -oE'
+                            ' "\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b" | head '
+                             '-1').strip()
+
+        for line in result.splitlines():
+            if 'eth0' in line:
+                cmd_ip = line.split()[3]
+                assert line.split()[1] == 'eth0'
+                assert cmd_ip == ip_eth0
+            elif 'wlan0' in line:
+                cmd_ip = line.split()[3]
+                assert line.split()[1] == 'wlan0'
+                assert cmd_ip == ip_wlan0
+
+    def test_backup(self):
+        pass
+
+    def test_shrink(self):
+        pass
 
     def test_benchmark(self):
         HEADING()
