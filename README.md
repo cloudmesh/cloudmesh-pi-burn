@@ -1028,22 +1028,22 @@ Take the SDCard into the PI and set it up there. as documented.
 | image ls        | at +  | gt +   | gt +    |         |
 | image delete    | at +  | gt +   | gt +    |         |
 | image get       | at +  | gt +   | gt +    |         |
-| info            | a  +  | g +    | g +/- 3 |         |
+| info            | at +  | g +    | g +/- 3 |         |
 | detect*         |       |        |         |         |
-| network         |       | g +?   |         |         |
-| backup          | a     | g +    |         |         |
-| copy            |       | g +    |         |         |
+| network         | at +  | g +?   |         |         |
+| backup          | at +  | g +    |         |         |
+| copy            | at +  | g +    |         |         |
 | shrink install  | at +  | gt +   |  -      |         |
-| shrink          | a     | g+?    |  -      |         |
+| shrink          | at +  | g+?    |  -      |         |
 | sdcard          | at +  | gt -   |         |         |
 | mount           | at +  | gt +   |         |         |
 | unmount         | at +  | gt +   |         |         |
-| enable ssh      |       |        |         |         |
-| wifi            |   -   |   -    |  -      | -       |
-| set             |       |        |         |         |
+| enable ssh      | at +  |        |         |         |
+| wifi            | at -  |   -    |  -      | -       |
+| set             | at +  |        |         |         |
 | create          |       |        |         |         |
-| format          | at + | gt +   |         |         |
-| firmware        | a ?   | NA     |  NA     | NA      |
+| format          | at +  | gt +   |         |         |
+| firmware        | a     | NA     |  NA     | NA      |
 
 * g = gregor
 * r = richie

@@ -106,7 +106,9 @@ class Burner(object):
 
         try:
             self.mount(device)
-            data["ssh"] = os.path.exists(card.boot_volume)
+            data["ssh"] = os.path.exists(f'{card.boot_volume}/ssh') or \
+                          os.path.exists(f'{card.root_volume}'
+                                         '/etc/systemd/system/sshd.service')
         except Exception as e:
             data["ssh"] = str(e)
         # hostname
@@ -244,7 +246,7 @@ class Burner(object):
     def copy(self, device=None, from_file="latest"):
         if device is None:
             Console.error("Device must have a value")
-        self.burn_sdcard(from_file, device)
+        self.burn_sdcard(image=from_file, device=device)
 
 
     @windows_not_supported
@@ -419,34 +421,44 @@ class Burner(object):
         return res[1]
 
     @windows_not_supported
-    def burn_sdcard(self, tag="latest-lite", device=None, blocksize="4M"):
+    def burn_sdcard(self, image=None, tag=None, device=None, \
+                                                           blocksize="4M"):
         """
         Burns the SD Card with an image
 
-        :param image: Image object to use for burning
+        :param image: Image object to use for burning (used by copy)
         :type image: str
+        :param tag: tag object used for burning (used by sdcard)
+        :type tag: str
         :param device: Device to burn to, e.g. /dev/sda
         :type device: str
         :param blocksize: the blocksize used when writing, default 4M
         :type blocksize: str
         """
+        if image and tag:
+            Console.error("Implementation error, burn_sdcard can't have image "
+                          "and tag.")
+            return ""
 
         Console.info("Burning...")
-        image = Image().find(tag=tag)
+        if image is not None:
+            image_path = image
+        else:
+            image = Image().find(tag=tag)
 
-        if image is None:
-            Console.error("No matching image found.")
-            return ""
-        elif len(image) > 1:
-            Console.error("Too many images found")
-            print(Printer.write(image,
-                                order=["tag", "version"],
-                                header=["Tag", "Version"]))
-            return ""
+            if image is None:
+                Console.error("No matching image found.")
+                return ""
+            elif len(image) > 1:
+                Console.error("Too many images found")
+                print(Printer.write(image,
+                                    order=["tag", "version"],
+                                    header=["Tag", "Version"]))
+                return ""
 
-        image = image[0]
+            image = image[0]
 
-        image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+            image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
 
         if os_is_pi():
 
@@ -819,15 +831,10 @@ class Burner(object):
         """
         Enables ssh on next boot of sd card
         """
-        if os_is_pi():
+        if os_is_pi() or os_is_linux():
             card = SDCard(card_os="raspberry")
             command = f'sudo touch {card.boot_volume}/ssh'
             self.system(command)
-        elif os_is_linux():
-            card = SDCard(card_os="raspberry")
-            command = f"sudo touch {card.boot_volume}/ssh"
-            self.system(command)
-
         else:
             raise NotImplementedError
 
@@ -997,6 +1004,8 @@ class Burner(object):
     def configure_wifi(self,
                        ssid,
                        psk=None,
+                       card_os='raspberry',
+                       host=None,
                        interactive=False):
         """
         Sets the wifi. Only works for psk based wifi
@@ -1005,6 +1014,10 @@ class Burner(object):
         :type ssid: str
         :param psk: the psk
         :type psk: str
+        :param card_os: the os on the sdcard
+        :type card_os: str
+        :param host: the machine os running the command
+        :type host: str
         :param interactive: true if you like to run it interactively
         :type interactive: bool
         """
