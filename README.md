@@ -1033,7 +1033,7 @@ Take the SDCard into the PI and set it up there. as documented.
 | image get       | at +  | gt +   | gt +    |         |
 | info            | at +  | at +   | g +/- 3 |         |
 | detect*         |       |        |         |         |
-| network         | at +  | at +    |         |         |
+| network         | at +  | at +   |         |         |
 | backup          | at +  | at +   |         |         |
 | copy            | at +  | at +   |         |         |
 | shrink install  | at +  | at +   |  -      |         |
@@ -1045,6 +1045,7 @@ Take the SDCard into the PI and set it up there. as documented.
 | wifi            | at -  | at -   |  -      | -       |
 | set             | at +  | at +   |         |         |
 | create          |       |        |         |         |
+| check           |       |        |         |         |
 | format          | at +  | at +   |         |         |
 | firmware        | a     | NA     |  NA     | NA      |
 

@@ -123,8 +123,6 @@ class Test_burn:
         global user
         global device
 
-        #os.system(f"cms burn load --device={device}")
-
         cmd = f"cms burn format --device={device}"
         Benchmark.Start()
         os.system(cmd)
@@ -134,8 +132,6 @@ class Test_burn:
         assert "primary" in result
         assert "fat32" in result
         assert "Error" not in result
-
-        #os.system(f"sudo eject {device}")
 
         sys.stdout.flush()
         sys.stderr.flush()
@@ -147,8 +143,6 @@ class Test_burn:
 
         global user
         global device
-
-        #os.system(f"cms burn load --device={device}")
 
         cmd = f"cms burn sdcard --device={device}"
         Benchmark.Start()

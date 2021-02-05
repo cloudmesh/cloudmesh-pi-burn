@@ -108,8 +108,6 @@ class Test_clone:
         result = Shell.run(cmd)
         Benchmark.Stop()
 
-        #os.remove('./test.img')
-
         card = SDCard(card_os="raspberry")
         cmd = f"cms burn mount --device={device}"
         os.system(cmd)
