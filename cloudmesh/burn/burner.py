@@ -9,8 +9,6 @@ import sys
 import textwrap
 import time
 
-import sys
-import subprocess
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.usb import USB
@@ -19,18 +17,16 @@ from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_windows
 from cloudmesh.common.JobScript import JobScript
-from cloudmesh.common.Shell import Shell
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
+from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
-from cloudmesh.common.util import writefile
-from cloudmesh.common.util import yn_choice
+from cloudmesh.common.util import readfile
 from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
-from cloudmesh.common.systeminfo import get_platform
-from cloudmesh.common.util import readfile
+from cloudmesh.common.util import yn_choice
 
 
 # def dmesg():
