@@ -1031,21 +1031,21 @@ Take the SDCard into the PI and set it up there. as documented.
 | image ls        | at +  | gt +   | gt +    |         |
 | image delete    | at +  | gt +   | gt +    |         |
 | image get       | at +  | gt +   | gt +    |         |
-| info            | at +  | g +    | g +/- 3 |         |
+| info            | at +  | at +   | g +/- 3 |         |
 | detect*         |       |        |         |         |
-| network         | at +  | g +?   |         |         |
-| backup          | at +  | g +    |         |         |
-| copy            | at +  | g +    |         |         |
-| shrink install  | at +  | gt +   |  -      |         |
-| shrink          | at +  | g+?    |  -      |         |
-| sdcard          | at +  | gt -   |         |         |
-| mount           | at +  | gt +   |         |         |
-| unmount         | at +  | gt +   |         |         |
-| enable ssh      | at +  |        |         |         |
-| wifi            | at -  |   -    |  -      | -       |
-| set             | at +  |        |         |         |
+| network         | at +  | at +    |         |         |
+| backup          | at +  | at +   |         |         |
+| copy            | at +  | at +   |         |         |
+| shrink install  | at +  | at +   |  -      |         |
+| shrink          | at +  | at +   |  -      |         |
+| sdcard          | at +  | at +   |         |         |
+| mount           | at +  | at +   |         |         |
+| unmount         | at +  | at +   |         |         |
+| enable ssh      | at +  | at +   |         |         |
+| wifi            | at -  | at -   |  -      | -       |
+| set             | at +  | at +   |         |         |
 | create          |       |        |         |         |
-| format          | at +  | gt +   |         |         |
+| format          | at +  | at +   |         |         |
 | firmware        | a     | NA     |  NA     | NA      |
 
 * g = gregor

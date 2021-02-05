@@ -501,10 +501,8 @@ class Burner(object):
         :type mountpoint: str
         """
         self.hostname = hostname
-        if os_is_pi():
+        if os_is_pi() or os_is_linux():
             card = SDCard()
-        elif os_is_linux():
-            card = SDCard(card_os="linux")
         else:
             raise NotImplementedError
 
@@ -586,10 +584,8 @@ class Burner(object):
         # TODO:
         # router_ip statically set to default ip configured with cms bridge create. Rewrite to consider the IP of the master on iface
 
-        if os_is_pi():
+        if os_is_pi() or os_is_linux():
             card = SDCard()
-        elif os_is_linux():
-            card = SDCard(card_os="linux")
         else:
             raise NotImplementedError
 
@@ -729,10 +725,8 @@ class Burner(object):
         """
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
-        if os_is_pi():
+        if os_is_pi() or os_is_linux():
             card = SDCard()
-        elif os_is_linux():
-            card = SDCard(card_os="linux")
         else:
             raise NotImplementedError
 
