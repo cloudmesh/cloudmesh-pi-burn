@@ -222,7 +222,7 @@ class Image(object):
         if os.path.isfile(str(img_file)):
             print()
             Console.warning(f"The file is already downloaded. Found at:\n\n"
-                            "    {zip_file}\n")
+                            f"    {zip_file}\n")
 
             return
 
@@ -263,7 +263,7 @@ class Image(object):
         for ending in [".img", ".zip"]:
             try:
                 Path(Path(self.directory) / Path(image + ending)).unlink()
-            except Exception as e:
+            except Exception as e:  # noqa: F841
                 pass
 
     def ls(self):

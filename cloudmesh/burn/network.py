@@ -21,7 +21,7 @@ class Network:
         result = []
         try:
             details = json.loads(subprocess.getoutput("ip -json a"))
-        except Exception as e:
+        except Exception as e:  # noqa: F841
             details = None
         for entry in details:
             try:
@@ -40,7 +40,7 @@ class Network:
                         element.update(n)
                         if 'broadcast' in n.keys():
                             result.append(element)
-            except Exception as e:
+            except Exception as e:  # noqa: F841
                 pass
         return result
 

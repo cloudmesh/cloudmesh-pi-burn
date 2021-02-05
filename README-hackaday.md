@@ -75,7 +75,6 @@ pi@raspberrypi:~ $ export DEV=/dev/sda
 
 Next, download the newest raspbianOS with
 
-
 ```
 (ENV3) pi@raspberrypi:~ $ cms burn image versions --refresh
 (ENV3) pi@raspberrypi:~ $ cms burn image get latest-lite

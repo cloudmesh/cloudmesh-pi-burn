@@ -144,7 +144,7 @@ class Burner(object):
                 data["ssid"] = None
                 data["wifipassword"] = None
 
-        except Exception as e:
+        except Exception as e:  # noqa: F841
 
             data["wifi"] = False
             data["ssid"] = None
@@ -179,7 +179,7 @@ class Burner(object):
             if action == "check":
                 Console.error("To be implemented")
 
-                command = f"sudo rpi-eeprom-update"
+                command = "sudo rpi-eeprom-update"
                 print(command)
                 os.system(command)
 
@@ -419,8 +419,7 @@ class Burner(object):
         return res[1]
 
     @windows_not_supported
-    def burn_sdcard(self, image=None, tag=None, device=None, \
-                    blocksize="4M"):
+    def burn_sdcard(self, image=None, tag=None, device=None, blocksize="4M"):
         """
         Burns the SD Card with an image
 
@@ -966,7 +965,7 @@ class Burner(object):
         # this up later?
 
         new_lines = textwrap.dedent('''
-                    # FIX298-START: Fix permissions for .ssh directory 
+                    # FIX298-START: Fix permissions for .ssh directory
                     if [ -d "/home/pi/.ssh" ]; then
                         chown pi:pi /home/pi/.ssh
                         chmod 700 /home/pi/.ssh
@@ -1018,8 +1017,8 @@ class Burner(object):
         """
         if psk is not None:
             wifi = textwrap.dedent("""\
-                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
-                    update_config=1 
+                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+                    update_config=1
                     country=US
 
                     network={{
@@ -1029,8 +1028,8 @@ class Burner(object):
                     }}""".format(network=ssid, pwd=psk))
         else:
             wifi = textwrap.dedent("""\
-                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev 
-                    update_config=1 
+                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+                    update_config=1
                     country=US
 
                     network={{
@@ -1379,7 +1378,7 @@ class MultiBurner(object):
         """
         # TODO
         card = SDCard()
-        boot_volume = card.boot_volume
+        # boot_volume = card.boot_volume
         root_volume = card.root_volume
         if key is None:
             key = '~/.ssh/id_rsa.pub'

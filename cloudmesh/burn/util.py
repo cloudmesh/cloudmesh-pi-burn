@@ -44,8 +44,7 @@ def os_is_linux():
     :return: True is linux
     :rtype: bool
     """
-    return platform.system() == "Linux" \
-           and "raspberrypi" not in platform.uname()
+    return platform.system() == "Linux" and "raspberrypi" not in platform.uname()
 
 
 def os_is_mac():

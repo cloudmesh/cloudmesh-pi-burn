@@ -36,7 +36,7 @@ class USB(object):
         """
         try:
             return self.vendors[vendor][product]
-        except Exception as e:
+        except Exception as e:  # noqa: F841
             return "unkown"
 
     def load_vendor_description(self):
@@ -73,7 +73,7 @@ class USB(object):
                 else:
                     vendor_id, vendor = line.strip().split(" ", 1)
                     data[vendor_id] = {}
-            except Exception as e:
+            except Exception as e:  # noqa: F841
                 pass
         self.vendors = data
         return data
@@ -204,7 +204,7 @@ class USB(object):
                     'comment': ' '.join(content[4:])
                 }
                 all[f"{bus}-{addr}"] = data
-            except Exception as e:
+            except Exception as e:  # noqa: F841
                 pass
 
         return all
@@ -261,7 +261,7 @@ class USB(object):
                     details[key]["writeable"] = True
                 name = details[key]["name"] = device.replace("[", "").replace(
                     "]", "")
-                dev = details[key]["dev"] = f"/dev/{name}"
+                # dev = details[key]["dev"] = f"/dev/{name}"
                 _fdisk = USB.fdisk(name)
                 details[key]['readable'] = "cannot open" in _fdisk
                 details[key]['empty'] = "linux" in _fdisk
@@ -303,7 +303,6 @@ class USB(object):
                         _get_attribute("write_protection:",
                                        _dmesg) is not "off",
                     'size': size,
-                    
                 })
         return details
         '''
