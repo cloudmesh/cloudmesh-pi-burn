@@ -118,3 +118,22 @@ ssh pi@10.1.1.253
 
 ### Tests Expected to Fail
 1. **test_configure_wifi:** underlaying function not yet implemented.
+
+### Testing Notes
+
+The test file test_02_burn.py creates a bootable sd card using the cms burn 
+commands. This should be a good template to follow for the create command. 
+
+I struggled alot with the sd cards and when they should be loaded or mounted or not mounted, and that effect on formatting and writing the cards.
+
+The big takeaway was:
+
+1.    ensure a card doesn't have a mounted FS while trying to format.
+2.    always format a card before buring or copying.
+3.    **sudo eject -t /dev/sdb** or its equivalent **cms burn load 
+      --device=/dev/sdb** will automatically mount the FS on ubuntu if the 
+      device was previously ejected, but not if it is detected but not 
+      mounted (i.e. after a **cms burn unmount** ). No automatic mounting on Pi.
+4.    However, the **sudo eject -t /dev/sdb** in the burn_format command, 
+      ends up 
+      not mounting in either case. I think the script moves fast enough, that it prevents this from happening. Although if we have format reliability issues on ubuntu. this might be what to look at. 
