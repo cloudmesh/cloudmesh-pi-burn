@@ -177,7 +177,7 @@ class Image(object):
         """
 
         if url is None:
-            data = Image().create_version_cache(refresh=False)
+            data = Image().create_version_cache(refresh=False)  # noqa: F841
 
             image = Image().find(tag=tag)
 
@@ -201,8 +201,7 @@ class Image(object):
         # get image URL metadata, including the name of the latest image after
         #   the 'latest' URL redirects to the URL of the actual image
         source_url = requests.head(image["url"], allow_redirects=True).url
-        size = requests.get(image["url"], verify=False, stream=True).headers[
-            'Content-length']
+        size = requests.get(image["url"], verify=False, stream=True).headers['Content-length']
         zip_filename = os.path.basename(source_url)
         img_filename = zip_filename.replace('.zip', '.img')
 
