@@ -919,43 +919,43 @@ Here, we provide some usefule FAQs and hints.
 
 ### Can I use the LEDs on the PI Motherboard?
 
-> Typically this LED is used to communicate some system related
-> information. However `cms pi` can controll it to switch status on
-> and off. This is helpful if you like to showcase a particular state
-> in the PI. Please look at the manual page. An esample is
-> 
-> ```bash
-> $ cms pi led red off HOSTNAME
-> ```
->
-> that when executed on the PI (on which you also must have cms
-> installed you switch the red LED off. For more options see the
-> manual page
+Typically this LED is used to communicate some system related
+information. However `cms pi` can controll it to switch status on
+and off. This is helpful if you like to showcase a particular state
+in the PI. Please look at the manual page. An esample is
+ 
+```bash
+$ cms pi led red off HOSTNAME
+```
+
+that when executed on the PI (on which you also must have cms
+installed you switch the red LED off. For more options see the
+manual page
 
 
 ### How can I use pycharm, to edit files or access files in general from my Laptop on the PI?
 
-> This is easily possible with the help of SSHFS. To install it we
-> refer you to See also: <https://github.com/libfuse/sshfs> SSHFS: add
-> master to `.ssh/config` onlocal machine
->
-> Let us assume you like to edit fles on a PI that you named `red`
->
-> Please craete a `./.ssh/config file that containes the following:
->
-> ```
->  Host red
->       HostName xxx.xxx.xxx.xxx
->       User pi
->       IdentityFile ~/.ssh/id_rsa.pub
-> ```
-> 
-> Now let us create a directory in which we mount the remote PI directories
->
-> ```
-> mkdir master
-> sshfs master: master -o auto_cache
-> ```
+This is easily possible with the help of SSHFS. To install it we
+refer you to See also: <https://github.com/libfuse/sshfs> SSHFS: add
+master to `.ssh/config` onlocal machine
+
+Let us assume you like to edit fles on a PI that you named `red`
+
+Please craete a `./.ssh/config file that containes the following:
+
+```
+ Host red
+      HostName xxx.xxx.xxx.xxx
+      User pi
+      IdentityFile ~/.ssh/id_rsa.pub
+```
+
+Now let us create a directory in which we mount the remote PI directories
+
+```
+mkdir master
+sshfs master: master -o auto_cache
+```
 
 ### How can I enhance the `get` script?
 
