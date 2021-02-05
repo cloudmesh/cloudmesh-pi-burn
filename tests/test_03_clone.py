@@ -1,7 +1,7 @@
 ###############################################################
-# pytest -v -x --capture=no tests/test_clone.py
-# pytest -v -x tests/test_clone.py
-# pytest -v --capture=no tests/test_clone.py::Test_clone::test_backup
+# pytest -v -x --capture=no tests/test_03_clone.py
+# pytest -v -x tests/test_03_clone.py
+# pytest -v --capture=no tests/test_03_clone.py::Test_clone::test_backup
 ###############################################################
 
 import os
@@ -17,22 +17,26 @@ from cloudmesh.common.util import yn_choice
 from cloudmesh.burn.sdcard import SDCard
 
 from cloudmesh.burn.util import os_is_pi
+from cloudmesh.burn.util import os_is_linux
+from cloudmesh.common.systeminfo import get_platform
 
-cloud = "raspberry"
+cloud = get_platform()
 device = "/dev/sdb"
 user = os.environ["USER"]
 
-#sys.exit(1)
-
-
-if not os_is_pi():
-    Console.error("OS is not Ubuntu, test can not be performed")
+if not (os_is_linux() or os_is_pi()):
+    Console.error("OS is not Linux or Pi, test can not be performed")
     sys.exit(1)
 
-
+os.system("cms burn unmount")
 os.system("cms burn info")
 print()
-if not yn_choice(f"This test will be performed with the user '{user}' on {device}. Continue?"):
+Console.warning("If you see mount points above, please stop, unmount, and try again.")
+print()
+
+if not yn_choice(f"This test will be performed with the user '{user}' on "
+                 f"{device}. Select 'n' to input custom devive. Continue with "
+                 f"default?"):
     if not yn_choice(f"Input custom device? i.e /dev/sdX"):
         sys.exit(1)
     else:
@@ -48,6 +52,7 @@ class Test_clone:
         global device
 
         os.system(f"cms burn load --device={device}")
+        Console.ok("Backing up card image to ./test/img")
 
         cmd = f'cms burn backup --device={device} --to=./test.img'
         Benchmark.Start()
@@ -93,14 +98,15 @@ class Test_clone:
     def test_copy(self):
         # requires test_backup to run first
         HEADING()
-        os.system(f"cms burn load --device={device}")
+
+        os.system(f"cms burn unmount") #card can not be mounted before format
+        os.system(f"cms burn format --device={device}")
+        Console.ok("Copying image to sdcard")
 
         cmd = f'cms burn copy --device={device} --from=./test.img'
         Benchmark.Start()
         result = Shell.run(cmd)
         Benchmark.Stop()
-
-        #os.remove('./test.img')
 
         card = SDCard(card_os="raspberry")
         cmd = f"cms burn mount --device={device}"
@@ -112,6 +118,7 @@ class Test_clone:
 
         cmd = f"cms burn unmount"
         os.system(cmd)
+        os.remove('./test.img')
 
     def test_benchmark(self):
         HEADING()

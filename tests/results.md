@@ -1,45 +1,5 @@
 ## Test Results on Pi
 
-### What is the status of the implementation?
-
-| Feature         | PI    | Ubuntu | Mac     | Windows |
-| --------------- | ----- | ------ | ------- | ------- |
-| image versions  | at +  | gt +   | gt +    |         |
-| image ls        | at +  | gt +   | gt +    |         |
-| image delete    | at +  | gt +   | gt +    |         |
-| image get       | at +  | gt +   | gt +    |         |
-| info            | at +  | g +    | g +/- 3 |         |
-| detect*         |       |        |         |         |
-| network         | at +  | g +?   |         |         |
-| backup          | at +  | g +    |         |         |
-| copy            | at +  | g +    |         |         |
-| shrink install  | at +  | gt +   |  -      |         |
-| shrink          | at +  | g+?    |  -      |         |
-| sdcard          | at +  | gt -   |         |         |
-| mount           | at +  | gt +   |         |         |
-| unmount         | at +  | gt +   |         |         |
-| enable ssh      | at +  |        |         |         |
-| wifi            | at -  |   -    |  -      | -       |
-| set             | at +  |        |         |         |
-| create          |       |        |         |         |
-| format          | at +  | gt +   |         |         |
-| firmware        | a     | NA     |  NA     | NA      |
-
-* g = gregor
-* r = richie
-* a = anthony
-* ad = adam
-* as = asuri
-* ar = arjun
-
-* d = diffrent implementation between Linux and PI (compare)
-* 2 = change and add --ssd so its uniform
-* ? = needs test
-* - = broken
-1 = get needs to use the image versions refresh cache
-3 = does not report when the USB card is found
-t = has a unit test
-
 ### test_pi.py
 Most cms burn functions are tested in test_pi.py.
 
@@ -48,7 +8,7 @@ Successful completion of tests will create a bootable sd card with latest-lite.
 Make sure to pay attention to command prompt at the start of test to verify 
 the device. You can put in a custom device if you do not want the default.
 
-### 15 pass and 1 fail
+### 13 pass and 1 fail
 
 1 fail because test_wifi_configure not yet implemented for pi.
 
@@ -592,6 +552,368 @@ ssh pi@10.10.10.10
 
 ### test_pi.py
 
+1 test fail due to not yet implemented configure_wifi
 
+### 13 pass 1 fail
+
+```
+(ENV3) anthony@anthony-ubuntu:~/cm/cloudmesh-pi-burn$ pytest -v --capture=no tests/test_02_burn.py
+=========================================================================================== test session starts ============================================================================================
+platform linux -- Python 3.9.0, pytest-6.1.1, py-1.9.0, pluggy-0.13.1 -- /home/anthony/ENV3/bin/python3.9
+cachedir: .pytest_cache
+rootdir: /home/anthony/cm/cloudmesh-pi-burn, configfile: pytest.ini
+plugins: cov-2.10.1
+collecting ... burn info
+dryrun:     False
+
+# ----------------------------------------------------------------------
+# This is a Linux Computer
+# ----------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------
+# USB Device Probe
+# ----------------------------------------------------------------------
+
++--------+-------+----------+---------+------------+-----------+--------+------------+------------+-------------------------------------------+
+|   Adr. |   bus |   Vendor |   Prod. | H Vendor   | H Prod.   |   Man. |   Ser.Num. |   USB Ver. | Comment                                   |
+|--------+-------+----------+---------+------------+-----------+--------+------------+------------+-------------------------------------------|
+|      4 |     1 |     5002 |     144 | 0138a      | 090       |      0 |          1 |       2    | Validity Sensors, Inc.                    |
+|      3 |     1 |     1226 |   28760 | 04ca       | 07058     |      1 |          0 |       2    | Lite-On Technology Corp.                  |
+|      2 |     1 |     1118 |    2090 | 045e       | 082a      |      1 |          0 |       2    | Microsoft Corp.                           |
+|      5 |     1 |     1423 |   38208 | 058f       | 09540     |      1 |          0 |       2.01 | Alcor Micro Corp. AU9540 Smartcard Reader |
+|      1 |     1 |     7531 |       2 | 01d6b      | 02        |      3 |          1 |       2    | Linux Foundation 2.0 root hub             |
+|      4 |     2 |     3034 |     774 | 0bda       | 0306      |      1 |          3 |       3    | Realtek Semiconductor Corp.               |
+|      1 |     2 |     7531 |       3 | 01d6b      | 03        |      3 |          1 |       3    | Linux Foundation 3.0 root hub             |
++--------+-------+----------+---------+------------+-----------+--------+------------+------------+-------------------------------------------+
+
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++----------+--------------+------------------------+------------+-------------+---------+------------------+----------+-------------+-------------+
+| Path     | Plugged-in   | Info                   | Readable   | Formatted   | Empty   | Size             | Access   | Removable   | Writeable   |
+|----------+--------------+------------------------+------------+-------------+---------+------------------+----------+-------------+-------------|
+| /dev/sda | True         | Generic- USB3.0 CRW-SD | True       | True        | False   | 3.97 GB/3.70 GiB | True     | True        | True        |
++----------+--------------+------------------------+------------+-------------+---------+------------------+----------+-------------+-------------+
+
+# ----------------------------------------------------------------------
+# Mount points
+# ----------------------------------------------------------------------
+
+WARNING: No mount points found. Use cms burn mount
+
+
+This test will be performed with the user 'anthony' on /dev/sdb. Select 'n' to input custom devive. Continue with default? (Y/n) n
+Input custom device? i.e /dev/sdX (Y/n) Y
+/dev/sda
+Using device /dev/sda
+collected 14 items                                                                                                                                                                                         
+
+tests/test_02_burn.py::Test_burn::test_installer 
+
+# ######################################################################
+# test_installer /tests/test_02_burn.py 80
+# ######################################################################
+
+
+pi:
+    cloudmesh-common cloudmesh-cmd5 cloudmesh-sys cloudmesh-configuration
+    cloudmesh-test cloudmesh-gui cloudmesh-abstract cloudmesh-admin
+    cloudmesh-inventory cloudmesh-cloud cloudmesh-pi-cluster
+    cloudmesh-pi-burn
+
+
+PASSED
+tests/test_02_burn.py::Test_burn::test_install 
+
+# ######################################################################
+# test_install /tests/test_02_burn.py 94
+# ######################################################################
+
+burn install
+
+# ----------------------------------------------------------------------
+# Installing pishrink.sh into /usr/local/bin
+# ----------------------------------------------------------------------
+
+--2021-02-05 09:19:42--  https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
+Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 199.232.96.133
+Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|199.232.96.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 10729 (10K) [text/plain]
+Saving to: ‘pishrink.sh’
+
+     0K ..........                                            100% 23.6M=0s
+
+2021-02-05 09:19:43 (23.6 MB/s) - ‘pishrink.sh’ saved [10729/10729]
+
+
+WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
+
++--------+----------------------------------------------------------------------------+----------+----------+--------------+
+|   name | command                                                                    | status   | stdout   |   returncode |
+|--------+----------------------------------------------------------------------------+----------+----------+--------------|
+|      2 | wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh | done     |          |            0 |
+|      3 | chmod +x pishrink.sh                                                       | done     |          |            0 |
+|      4 | sudo mv pishrink.sh /usr/local/bin                                         | done     |          |            0 |
+|      5 | sudo apt install parted -y > $HOME/tmp.log                                 | done     |          |            0 |
++--------+----------------------------------------------------------------------------+----------+----------+--------------+
+
+PASSED
+tests/test_02_burn.py::Test_burn::test_info 
+
+# ######################################################################
+# test_info /tests/test_02_burn.py 106
+# ######################################################################
+
+burn info
+dryrun:     False
+
+# ----------------------------------------------------------------------
+# This is a Linux Computer
+# ----------------------------------------------------------------------
+
+
+# ----------------------------------------------------------------------
+# USB Device Probe
+# ----------------------------------------------------------------------
+
++--------+-------+----------+---------+------------+-----------+--------+------------+------------+-------------------------------------------+
+|   Adr. |   bus |   Vendor |   Prod. | H Vendor   | H Prod.   |   Man. |   Ser.Num. |   USB Ver. | Comment                                   |
+|--------+-------+----------+---------+------------+-----------+--------+------------+------------+-------------------------------------------|
+|      4 |     1 |     5002 |     144 | 0138a      | 090       |      0 |          1 |       2    | Validity Sensors, Inc.                    |
+|      3 |     1 |     1226 |   28760 | 04ca       | 07058     |      1 |          0 |       2    | Lite-On Technology Corp.                  |
+|      2 |     1 |     1118 |    2090 | 045e       | 082a      |      1 |          0 |       2    | Microsoft Corp.                           |
+|      5 |     1 |     1423 |   38208 | 058f       | 09540     |      1 |          0 |       2.01 | Alcor Micro Corp. AU9540 Smartcard Reader |
+|      1 |     1 |     7531 |       2 | 01d6b      | 02        |      3 |          1 |       2    | Linux Foundation 2.0 root hub             |
+|      4 |     2 |     3034 |     774 | 0bda       | 0306      |      1 |          3 |       3    | Realtek Semiconductor Corp.               |
+|      1 |     2 |     7531 |       3 | 01d6b      | 03        |      3 |          1 |       3    | Linux Foundation 3.0 root hub             |
++--------+-------+----------+---------+------------+-----------+--------+------------+------------+-------------------------------------------+
+
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++----------+--------------+------------------------+------------+-------------+---------+------------------+----------+-------------+-------------+
+| Path     | Plugged-in   | Info                   | Readable   | Formatted   | Empty   | Size             | Access   | Removable   | Writeable   |
+|----------+--------------+------------------------+------------+-------------+---------+------------------+----------+-------------+-------------|
+| /dev/sda | True         | Generic- USB3.0 CRW-SD | True       | True        | False   | 3.97 GB/3.70 GiB | True     | True        | True        |
++----------+--------------+------------------------+------------+-------------+---------+------------------+----------+-------------+-------------+
+
+# ----------------------------------------------------------------------
+# Mount points
+# ----------------------------------------------------------------------
+
+WARNING: No mount points found. Use cms burn mount
+
+
+PASSED
+tests/test_02_burn.py::Test_burn::test_burn_format 
+
+# ######################################################################
+# test_burn_format /tests/test_02_burn.py 118
+# ######################################################################
+
+burn load --device=/dev/sda
+
+# ----------------------------------------------------------------------
+# load /dev/sda
+# ----------------------------------------------------------------------
+
+burn format --device=/dev/sda
+
+# ----------------------------------------------------------------------
+# format {device}
+# ----------------------------------------------------------------------
+
+sudo eject -t /dev/sda
+                sudo parted /dev/sda --script -- mklabel msdos
+Error: Partition(s) 1 on /dev/sda have been written, but we have been unable to inform the kernel of the change, probably because it/they are in use.  As a result, the old partition(s) will remain in use.  You should reboot now before making further changes.
+                sudo parted /dev/sda --script -- mkpart primary fat32 1MiB 100%
+Error: Partition(s) 1 on /dev/sda have been written, but we have been unable to inform the kernel of the change, probably because it/they are in use.  As a result, the old partition(s) will remain in use.  You should reboot now before making further changes.
+                sudo mkfs.vfat -n UNTITLED -F32 /dev/sda1
+mkfs.fat 4.1 (2017-01-24)
+mkfs.vfat: /dev/sda1 contains a mounted filesystem.
+                sudo parted /dev/sda --script print
+Model: Generic- USB3.0 CRW-SD (scsi)
+Disk /dev/sda: 3974MB
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Disk Flags: 
+
+Number  Start   End     Size    Type     File system  Flags
+ 1      1049kB  3974MB  3973MB  primary               lba
+
+Formatted SD Card
+PASSED
+tests/test_02_burn.py::Test_burn::test_burn_sdcard 
+
+# ######################################################################
+# test_burn_sdcard /tests/test_02_burn.py 141
+# ######################################################################
+
+burn load --device=/dev/sda
+
+# ----------------------------------------------------------------------
+# load /dev/sda
+# ----------------------------------------------------------------------
+
+PASSED
+tests/test_02_burn.py::Test_burn::test_mount 
+
+# ######################################################################
+# test_mount /tests/test_02_burn.py 160
+# ######################################################################
+
+burn mount --device=/dev/sda
+/dev/sda
+mounting /dev/sda1 /media/anthony/boot
+mounting /dev/sda2 /media/anthony/rootfs
+PASSED
+tests/test_02_burn.py::Test_burn::test_enable_ssh 
+
+# ######################################################################
+# test_enable_ssh /tests/test_02_burn.py 177
+# ######################################################################
+
+PASSED
+tests/test_02_burn.py::Test_burn::test_configure_wifi 
+
+# ######################################################################
+# test_configure_wifi /tests/test_02_burn.py 192
+# ######################################################################
+
+FAILED
+tests/test_02_burn.py::Test_burn::test_set_hostname 
+
+# ######################################################################
+# test_set_hostname /tests/test_02_burn.py 207
+# ######################################################################
+
+burn set --hostname=test
+PASSED
+tests/test_02_burn.py::Test_burn::test_set_ip 
+
+# ######################################################################
+# test_set_ip /tests/test_02_burn.py 219
+# ######################################################################
+
+burn set --ip=10.10.10.10
+PASSED
+tests/test_02_burn.py::Test_burn::test_set_key 
+
+# ######################################################################
+# test_set_key /tests/test_02_burn.py 231
+# ######################################################################
+
+burn set --key=./test.pub
+PASSED
+tests/test_02_burn.py::Test_burn::test_unmount 
+
+# ######################################################################
+# test_unmount /tests/test_02_burn.py 248
+# ######################################################################
+
+burn unmount --device=/dev/sda
+unmounting /media/anthony/boot
+unmounting  /media/anthony/rootfs
+PASSED
+tests/test_02_burn.py::Test_burn::test_network 
+
+# ######################################################################
+# test_network /tests/test_02_burn.py 265
+# ######################################################################
+
+PASSED
+tests/test_02_burn.py::Test_burn::test_benchmark 
+
+# ######################################################################
+# test_benchmark /tests/test_02_burn.py 288
+# ######################################################################
+
+
+
++----------------------------------+----------+---------+---------+---------------------+-------+----------------+---------+-------+----------------------------------------------+
+| Name                             | Status   |    Time |     Sum | Start               | tag   | Node           | User    | OS    | Version                                      |
+|----------------------------------+----------+---------+---------+---------------------+-------+----------------+---------+-------+----------------------------------------------|
+| test_02_burn/test_installer      | ok       |   0.321 |   0.321 | 2021-02-05 14:19:41 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_install        | ok       |   1.931 |   1.931 | 2021-02-05 14:19:42 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_info           | ok       |   0.682 |   0.682 | 2021-02-05 14:19:44 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_burn_format    | ok       |   5.723 |   5.723 | 2021-02-05 14:19:46 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_burn_sdcard    | ok       | 289.893 | 289.893 | 2021-02-05 14:19:53 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_mount          | ok       |   0.815 |   0.815 | 2021-02-05 14:24:43 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_enable_ssh     | ok       |   0.519 |   0.519 | 2021-02-05 14:24:44 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_configure_wifi | ok       |   0.471 |   0.471 | 2021-02-05 14:24:44 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_set_hostname   | ok       |   0.515 |   0.515 | 2021-02-05 14:24:45 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_set_ip         | ok       |   0.473 |   0.473 | 2021-02-05 14:24:45 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_set_key        | ok       |   0.454 |   0.454 | 2021-02-05 14:24:46 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_unmount        | ok       |   8.284 |   8.284 | 2021-02-05 14:24:46 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
+| test_02_burn/test_network        | ok       |   0.453 |   0.453 | 2021-02-05 14:24:55 | linux | anthony-ubuntu | anthony | Linux | #139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021 |
++----------------------------------+----------+---------+---------+---------------------+-------+----------------+---------+-------+----------------------------------------------+
+
+# csv,timer,status,time,sum,start,tag,uname.node,user,uname.system,platform.version
+# csv,test_02_burn/test_installer,ok,0.321,0.321,2021-02-05 14:19:41,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_install,ok,1.931,1.931,2021-02-05 14:19:42,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_info,ok,0.682,0.682,2021-02-05 14:19:44,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_burn_format,ok,5.723,5.723,2021-02-05 14:19:46,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_burn_sdcard,ok,289.893,289.893,2021-02-05 14:19:53,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_mount,ok,0.815,0.815,2021-02-05 14:24:43,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_enable_ssh,ok,0.519,0.519,2021-02-05 14:24:44,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_configure_wifi,ok,0.471,0.471,2021-02-05 14:24:44,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_set_hostname,ok,0.515,0.515,2021-02-05 14:24:45,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_set_ip,ok,0.473,0.473,2021-02-05 14:24:45,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_set_key,ok,0.454,0.454,2021-02-05 14:24:46,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_unmount,ok,8.284,8.284,2021-02-05 14:24:46,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+# csv,test_02_burn/test_network,ok,0.453,0.453,2021-02-05 14:24:55,linux,anthony-ubuntu,anthony,Linux,#139-Ubuntu SMP Mon Jan 18 17:38:24 UTC 2021
+
+PASSED
+
+================================================================================================= FAILURES =================================================================================================
+______________________________________________________________________________________ Test_burn.test_configure_wifi _______________________________________________________________________________________
+
+self = <test_02_burn.Test_burn object at 0x7f2f77b9a580>
+
+    def test_configure_wifi(self):
+        HEADING()
+        card = SDCard(card_os="raspberry")
+    
+        if os.path.exists(f"{card.boot_volume}/wpa_supplicant.conf"):
+            cmd = f'sudo rm {card.boot_volume}/wpa_supplicant.conf'
+            os.system(cmd)
+    
+        cmd = f'cms burn wifi --ssid=test'
+        Benchmark.Start()
+        result = Shell.run(cmd)
+        Benchmark.Stop()
+    
+>       assert os.path.exists(f"{card.boot_volume}/wpa_supplicant.conf")
+E       AssertionError: assert False
+E        +  where False = <function exists at 0x7f2f7f5d1af0>('/media/anthony/boot/wpa_supplicant.conf')
+E        +    where <function exists at 0x7f2f7f5d1af0> = <module 'posixpath' from '/usr/local/lib/python3.9/posixpath.py'>.exists
+E        +      where <module 'posixpath' from '/usr/local/lib/python3.9/posixpath.py'> = os.path
+
+tests/test_02_burn.py:205: AssertionError
+========================================================================================= short test summary info ==========================================================================================
+FAILED tests/test_02_burn.py::Test_burn::test_configure_wifi - AssertionError: assert False
+================================================================================= 1 failed, 13 passed in 337.52s (0:05:37) =================================================================================
+```
+
+At this point I was able to boot and sd card and ssh into it with the static 
+ip assigned by the test.
+
+```
+$ ssh pi@10.10.10.10
+```
 
 ### test_clone.py
+
+## FAQ HOW to test Pi-Burn
+
+
+You must unmount the sd card before running test_burn.py.
+
+Test 1. Simply unmount burned card, cms burn unmount, then test_burn works
+Test 2. sudo eject /dev/sdb burned card, then test_burn works
+
+
