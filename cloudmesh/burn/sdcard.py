@@ -9,6 +9,7 @@ from cloudmesh.burn.util import os_is_pi
 from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.console import Console
 
+
 class SDCard:
 
     def __init__(self, card_os=None, host=None):
@@ -36,7 +37,7 @@ class SDCard:
         """
         user = os.environ.get('USER')
         if self.card_os == "raspberry" and self.host == "darwin":
-            #return Path(f"/Volume/rootfs")
+            # return Path(f"/Volume/rootfs")
             Console.error("Requires and ext4 writable file system."
                           " Commercial solutions available.")
             return "notimplemented"
@@ -99,11 +100,11 @@ class SDCard:
         for line in r:
             if str(root_fs) in line or str(boot_fs) in line:
                 entry = \
-                    line.replace(" on ", "|")\
-                        .replace(" type ", "|")\
-                        .replace(" (", "|")\
-                        .replace(") [", "|")\
-                        .replace("]", "")\
+                    line.replace(" on ", "|") \
+                        .replace(" type ", "|") \
+                        .replace(" (", "|") \
+                        .replace(") [", "|") \
+                        .replace("]", "") \
                         .split("|")
                 print(entry)
                 detail = {

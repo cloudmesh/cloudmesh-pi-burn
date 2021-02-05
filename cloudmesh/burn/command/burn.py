@@ -361,7 +361,7 @@ class BurnCommand(PluginCommand):
                 details,
                 order=['label', "local", "broadcast"],
                 header=["Label", "Local", "Broadcast"]
-                )
+            )
             )
             return ""
 

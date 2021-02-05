@@ -50,15 +50,18 @@ def gen_strong_pass():
         string.punctuation
     return ''.join(random.choice(password_characters) for i in range(length))
 
+
 def windows_not_supported(f):
-    def wrapper(*args,**kwargs):
+    def wrapper(*args, **kwargs):
         host = get_platform()
         if host == "windows":
             Console.error("Not supported on windows")
             return ""
         else:
             return f(*args, **kwargs)
+
     return wrapper
+
 
 # noinspection PyPep8
 class Burner(object):
@@ -106,9 +109,9 @@ class Burner(object):
 
         try:
             self.mount(device)
-            data["ssh"] = os.path.exists(f'{card.boot_volume}/ssh') or \
-                          os.path.exists(f'{card.root_volume}'
-                                         '/etc/systemd/system/sshd.service')
+            data["ssh"] = \
+                os.path.exists(f'{card.boot_volume}/ssh') or \
+                os.path.exists(f'{card.root_volume}/etc/systemd/system/sshd.service')
         except Exception as e:
             data["ssh"] = str(e)
         # hostname
@@ -184,7 +187,7 @@ class Burner(object):
                 print(command)
                 os.system(command)
 
-                os.system ("vcgencmd bootloader_version")
+                os.system("vcgencmd bootloader_version")
 
                 print("For more information see:")
                 print()
@@ -247,7 +250,6 @@ class Burner(object):
         if device is None:
             Console.error("Device must have a value")
         self.burn_sdcard(image=from_file, device=device)
-
 
     @windows_not_supported
     def info(self, print_stdout=True):
@@ -422,7 +424,7 @@ class Burner(object):
 
     @windows_not_supported
     def burn_sdcard(self, image=None, tag=None, device=None, \
-                                                           blocksize="4M"):
+                    blocksize="4M"):
         """
         Burns the SD Card with an image
 
@@ -535,6 +537,7 @@ class Burner(object):
             print('127.0.1.1 ' + hostname + '\n')
 
         # Adds the ip and hostname to /etc/hosts if it isn't already there.
+
     def add_to_hosts(self, ip):
         # with open('/etc/hosts', 'r') as host_file:
         #     hosts = host_file.readlines()
@@ -582,7 +585,8 @@ class Burner(object):
         :rtype:
         """
         # TODO:
-        # router_ip statically set to default ip configured with cms bridge create. Rewrite to consider the IP of the master on iface
+        # router_ip statically set to default ip configured with cms bridge
+        # create. Rewrite to consider the IP of the master on iface
 
         if os_is_pi() or os_is_linux():
             card = SDCard()
@@ -623,7 +627,8 @@ class Burner(object):
         sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', '\n'.join(curr_config))
 
     # TODO:
-    # Deprecated function as dhcpcd.conf is the recommended file for configuring static network configs. Should we keep this?
+    # Deprecated function as dhcpcd.conf is the recommended file for
+    # configuring static network configs. Should we keep this?
     #
     # def set_static_ip2(self, ip, mountpoint, iface="eth0", mask="16"):
     #     """
@@ -740,10 +745,10 @@ class Burner(object):
         Mounts the current SD card
         """
         host = host or get_platform()
-        card = SDCard(card_os=card_os,host=host)
+        card = SDCard(card_os=card_os, host=host)
         dmesg = USB.get_from_dmesg()
 
-        #TODO Need a better way to itentify which sd card to use for mounting
+        # TODO Need a better way to itentify which sd card to use for mounting
         # instead of iterating over all of them
 
         if not self.dryrun:
@@ -770,13 +775,13 @@ class Burner(object):
                 except Exception as e:
                     print(e)
 
-        #Keeping in case this was needed. Worked without it in testing.
-        #elif os_is_pi():
+        # Keeping in case this was needed. Worked without it in testing.
+        # elif os_is_pi():
         #    if not self.dryrun:
-                # wait for the OS to detect the filesystems
-                # in burner.info(), formatted will be true if the card has
-                #        FAT32
-                #   filesystems on it
+        # wait for the OS to detect the filesystems
+        # in burner.info(), formatted will be true if the card has
+        #        FAT32
+        #   filesystems on it
         #        counter = 0
         #        max_tries = 5
         #        b = Burner()
@@ -1376,7 +1381,7 @@ class MultiBurner(object):
         :return:
         :rtype:
         """
-        #TODO
+        # TODO
         card = SDCard()
         boot_volume = card.boot_volume
         root_volume = card.root_volume

@@ -48,7 +48,6 @@ class Image(object):
         data = yaml.load(readfile(self.cache), Loader=yaml.SafeLoader)
         return data
 
-
     @staticmethod
     def find(tag=['latest-lite']):
         """
@@ -169,7 +168,6 @@ class Image(object):
     def get_name(url):
         return os.path.basename(url).replace('.zip', '')
 
-
     def fetch(self, url=None, tag=None):
         """
         Download the image from the URL in self.image_name
@@ -196,7 +194,6 @@ class Image(object):
             image = image[0]
 
             image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
-
 
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
