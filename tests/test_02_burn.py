@@ -1,7 +1,7 @@
 ###############################################################
-# pytest -v --capture=no tests/test_pi.py
-# pytest -v  tests/test_pi.py
-# pytest -v --capture=no tests/test_pi.py::Test_burn::test_info
+# pytest -v --capture=no tests/test_02_burn.py
+# pytest -v  tests/test_02_burn.py
+# pytest -v --capture=no tests/test_02_burn.py::Test_burn::test_info
 ###############################################################
 
 import os
@@ -17,23 +17,27 @@ from cloudmesh.common.util import yn_choice
 from cloudmesh.burn.sdcard import SDCard
 
 from cloudmesh.burn.util import os_is_pi
+from cloudmesh.burn.util import os_is_linux
+from cloudmesh.common.systeminfo import get_platform
 
-cloud = "raspberry"
+cloud = get_platform()
 device = "/dev/sdb"
 user = os.environ["USER"]
 
-#sys.exit(1)
-
-
-if not os_is_pi():
-    Console.error("OS is not Ubuntu, test can not be performed")
+if not (os_is_linux() or os_is_pi()):
+    Console.error("OS is not Linux or Pi, test can not be performed")
     sys.exit(1)
 
-
+os.system("cms burn unmount")
 os.system("cms burn info")
 print()
-if not yn_choice(f"This test will be performed with the user '{user}' on {device}. Continue?"):
-    if not yn_choice(f"Input custom device? (/dev/sdX)"):
+Console.warning("If you see mount points above, please stop, unmount, and try again.")
+print()
+
+if not yn_choice(f"This test will be performed with the user '{user}' on "
+                 f"{device}. Select 'n' to input custom devive. Continue with "
+                 f"default?"):
+    if not yn_choice(f"Input custom device? i.e /dev/sdX"):
         sys.exit(1)
     else:
         device=input()
@@ -119,7 +123,7 @@ class Test_burn:
         global user
         global device
 
-        os.system(f"cms burn load --device={device}")
+        #os.system(f"cms burn load --device={device}")
 
         cmd = f"cms burn format --device={device}"
         Benchmark.Start()
@@ -129,8 +133,9 @@ class Test_burn:
         assert f"Disk {device}" in result
         assert "primary" in result
         assert "fat32" in result
+        assert "Error" not in result
 
-        os.system(f"sudo eject {device}")
+        #os.system(f"sudo eject {device}")
 
         sys.stdout.flush()
         sys.stderr.flush()
@@ -143,7 +148,7 @@ class Test_burn:
         global user
         global device
 
-        os.system(f"cms burn load --device={device}")
+        #os.system(f"cms burn load --device={device}")
 
         cmd = f"cms burn sdcard --device={device}"
         Benchmark.Start()
@@ -158,7 +163,7 @@ class Test_burn:
 
     def test_mount(self):
         HEADING()
-        card = SDCard(card_os="raspberry", host="raspberry")
+        card = SDCard(card_os="raspberry")
         global user
         global device
         cmd = f"cms burn mount --device={device}"
@@ -175,7 +180,7 @@ class Test_burn:
 
     def test_enable_ssh(self):
         HEADING()
-        card = SDCard(card_os="raspberry", host="raspberry")
+        card = SDCard(card_os="raspberry")
 
         if os.path.exists(f'{card.boot_volume}/ssh'):
             cmd = f'sudo rm {card.boot_volume}/ssh'
@@ -190,7 +195,7 @@ class Test_burn:
 
     def test_configure_wifi(self):
         HEADING()
-        card = SDCard(card_os="raspberry", host="raspberry")
+        card = SDCard(card_os="raspberry")
 
         if os.path.exists(f"{card.boot_volume}/wpa_supplicant.conf"):
             cmd = f'sudo rm {card.boot_volume}/wpa_supplicant.conf'
@@ -205,7 +210,7 @@ class Test_burn:
 
     def test_set_hostname(self):
         HEADING()
-        card = SDCard(card_os="raspberry", host="raspberry")
+        card = SDCard(card_os="raspberry")
 
         cmd = f'cms burn set --hostname=test'
         Benchmark.Start()
@@ -217,19 +222,19 @@ class Test_burn:
 
     def test_set_ip(self):
         HEADING()
-        card = SDCard(card_os="raspberry", host="raspberry")
+        card = SDCard(card_os="raspberry")
 
-        cmd = f'cms burn set --ip=10.10.10.10'
+        cmd = f'cms burn set --ip=10.1.1.253'
         Benchmark.Start()
         os.system(cmd)
         Benchmark.Stop()
         cmd = f'sudo cat {card.root_volume}/etc/dhcpcd.conf'
         result = Shell.run(cmd)
-        assert 'ip_address=10.10.10.10/24' in result.split()
+        assert 'ip_address=10.1.1.253/24' in result.split()
 
     def test_set_key(self):
         HEADING()
-        card = SDCard(card_os="raspberry", host="raspberry")
+        card = SDCard(card_os="raspberry")
         test_key = 'ssh-rsa AAAAAAAA pi@raspberrypi'
         f = open("test.pub", "w")
         f.write(test_key)
@@ -239,14 +244,14 @@ class Test_burn:
         Benchmark.Start()
         os.system(cmd)
         Benchmark.Stop()
-        cmd = f'sudo cat {card.root_volume}/home/{user}/.ssh/authorized_keys'
+        cmd = f'sudo cat {card.root_volume}/home/pi/.ssh/authorized_keys'
         result = Shell.run(cmd)
         os.system('rm ./test.pub')
         assert test_key in result.strip()
 
     def test_unmount(self):
         HEADING()
-        card = SDCard(card_os="raspberry", host="raspberry")
+        card = SDCard(card_os="raspberry")
         global user
         global device
         cmd = f"cms burn unmount --device={device}"
@@ -283,12 +288,6 @@ class Test_burn:
                 cmd_ip = line.split()[3]
                 assert line.split()[1] == 'wlan0'
                 assert cmd_ip == ip_wlan0
-
-    def test_backup(self):
-        pass
-
-    def test_shrink(self):
-        pass
 
     def test_benchmark(self):
         HEADING()
