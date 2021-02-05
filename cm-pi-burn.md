@@ -403,25 +403,4 @@ Quote:
     wear-levelling tasks and write actions. You can now safely unplug the
     Raspberry Pi. Failure to shut the Raspberry Pi down properly may corrupt
     your SD card, which would mean you would have to re-image it.
-    
-LED control:
-    See Gregors pi book there is a section describing how to do it
-    
-    See also https://www.jeffgeerling.com/blogs/jeff-geerling/controlling-pwr-act-leds-raspberry-pi    
-    There may be more resources
-    We can use this to test which node is which. E.g 
-    develop a class that sets the leds on one or more from the master with ssh
-    
-    See also 
-    https://www.raspberrypi.org/forums/viewtopic.php?t=12530
 
-SSHFS:
-	add master to .ssh/config onlocal machine
-
-	Host master
-         HostName xxx.xxx.xxx.xxx
-         User pi
-         IdentityFile ~/.ssh/id_rsa.pub
-
-	mkdir master
-	sshfs master: master

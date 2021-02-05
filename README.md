@@ -136,6 +136,9 @@ pi@masterpi:~ $ source ~/ENV3/bin/activate
 
 **Step 3.** Download the latest Raspberry Pi Lite OS
 
+TODO: does this still work. E.g. do w not have to get the list of
+newest images first?
+
 The following command will download the latest images for Raspberry
 Lite OS.
 
