@@ -552,6 +552,49 @@ ssh pi@10.10.10.10
 
 ### test_pi.py
 
+Originally burn_sdcard failed becuase: pv was missing on my ubuntu.
+1. I did not have the latest-lite image in ~/.cloudmesh...
+2. My ubuntu did not have pv installed. This must be a missing requirement 
+   for cloudmesh get pi.
+
+```
+anthony@anthony-ubuntu:~/cm/cloudmesh-pi-burn$ cms burn sdcard --device=/dev/sda
+burn sdcard --device=/dev/sda
+INFO: Burning...
+/home/anthony/.cloudmesh/cmburn/images/2021-01-11-raspios-buster-armhf-lite.img
+/dev/sda
+4M
+dd if=/home/anthony/.cloudmesh/cmburn/images/2021-01-11-raspios-buster-armhf-lite.img | pv -w 80 | sudo dd of=/dev/sda bs=4M conv=fsync status=progress
+sh: 1: pv: not found
+dd: writing to 'standard output': Broken pipe
+1+0 records in
+0+0 records out
+0 bytes copied, 0.000145562 s, 0.0 kB/s
+0+0 records in
+0+0 records out
+0 bytes copied, 5.0097e-05 s, 0.0 kB/s
+```
+
+Running the following image tests leaves a copy of latest-lite in ~/.cloudmesh.
+
+```
+pytest -v --capture=no tests/test_01_image.py
+```
+
+The following installs pv
+
+```
+sudo apt install pv
+```
+
+Now the following passed
+
+```
+pytest -v --capture=no tests/test_pi.py::Test_burn::test_burn_sdcard
+```
+
+Lets try the whole test again.
+
 
 
 ### test_clone.py
