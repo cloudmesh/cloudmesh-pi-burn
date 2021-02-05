@@ -39,12 +39,26 @@ class Image(object):
         #    self.fullpath = self.directory + '/' + self.image_name + '.img'
 
     def read_version_cache(self):
+        """
+        reads the image list cache from the default cache location
+
+        :return:
+        :rtype:
+        """
         data = yaml.load(readfile(self.cache), Loader=yaml.SafeLoader)
         return data
 
 
     @staticmethod
     def find(tag=['latest-lite']):
+        """
+        finds image names in the image list with the given tags
+
+        :param tag: list of strings
+        :type tag: list
+        :return: tag matiching images
+        :rtype: dict
+        """
         found = []
         data = Image.create_version_cache(refresh=False)
         for entry in data:
@@ -57,6 +71,14 @@ class Image(object):
 
     @staticmethod
     def create_version_cache(refresh=False):
+        """
+        creates a cache of all released pi images
+
+        :param refresh: reresd it from the Web if True
+        :type refresh: bool
+        :return: writes it into ~/.cloudmesh/cmburn/distributions.yaml
+        :rtype: file
+        """
 
         data = {
             "lite": [],
@@ -123,7 +145,6 @@ class Image(object):
 
     @staticmethod
     def find_image_zip(repo, version):
-
         url = f"{repo}/{version}/"
 
         result = requests.get(url, verify=False)

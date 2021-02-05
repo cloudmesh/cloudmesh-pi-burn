@@ -26,7 +26,7 @@ class Hardware(object):
         """
         # noinspection PyBroadException
         try:
-            address = open('/sys/class/net/%s/address' % interface).read()
+            address = open(f'/sys/class/net/{interface}/address').read()
         except Exception as e:
             address = "00:00:00:00:00:00"
         return address[0:17]

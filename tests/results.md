@@ -1,5 +1,45 @@
 ## Test Results on Pi
 
+### What is the status of the implementation?
+
+| Feature         | PI    | Ubuntu | Mac     | Windows |
+| --------------- | ----- | ------ | ------- | ------- |
+| image versions  | at +  | gt +   | gt +    |         |
+| image ls        | at +  | gt +   | gt +    |         |
+| image delete    | at +  | gt +   | gt +    |         |
+| image get       | at +  | gt +   | gt +    |         |
+| info            | at +  | g +    | g +/- 3 |         |
+| detect*         |       |        |         |         |
+| network         | at +  | g +?   |         |         |
+| backup          | at +  | g +    |         |         |
+| copy            | at +  | g +    |         |         |
+| shrink install  | at +  | gt +   |  -      |         |
+| shrink          | at +  | g+?    |  -      |         |
+| sdcard          | at +  | gt -   |         |         |
+| mount           | at +  | gt +   |         |         |
+| unmount         | at +  | gt +   |         |         |
+| enable ssh      | at +  |        |         |         |
+| wifi            | at -  |   -    |  -      | -       |
+| set             | at +  |        |         |         |
+| create          |       |        |         |         |
+| format          | at +  | gt +   |         |         |
+| firmware        | a     | NA     |  NA     | NA      |
+
+* g = gregor
+* r = richie
+* a = anthony
+* ad = adam
+* as = asuri
+* ar = arjun
+
+* d = diffrent implementation between Linux and PI (compare)
+* 2 = change and add --ssd so its uniform
+* ? = needs test
+* - = broken
+1 = get needs to use the image versions refresh cache
+3 = does not report when the USB card is found
+t = has a unit test
+
 ### test_pi.py
 Most cms burn functions are tested in test_pi.py.
 
