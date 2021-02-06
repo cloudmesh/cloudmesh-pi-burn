@@ -249,7 +249,10 @@ class USB(object):
                     details[key] = {}
                 details[key]["key"] = key
                 if "Attached SCSI removable disk" in comment:
-                    details[key]["removable"] = True
+                    try:
+                        details[key]["removable"] = True
+                    except:
+                        details[key]["removable"] = False
                 if "logical blocks:" in comment:
                     size = comment.split("blocks:")[1]
                     details[key]["size"] = size.strip().replace("(",
