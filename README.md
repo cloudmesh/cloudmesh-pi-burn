@@ -1041,12 +1041,12 @@ Take the SDCard into the PI and set it up there. as documented.
 | mount           | at +  | at +   |         |         |
 | unmount         | at +  | at +   |         |         |
 | enable ssh      | at +  | at +   |         |         |
-| wifi            | at -  | at -   |  -      | -       |
+| wifi            | at +  | at -   |  -      | -       |
 | set             | at +  | at +   |         |         |
 | create          |       |        |         |         |
-| check           |       |        |         |         |
+| check           | at +  | at +   |         |         |
 | format          | at +  | at +   |         |         |
-| firmware        | a     | NA     |  NA     | NA      |
+| firmware        | a  +  | NA     |  NA     | NA      |
 
 * g = gregor
 * r = richie
