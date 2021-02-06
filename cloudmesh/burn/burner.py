@@ -520,6 +520,20 @@ class Burner(object):
         else:
             raise NotImplementedError("Only implemented to be run on a PI")
 
+    def mac(self, hostnames=None):
+        """
+        Sets the hostname for which we probe the MAC addresses
+
+        :param hostname: the hostname
+        :type hostname: str
+        """
+        self.hostnames = hostnames
+
+        print(hostnames)
+        Console.error("Not yet implemented")
+        return ""
+
+
     @windows_not_supported
     def set_hostname(self, hostname):
         """

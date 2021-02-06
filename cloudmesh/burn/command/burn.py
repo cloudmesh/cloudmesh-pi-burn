@@ -61,6 +61,7 @@ class BurnCommand(PluginCommand):
               burn enable ssh
               burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
               burn check [--device=DEVICE]
+              burn mac --hostname=HOSTNAME
 
             Options:
               -h --help              Show this screen.
@@ -429,6 +430,13 @@ class BurnCommand(PluginCommand):
         elif arguments.unmount:
             execute("unmount", burner.unmount(device=arguments.device,
                                               card_os=arguments.os))
+            return ""
+
+        elif arguments.mac:
+
+            hostnames = Parameter.expand(arguments.hostname)
+
+            execute("mac", burner.mac(hostnames=hostnames))
             return ""
 
         elif arguments.set:
