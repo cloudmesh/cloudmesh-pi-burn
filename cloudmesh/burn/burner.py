@@ -149,7 +149,7 @@ class Burner(object):
                 for line in lines:
                     for tag in ["ssid", "psk"]:
                         if f'{tag}=' in line:
-                            data[tag] = line.split(f'{tag}=')[1].replace('"',"")
+                            data[tag] = line.split(f'{tag}=')[1].replace('"', "")
 
             else:
                 data["wifi"] = False
@@ -165,7 +165,7 @@ class Burner(object):
         banner("Card Check")
         print(Printer.attribute(
             data,
-            sort_keys= False,
+            sort_keys=False,
             order=[
                 "hostname",
                 "ip",
@@ -1060,7 +1060,7 @@ class Burner(object):
 
                     network={{
                             ssid=\"{network}\"
-                            psk=\"{psk}\"                            
+                            psk=\"{psk}\"
                     }}""".format(network=ssid, psk=psk, country=country))
         else:
             wifi = textwrap.dedent("""\
@@ -1072,7 +1072,6 @@ class Burner(object):
                             ssid=\"{network}\"
                             key_mgmt=NONE
                     }}""".format(network=ssid, country=country))
-
 
         card = SDCard(card_os=card_os, host=host)
         path = f"{card.boot_volume}/wpa_supplicant.conf"

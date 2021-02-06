@@ -14,7 +14,8 @@ from cloudmesh.common.util import Console
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-from cloudmesh.common.debug import VERBOSE
+# from cloudmesh.common.debug import VERBOSE
+
 
 class BurnCommand(PluginCommand):
 
@@ -284,7 +285,7 @@ class BurnCommand(PluginCommand):
         arguments.FROM = arguments["--from"]
         arguments.IMAGE = arguments["--image"]
 
-        #VERBOSE(arguments)
+        # VERBOSE(arguments)
 
         def execute(label, function):
             StopWatch.start(label)
