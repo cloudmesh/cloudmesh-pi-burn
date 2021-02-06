@@ -17,7 +17,7 @@ understanding and verifying the required pre-conditions.
     - Residual Output: A copy of the latest-lite image is saved in ~/.
       cloudmesh/cmburn/images
 2. **test_02_burn.py**
-    - Prequsite: A copy of the latest-lite image is saved in ~/.
+    - Prequsite: A copy of the latest-lite image is saved in ~/., pv program
       cloudmesh/cmburn/images
     - Purpose: Test most cms burn functions, excluding sdcard cloning 
       functions.
@@ -27,7 +27,7 @@ understanding and verifying the required pre-conditions.
     - Prequisite: A functional burned card, enough storage space to store an 
       block copy of the SD card. You cannot run this on the pi with an sd 
       card the same size as your pi's OS sd card. This is why the tests were 
-      separate. That and an entire bit-by-it copy of 64 GB can take some time.
+      separate. That and an entire bit-by-it copy of 64 GB can take some time. pv program.
     - Purpose: Test cloning an sd card.
     - Output: An bootable cloned sd card. 
 
@@ -51,6 +51,13 @@ Input custom device? i.e /dev/sdX (Y/n)
 y
 /dev/sda
 ```
+**You need the pv program if it is not already installed**
+
+```
+sudo apt install pv
+```
+
+#### Steps
 
 1. Move to the pi-burn directory.
 
