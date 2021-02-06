@@ -81,10 +81,10 @@ class Burner(object):
         """
         This method checks what configurations are placed on the PI se card
 
-        @param device:
-        @type device:
-        @return:
-        @rtype:
+        :param device:
+        :type device:
+        :return:
+        :rtype:
         """
 
         data = {
@@ -207,8 +207,8 @@ class Burner(object):
         """
         Installs /usr/local/bin/pishrink.sh
         Installes parted
-        @return:
-        @rtype:
+        :return:
+        :rtype:
         """
 
         if os_is_linux() or os_is_pi():

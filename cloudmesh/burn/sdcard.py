@@ -84,8 +84,8 @@ class SDCard:
         """
         List all file systems on the SDCard. This is for the PI rootfs and boot
 
-        @return: A dict representing the file systems on the SDCCards
-        @rtype: dict
+        :return: A dict representing the file systems on the SDCCards
+        :rtype: dict
         """
 
         r = Shell.run("mount -l").splitlines()
