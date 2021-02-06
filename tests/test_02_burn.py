@@ -5,20 +5,18 @@
 ###############################################################
 
 import os
-import shutil
-import pytest
 import sys
 
+import pytest
+from cloudmesh.burn.sdcard import SDCard
+from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_pi
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.Shell import Shell
-from cloudmesh.common.util import HEADING
 from cloudmesh.common.console import Console
-from cloudmesh.common.util import yn_choice
-from cloudmesh.burn.sdcard import SDCard
-
-from cloudmesh.burn.util import os_is_pi
-from cloudmesh.burn.util import os_is_linux
 from cloudmesh.common.systeminfo import get_platform
+from cloudmesh.common.util import HEADING
+from cloudmesh.common.util import yn_choice
 
 cloud = get_platform()
 device = "/dev/sdb"
@@ -37,16 +35,16 @@ print()
 if not yn_choice(f"This test will be performed with the user '{user}' on "
                  f"{device}. Select 'n' to input custom devive. Continue with "
                  f"default?"):
-    if not yn_choice(f"Input custom device? i.e /dev/sdX"):
+    if not yn_choice("Input custom device? i.e /dev/sdX"):
         sys.exit(1)
     else:
-        device=input()
+        device = input()
         print(f"Using device {device}")
 
 Benchmark.debug()
 
 """
-Tests to be integrated, 
+Tests to be integrated,
 
 Note image tests are in  test_01_image.py
 
@@ -136,8 +134,6 @@ class Test_burn:
         sys.stdout.flush()
         sys.stderr.flush()
 
-
-
     def test_burn_sdcard(self):
         HEADING()
 
@@ -180,9 +176,9 @@ class Test_burn:
             cmd = f'sudo rm {card.boot_volume}/ssh'
             os.system(cmd)
 
-        cmd = f'cms burn enable ssh'
+        cmd = 'cms burn enable ssh'
         Benchmark.Start()
-        result = Shell.run(cmd)
+        result = Shell.run(cmd)  # noqa: F841
         Benchmark.Stop()
 
         assert os.path.exists(f'{card.boot_volume}/ssh')
@@ -195,9 +191,9 @@ class Test_burn:
             cmd = f'sudo rm {card.boot_volume}/wpa_supplicant.conf'
             os.system(cmd)
 
-        cmd = f'cms burn wifi --ssid=test'
+        cmd = 'cms burn wifi --ssid=test'
         Benchmark.Start()
-        result = Shell.run(cmd)
+        result = Shell.run(cmd)  # noqa: F841
         Benchmark.Stop()
 
         assert os.path.exists(f"{card.boot_volume}/wpa_supplicant.conf")
@@ -206,7 +202,7 @@ class Test_burn:
         HEADING()
         card = SDCard(card_os="raspberry")
 
-        cmd = f'cms burn set --hostname=test'
+        cmd = 'cms burn set --hostname=test'
         Benchmark.Start()
         os.system(cmd)
         Benchmark.Stop()
@@ -218,7 +214,7 @@ class Test_burn:
         HEADING()
         card = SDCard(card_os="raspberry")
 
-        cmd = f'cms burn set --ip=10.1.1.253'
+        cmd = 'cms burn set --ip=10.1.1.253'
         Benchmark.Start()
         os.system(cmd)
         Benchmark.Stop()
@@ -234,7 +230,7 @@ class Test_burn:
         f.write(test_key)
         f.close()
 
-        cmd = f'cms burn set --key=./test.pub'
+        cmd = 'cms burn set --key=./test.pub'
         Benchmark.Start()
         os.system(cmd)
         Benchmark.Stop()
@@ -262,7 +258,7 @@ class Test_burn:
 
     def test_network(self):
         HEADING()
-        cmd = f"cms burn network"
+        cmd = "cms burn network"
         Benchmark.Start()
         result = Shell.run(cmd)
         Benchmark.Stop()
@@ -270,7 +266,7 @@ class Test_burn:
                             ' "\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b" | head '
                             '-1').strip()
         ip_wlan0 = Shell.run('ip address | grep wlan0| grep -oE'
-                            ' "\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b" | head '
+                             ' "\\b([0-9]{1,3}\\.){3}[0-9]{1,3}\\b" | head '
                              '-1').strip()
 
         for line in result.splitlines():
@@ -286,4 +282,3 @@ class Test_burn:
     def test_benchmark(self):
         HEADING()
         Benchmark.print(sysinfo=False, csv=True, tag=cloud)
-

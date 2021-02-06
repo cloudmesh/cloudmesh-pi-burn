@@ -5,17 +5,14 @@
 ###############################################################
 
 import os
-import shutil
-import pytest
 import sys
 
+import pytest
+from cloudmesh.burn.util import os_is_windows
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.Shell import Shell
-from cloudmesh.common.util import HEADING
 from cloudmesh.common.console import Console
-
-from cloudmesh.burn.util import os_is_linux
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.util import HEADING
 
 if os_is_windows():
     Console.error("OS is not supported on windows")
@@ -28,7 +25,7 @@ user = os.environ["USER"]
 
 
 """
-Here we want to test 
+Here we want to test
 
 burn image versions [--refresh]
 burn image ls
@@ -96,4 +93,3 @@ class Test_burn:
     def test_benchmark(self):
         HEADING()
         Benchmark.print(sysinfo=True, csv=True, tag=cloud)
-

@@ -5,20 +5,18 @@
 ###############################################################
 
 import os
-import shutil
-import pytest
 import sys
 
+import pytest
+from cloudmesh.burn.sdcard import SDCard
+from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_pi
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.Shell import Shell
-from cloudmesh.common.util import HEADING
 from cloudmesh.common.console import Console
-from cloudmesh.common.util import yn_choice
-from cloudmesh.burn.sdcard import SDCard
-
-from cloudmesh.burn.util import os_is_pi
-from cloudmesh.burn.util import os_is_linux
 from cloudmesh.common.systeminfo import get_platform
+from cloudmesh.common.util import HEADING
+from cloudmesh.common.util import yn_choice
 
 cloud = get_platform()
 device = "/dev/sdb"
@@ -36,14 +34,15 @@ print()
 
 if not yn_choice(f"This test will be performed with the user '{user}' on "
                  f"{device}. Select 'n' to input custom devive. Continue with "
-                 f"default?"):
-    if not yn_choice(f"Input custom device? i.e /dev/sdX"):
+                 "default?"):
+    if not yn_choice("Input custom device? i.e /dev/sdX"):
         sys.exit(1)
     else:
-        device=input()
+        device = input()
         print(f"Using device {device}")
 
 Benchmark.debug()
+
 
 @pytest.mark.incremental
 class Test_clone:
@@ -66,7 +65,7 @@ class Test_clone:
         dev_size = result.split()[4]
         print(dev_size)
 
-        cmd = f'ls -al ./test.img'
+        cmd = 'ls -al ./test.img'
         result = Shell.run(cmd)
         print(result.split())
         test_bak_size = result.split()[4]
@@ -78,17 +77,17 @@ class Test_clone:
         # requires test_backup to run first
         HEADING()
 
-        cmd = f'ls -al ./test.img'
+        cmd = 'ls -al ./test.img'
         result = Shell.run(cmd)
         before_size = result.split()[4]
         print(f'Before size: {before_size}')
 
-        cmd = f'cms burn shrink --image=./test.img'
+        cmd = 'cms burn shrink --image=./test.img'
         Benchmark.Start()
         result = Shell.run(cmd)
         Benchmark.Stop()
 
-        cmd = f'ls -al ./test.img'
+        cmd = 'ls -al ./test.img'
         result = Shell.run(cmd)
         after_size = result.split()[4]
         print(f'After size: {after_size}')
@@ -99,7 +98,7 @@ class Test_clone:
         # requires test_backup to run first
         HEADING()
 
-        os.system(f"cms burn unmount") #card can not be mounted before format
+        os.system("cms burn unmount")  # card can not be mounted before format
         os.system(f"cms burn format --device={device}")
         Console.ok("Copying image to sdcard")
 
@@ -116,11 +115,10 @@ class Test_clone:
         result = Shell.run(f"ls {card.root_volume}").splitlines()
         assert len(result) > 0
 
-        cmd = f"cms burn unmount"
+        cmd = "cms burn unmount"
         os.system(cmd)
         os.remove('./test.img')
 
     def test_benchmark(self):
         HEADING()
         Benchmark.print(sysinfo=False, csv=True, tag=cloud)
-
