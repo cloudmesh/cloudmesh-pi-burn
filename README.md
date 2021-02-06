@@ -125,13 +125,12 @@ pi@masterpi:~ $  curl -Ls https://raw.githubusercontent.com/cloudmesh/get/main/p
 
 This will take a moment...
 
-**Step 2.** Activate Python Virtual Environment
+**Step 2.** Reboot
 
-If you have not already, enter the Python virtual environment provided
-by the installation script.
+The installation script updates your system. Reboot for effect.
 
 ```
-pi@masterpi:~ $ source ~/ENV3/bin/activate
+pi@masterpi:~ $ sudo reboot
 ```
 
 **Step 3.** Download the latest Raspberry Pi Lite OS
