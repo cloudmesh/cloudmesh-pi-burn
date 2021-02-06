@@ -354,12 +354,25 @@ class Burner(object):
 
         if os_is_mac():
 
-            external = Shell.run("diskutil list -plist external")
-            print (external)
+            from pprint import pprint
+            import plistlib
+            external = subprocess.check_output(["diskutil","list", "-plist",  "external"])
+            pprint (external)
 
-            tree = ET.fromstring(external)
+            r = plistlib.loads(external)
 
-            print(tree)
+            print (r)
+
+            #tree = ET.fromstring(external)
+
+            #print(tree.attrib)
+
+            #print (tree.iter['plist'])
+            #print ([elem.tag for elem in tree.iter('plist')])
+
+            #children = tree.getchildren()
+            #for child in children:
+            #    print(child.tag, child.attrib)
 
             return ""
 
