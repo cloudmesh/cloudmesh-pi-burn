@@ -264,7 +264,9 @@ class USB(object):
                     details[key]["writeable"] = True
                 name = details[key]["name"] = device.replace("[", "").replace(
                     "]", "")
-                # dev = details[key]["dev"] = f"/dev/{name}"
+                # TODO:
+                # This line was commented out previously, causing the program to fail. Why was this done?
+                dev = details[key]["dev"] = f"/dev/{name}"
                 _fdisk = USB.fdisk(name)
                 details[key]['readable'] = "cannot open" in _fdisk
                 details[key]['empty'] = "linux" in _fdisk
