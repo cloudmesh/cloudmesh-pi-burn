@@ -117,7 +117,7 @@ ssh pi@10.1.1.253
 ```
 
 ### Tests Expected to Fail
-1. **test_configure_wifi:** underlaying function not yet implemented.
+None as of 2/6/21
 
 ### Testing Notes
 
