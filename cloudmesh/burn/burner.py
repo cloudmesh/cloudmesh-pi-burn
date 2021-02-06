@@ -354,52 +354,36 @@ class Burner(object):
 
         if os_is_mac():
 
-            from pprint import pprint
             import plistlib
             external = subprocess.check_output(["diskutil","list", "-plist",  "external"])
-            pprint (external)
 
             r = dict(plistlib.loads(external))
 
             details = []
 
-            print (r)
-            print(r.keys())
-            print()
-            print(r['AllDisks'])
-            print()
-            print(r['AllDisksAndPartitions'])
             for partition in r['AllDisksAndPartitions'][0]['Partitions']:
-                print (partition)
+
+                if 'MountPoint' not in partition:
+                    partition['MountPoint'] = None
+                if partition['Content'] == 'Linux':
+                    partition['Content'] = 'ext4'
+                elif partition['Content'] == 'Windows_FAT_32':
+                    partition['Content'] = 'FAT32'
+
                 entry = {
-                    "dev": partition['DeviceIdentifier'],
+                    "dev": f"/dev/{partition['DeviceIdentifier']}",
                     "active": None,
-                    "info" : None,
+                    "info" : partition['MountPoint'],
                     "readable": None,
-                    "formatted": None,
+                    "formatted": partition['Content'],
                     "empty": None,
                     "size": partition['Size'],
                     "direct-access": None,
                     "removable": None,
-                    "writeable": None
+                    "writeable":
+                        'VolumeName' in partition and partition['VolumeName'] == 'boot'
                 }
                 details.append(entry)
-
-            print()
-            print(r['VolumesFromDisks'])
-            print()
-            print(r['WholeDisks'])
-            print()
-            #tree = ET.fromstring(external)
-
-            #print(tree.attrib)
-
-            #print (tree.iter['plist'])
-            #print ([elem.tag for elem in tree.iter('plist')])
-
-            #children = tree.getchildren()
-            #for child in children:
-            #    print(child.tag, child.attrib)
 
         else:
             details = USB.get_from_dmesg()
