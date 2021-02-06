@@ -9,6 +9,7 @@ import sys
 import textwrap
 import time
 
+import xml.etree.ElementTree as ET
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.usb import USB
@@ -27,6 +28,7 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import yn_choice
+from cloudmesh.common.Shell import Shell
 
 
 # def dmesg():
@@ -350,7 +352,19 @@ class Burner(object):
 
         # print ('\n'.join(sorted(devices)))
 
-        details = USB.get_from_dmesg()
+        if os_is_mac():
+
+            external = Shell.run("diskutil list -plist external")
+            print (external)
+
+            tree = ET.fromstring(external)
+
+            print(tree)
+
+            return ""
+
+        else:
+            details = USB.get_from_dmesg()
 
         if print_stdout:
             banner("SD Cards Found")
