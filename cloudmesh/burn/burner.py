@@ -359,10 +359,37 @@ class Burner(object):
             external = subprocess.check_output(["diskutil","list", "-plist",  "external"])
             pprint (external)
 
-            r = plistlib.loads(external)
+            r = dict(plistlib.loads(external))
+
+            details = []
 
             print (r)
+            print(r.keys())
+            print()
+            print(r['AllDisks'])
+            print()
+            print(r['AllDisksAndPartitions'])
+            for partition in r['AllDisksAndPartitions'][0]['Partitions']:
+                print (partition)
+                entry = {
+                    "dev": partition['DeviceIdentifier'],
+                    "active": None,
+                    "info" : None,
+                    "readable": None,
+                    "formatted": None,
+                    "empty": None,
+                    "size": partition['Size'],
+                    "direct-access": None,
+                    "removable": None,
+                    "writeable": None
+                }
+                details.append(entry)
 
+            print()
+            print(r['VolumesFromDisks'])
+            print()
+            print(r['WholeDisks'])
+            print()
             #tree = ET.fromstring(external)
 
             #print(tree.attrib)
@@ -373,8 +400,6 @@ class Burner(object):
             #children = tree.getchildren()
             #for child in children:
             #    print(child.tag, child.attrib)
-
-            return ""
 
         else:
             details = USB.get_from_dmesg()
