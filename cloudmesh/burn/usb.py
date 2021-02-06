@@ -249,7 +249,10 @@ class USB(object):
                     details[key] = {}
                 details[key]["key"] = key
                 if "Attached SCSI removable disk" in comment:
-                    details[key]["removable"] = True
+                    try:
+                        details[key]["removable"] = True
+                    except:
+                        details[key]["removable"] = False
                 if "logical blocks:" in comment:
                     size = comment.split("blocks:")[1]
                     details[key]["size"] = size.strip().replace("(",
@@ -263,7 +266,7 @@ class USB(object):
                     "]", "")
                 # TODO:
                 # This line was commented out previously, causing the program to fail. Why was this done?
-                dev = details[key]["dev"] = f"/dev/{name}"
+                details[key]["dev"] = f"/dev/{name}"
                 _fdisk = USB.fdisk(name)
                 details[key]['readable'] = "cannot open" in _fdisk
                 details[key]['empty'] = "linux" in _fdisk
