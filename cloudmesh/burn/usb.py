@@ -67,7 +67,7 @@ class USB(object):
                     data[vendor_id][product_id] = {
                         'vendor_id': vendor_id,
                         'product_id': product_id,
-                        'vendor': vendor,
+                        'vendor': vendor, # BUG
                         'product': product
                     }
                 else:
