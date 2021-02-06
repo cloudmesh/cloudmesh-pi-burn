@@ -91,39 +91,52 @@ class Burner(object):
             "ssh": None,
             "hostname": None,
             "ip": None,
-            "password": None,
-            "shadow": None,
             "wifi": None,
             "psk": None,
             "ssid": None,
-            "wifipassword": None
+            "auth_key": None
         }
 
         card = SDCard()
-
         # ssh
 
         try:
-            self.mount(device)
             data["ssh"] = \
                 os.path.exists(f'{card.boot_volume}/ssh') or \
                 os.path.exists(f'{card.root_volume}/etc/systemd/system/sshd.service')
         except Exception as e:
             data["ssh"] = str(e)
+
+        # auth_key
+
+        try:
+            data["auth_key"] = \
+                os.path.exists(f'{card.root_volume}/home/pi/.ssh/authorized_keys')
+            if data["auth_key"]:
+                content = readfile(f"{card.root_volume}/home/pi/.ssh/authorized_keys")
+                data["auth_key"] = content.split()[-1]
+        except Exception as e:
+            data["auth_key"] = str(e)
+
         # hostname
 
-        content = readfile(f"{card.root_volume}/etc/hostname").strip()
-        data['hostname'] = content
+        try:
+            content = readfile(f"{card.root_volume}/etc/hostname").strip()
+            data['hostname'] = content
+        except Exception as e:
+            data["hostname"] = str(e)
 
         # ip
 
-        data["ip"] = "not yet implemented"
-
-        # passwod
-
-        data["password"] = "not yet implemented"
-
-        data["shadow"] = os.path.exists(f"{card.boot_volume}/etc/shadow")
+        try:
+            content = readfile(f"{card.root_volume}/etc/dhcpcd.conf")
+            for line in content.splitlines():
+                if line.startswith('static ip_address='):
+                    data['ip'] = line[18:]
+            if data['ip'] is None:
+                data['ip'] = 'False'
+        except Exception as e:
+            data["ip"] = str(e)
 
         # wifi
 
@@ -133,36 +146,34 @@ class Burner(object):
 
             if data["wifi"]:
                 lines = readfile(location).splitlines()
-
                 for line in lines:
-                    for tag in ["ssid", "wifipassword", "psk"]:
-                        if f"{tag} =" in line:
-                            data[tag] = line.split("{tag} =")[1]
+                    for tag in ["ssid", "psk"]:
+                        if f'{tag}=' in line:
+                            data[tag] = line.split(f'{tag}=')[1].replace('"',"")
 
             else:
                 data["wifi"] = False
                 data["ssid"] = None
-                data["wifipassword"] = None
+                data["psk"] = None
 
         except Exception as e:  # noqa: F841
 
             data["wifi"] = False
             data["ssid"] = None
-            data["wifipasswd"] = None
+            data["psk"] = None
 
         banner("Card Check")
         print(Printer.attribute(
             data,
+            sort_keys= False,
             order=[
-                "ssh",
                 "hostname",
                 "ip",
-                "password",
-                "shadow",
+                "ssh",
+                "auth_key",
                 "wifi",
                 "psk",
-                "ssid",
-                "wifipassword"
+                "ssid"
             ]
         ))
 
@@ -177,20 +188,43 @@ class Burner(object):
             Console.error("This command can only be run on a PI")
         else:
             if action == "check":
-                Console.error("To be implemented")
-
+                command = 'sudo apt update'
+                print(command)
+                print()
+                os.system(command)
+                print()
+                command = 'sudo apt install rpi-eeprom'
+                print(command)
+                print()
+                os.system(command)
+                print()
                 command = "sudo rpi-eeprom-update"
                 print(command)
+                print()
                 os.system(command)
-
+                print()
                 os.system("vcgencmd bootloader_version")
-
+                print()
                 print("For more information see:")
                 print()
                 print("* https://www.raspberrypi.org/documentation/hardware/raspberrypi/booteeprom.md")
                 print()
             elif action == "update":
-                os.system("sudo rpi-eeprom-update -a")
+                command = 'sudo apt update'
+                print(command)
+                print()
+                os.system(command)
+                print()
+                command = 'sudo apt install rpi-eeprom'
+                print(command)
+                print()
+                os.system(command)
+                print()
+                command = "sudo rpi-eeprom-update -a"
+                print(command)
+                print()
+                os.system(command)
+                print()
                 os.system("sudo reboot")
 
     @windows_not_supported
@@ -1000,7 +1034,7 @@ class Burner(object):
                        psk=None,
                        card_os='raspberry',
                        host=None,
-                       interactive=False):
+                       country=None):
         """
         Sets the wifi. Only works for psk based wifi
 
@@ -1012,32 +1046,34 @@ class Burner(object):
         :type card_os: str
         :param host: the machine os running the command
         :type host: str
-        :param interactive: true if you like to run it interactively
-        :type interactive: bool
+        :param country: two digit country code for rf settings
+        :type country: str
         """
-        if psk is not None:
+
+        country = country or 'US'
+
+        if psk:
             wifi = textwrap.dedent("""\
                     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
                     update_config=1
-                    country=US
+                    country={country}
 
                     network={{
                             ssid=\"{network}\"
-                            psk=\"{pwd}\"
-                            key_mgmt=WPA-PSK
-                    }}""".format(network=ssid, pwd=psk))
+                            psk=\"{psk}\"                            
+                    }}""".format(network=ssid, psk=psk, country=country))
         else:
             wifi = textwrap.dedent("""\
                     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
                     update_config=1
-                    country=US
+                    country={country}
 
                     network={{
                             ssid=\"{network}\"
                             key_mgmt=NONE
-                    }}""".format(network=ssid))
+                    }}""".format(network=ssid, country=country))
 
-        # Per fix provided by Gregor, we use this path to get around rfkill block on boot
+
         card = SDCard(card_os=card_os, host=host)
         path = f"{card.boot_volume}/wpa_supplicant.conf"
         if self.dryrun:
@@ -1046,8 +1082,6 @@ class Burner(object):
                                                              psk, path))
             return
 
-        # with open(path, 'w') as f:
-        #     f.write(wifi)
         sudo_writefile(path, wifi)
 
     # TODO

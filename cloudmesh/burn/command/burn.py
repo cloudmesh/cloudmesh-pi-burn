@@ -14,7 +14,7 @@ from cloudmesh.common.util import Console
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-
+from cloudmesh.common.debug import VERBOSE
 
 class BurnCommand(PluginCommand):
 
@@ -25,6 +25,7 @@ class BurnCommand(PluginCommand):
 
             Usage:
               burn firmware check
+              burn firmware update
               burn install
               burn load --device=DEVICE
               burn format --device=DEVICE
@@ -57,7 +58,7 @@ class BurnCommand(PluginCommand):
                        [--ip=IP]
                        [--key=KEY]
               burn enable ssh
-              burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+              burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
               burn check [--device=DEVICE]
 
             Options:
@@ -127,6 +128,10 @@ class BurnCommand(PluginCommand):
                 cms burn firmware check
 
                     checks if the firmware on the Pi is up to date
+
+                cms burn firmware update
+
+                    checks and updates the firmware on the Pi
 
                 cms burn install
 
@@ -224,10 +229,16 @@ class BurnCommand(PluginCommand):
 
                     this enables the ssh server once it is booted
 
-                cms burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+                cms burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
 
                     this sets the wifi ssid and password afterthe card is created,
-                    copies, or sdcard is used
+                    copies, or sdcard is used.
+
+                    The option country option expects an ISO
+                    3166-1 two digit country code. The default is "US" and
+                    the option not required if suitable. See
+                    https://en.wikipedia.org/wiki/ISO_3166-1 for other
+                    countries.
 
                 cms burn check [--device=DEVICE]
 
@@ -266,13 +277,14 @@ class BurnCommand(PluginCommand):
                        "wifipassword",
                        "version",
                        "to",
-                       "os")
+                       "os",
+                       "country")
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
         arguments.IMAGE = arguments["--image"]
 
-        # VERBOSE(arguments)
+        #VERBOSE(arguments)
 
         def execute(label, function):
             StopWatch.start(label)
@@ -367,19 +379,16 @@ class BurnCommand(PluginCommand):
 
         elif arguments.wifi:
 
-            Console.error("This command is not yet implemented")
-            return ""
-
             password = arguments.passwd
             ssid = arguments.ssid
+            country = arguments.country
 
             if password is None:
-                password = getpass("Please enter the Wifi password; ")
+                password = getpass("Please enter the Wifi password or enter "
+                                   "for no password: ")
 
-            StopWatch.stop("wifi")
-            # burner.configure_wifi(ssid, password)
-            StopWatch.stop("wifi")
-            StopWatch.status("wifi", True)
+            burner.configure_wifi(ssid, psk=password, country=country)
+
             return ""
 
         elif arguments.info:

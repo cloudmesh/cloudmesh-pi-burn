@@ -183,7 +183,7 @@ class Test_burn:
 
         assert os.path.exists(f'{card.boot_volume}/ssh')
 
-    def test_configure_wifi(self):
+    def test_wifi(self):
         HEADING()
         card = SDCard(card_os="raspberry")
 
@@ -191,7 +191,7 @@ class Test_burn:
             cmd = f'sudo rm {card.boot_volume}/wpa_supplicant.conf'
             os.system(cmd)
 
-        cmd = 'cms burn wifi --ssid=test'
+        cmd = 'cms burn wifi --ssid=test_ssid --passwd=test_pass'
         Benchmark.Start()
         result = Shell.run(cmd)  # noqa: F841
         Benchmark.Stop()
@@ -202,13 +202,13 @@ class Test_burn:
         HEADING()
         card = SDCard(card_os="raspberry")
 
-        cmd = 'cms burn set --hostname=test'
+        cmd = 'cms burn set --hostname=test_host'
         Benchmark.Start()
         os.system(cmd)
         Benchmark.Stop()
         cmd = f'sudo cat {card.root_volume}/etc/hostname'
         result = Shell.run(cmd)
-        assert 'test' in result.split()
+        assert 'test_host' in result.split()
 
     def test_set_ip(self):
         HEADING()
@@ -225,7 +225,7 @@ class Test_burn:
     def test_set_key(self):
         HEADING()
         card = SDCard(card_os="raspberry")
-        test_key = 'ssh-rsa AAAAAAAA pi@raspberrypi'
+        test_key = 'ssh-rsa AAAAAAAA test@test'
         f = open("test.pub", "w")
         f.write(test_key)
         f.close()
@@ -238,6 +238,25 @@ class Test_burn:
         result = Shell.run(cmd)
         os.system('rm ./test.pub')
         assert test_key in result.strip()
+
+    def test_check(self):
+        HEADING()
+        cmd = f"cms burn check"
+        Benchmark.Start()
+        result = Shell.run(cmd)
+        Benchmark.Stop()
+        print(result)
+        expected = ['hostname', 'test_host',
+                    'ip', '10.1.1.253/24',
+                    'ssh', 'True',
+                    'auth_key', 'test@test',
+                    'wifi', 'True',
+                    'psk', 'test_pass',
+                    'ssid', 'test_ssid'
+                    ]
+        for val in expected:
+            assert val in result.split()
+        assert result.split().count('True') == 2
 
     def test_unmount(self):
         HEADING()
