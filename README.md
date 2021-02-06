@@ -1080,3 +1080,38 @@ we have the following tests:
 * `pytest -v --capture=no tests/test_01_image.py`
   * This test removes files forom ~/.cloudmesh/cmburn/images
   * See also:  [test_01_image.py](https://github.com/cloudmesh/cloudmesh-pi-burn/blob/main/tests/test_01_image.py)
+
+
+### How can I see the rootfs in macOS?
+
+Carfule, this method does not allow you to write to it.
+
+```bash
+mac $ brew cask install osxfuse
+mac $ brew install ext4fuse
+mac $ diskutil list external
+
+diskutil list external                  
+/dev/disk2 (external, physical):
+  #:            TYPE NAME          SIZE    IDENTIFIER
+  0:   FDisk_partition_scheme            *64.1 GB  disk2
+  1:       Windows_FAT_32 ⁨boot⁩          268.4 MB  disk2s1
+  2:           Linux ⁨⁩            1.6 GB   disk2s2
+          (free space)             62.2 GB  - (edited) 
+
+mac $ sudo ext4fuse /dev/disk2s2 /Volumes/rootfs -o allow_other
+```
+
+This will ask you to allow the fuse program to get access to your system, 
+which you have to allow to use this method. Than you have to reboot the machine.
+After the reboot you have to issue the command again
+
+```bash
+mac $ sudo ext4fuse /dev/disk2s2 /Volumes/rootfs -o allow_other
+```
+
+Now you can look at the files with
+
+```bash
+ls /Volumes/rootfs
+```
