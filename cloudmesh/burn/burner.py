@@ -9,7 +9,6 @@ import sys
 import textwrap
 import time
 
-import xml.etree.ElementTree as ET
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.usb import USB
@@ -28,7 +27,6 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.common.Shell import Shell
 
 
 # def dmesg():
@@ -355,11 +353,16 @@ class Burner(object):
         if os_is_mac():
 
             import plistlib
-            external = subprocess.check_output(["diskutil","list", "-plist",  "external"])
+            external = subprocess.check_output("diskutil list -plist external".split(" "))
 
             r = dict(plistlib.loads(external))
 
             details = []
+
+            if len(r['AllDisksAndPartitions']) == 0:
+                Console.error("No partition found")
+                return ""
+
 
             for partition in r['AllDisksAndPartitions'][0]['Partitions']:
 
