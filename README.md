@@ -1031,8 +1031,7 @@ Take the SDCard into the PI and set it up there. as documented.
 | image delete    | at +  | gt +   | gt +  |         |
 | image get       | at +  | gt +   | gt +  |         |
 | info            | at +  | at +   | g  +  |         |
-| detect*         |       |        |       |         |
-| network         | at +  | at +   |       |         |
+| network         | at +  | at +   |    -  |         |
 | backup          | at +  | at +   |       |         |
 | copy            | at +  | at +   |       |         |
 | shrink install  | at +  | at +   |  -    |         |
@@ -1041,7 +1040,7 @@ Take the SDCard into the PI and set it up there. as documented.
 | mount           | at +  | at +   |       |         |
 | unmount         | at +  | at +   |       |         |
 | enable ssh      | at +  | at +   | g  +  |         |
-| wifi            | at +  | at +   |  -    | -       |
+| wifi            | at +  | at +   | g  +  | -       |
 | set             | at +  | at +   |       |         |
 | create          |       |        |       |         |
 | check           | at +  | at +   |       |         |
