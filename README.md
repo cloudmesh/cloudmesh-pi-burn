@@ -1030,7 +1030,7 @@ Take the SDCard into the PI and set it up there. as documented.
 | image ls        | at +  | gt +   | gt +    |         |
 | image delete    | at +  | gt +   | gt +    |         |
 | image get       | at +  | gt +   | gt +    |         |
-| info            | at +  | at +   | g +/- 3 |         |
+| info            | at +  | at +   | g  +    |         |
 | detect*         |       |        |         |         |
 | network         | at +  | at +   |         |         |
 | backup          | at +  | at +   |         |         |

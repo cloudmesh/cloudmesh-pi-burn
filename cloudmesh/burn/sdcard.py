@@ -33,10 +33,8 @@ class SDCard:
         """
         user = os.environ.get('USER')
         if self.card_os == "raspberry" and self.host == "darwin":
-            # return Path(f"/Volume/rootfs")
-            Console.error("Requires and ext4 writable file system."
-                          " Commercial solutions available.")
-            return "notimplemented"
+            Console.error("Requires and ext4 writable file system. NOt supported by default.")
+            return Path("/Volumes/rootfs")
         elif self.host == 'linux':
             if "raspberry" in self.card_os:
                 return Path(f"/media/{user}/rootfs")
@@ -63,7 +61,7 @@ class SDCard:
         user = os.environ.get('USER')
         if self.host == "darwin":
             if "raspberry" in self.card_os:
-                return Path("/Volume/boot")
+                return Path("/Volumes/boot")
             elif "linux" in self.card_os:
                 return Path("/Volume/system-boot")
         elif self.host == "linux":

@@ -912,12 +912,34 @@ class Burner(object):
         """
         Enables ssh on next boot of sd card
         """
-        if os_is_pi() or os_is_linux():
-            card = SDCard(card_os="raspberry")
-            command = f'sudo touch {card.boot_volume}/ssh'
-            self.system(command)
+
+
+        if os_is_pi():
+            host = "raspberry"
+            sudo = True
+
+        elif os_is_linux():
+            host = "linux"
+            sudo = True
+
+        elif os_is_mac():
+            host = "darwin"
+            sudo = False
+
         else:
-            raise NotImplementedError
+            Console.error("Not yet implemented for this OS")
+            return ""
+
+        card = SDCard(card_os="raspberry", host=host)
+        if sudo:
+           command = f'sudo touch {card.boot_volume}/ssh'
+        else:
+            command = f'touch {card.boot_volume}/ssh'
+
+        self.system(command)
+
+        return ""
+
 
     # IMPROVE
 
