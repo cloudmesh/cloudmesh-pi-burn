@@ -1025,28 +1025,28 @@ Take the SDCard into the PI and set it up there. as documented.
 ### What is the status of the implementation?
 
 | Feature         | PI    | Ubuntu | Mac     | Windows |
-| --------------- | ----- | ------ | ------- | ------- |
-| image versions  | at +  | gt +   | gt +    |         |
-| image ls        | at +  | gt +   | gt +    |         |
-| image delete    | at +  | gt +   | gt +    |         |
-| image get       | at +  | gt +   | gt +    |         |
-| info            | at +  | at +   | g  +    |         |
-| detect*         |       |        |         |         |
-| network         | at +  | at +   |         |         |
-| backup          | at +  | at +   |         |         |
-| copy            | at +  | at +   |         |         |
-| shrink install  | at +  | at +   |  -      |         |
-| shrink          | at +  | at +   |  -      |         |
-| sdcard          | at +  | at +   |         |         |
-| mount           | at +  | at +   |         |         |
-| unmount         | at +  | at +   |         |         |
-| enable ssh      | at +  | at +   |         |         |
-| wifi            | at +  | at +   |  -      | -       |
-| set             | at +  | at +   |         |         |
-| create          |       |        |         |         |
-| check           | at +  | at +   |         |         |
-| format          | at +  | at +   |         |         |
-| firmware        | a  +  | NA     |  NA     | NA      |
+| --------------- | ----- | ------ | ----- | ------- |
+| image versions  | at +  | gt +   | gt +  |         |
+| image ls        | at +  | gt +   | gt +  |         |
+| image delete    | at +  | gt +   | gt +  |         |
+| image get       | at +  | gt +   | gt +  |         |
+| info            | at +  | at +   | g  +  |         |
+| detect*         |       |        |       |         |
+| network         | at +  | at +   |       |         |
+| backup          | at +  | at +   |       |         |
+| copy            | at +  | at +   |       |         |
+| shrink install  | at +  | at +   |  -    |         |
+| shrink          | at +  | at +   |  -    |         |
+| sdcard          | at +  | at +   |       |         |
+| mount           | at +  | at +   |       |         |
+| unmount         | at +  | at +   |       |         |
+| enable ssh      | at +  | at +   | g  +  |         |
+| wifi            | at +  | at +   |  -    | -       |
+| set             | at +  | at +   |       |         |
+| create          |       |        |       |         |
+| check           | at +  | at +   |       |         |
+| format          | at +  | at +   |       |         |
+| firmware        | a  +  | NA     |  NA   | NA      |
 
 * g = gregor
 * r = richie
