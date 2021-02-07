@@ -87,7 +87,7 @@ For the quickstart we have the following requirements:
 
 * SD Cards and Raspberry Pis
   
-* Master Pi: You will need at least **1 Raspberry Pi** SD Card burned
+* Master Pi: You will need at least **1 Raspberry Pi** SD Card burned with Raspberry OS Full (with recommended software)
   using [Raspberry Pi imager](https://www.raspberrypi.org/software/).
   You can use your normal operating system to burn such a card
   including Windows, macOS, or Linux.  Setting up a Raspberry Pi in
