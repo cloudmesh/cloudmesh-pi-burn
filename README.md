@@ -1040,7 +1040,7 @@ Take the SDCard into the PI and set it up there. as documented.
 | mount           |    +  |    +   | TODO  |         |
 | unmount         |    +  |    +   | g  +  |         |
 | enable ssh      |    +  |    +   | g  +  |         |
-| wifi            |    +  |    +   | g  +  | -       |
+| wifi            |    +  |    +   | g  +  |         |
 | set             |    +  |    +   | TODO1 |         |
 | create          |  TODO |  TODO  | TODO  |         |
 | check           |    +  |    +   | g  +  |         |
