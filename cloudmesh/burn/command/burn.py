@@ -7,6 +7,8 @@ from cloudmesh.burn.burner import gen_strong_pass
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
 from cloudmesh.burn.util import os_is_pi
+from cloudmesh.burn.util import os_is_mac
+from cloudmesh.burn.util import os_is_linux
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
@@ -389,7 +391,17 @@ class BurnCommand(PluginCommand):
                 password = getpass("Please enter the Wifi password or enter "
                                    "for no password: ")
 
-            burner.configure_wifi(ssid, psk=password, country=country)
+            if os_is_mac():
+                host = "darwin"
+            elif os_is_linux():
+                host = "linux"
+            elif os_is_pi():
+                host = "raspberry"
+            else:
+                Console.error("This command is not yet implemented for your OS")
+                return ""
+
+            burner.configure_wifi(ssid, psk=password, country=country, host=host)
 
             return ""
 

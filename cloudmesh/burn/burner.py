@@ -24,6 +24,7 @@ from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
+from cloudmesh.common.util import writefile
 from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import yn_choice
@@ -1154,10 +1155,14 @@ class Burner(object):
             print("DRY RUN - skipping:")
             print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
                                                              psk, path))
-            return
+            return ""
 
-        sudo_writefile(path, wifi)
+        if os_is_mac():
+            writefile(path, wifi)
+        else:
+            sudo_writefile(path, wifi)
 
+        return ""
     # TODO
     @windows_not_supported
     def format_device(self, device='dev/sdX', hostname=None, title="UNTITLED"):
