@@ -1024,28 +1024,32 @@ Take the SDCard into the PI and set it up there. as documented.
 
 ### What is the status of the implementation?
 
-| Feature         | PI    | Ubuntu | Mac     | Windows |
+| Feature         | PI    | Ubuntu | Mac   | Windows |
 | --------------- | ----- | ------ | ----- | ------- |
-| image versions  | at +  | gt +   | gt +  |         |
-| image ls        | at +  | gt +   | gt +  |         |
-| image delete    | at +  | gt +   | gt +  |         |
-| image get       | at +  | gt +   | gt +  |         |
-| info            | at +  | at +   | g  +  |         |
-| network         | at +  | at +   |    -  |         |
-| backup          | at +  | at +   |       |         |
-| copy            | at +  | at +   |       |         |
-| shrink install  | at +  | at +   |  -    |         |
-| shrink          | at +  | at +   |  -    |         |
-| sdcard          | at +  | at +   |       |         |
-| mount           | at +  | at +   |       |         |
-| unmount         | at +  | at +   |       |         |
-| enable ssh      | at +  | at +   | g  +  |         |
-| wifi            | at +  | at +   | g  +  | -       |
-| set             | at +  | at +   |       |         |
-| create          |       |        |       |         |
-| check           | at +  | at +   |       |         |
-| format          | at +  | at +   |       |         |
+| image versions  |    +  |    +   |    +  |         |
+| image ls        |    +  |    +   |    +  |         |
+| image delete    |    +  |    +   |    +  |         |
+| image get       |    +  |    +   |    +  |         |
+| info            |    +  |    +   | g  +  |         |
+| network         |    +  |    +   | TODO  |         |
+| backup          |    +  |    +   |    -  |         |
+| copy            |    +  |    +   |    -  |         |
+| shrink install  |    +  |    +   | TODO  |         |
+| shrink          |    +  |    +   | TODO  |         |
+| sdcard          |    +  |    +   | TODO  |         |
+| mount           |    +  |    +   | TODO  |         |
+| unmount         |    +  |    +   | g  +  |         |
+| enable ssh      |    +  |    +   | g  +  |         |
+| wifi            |    +  |    +   | g  +  | -       |
+| set             |    +  |    +   | TODO1 |         |
+| create          |  TODO |  TODO  | TODO  |         |
+| check           |    +  |    +   | g  +  |         |
+| format          |    +  |    +   | TODO  |         |
 | firmware        | a  +  | NA     |  NA   | NA      |
+
+* + verified throug unit test either by ANthony or Gregor
+
+* TODO1 = todo for boot fs, rootfs not supported
 
 * g = gregor
 * r = richie

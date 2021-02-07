@@ -98,7 +98,13 @@ class Burner(object):
             "auth_key": None
         }
 
-        card = SDCard()
+        host = get_platform()
+
+        if host == "windows":
+            Console.error("Not yet implemented for this OS")
+            return ""
+
+        card = SDCard(host=host)
         # ssh
 
         try:
@@ -829,34 +835,39 @@ class Burner(object):
         """
         host = host or get_platform()
         card = SDCard(card_os=card_os, host=host)
-        dmesg = USB.get_from_dmesg()
 
-        # TODO Need a better way to itentify which sd card to use for mounting
-        # instead of iterating over all of them
+        if host in ['linux', "raspberry"]:
+            dmesg = USB.get_from_dmesg()
 
-        if not self.dryrun:
-            self.system('sudo sync')  # flush any pending/in-process writes
+            # TODO Need a better way to itentify which sd card to use for mounting
+            # instead of iterating over all of them
 
-            for usbcard in dmesg:
+            if not self.dryrun:
+                self.system('sudo sync')  # flush any pending/in-process writes
 
-                dev = device or usbcard['dev']
-                print(dev)
-                sd1 = f"{dev}1"
-                sd2 = f"{dev}2"
-                try:
-                    if os.path.exists(sd1):
-                        Console.ok(f"mounting {sd1} {card.boot_volume}")
-                        self.system(f"sudo mkdir -p {card.boot_volume}")
-                        self.system(f"sudo mount -t vfat {sd1} {card.boot_volume}")
-                except Exception as e:
-                    print(e)
-                try:
-                    if os.path.exists(sd2):
-                        Console.ok(f"mounting {sd2} {card.root_volume}")
-                        self.system(f"sudo mkdir -p {card.root_volume}")
-                        self.system(f"sudo mount -t ext4 {sd2} {card.root_volume}")
-                except Exception as e:
-                    print(e)
+                for usbcard in dmesg:
+
+                    dev = device or usbcard['dev']
+                    print(dev)
+                    sd1 = f"{dev}1"
+                    sd2 = f"{dev}2"
+                    try:
+                        if os.path.exists(sd1):
+                            Console.ok(f"mounting {sd1} {card.boot_volume}")
+                            self.system(f"sudo mkdir -p {card.boot_volume}")
+                            self.system(f"sudo mount -t vfat {sd1} {card.boot_volume}")
+                    except Exception as e:
+                        print(e)
+                    try:
+                        if os.path.exists(sd2):
+                            Console.ok(f"mounting {sd2} {card.root_volume}")
+                            self.system(f"sudo mkdir -p {card.root_volume}")
+                            self.system(f"sudo mount -t ext4 {sd2} {card.root_volume}")
+                    except Exception as e:
+                        print(e)
+            else:
+                Console.error("Not yet implemnted for your OS")
+                return ""
 
         # Keeping in case this was needed. Worked without it in testing.
         # elif os_is_pi():
@@ -889,24 +900,37 @@ class Burner(object):
         """
 
         host = host or get_platform()
+
+        print ("KKKK", host)
         card = SDCard(card_os=card_os, host=host)
 
         if not self.dryrun:
             self.system('sudo sync')  # flush any pending/in-process writes
 
-            Console.ok(f"unmounting {card.boot_volume}")
-            os.system(f"sudo umount {card.boot_volume}")
-            time.sleep(3)
-            Console.ok(f"unmounting  {card.root_volume}")
-            os.system(f"sudo umount {card.root_volume}")
+            if host in ['linux', 'raspberry']:
 
-            time.sleep(3)
+                Console.ok(f"unmounting {card.boot_volume}")
+                os.system(f"sudo umount {card.boot_volume}")
+                time.sleep(3)
+                Console.ok(f"unmounting  {card.root_volume}")
+                os.system(f"sudo umount {card.root_volume}")
 
-            rm = [f"sudo rmdir {card.boot_volume}",
-                  f"sudo rmdir {card.root_volume}"]
+                time.sleep(3)
 
-            for command in rm:
-                os.system(command)
+                rm = [f"sudo rmdir {card.boot_volume}",
+                      f"sudo rmdir {card.root_volume}"]
+
+                for command in rm:
+                    os.system(command)
+            elif host == "macos":
+
+                Console.ok(f"unmounting {card.boot_volume}")
+                os.system(f"diskutil umount {card.boot_volume}")
+
+            else:
+                Console.error("Not yet implemnted for your OS")
+                return ""
+
 
     @windows_not_supported
     def enable_ssh(self):
@@ -915,21 +939,16 @@ class Burner(object):
         """
 
 
-        if os_is_pi():
-            host = "raspberry"
-            sudo = True
+        host = get_platform()
 
-        elif os_is_linux():
-            host = "linux"
-            sudo = True
-
-        elif os_is_mac():
-            host = "darwin"
-            sudo = False
-
-        else:
+        if host == "windows":
             Console.error("Not yet implemented for this OS")
             return ""
+
+        if host in ['raspberry', "linux"]:
+            sudo = True
+        else:
+            sudo = False
 
         card = SDCard(card_os="raspberry", host=host)
         if sudo:

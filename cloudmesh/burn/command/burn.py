@@ -392,7 +392,7 @@ class BurnCommand(PluginCommand):
                                    "for no password: ")
 
             if os_is_mac():
-                host = "darwin"
+                host = "macos"
             elif os_is_linux():
                 host = "linux"
             elif os_is_pi():

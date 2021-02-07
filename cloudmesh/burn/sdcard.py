@@ -15,7 +15,7 @@ class SDCard:
         :param os: the os that is part of the mount. Default: raspberry
         :type os: str
         :param host: the host on which we execute the command
-        :type host: possible values: raspeberry, darwin, linux
+        :type host: possible values: raspeberry, macos, linux
         """
         self.card_os = card_os or "raspberry"
         self.host = host or get_platform()
@@ -32,7 +32,7 @@ class SDCard:
         :rtype: str
         """
         user = os.environ.get('USER')
-        if self.card_os == "raspberry" and self.host == "darwin":
+        if self.card_os == "raspberry" and self.host == "macos":
             Console.error("Requires and ext4 writable file system. NOt supported by default.")
             return Path("/Volumes/rootfs")
         elif self.host == 'linux':
@@ -59,7 +59,7 @@ class SDCard:
         :rtype: str
         """
         user = os.environ.get('USER')
-        if self.host == "darwin":
+        if self.host == "macos":
             if "raspberry" in self.card_os:
                 return Path("/Volumes/boot")
             elif "linux" in self.card_os:
