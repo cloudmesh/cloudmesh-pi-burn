@@ -2,6 +2,7 @@ import os
 import platform
 import sys
 from pathlib import Path
+from cloudmesh.common.util import readfile
 
 import requests
 
@@ -44,7 +45,11 @@ def os_is_linux():
     :return: True is linux
     :rtype: bool
     """
-    return platform.system() == "Linux" and "raspberrypi" not in platform.uname()
+    try:
+        content = readfile('/etc/os-release')
+        return platform.system() == "Linux" and not "raspbian" in content
+    except:
+        return False
 
 
 def os_is_mac():
@@ -64,7 +69,12 @@ def os_is_pi():
     :return: True is Raspberry OS
     :rtype: bool
     """
-    return "raspberrypi" in platform.uname()
+    try:
+        content = readfile('/etc/os-release')
+        return platform.system() == "Linux" and "raspbian" in content
+    except:
+        return False
+
 
 
 def writefile(filename, content):

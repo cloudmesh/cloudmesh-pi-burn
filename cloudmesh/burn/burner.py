@@ -900,8 +900,6 @@ class Burner(object):
         """
 
         host = host or get_platform()
-
-        print ("KKKK", host)
         card = SDCard(card_os=card_os, host=host)
 
         if not self.dryrun:
