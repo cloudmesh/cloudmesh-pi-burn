@@ -100,7 +100,7 @@ First we need to configure the Master Pi
 Using [Raspberry Pi imager](https://www.raspberrypi.org/software/), burn an SD card with *Raspberry Pi OS (32-bit) with desktop and recommended applications*. You may use your normal system to burn such a card
   including Windows, macOS, or Linux.
 
-You will then want a method of accessing this master Pi. You may either use SSH (recommended) or monitor desktop environment (easiest) to access it.
+You will then want a method of accessing this master Pi. You may either use SSH (recommended) or monitor desktop environment (easiest) to access it. We highly recommend [changing the password](https://www.raspberrypi.org/documentation/linux/usage/users.md) on the Pi as soon as you have access. This is because the pi is initialized with default user `pi` and default password `raspberry`. This is critical if you are on a shared network where anyone can attempt to access your pi.
 
 > Monitor Desktop Environment: You will need a monitor, keyboard, and mouse. This is the easiest approach as Raspberry Pi OS provides a very nice user interface with an easy-to-follow setup process for connecting to WiFi and other such tasks.
 
