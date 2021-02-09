@@ -144,14 +144,11 @@ class USB(object):
         :return: list of dicts
         :rtype: list
         """
-
-        #
-        # in future we also look up the vendor
-        #
-        # v = USB()
-        # v.load_vendor_description()
-
-        # pprint (v.vendors)
+        try:
+            v = USB()
+            v.load_vendor_description()
+        except:
+            pass
 
         def h(d, a):
             v = hex(d[a])
@@ -168,8 +165,16 @@ class USB(object):
                 data.update(dev.dev.__dict__)
                 data['comment'] = lsusb[f"{dev.bus}-{dev.address}"]["comment"]
                 del data['configurations']
-                data["hVendor"] = h(data, "idVendor")
-                data["hProduct"] = h(data, "idProduct")
+                try:
+                    vendor = f'{data["idVendor"]:04x}'
+                    product = f'{data["idProduct"]:04x}'
+                    vendor_str = v.vendors[vendor][product]['vendor']
+                    device_str = v.vendors[vendor][product]['product']
+                    data["hVendor"] = vendor_str
+                    data["hProduct"] = device_str
+                except:
+                    data["hVendor"] = h(data, "idVendor")
+                    data["hProduct"] = h(data, "idProduct")
                 data["serach"] = "tbd"
                 details.append(data)
         return details
