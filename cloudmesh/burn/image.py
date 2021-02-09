@@ -7,7 +7,7 @@ import oyaml as yaml
 import requests
 import urllib3
 
-from cloudmesh.burn.util import readfile, writefile
+from cloudmesh.common.util import readfile, writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.Tabulate import Printer
