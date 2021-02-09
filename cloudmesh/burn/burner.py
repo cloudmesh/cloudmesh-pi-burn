@@ -370,7 +370,6 @@ class Burner(object):
                 Console.error("No partition found")
                 return ""
 
-
             for partition in r['AllDisksAndPartitions'][0]['Partitions']:
 
                 if 'MountPoint' not in partition:
@@ -383,7 +382,7 @@ class Burner(object):
                 entry = {
                     "dev": f"/dev/{partition['DeviceIdentifier']}",
                     "active": None,
-                    "info" : partition['MountPoint'],
+                    "info": partition['MountPoint'],
                     "readable": None,
                     "formatted": partition['Content'],
                     "empty": None,
@@ -578,7 +577,6 @@ class Burner(object):
         print(hostnames)
         Console.error("Not yet implemented")
         return ""
-
 
     @windows_not_supported
     def set_hostname(self, hostname):
@@ -929,14 +927,11 @@ class Burner(object):
                 Console.error("Not yet implemnted for your OS")
                 return ""
 
-
     @windows_not_supported
     def enable_ssh(self):
         """
         Enables ssh on next boot of sd card
         """
-
-
         host = get_platform()
 
         if host == "windows":
@@ -950,14 +945,13 @@ class Burner(object):
 
         card = SDCard(card_os="raspberry", host=host)
         if sudo:
-           command = f'sudo touch {card.boot_volume}/ssh'
+            command = f'sudo touch {card.boot_volume}/ssh'
         else:
             command = f'touch {card.boot_volume}/ssh'
 
         self.system(command)
 
         return ""
-
 
     # IMPROVE
 
@@ -1180,7 +1174,7 @@ class Burner(object):
             sudo_writefile(path, wifi)
 
         return ""
-    # TODO
+
     @windows_not_supported
     def format_device(self, device='dev/sdX', hostname=None, title="UNTITLED"):
         """
