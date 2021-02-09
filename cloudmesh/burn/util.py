@@ -1,7 +1,6 @@
 import os
 import platform
 import sys
-from pathlib import Path
 from cloudmesh.common.util import readfile
 
 import requests
@@ -47,7 +46,7 @@ def os_is_linux():
     """
     try:
         content = readfile('/etc/os-release')
-        return platform.system() == "Linux" and not "raspbian" in content
+        return platform.system() == "Linux" and "raspbian" not in content
     except:
         return False
 
@@ -74,6 +73,7 @@ def os_is_pi():
         return platform.system() == "Linux" and "raspbian" in content
     except:
         return False
+
 
 def check_root(dryrun=False, terminate=True):
     """
