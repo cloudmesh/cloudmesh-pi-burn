@@ -160,7 +160,7 @@ class Image(object):
     def latest_version(kind="lite"):
         data = Image().read_version_cache()
 
-        url = data[kind]["latest"]['url']
+        source_url = data[kind]["latest"]['url']
 
         return os.path.basename(source_url)[:-4]
 
@@ -193,7 +193,8 @@ class Image(object):
 
             image = image[0]
 
-            image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+            # image_path = Image().directory + "/" + Image.get_name(image[
+            # "url"]) + ".img"
 
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
@@ -201,7 +202,7 @@ class Image(object):
         # get image URL metadata, including the name of the latest image after
         #   the 'latest' URL redirects to the URL of the actual image
         source_url = requests.head(image["url"], allow_redirects=True).url
-        size = requests.get(image["url"], verify=False, stream=True).headers['Content-length']
+        requests.get(image["url"], verify=False, stream=True).headers['Content-length']
         zip_filename = os.path.basename(source_url)
         img_filename = zip_filename.replace('.zip', '.img')
 
