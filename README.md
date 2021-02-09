@@ -86,18 +86,8 @@ Figure 1: Pi Cluster setup with bridge network
 For the quickstart we have the following requirements:
 
 * SD Cards and Raspberry Pis
-  
-* Master Pi: You will need at least **1 Raspberry Pi** SD Card burned with Raspberry OS Full (with recommended software)
-  using [Raspberry Pi imager](https://www.raspberrypi.org/software/).
-  You can use your normal operating system to burn such a card
-  including Windows, macOS, or Linux.  Setting up a Raspberry Pi in
-  this manner should be relatively straightforward as it is nicely
-  documented online (For example,
-  [how to setup SSH](https://www.raspberrypi.org/documentation/remote-access/ssh/)).
-  All you will need for this guide is an internet connection for your
-  Pi. It might also be of use to change the hostname of this Pi.
 
-* You will need an SD card writer (USB tends to work best) to burn new
+* You will need an SD card writer (USB-A) to burn new
   cards We recommend that you invest in a USB3 SDCard writer as they
   are significantly faster and you can resuse them on PI'4s
 
@@ -105,9 +95,24 @@ For the quickstart we have the following requirements:
 
 First we need to configure the Master Pi
 
+**Step 0.** Burn Master Pi SD Card
+
+Using [Raspberry Pi imager](https://www.raspberrypi.org/software/), burn an SD card with *Raspberry Pi OS (32-bit) with desktop and recommended applications*. You may use your normal system to burn such a card
+  including Windows, macOS, or Linux.
+
+You will then want a method of accessing this master Pi. You may either use SSH (recommended) or monitor desktop environment (easiest) to access it. We highly recommend [changing the password](https://www.raspberrypi.org/documentation/linux/usage/users.md) on the Pi as soon as you have access. This is because the pi is initialized with default user `pi` and default password `raspberry`. This is critical if you are on a shared network where anyone can attempt to access your pi.
+
+> Monitor Desktop Environment: You will need a monitor, keyboard, and mouse. This is the easiest approach as Raspberry Pi OS provides a very nice user interface with an easy-to-follow setup process for connecting to WiFi and other such tasks.
+
+> SSH Environment: You may consider enabling SSH access to your Pi so that you may access the file system from your preferred machine. 
+
+> Headless Configuration: See section 3 of [enabling ssh](https://www.raspberrypi.org/documentation/remote-access/ssh/) for instructions on how to enable SSH headlessly. Similarly, [how to enable WiFi headlessly](https://raspberrypi.stackexchange.com/questions/10251/prepare-sd-card-for-wifi-on-headless-pi).
+
 **Step 1.** Installing Cloudmesh on the Master Pi
 
-Update pip and the simple curl command below will generate an ssh-key,
+Open a new terminal screen on the Master Pi. Here we assume the hostname is `masterpi`. However, this is of no importance in relation to topics of this guide.
+
+Update pip. The simple curl command below will generate an ssh-key,
 update your system, and install cloudmesh.
 
 ```
@@ -134,9 +139,6 @@ pi@masterpi:~ $ sudo reboot
 ```
 
 **Step 3.** Download the latest Raspberry Pi Lite OS
-
-TODO: does this still work. E.g. do w not have to get the list of
-newest images first?
 
 The following command will download the latest images for Raspberry
 Lite OS.
@@ -290,7 +292,7 @@ We should now reboot.
 **Step 2.** Verifying internet connection 
 
 At this point, our workers should have internet access. Let us SSH
-into one and ping google.com to verify.
+into one and ping google.com to verify. Ensure you have booted your workers and connected them to the same network switch as the master.
 
 ```
 (ENV3) pi@masterpi:~ $ ssh red001
@@ -309,7 +311,7 @@ rtt min/avg/max/mdev = 47.924/48.169/48.511/0.291 ms
 ```
 
 Note how we are able to omit the pi user and .local extension. We have
-successfuly configured our bridge.
+successfuly configured our bridge. Our pis are now ready to cluster.
 
 ## Set up of the SSH keys and SSH tunnel
 
