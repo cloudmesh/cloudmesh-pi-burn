@@ -56,24 +56,35 @@ class USB(object):
         data = {}
         product_id = None
         vendor_id = None
+        vendor = None
         content = self.get_vendor().splitlines()
         for line in content:
             try:
-                if line.startswith("#") or line.startswith("]") or line is None:
-                    pass
-                elif line.startswith("\t"):
+                other_devices = ['C', 'AT', 'HID', 'R', 'BIAS', 'PHY', 'HUT',
+                                 'L', 'HCC', 'VT']
+                other_dev = False
+                for dev in other_devices:
+                    if line.startswith(dev):
+                        other_dev = True
+
+                first_word = line.strip().split()[0]
+
+                if line.startswith("#") or line.startswith("]") or line is \
+                        None or other_dev:
+                    continue
+                elif not line.startswith("\t") and len(first_word) == 4:
+                    vendor_id, vendor = line.strip().split(" ", 1)
+                    data[vendor_id] = {}
+                elif line.startswith("\t") and len(first_word) == 4:
                     product_id, product = line.strip().split(" ", 1)
-                    print(vendor_id, product_id, product)
                     data[vendor_id][product_id] = {
                         'vendor_id': vendor_id,
                         'product_id': product_id,
-                        'vendor': vendor, # BUG
+                        'vendor': vendor,
                         'product': product
                     }
-                else:
-                    vendor_id, vendor = line.strip().split(" ", 1)
-                    data[vendor_id] = {}
-            except Exception as e:  # noqa: F841
+
+            except Exception as e:
                 pass
         self.vendors = data
         return data
