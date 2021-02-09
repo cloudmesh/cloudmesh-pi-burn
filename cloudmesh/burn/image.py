@@ -202,7 +202,8 @@ class Image(object):
         # get image URL metadata, including the name of the latest image after
         #   the 'latest' URL redirects to the URL of the actual image
         source_url = requests.head(image["url"], allow_redirects=True).url
-        requests.get(image["url"], verify=False, stream=True).headers['Content-length']
+        size = requests.get(image["url"], verify=False, stream=True).headers[
+            'Content-length']
         zip_filename = os.path.basename(source_url)
         img_filename = zip_filename.replace('.zip', '.img')
 
@@ -229,6 +230,11 @@ class Image(object):
         # download the image, unzip it, and delete the zip file
 
         os.system("wget -O {} {}".format(zip_filename, image["url"]))
+        zip_size = os.path.getsize(zip_file)
+        if int(size) != zip_size:
+            Console.error(f"Repository reported zip size {size} does not equal "
+                          f"download size {zip_size}. Please try again.")
+            return
 
         #   if latest:  # rename filename from 'latest' to the actual image name
         #        Path('raspbian_lite_latest').rename(zip_filename)
