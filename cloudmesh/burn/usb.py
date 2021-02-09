@@ -85,6 +85,7 @@ class USB(object):
                     }
 
             except Exception as e:
+                print(e)
                 pass
         self.vendors = data
         return data
