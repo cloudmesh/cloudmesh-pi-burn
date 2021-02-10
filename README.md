@@ -463,6 +463,7 @@ Note to execute the command on the commandline you have to type in
 <!--MANUAL-BURN-->
 ```
   burn firmware check
+  burn firmware update
   burn install
   burn load --device=DEVICE
   burn format --device=DEVICE
@@ -495,8 +496,9 @@ Note to execute the command on the commandline you have to type in
            [--ip=IP]
            [--key=KEY]
   burn enable ssh
-  burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+  burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
   burn check [--device=DEVICE]
+  burn mac --hostname=HOSTNAME
 
 Options:
   -h --help              Show this screen.
@@ -565,6 +567,10 @@ Description:
     cms burn firmware check
 
         checks if the firmware on the Pi is up to date
+
+    cms burn firmware update
+
+        checks and updates the firmware on the Pi
 
     cms burn install
 
@@ -662,10 +668,16 @@ Description:
 
         this enables the ssh server once it is booted
 
-    cms burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+    cms burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
 
         this sets the wifi ssid and password afterthe card is created,
-        copies, or sdcard is used
+        copies, or sdcard is used.
+
+        The option country option expects an ISO
+        3166-1 two digit country code. The default is "US" and
+        the option not required if suitable. See
+        https://en.wikipedia.org/wiki/ISO_3166-1 for other
+        countries.
 
     cms burn check [--device=DEVICE]
 
@@ -699,6 +711,9 @@ Examples: ( \ is not shown)
 
 
 
+
+
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -706,23 +721,29 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BRIDGE-->
 ```
+
 Options:
     --interface=INTERFACE  The interface name [default: eth1]
                            You can also specify wlan0 if you wnat
                            to bridge through WIFI on the manager
                            eth0 requires a USB to WIFI adapter
 
+   --ip=IP  The ip address to assign on the eth0 interface (ie. the listening interface) [default: 10.1.1.1]
+
 Description:
 
   Command used to set up a bride so that all nodes route the traffic
   trough the manager PI.
 
-  bridge create [--interface=INTERFACE]
+  bridge create [--interface=INTERFACE] [--ip=IP]
       creates the bridge on the current device.
       A reboot is required.
 
 ```
 <!--MANUAL-BRIDGE-->
+
+
+
 
 
 ### Manual Page for the `host` command
@@ -841,6 +862,9 @@ Description:
 ```
 <!--MANUAL-HOST-->
 
+
+
+
 ### Manual Page for the `pi` command
 
 Note to execute the command on the commandline you have to type in
@@ -918,6 +942,9 @@ Description:
 
 ```
 <!--MANUAL-PI-->
+
+
+
 
 
 ## FAQ and Hints
