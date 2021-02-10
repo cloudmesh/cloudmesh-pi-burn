@@ -20,7 +20,7 @@ laszewski@gmail.com*
   - [Nomenclature](#nomenclature)
   - [Quickstart for Bridged WiFi](#quickstart-for-bridged-wifi)
     - [Requirements](#requirements)
-    - [Master Pi](#master-pi)
+    - [Manager Pi](#manager-pi)
     - [Single Card Burning](#single-card-burning)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
     - [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge)
@@ -61,7 +61,7 @@ their individual setup such as hostnames and ipadresses.
 ## Quickstart for Bridged WiFi
 
 To provide you with a glimpse on what you can do with cms burn, we
-have provided this quickstart guide that will create one master PI and
+have provided this quickstart guide that will create one manager PI and
 several workers.
 
 This setup is intended for those who have restricted access to their
@@ -69,11 +69,11 @@ home network (ie. cannot access router controls).  For example, those
 on campus WiFis or regulated apartment WiFis.
 
 The Figure 1 describes our network configuration. We have 5
-Raspberry Pi 4s: 1 master and 4 workers. We have WiFi access, but we
+Raspberry Pi 4s: 1 manager and 4 workers. We have WiFi access, but we
 do not necessarily have access to the router's controls.
 
-We also have a network switch, where the master and workers can
-communicate locally, but we will also configure the master to provide
+We also have a network switch, where the manager and workers can
+communicate locally, but we will also configure the manager to provide
 internet access to devices on the network switch via a "network
 bridge".
 
@@ -91,16 +91,16 @@ For the quickstart we have the following requirements:
   cards We recommend that you invest in a USB3 SDCard writer as they
   are significantly faster and you can resuse them on PI'4s
 
-### Master Pi
+### Manager Pi
 
-First we need to configure the Master Pi
+First we need to configure the Manager Pi
 
-**Step 0.** Burn Master Pi SD Card
+**Step 0.** Burn Manager Pi SD Card
 
 Using [Raspberry Pi imager](https://www.raspberrypi.org/software/), burn an SD card with *Raspberry Pi OS (32-bit) with desktop and recommended applications*. You may use your normal system to burn such a card
   including Windows, macOS, or Linux.
 
-You will then want a method of accessing this master Pi. You may either use SSH (recommended) or monitor desktop environment (easiest) to access it. We highly recommend [changing the password](https://www.raspberrypi.org/documentation/linux/usage/users.md) on the Pi as soon as you have access. This is because the pi is initialized with default user `pi` and default password `raspberry`. This is critical if you are on a shared network where anyone can attempt to access your pi.
+You will then want a method of accessing this manager Pi. You may either use SSH (recommended) or monitor desktop environment (easiest) to access it. We highly recommend [changing the password](https://www.raspberrypi.org/documentation/linux/usage/users.md) on the Pi as soon as you have access. This is because the pi is initialized with default user `pi` and default password `raspberry`. This is critical if you are on a shared network where anyone can attempt to access your pi.
 
 > Monitor Desktop Environment: You will need a monitor, keyboard, and mouse. This is the easiest approach as Raspberry Pi OS provides a very nice user interface with an easy-to-follow setup process for connecting to WiFi and other such tasks.
 
@@ -108,16 +108,16 @@ You will then want a method of accessing this master Pi. You may either use SSH 
 
 > Headless Configuration: See section 3 of [enabling ssh](https://www.raspberrypi.org/documentation/remote-access/ssh/) for instructions on how to enable SSH headlessly. Similarly, [how to enable WiFi headlessly](https://raspberrypi.stackexchange.com/questions/10251/prepare-sd-card-for-wifi-on-headless-pi).
 
-**Step 1.** Installing Cloudmesh on the Master Pi
+**Step 1.** Installing Cloudmesh on the Manager Pi
 
-Open a new terminal screen on the Master Pi. Here we assume the hostname is `masterpi`. However, this is of no importance in relation to topics of this guide.
+Open a new terminal screen on the Manager Pi. Here we assume the hostname is `managerpi`. However, this is of no importance in relation to topics of this guide.
 
 Update pip. The simple curl command below will generate an ssh-key,
 update your system, and install cloudmesh.
 
 ```
-pi@masterpi:~ $ pip install pip -U
-pi@masterpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
+pi@managerpi:~ $ pip install pip -U
+pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
                 # see note use different link for now
 ```
 
@@ -125,7 +125,7 @@ Note: at present we are still improving the pi script and thus you
 should for now use the command
 
 ```
-pi@masterpi:~ $  curl -Ls https://raw.githubusercontent.com/cloudmesh/get/main/pi/index.html | sh 
+pi@managerpi:~ $  curl -Ls https://raw.githubusercontent.com/cloudmesh/get/main/pi/index.html | sh 
 ```
 
 This will take a moment...
@@ -135,7 +135,7 @@ This will take a moment...
 The installation script updates your system. Reboot for effect.
 
 ```
-pi@masterpi:~ $ sudo reboot
+pi@managerpi:~ $ sudo reboot
 ```
 
 **Step 3.** Download the latest Raspberry Pi Lite OS
@@ -144,20 +144,20 @@ The following command will download the latest images for Raspberry
 Lite OS.
 
 ```
-(ENV3) pi@masterpi:~ $ cms burn image get latest-lite
+(ENV3) pi@managerpi:~ $ cms burn image get latest-lite
 ```
 
 We can verify our image's downloaded with the following.
 
 ```
-(ENV3) pi@masterpi:~ $ cms burn image ls
+(ENV3) pi@managerpi:~ $ cms burn image ls
 ```
 
 **Note.** We can use the following command to list the current
   Raspberry Pi OS versions (full and lite)
 
 ```
-(ENV3) pi@masterpi:~ $ cms burn image versions --refresh
+(ENV3) pi@managerpi:~ $ cms burn image versions --refresh
 ```
 
 This will list the Tags and Types of each available OS. We can then
@@ -165,7 +165,7 @@ modify the `image get` command for versions we are interested in. For
 example,
 
 ```
-(ENV3) pi@masterpi:~ $ cms burn image get full-2020-05-28
+(ENV3) pi@managerpi:~ $ cms burn image get full-2020-05-28
 ```
 
 **Step 4**. Setup SD Card Writer
@@ -175,7 +175,7 @@ inserted into your writer. Run the following command to find the path
 to your SD Card.
 
 ```
-(ENV3) pi@masterpi:~ $ cms burn info
+(ENV3) pi@managerpi:~ $ cms burn info
 ...
 # ----------------------------------------------------------------------
 # SD Cards Found
@@ -205,7 +205,7 @@ Step 1. Burning the SD Card
 
 Choose a hostname for your card. We will use `red001` with ip
 `10.1.1.2`. The IP address `10.1.1.1` is reserved for the burner pi
-(ie. `masterpi`).
+(ie. `managerpi`).
 
 > Note we are using the subnet `10.1.1.0/24` in this guide. We
 > currently recommend you do the same, otherwise the WiFi bridge will
@@ -214,7 +214,7 @@ Choose a hostname for your card. We will use `red001` with ip
 > [Private IP Ranges](https://www.arin.net/reference/research/statistics/address_filters/)
 
 ```
-(ENV3) pi@masterpi:~ $ cms burn create --hostname=red001 --ip=10.1.1.2 --device=/dev/sda --tag=latest-lite
+(ENV3) pi@managerpi:~ $ cms burn create --hostname=red001 --ip=10.1.1.2 --device=/dev/sda --tag=latest-lite
 ```
 
 Wait for the card to burn. Once the process is complete, it is safe 
@@ -239,7 +239,7 @@ Similarly, `red[a-c]` is interpreted by cms burn as `[reda, redb, redc]`.
 We can burn 2 SD cards as follows:
 
 ```
-(ENV3) pi@masterpi:~ $ cms burn create --hostname=red00[1-2] --ip=10.1.1.[2-3] --device=/dev/sda --tag=latest-lite
+(ENV3) pi@managerpi:~ $ cms burn create --hostname=red00[1-2] --ip=10.1.1.[2-3] --device=/dev/sda --tag=latest-lite
 ```
 
 The user will be prompted to swap the SD cards after each card burn if 
@@ -261,41 +261,41 @@ At this point we assume that you have used `cms burn` to create all SD
 cards for the Pi's with static IP addresses in the subnet range
 `10.1.1.0/24` (excluding `10.1.1.1`. See step 1 for details)
 
-We are also continuing to use `masterpi` (which is where we burn the
+We are also continuing to use `managerpi` (which is where we burn the
 worker SD cards).
 
 We will now use `cms bridge` to connect the worker Pis to the
 internet. Let us again reference the diagram of our network setup. You
 should now begin connecting your Pis together via network switch
 (unmanaged or managed) if you have not done so already. Ensure that
-`masterpi` is also connected into the network switch.
+`managerpi` is also connected into the network switch.
 
 **Step 1.** Configuring our Bridge
 
 We can easily create our bridge as follows. 
 
 ```
-(ENV3) pi@masterpi:~ $ cms bridge create --interface='wlan0'
+(ENV3) pi@managerpi:~ $ cms bridge create --interface='wlan0'
 ```
 
 We should now reboot.
 
 ```
-(ENV3) pi@masterpi:~ $ sudo reboot
+(ENV3) pi@managerpi:~ $ sudo reboot
 ```
 
 > Note the `--interface` option indicates the interface used by the
-> master pi to access the internet.  In this case, since we are using
+> manager pi to access the internet.  In this case, since we are using
 > WiFi, it is likely `wlan0`. Other options such as `eth0` and `eth1`
 > exist for ethernet connections.
 
 **Step 2.** Verifying internet connection 
 
 At this point, our workers should have internet access. Let us SSH
-into one and ping google.com to verify. Ensure you have booted your workers and connected them to the same network switch as the master.
+into one and ping google.com to verify. Ensure you have booted your workers and connected them to the same network switch as the manager.
 
 ```
-(ENV3) pi@masterpi:~ $ ssh red001
+(ENV3) pi@managerpi:~ $ ssh red001
 
 pi@red001:~ $ ping google.com
 PING google.com (142.250.64.238) 56(84) bytes of data.
@@ -389,7 +389,7 @@ pi@red001:~ $ exit
 to enable ssh acces from your laptop to the workers
 
 For now we manually install autossh, to test the new cms host tunnel
-program. Later we add it to the main master setup script.
+program. Later we add it to the main manager setup script.
 
 ```
 (ENV3) pi@managerpi:~ $ yes y | sudo apt install autossh
@@ -460,6 +460,7 @@ Note to execute the command on the commandline you have to type in
 <!--MANUAL-BURN-->
 ```
   burn firmware check
+  burn firmware update
   burn install
   burn load --device=DEVICE
   burn format --device=DEVICE
@@ -492,8 +493,9 @@ Note to execute the command on the commandline you have to type in
            [--ip=IP]
            [--key=KEY]
   burn enable ssh
-  burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+  burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
   burn check [--device=DEVICE]
+  burn mac --hostname=HOSTNAME
 
 Options:
   -h --help              Show this screen.
@@ -562,6 +564,10 @@ Description:
     cms burn firmware check
 
         checks if the firmware on the Pi is up to date
+
+    cms burn firmware update
+
+        checks and updates the firmware on the Pi
 
     cms burn install
 
@@ -659,10 +665,16 @@ Description:
 
         this enables the ssh server once it is booted
 
-    cms burn wifi --ssid=SSID [--passwd=PASSWD] [-ni]
+    cms burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
 
         this sets the wifi ssid and password afterthe card is created,
-        copies, or sdcard is used
+        copies, or sdcard is used.
+
+        The option country option expects an ISO
+        3166-1 two digit country code. The default is "US" and
+        the option not required if suitable. See
+        https://en.wikipedia.org/wiki/ISO_3166-1 for other
+        countries.
 
     cms burn check [--device=DEVICE]
 
@@ -696,6 +708,7 @@ Examples: ( \ is not shown)
 
 
 
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -703,23 +716,27 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BRIDGE-->
 ```
+
 Options:
     --interface=INTERFACE  The interface name [default: eth1]
                            You can also specify wlan0 if you wnat
                            to bridge through WIFI on the master
                            eth0 requires a USB to WIFI adapter
 
+   --ip=IP  The ip address to assign on the eth0 interface (ie. the listening interface) [default: 10.1.1.1]
+
 Description:
 
   Command used to set up a bride so that all nodes route the traffic
   trough the master PI.
 
-  bridge create [--interface=INTERFACE]
+  bridge create [--interface=INTERFACE] [--ip=IP]
       creates the bridge on the current device.
       A reboot is required.
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 ### Manual Page for the `host` command
@@ -838,6 +855,7 @@ Description:
 ```
 <!--MANUAL-HOST-->
 
+
 ### Manual Page for the `pi` command
 
 Note to execute the command on the commandline you have to type in
@@ -917,6 +935,7 @@ Description:
 <!--MANUAL-PI-->
 
 
+
 ## FAQ and Hints
 
 Here, we provide some usefule FAQs and hints.
@@ -941,7 +960,7 @@ manual page
 
 This is easily possible with the help of SSHFS. To install it we
 refer you to See also: <https://github.com/libfuse/sshfs> SSHFS: add
-master to `.ssh/config` onlocal machine
+manager to `.ssh/config` onlocal machine
 
 Let us assume you like to edit fles on a PI that you named `red`
 
@@ -957,8 +976,8 @@ Please craete a `./.ssh/config file that containes the following:
 Now let us create a directory in which we mount the remote PI directories
 
 ```
-mkdir master
-sshfs master: master -o auto_cache
+mkdir manager
+sshfs manager: manager -o auto_cache
 ```
 
 ### How can I enhance the `get` script?
