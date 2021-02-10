@@ -6,7 +6,7 @@ from cloudmesh.common.util import readfile
 import requests
 
 # noinspection PyPep8
-if True:
+if False:
     ##############################################
     #
     # Ignore on pi:  DH KEY TOO SMALL
