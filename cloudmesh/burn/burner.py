@@ -1439,7 +1439,8 @@ class MultiBurner(object):
                         choice = input("Please use [y/n] ")
                     if choice == 'n':
                         break
-                input('Insert next card and press enter...')
+                    elif choice == 'y':
+                        input('Insert next card and press enter...')
                 print('Burning next card...')
                 print()
 
