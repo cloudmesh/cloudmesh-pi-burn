@@ -160,7 +160,8 @@ We can verify our image's downloaded with the following.
 (ENV3) pi@managerpi:~ $ cms burn image ls
 ```
 
->**Note.**
+>**Note.** For our cluster we use light, but if you like 
+> to use other versions please see this note.
 > We can use the following command to list the current
 > Raspberry Pi OS versions (full and lite)
 >
