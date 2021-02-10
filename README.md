@@ -1,10 +1,9 @@
 # Cloudmesh Pi Burner for SD Cards
 
-**WARNING:** *This program is designed for a Raspberry Pi and must not
-be executed on your laptop or desktop. An earlier version that could
-be run on **Linux, macOS, and Windows 10 is no longer supported**. If
-you want to help us porting them on any of these OSes, please contact
-laszewski@gmail.com*
+**WARNING:** *This program is designed for a **Raspberry Pi**. Instructions 
+to use **Linux** are included in the FAQ. We are working on support for **macOS 
+and Windows 10**. If you want to help us port to any of these OSes, please 
+contact laszewski@gmail.com*
 
 
 [![image](https://img.shields.io/travis/TankerHQ/cloudmesh-pi-burn.svg?branch=main)](https://travis-ci.org/TankerHQ/cloudmesn-pi-burn)
@@ -43,20 +42,20 @@ laszewski@gmail.com*
 
 `cms burn` is a program to burn many SD cards for the preparation of
 building clusters with Raspberry Pi's. It allows users to create
-readily bootable SD cards that have the network configured, contain a
+readily bootable SD cards that have the network configured and contain a
 public ssh key from your machine that you used to configure the
-cards. Thus not much additional setup is needed for a cluster. Another
+cards. Thus, little setup is needed for a cluster. Another
 unique feature is that you can burn multiple cards in a row, each with
 their individual setup such as hostnames and ipadresses.
 
 
 ## Nomenclature
 
-* Commands proceeded with `pi@red:$` are to be executed on the
-  Rasperry Pi with the name red.
+* Commands proceeded with `pi@mangerpi:$` are to be executed on the
+  Rasperry Pi with the name managerpi.
 
-* Commands with `(ENV3) pi@red:$` are to be executed in a virtula ENV
-  using Python 3 on the Raspberry Pi with the name red
+* Commands with `(ENV3) pi@managerpi:$` are to be executed in a virtula ENV
+  using Python 3 on the Raspberry Pi with the name managerpi
   
 ## Quickstart for Bridged WiFi
 
@@ -88,7 +87,7 @@ For the quickstart we have the following requirements:
 * SD Cards and Raspberry Pis
 
 * You will need an SD card writer (USB-A) to burn new
-  cards We recommend that you invest in a USB3 SDCard writer as they
+  cards We recommend that you invest in a USB 3.0 SDCard writer as they
   are significantly faster and you can resuse them on PI'4s
 
 ### Manager Pi
@@ -120,6 +119,7 @@ pi@managerpi:~ $ pip install pip -U
 pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
                 # see note use different link for now
 ```
+TODO: Remove this if not needed.
 
 Note: at present we are still improving the pi script and thus you
 should for now use the command
@@ -213,14 +213,19 @@ Choose a hostname for your card. We will use `red001` with ip
 > support other
 > [Private IP Ranges](https://www.arin.net/reference/research/statistics/address_filters/)
 
+**!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
+
 ```
-(ENV3) pi@managerpi:~ $ cms burn create --hostname=red001 --ip=10.1.1.2 --device=/dev/sda --tag=latest-lite
+(ENV3) pi@managerpi:~ $ cms burn create --hostname=red001 --ip=10.1.1.2 --device=/dev/sd --tag=latest-lite
 ```
 
 Wait for the card to burn. Once the process is complete, it is safe 
 to remove the SD card.
 
 We can now proceed to [the bridge setup](#connecting-pis-to-the-internet-via-bridge )
+
+To continue burning additional workers using the mulptile card example 
+continue reading below.
 
 ### Burning Multiple SD Cards with a Single Burner
 
@@ -238,8 +243,11 @@ Similarly, `red[a-c]` is interpreted by cms burn as `[reda, redb, redc]`.
 
 We can burn 2 SD cards as follows:
 
+**!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
+
 ```
-(ENV3) pi@managerpi:~ $ cms burn create --hostname=red00[1-2] --ip=10.1.1.[2-3] --device=/dev/sda --tag=latest-lite
+(ENV3) pi@managerpi:~ $ cms burn create --hostname=red00[2-3] --ip=10.1.1.
+[3-4] --device=/dev/sda --tag=latest-lite
 ```
 
 The user will be prompted to swap the SD cards after each card burn if 
@@ -324,8 +332,8 @@ to be able to login between the workers.
 We have chosen a very simple setup while relying on ssh tunnel.
 
 To simplify the setup of this we have developed a command `cms host`
-that gathers and scatters keys onto all machines, as well as, sets up
-the tunnel.
+that gathers and scatters keys onto all machines, as well as sets up
+the tunnels.
 
 It is essential that that the key on the laptop must not be password
 less. This is also valid for any machine that is directly added to the
@@ -333,9 +341,6 @@ network such as in the mesh notwork.
 
 To avoid password less keys we recommend you to use `ssh-add` 
 or `ssh-keychain` which will ask you for one.
-
-> Note: More information and a concrete example will be documented 
-> here shortly.
 
 The manual page for `cms host` is provided in the Manual Pages
 section.
@@ -370,17 +375,15 @@ and manager ~/.ssh/authorized_hosts file
 
 ```
 (ENV3) pi@managerpi:~ $ ssh red001
-pi@red001:~ $ ssh managerpi
+pi@red001:~ $ ssh managerpi.local
 ```
 
-TODO: check this comment
-
-BUG: if the manager is still named raspberrypi then the
-worker might resolve it as 127.0.1.1. Use raspberrypi.local instead.
+BUG: The workers still currently still need to use .local after names. This 
+will be resolved by the inventory create update.
 
 ```
 (ENV3) pi@managerpi:~ $ exit
-pi@red001:~ $ ssh red002
+pi@red001:~ $ ssh red002.local
 pi@red002:~ $ exit
 pi@red001:~ $ exit
 ```
@@ -1020,7 +1023,6 @@ cms burn sdcard --dev=/dev/sdX
 cms burn mount --device=/dev/sdX
 cms burn enable ssh
 cms burn unmount
-```
 
 Take the SDCard into the PI and set it up there. as documented.
 
@@ -1072,7 +1074,7 @@ t = has a unit test
 
 ```
 brew install libusb
-``````
+```
 
 ### Are there any unit tests?
 
@@ -1085,4 +1087,161 @@ we have the following tests:
 * `pytest -v --capture=no tests/test_01_image.py`
   * This test removes files forom ~/.cloudmesh/cmburn/images
   * See also:  [test_01_image.py](https://github.com/cloudmesh/cloudmesh-pi-burn/blob/main/tests/test_01_image.py)
+
+### Using Pi Imager to setup a Manager Pi with headless access
+
+This FAQ will provide step by step instructions for burning and accessing a 
+headless manager pi. We will include instructions for either wifi access to 
+the pi or local ethernet connection.
+
+If you have restricted WIFI that requires you to register you 
+devices MAC address via a web browser (think hotel wifi access page), you 
+might not be able to continue with a headless setup.
+
+This FAQ references instructions from <https://www.raspberrypi.
+org/documentation/remote-access/ssh/> and <https://www.raspberrypi.
+org/documentation/configuration/wireless/headless.md>
+
+**Step 1.**
+
+Download and install the Pi Imager software from raspberrypi.org <https://www.
+raspberrypi.org/software/>.
+
+**Step 2.**
+
+Launch the Pi Imager software, insert an SD card reader and SD card into 
+your laptop.
+
+**Step 3.**
+
+Choose the OS in the Pi Imager interface. We will use **Raspberry Pi OS 
+(32-BIT) with the Raspberry Pi desktop.
+
+**Step 4.**
+
+Choose the SD card in the Pi Imager interface. If you do not see an SD card 
+and a reader is plugged into your laptop, remove and re-insert the sd card 
+reader.
+
+**Step 5.**
+
+Push the 'Write' button and confirm the settings to burn the OS to your SD card.
+You may need to put in the SUDO password to burn the card. This will take 
+some time. USB 3.0 devices are faster than USB 2.0. Make sure your cable is 
+USB 3.0 as well. 
+
+**Step 6.**
+
+Mount the SD card. This can be accomplished easily in Linux by unplugging 
+and replugging in the device. On Pi and Linux you should see the boot 
+partition at **/media/$USER/boot** (where user is you username) and on 
+MacOS at **/Volumes/boot**. I will use Linux for the example. Substitute as 
+required for MacOS.
+
+**Step 7.**
+
+Enable SSH access to the SD card. At the command prompt
+
+```
+you@yourlaptop:~ $ cd /media/$USER/boot
+you@yourlaptop:/media/$USER/boot $ touch ssh
+```
+
+This creates and empty file named ssh in the boot partition. On the first boot, 
+this enables the SSH service, and then empty ssh file will be 
+automatically deleted.
+
+**Step 8.**
+
+If only have wireless access to your Pi. You need to setup the wireless 
+configuration. 
+
+If you have restricted WIFI that requires you to register you 
+devices MAC address via a web browser (think hotel wifi access page), you 
+might not be able to continue with a headless setup.
+
+Otherwise you can continue without this step if you have 
+ethernet access between your laptop and pi (either via switch or direct 
+cable). After plugging into a shared switch with the Pi, or directly to it, you 
+will need to make sure you see a link local address on your ethernet port on 
+your laptop. It should look something like 169.254.X.X. If you do not see 
+this investigate how to setup a link local ip on your OS.
+
+```
+you@yourlaptop:/media/$USER/boot $ nano /media/$USER/boot/wpa_supplicant.conf
+
+#Insert this into the file and save (CTRL-X, Y, Enter).
+
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+country=<Insert 2 letter ISO 3166-1 country code here e.g. US>
+
+network={
+ ssid="<Name of your wireless LAN>"
+ psk="<Password for your wireless LAN>"
+}
+```
+
+**Step 9.**
+
+Unmount and eject the SD card. 
+
+```
+you@yourlaptop:~ $ sudo umount /media/$USER/boot
+you@yourlaptop:~ $ sudo umount /media/$USER/rootfs
+```
+
+**Step 10.**
+
+Boot a pi with the SD card. Wait a few minutes and try to access it via SSH. 
+Use the Raspi OS default username "pi" and "raspberry".
+
+```
+you@yourlaptop:~ $ ssh pi@raspberrypi.local
+```
+
+**Step 11.**
+
+Change the password.
+
+```
+pi@raspberrypi:~ $ passwd
+```
+
+**Step 11.**
+
+Change the hostname to managerpi.
+
+```
+pi@raspberrypi:~ $ sudo raspi-config
+<1. System Options>
+<S4 Hostname>
+enter
+managerpi
+<Finish>
+Would you like to reboot?
+<Yes>
+```
+
+**Step 12.**
+
+Wait a minute or two and reconnect. Now using the new hostname.
+
+```
+you@yourlaptop:~ $ ssh pi@managerpi.local
+```
+
+**Step 13.**
+
+You are all done. You are ready to proceed with [Quickstart for Bridged 
+WiFi](#quickstart-for-bridged-wifi). You will now witness the magic of how 
+cms burn automates this process for you. 
+
+```
+pi@managerpi:~ $ 
+```
+
+
+
+
 
