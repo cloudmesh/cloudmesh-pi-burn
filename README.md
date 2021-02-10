@@ -35,6 +35,10 @@ contact laszewski@gmail.com*
     - [How can I enhance the `get` script?](#how-can-i-enhance-the-get-script)
     - [Can I use a Mesh Network for the setup?](#can-i-use-a-mesh-network-for-the-setup)
     - [Can I use cms burn on Linux?](#can-i-use-cms-burn-on-linux)
+    - [What is the status of the implementation?](#what-is-the-status-of-the-implementation)
+    - [What packages do I need to run the info command on macOS](#what-packages-do-i-need-to-run-the-info-command-on-macos)
+    - [Are there any unit tests?](#are-there-any-unit-tests)
+    - [Using Pi Imager to setup a Manager Pi with headless access](#using-pi-imager-to-setup-a-manager-pi-with-headless-access)
 
 <!--TOC-->
 
@@ -106,6 +110,9 @@ You will then want a method of accessing this manager Pi. You may either use SSH
 > SSH Environment: You may consider enabling SSH access to your Pi so that you may access the file system from your preferred machine. 
 
 > Headless Configuration: See section 3 of [enabling ssh](https://www.raspberrypi.org/documentation/remote-access/ssh/) for instructions on how to enable SSH headlessly. Similarly, [how to enable WiFi headlessly](https://raspberrypi.stackexchange.com/questions/10251/prepare-sd-card-for-wifi-on-headless-pi).
+> Additionally you can check out the FAQ for step-by-step instructions. 
+> [Using Pi Imager to setup a Manager Pi with headless access](#using-pi-imager-to-setup-a-manager-pi-with-headless-access).
+
 
 **Step 1.** Installing Cloudmesh on the Manager Pi
 
@@ -715,6 +722,8 @@ Examples: ( \ is not shown)
 
 
 
+
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -722,14 +731,14 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BRIDGE-->
 ```
-
 Options:
     --interface=INTERFACE  The interface name [default: eth1]
                            You can also specify wlan0 if you wnat
                            to bridge through WIFI on the manager
                            eth0 requires a USB to WIFI adapter
 
-   --ip=IP  The ip address to assign on the eth0 interface (ie. the listening interface) [default: 10.1.1.1]
+   --ip=IP  The ip address to assign on the eth0 interface,
+            ie. the listening interface [default: 10.1.1.1]
 
 Description:
 
@@ -742,6 +751,8 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
+
+
 
 
 
@@ -866,6 +877,8 @@ Description:
 
 
 
+
+
 ### Manual Page for the `pi` command
 
 Note to execute the command on the commandline you have to type in
@@ -943,6 +956,8 @@ Description:
 
 ```
 <!--MANUAL-PI-->
+
+
 
 
 
