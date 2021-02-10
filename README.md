@@ -249,8 +249,7 @@ We can burn 2 SD cards as follows:
 **!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
 
 ```
-(ENV3) pi@managerpi:~ $ cms burn create --hostname=red00[2-3] --ip=10.1.1.
-[3-4] --device=/dev/sda --tag=latest-lite
+(ENV3) pi@managerpi:~ $ cms burn create --hostname=red00[2-3] --ip=10.1.1.[3-4] --device=/dev/sda --tag=latest-lite
 ```
 
 The user will be prompted to swap the SD cards after each card burn if 
