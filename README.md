@@ -1026,7 +1026,7 @@ You will not need the bridge command to setup the network.
 
 ### Can I use cms burn on Linux?
 
-Nlt everything is supported.
+Not everything is supported.
 
 To download the latest Raspberry Pi OS Lite image use
 
