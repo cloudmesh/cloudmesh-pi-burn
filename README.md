@@ -126,14 +126,6 @@ pi@managerpi:~ $ pip install pip -U
 pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
                 # see note use different link for now
 ```
-TODO: Remove this if not needed.
-
-Note: at present we are still improving the pi script and thus you
-should for now use the command
-
-```
-pi@managerpi:~ $  curl -Ls https://raw.githubusercontent.com/cloudmesh/get/main/pi/index.html | sh -
-```
 
 This will take a moment...
 
