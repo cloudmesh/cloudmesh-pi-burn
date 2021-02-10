@@ -1,12 +1,12 @@
 import os
 import platform
 import sys
-from pathlib import Path
+from cloudmesh.common.util import readfile
 
 import requests
 
 # noinspection PyPep8
-if True:
+if False:
     ##############################################
     #
     # Ignore on pi:  DH KEY TOO SMALL
@@ -44,7 +44,11 @@ def os_is_linux():
     :return: True is linux
     :rtype: bool
     """
-    return platform.system() == "Linux" and "raspberrypi" not in platform.uname()
+    try:
+        content = readfile('/etc/os-release')
+        return platform.system() == "Linux" and "raspbian" not in content
+    except:
+        return False
 
 
 def os_is_mac():
@@ -64,43 +68,11 @@ def os_is_pi():
     :return: True is Raspberry OS
     :rtype: bool
     """
-    return "raspberrypi" in platform.uname()
-
-
-def writefile(filename, content):
-    """
-    writes the content into the file. Same as cloudmesh.common.util.writefile
-
-    TODO: check equalency and use the common method instead
-
-    :param filename: the filename
-    :param content: teh content
-    :return:
-    """
-    with open(Path(os.path.expanduser(filename)), 'w') as outfile:
-        outfile.write(content)
-
-
-def readfile(filename, mode='r'):
-    """
-    returns the content of a file
-
-
-    TODO: check equivalency with cloudmesh.common.util.readfile. Use that insted.
-          Evaluate if the common method needs to be updated because of r, rb
-
-    :param filename: the filename
-    :param mode:
-
-    :return:
-    """
-    if mode != 'r' and mode != 'rb':
-        print(f"ERROR: incorrect mode : expected 'r' or 'rb' given {mode}\n")
-    else:
-        with open(Path(os.path.expanduser(filename)), mode)as f:
-            content = f.read()
-            f.close()
-        return content
+    try:
+        content = readfile('/etc/os-release')
+        return platform.system() == "Linux" and "raspbian" in content
+    except:
+        return False
 
 
 def check_root(dryrun=False, terminate=True):

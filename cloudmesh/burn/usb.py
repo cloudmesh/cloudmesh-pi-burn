@@ -56,24 +56,35 @@ class USB(object):
         data = {}
         product_id = None
         vendor_id = None
+        vendor = None
         content = self.get_vendor().splitlines()
         for line in content:
             try:
-                if line.startswith("#") or line.startswith("]") or line is None:
-                    pass
-                elif line.startswith("\t"):
+                other_devices = ['C', 'AT', 'HID', 'R', 'BIAS', 'PHY', 'HUT',
+                                 'L', 'HCC', 'VT']
+                other_dev = False
+                for dev in other_devices:
+                    if line.startswith(dev):
+                        other_dev = True
+
+                first_word = line.strip().split()[0]
+
+                if line.startswith("#") or line.startswith("]") or line is \
+                        None or other_dev:
+                    continue
+                elif not line.startswith("\t") and len(first_word) == 4:
+                    vendor_id, vendor = line.strip().split(" ", 1)
+                    data[vendor_id] = {}
+                elif line.startswith("\t") and len(first_word) == 4:
                     product_id, product = line.strip().split(" ", 1)
-                    print(vendor_id, product_id, product)
                     data[vendor_id][product_id] = {
                         'vendor_id': vendor_id,
                         'product_id': product_id,
-                        'vendor': vendor, # BUG
+                        'vendor': vendor,
                         'product': product
                     }
-                else:
-                    vendor_id, vendor = line.strip().split(" ", 1)
-                    data[vendor_id] = {}
-            except Exception as e:  # noqa: F841
+
+            except:
                 pass
         self.vendors = data
         return data
@@ -133,14 +144,11 @@ class USB(object):
         :return: list of dicts
         :rtype: list
         """
-
-        #
-        # in future we also look up the vendor
-        #
-        # v = USB()
-        # v.load_vendor_description()
-
-        # pprint (v.vendors)
+        try:
+            v = USB()
+            v.load_vendor_description()
+        except:
+            pass
 
         def h(d, a):
             v = hex(d[a])
@@ -157,8 +165,16 @@ class USB(object):
                 data.update(dev.dev.__dict__)
                 data['comment'] = lsusb[f"{dev.bus}-{dev.address}"]["comment"]
                 del data['configurations']
-                data["hVendor"] = h(data, "idVendor")
-                data["hProduct"] = h(data, "idProduct")
+                try:
+                    vendor = f'{data["idVendor"]:04x}'
+                    product = f'{data["idProduct"]:04x}'
+                    vendor_str = v.vendors[vendor][product]['vendor']
+                    device_str = v.vendors[vendor][product]['product']
+                    data["hVendor"] = vendor_str
+                    data["hProduct"] = device_str
+                except:
+                    data["hVendor"] = h(data, "idVendor")
+                    data["hProduct"] = h(data, "idProduct")
                 data["serach"] = "tbd"
                 details.append(data)
         return details
