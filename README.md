@@ -160,6 +160,7 @@ We can verify our image's downloaded with the following.
 (ENV3) pi@managerpi:~ $ cms burn image ls
 ```
 
+<blockquote>
 >**Note.** For our cluster we use light, but if you like 
 > to use other versions please see this note.
 > We can use the following command to list the current
@@ -176,6 +177,7 @@ We can verify our image's downloaded with the following.
 > ```
 > (ENV3) pi@managerpi:~ $ cms burn image get full-2020-05-28
 > ```
+</blockquote>
 
 **Step 4**. Setup SD Card Writer
 
