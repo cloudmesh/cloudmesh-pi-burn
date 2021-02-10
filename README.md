@@ -121,13 +121,6 @@ pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
                 # see note use different link for now
 ```
 
-Note: at present we are still improving the pi script and thus you
-should for now use the command
-
-```
-pi@managerpi:~ $  curl -Ls https://raw.githubusercontent.com/cloudmesh/get/main/pi/index.html | sh 
-```
-
 This will take a moment...
 
 **Step 2.** Reboot
@@ -1112,4 +1105,29 @@ we have the following tests:
 * `pytest -v --capture=no tests/test_01_image.py`
   * This test removes files forom ~/.cloudmesh/cmburn/images
   * See also:  [test_01_image.py](https://github.com/cloudmesh/cloudmesh-pi-burn/blob/main/tests/test_01_image.py)
+
+## Setting up a Manager with Cloudmesh burn on your Laptop
+
+This method only works on macOS, Linux, and RaspberryOS
+
+1. Install cloudmesh burn
+
+```
+python3 -m venv ~/ENV3
+source ~/ENV3/bin/activate
+pip install pip -U
+pip install cloudmesh-pi-burn
+cms help 
+```
+
+See if you see `burn` in the command lisy. If so continue
+ 
+```
+cms image get latest full
+cms burn info
+```
+
+Find where your SDCard is
+
+* On a Mac you will see something like /dev/disk2 ...
 
