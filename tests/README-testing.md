@@ -59,6 +59,13 @@ sudo apt install pv
 
 #### Steps
 
+0. Make sure you have all repositories up-to-date.
+
+```
+cd ~/cm
+cloudmesh-installer git pull pi
+```
+
 1. Move to the pi-burn directory.
 
 ```
