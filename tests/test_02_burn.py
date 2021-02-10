@@ -241,7 +241,7 @@ class Test_burn:
 
     def test_check(self):
         HEADING()
-        cmd = f"cms burn check"
+        cmd = "cms burn check"
         Benchmark.Start()
         result = Shell.run(cmd)
         Benchmark.Stop()
