@@ -646,7 +646,7 @@ class Burner(object):
     def set_static_ip(self, ip, iface="eth0", mask="24"):
         """
         Sets the static ip on the sd card for the specified interface
-        Also writes to master hosts file for easy access
+        Also writes to manager hosts file for easy access
 
         :param ip: ips address
         :type ip: str
@@ -662,7 +662,7 @@ class Burner(object):
         """
         # TODO:
         # router_ip statically set to default ip configured with cms bridge
-        # create. Rewrite to consider the IP of the master on iface
+        # create. Rewrite to consider the IP of the manager on iface
 
         if os_is_pi() or os_is_linux():
             card = SDCard()
@@ -709,7 +709,7 @@ class Burner(object):
     # def set_static_ip2(self, ip, mountpoint, iface="eth0", mask="16"):
     #     """
     #     Sets the static ip on the sd card for the specified interface
-    #     Also writes to master hosts file for easy access
+    #     Also writes to manager hosts file for easy access
 
     #     :param ip: ips address
     #     :type ip: str
@@ -755,7 +755,7 @@ class Burner(object):
 
     #         sudo_writefile('/etc/hosts', config)
 
-    #     # Add static IP and hostname to master's hosts file and configure worker with static IP
+    #     # Add static IP and hostname to manager's hosts file and configure worker with static IP
     #     if not self.dryrun:
     #         add_to_hosts(ip)
 
