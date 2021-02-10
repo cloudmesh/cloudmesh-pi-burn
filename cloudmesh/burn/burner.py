@@ -536,25 +536,14 @@ class Burner(object):
 
             image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
 
-        if os_is_pi():
-
-            command = f"sudo dd bs={blocksize} if={image_path} of={device}"
-
-            result = subprocess.getoutput(command)
-
-            if "failed to open" in result:
-                Console.error("The image could not be found")
-                sys.exit(1)
-        elif os_is_linux():
+        if os_is_linux() or os_is_pi():
 
             print(image_path)
             print(device)
             print(blocksize)
             if device is None:
-                # or device == "none":
                 Console.error("Please specify a device")
-
-            # find device
+                return
 
             command = f"dd if={image_path} |" \
                       f" pv -w 80 |" \
