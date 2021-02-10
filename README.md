@@ -160,20 +160,21 @@ We can verify our image's downloaded with the following.
 (ENV3) pi@managerpi:~ $ cms burn image ls
 ```
 
-**Note.** We can use the following command to list the current
-  Raspberry Pi OS versions (full and lite)
-
-```
-(ENV3) pi@managerpi:~ $ cms burn image versions --refresh
-```
-
-This will list the Tags and Types of each available OS. We can then
-modify the `image get` command for versions we are interested in. For
-example,
-
-```
-(ENV3) pi@managerpi:~ $ cms burn image get full-2020-05-28
-```
+>**Note.**
+> We can use the following command to list the current
+> Raspberry Pi OS versions (full and lite)
+>
+> ```
+> (ENV3) pi@managerpi:~ $ cms burn image versions --refresh
+> ```
+>
+> This will list the Tags and Types of each available OS. We can then
+> modify the `image get` command for versions we are interested in. For
+> example,
+>
+> ```
+> (ENV3) pi@managerpi:~ $ cms burn image get full-2020-05-28
+> ```
 
 **Step 4**. Setup SD Card Writer
 
