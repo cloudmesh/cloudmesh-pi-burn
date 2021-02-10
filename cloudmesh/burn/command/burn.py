@@ -487,6 +487,7 @@ class BurnCommand(PluginCommand):
 
         elif arguments["get"] and arguments['image'] and arguments["TAG"]:
 
+            tag = arguments["TAG"]
             if "latest" in tag and ("full" in tag or "lite" in tag):
                 result = Image.create_version_cache(refresh=arguments["--refresh"])
 
