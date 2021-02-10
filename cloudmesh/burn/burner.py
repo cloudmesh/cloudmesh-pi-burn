@@ -8,6 +8,7 @@ import subprocess
 import sys
 import textwrap
 import time
+import humanize
 
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.sdcard import SDCard
@@ -386,7 +387,7 @@ class Burner(object):
                     "readable": None,
                     "formatted": partition['Content'],
                     "empty": None,
-                    "size": partition['Size'],
+                    "size": humanize.naturalsize(partition['Size']),
                     "direct-access": None,
                     "removable": None,
                     "writeable":
