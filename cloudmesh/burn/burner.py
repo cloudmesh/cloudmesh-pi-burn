@@ -637,7 +637,7 @@ class Burner(object):
         mountpoint = card.root_volume
         # write the new hostname to /etc/hostname
         if not self.dryrun:
-            self.system_exec(
+            self.system(
                 f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
         else:
             print()

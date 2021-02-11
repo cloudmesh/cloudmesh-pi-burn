@@ -125,8 +125,7 @@ update your system, and install cloudmesh.
 
 ```
 pi@managerpi:~ $ pip install pip -U
-pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
-                # see note use different link for now
+pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -                
 ```
 
 This will take a moment...
