@@ -8,8 +8,8 @@ import subprocess
 import sys
 import textwrap
 import time
-import humanize
 
+import humanize
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.usb import USB
@@ -25,10 +25,11 @@ from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
-from cloudmesh.common.util import writefile
 from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
+from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
+
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
@@ -469,13 +470,13 @@ class Burner(object):
 
         os.system(command)
 
-        #res = subprocess.getstatusoutput(command)
+        # res = subprocess.getstatusoutput(command)
         # If exit code is not 0, warn user
-        #if res[0] != 0 and res[0] != 32:
+        # if res[0] != 0 and res[0] != 32:
         #    Console.warning(
         #        f'Warning: "{command}" did not execute properly -> {res[1]} :: exit code {res[0]}')
 
-        #return res[1]
+        # return res[1]
         return ""
 
     @windows_not_supported
@@ -585,7 +586,6 @@ class Burner(object):
 
             blocksize = blocksize.replace("M", "m")
 
-
             if yn_choice(f"Do you like to write to {device} the image {image_path}"):
 
                 # sudo dd if=/dev/rdiskX bs=1m | pv -s 64G | sudo dd of=/dev/rdiskY bs=1m
@@ -597,7 +597,6 @@ class Burner(object):
 
                 if not yn_choice("CONTINUE? Please execute on your on risk"):
                     return ""
-
 
                 os.system(command)
 
@@ -909,7 +908,7 @@ class Burner(object):
 
             dev = USB.get_dev_from_diskutil()[0]
             volumes = [
-                {"dev": f"{dev}s1",  "mount": card.boot_volume},
+                {"dev": f"{dev}s1", "mount": card.boot_volume},
                 {"dev": f"{dev}s2", "mount": card.root_volume},
             ]
             for volume in volumes:

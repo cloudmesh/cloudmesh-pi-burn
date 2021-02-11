@@ -1073,8 +1073,8 @@ Take the SDCard into the PI and set it up there. as documented.
 | shrink install  |    +  |    +   |       |         |
 | shrink          |    +  |    +   |       |         |
 | sdcard          |    +  |    +   |    +  |         |
-| mount           |    +  |    +   |       |         |
-| unmount         |    +  |    +   |    -  |         |
+| mount           |    +  |    +   |    +  |         |
+| unmount         |    +  |    +   |    +  |         |
 | enable ssh      |    +  |    +   |    +  |         |
 | wifi            |    +  |    +   |    +  |         |
 | set             |    +  |    +   | TODO1 |         |

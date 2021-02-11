@@ -9,6 +9,7 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.console import Console
 
+
 def _get_attribute(attribute, lines):
     for line in lines:
         if attribute in line:
@@ -69,8 +70,7 @@ class USB(object):
 
                 first_word = line.strip().split()[0]
 
-                if line.startswith("#") or line.startswith("]") or line is \
-                        None or other_dev:
+                if line.startswith("#") or line.startswith("]") or line is None or other_dev:
                     continue
                 elif not line.startswith("\t") and len(first_word) == 4:
                     vendor_id, vendor = line.strip().split(" ", 1)
@@ -383,6 +383,4 @@ class USB(object):
             }
             details.append(entry)
 
-        return details        
-
-
+        return details

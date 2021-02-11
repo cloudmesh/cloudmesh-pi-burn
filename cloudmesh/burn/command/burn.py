@@ -19,6 +19,7 @@ from cloudmesh.shell.command import map_parameters
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
 
+
 class BurnCommand(PluginCommand):
 
     @command

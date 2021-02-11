@@ -7,13 +7,13 @@ from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.common.console import Console
 
-class Imager:
 
+class Imager:
 
     def installed():
         r = Shell.which("rpi-imager")
         return r is not None
-    
+
     @staticmethod
     def install(force=False):
         if os_is_mac():
@@ -26,7 +26,7 @@ class Imager:
 
     @staticmethod
     def fetch(tag=["latest-lite"]):
-        result = Image.create_version_cache()
+        Image.create_version_cache()
         file = Image().fetch(tag=tag)
 
         return file
@@ -44,10 +44,11 @@ class Imager:
 
         elif file is None:
             file = ""
-            
+
         Imager.install()
 
         if os_is_linux() or os_is_pi():
             os.system(f"sudo rpi-imager {file}")
         elif os_is_mac():
-            os.system(f"/Applications/Raspberry\ Pi\ Imager.app/Contents/MacOS/rpi-imager {file} > /dev/null 2>&1")
+            os.system(f"/Applications/Raspberry\ Pi\ Imager.app/Contents/MacOS/rpi-imager {file} "  # noqa: W605
+                      "> /dev/null 2>&1")  # noqa: W605
