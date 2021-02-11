@@ -637,7 +637,7 @@ class Burner(object):
         mountpoint = card.root_volume
         # write the new hostname to /etc/hostname
         if not self.dryrun:
-            self.system(
+            self.system_exec(
                 f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
         else:
             print()
@@ -1477,7 +1477,7 @@ class MultiBurner(object):
 
     # System command that uses subprocess to execute terminal commands
     # Returns the stdout of the command
-    def system(self, command):
+    def system_exec(self, command):
         """
 
         :param command:
