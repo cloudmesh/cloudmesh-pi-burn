@@ -32,6 +32,7 @@ class BurnCommand(PluginCommand):
               burn install
               burn load --device=DEVICE
               burn format --device=DEVICE
+              burn imager
               burn mount [--device=DEVICE] [--os=OS]
               burn unmount [--device=DEVICE] [--os=OS]
               burn network list [--ip=IP] [--used]
@@ -346,7 +347,7 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments["format"]:  # as format is a python word, we need to use an index
-            execute("format", burner.format_device(device=arguments.device))
+            execute("format", burner.format_device(device=arguments.device, unmount=True))
             return ""
 
         elif arguments.network and arguments["list"]:

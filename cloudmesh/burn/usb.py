@@ -327,3 +327,42 @@ class USB(object):
                 })
         return details
         '''
+    @staticmethod
+    def get_from_diskutil():
+        import plistlib
+        external = subprocess.check_output("diskutil list -plist external".split(" "))
+
+        r = dict(plistlib.loads(external))
+
+        details = []
+
+        if len(r['AllDisksAndPartitions']) == 0:
+            Console.error("No partition found")
+            return ""
+
+        for partition in r['AllDisksAndPartitions'][0]['Partitions']:
+
+            if 'MountPoint' not in partition:
+                partition['MountPoint'] = None
+            if partition['Content'] == 'Linux':
+                partition['Content'] = 'ext4'
+            elif partition['Content'] == 'Windows_FAT_32':
+                partition['Content'] = 'FAT32'
+
+            entry = {
+                "dev": f"/dev/{partition['DeviceIdentifier']}",
+                "active": None,
+                "info": partition['MountPoint'],
+                "readable": None,
+                "formatted": partition['Content'],
+                "empty": None,
+                "size": humanize.naturalsize(partition['Size']),
+                "direct-access": None,
+                "removable": None,
+                "writeable": 'VolumeName' in partition and partition['VolumeName'] == 'boot'
+            }
+            details.append(entry)
+
+        return details        
+
+        

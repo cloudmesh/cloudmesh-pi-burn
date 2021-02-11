@@ -360,40 +360,7 @@ class Burner(object):
 
         if os_is_mac():
 
-            import plistlib
-            external = subprocess.check_output("diskutil list -plist external".split(" "))
-
-            r = dict(plistlib.loads(external))
-
-            details = []
-
-            if len(r['AllDisksAndPartitions']) == 0:
-                Console.error("No partition found")
-                return ""
-
-            for partition in r['AllDisksAndPartitions'][0]['Partitions']:
-
-                if 'MountPoint' not in partition:
-                    partition['MountPoint'] = None
-                if partition['Content'] == 'Linux':
-                    partition['Content'] = 'ext4'
-                elif partition['Content'] == 'Windows_FAT_32':
-                    partition['Content'] = 'FAT32'
-
-                entry = {
-                    "dev": f"/dev/{partition['DeviceIdentifier']}",
-                    "active": None,
-                    "info": partition['MountPoint'],
-                    "readable": None,
-                    "formatted": partition['Content'],
-                    "empty": None,
-                    "size": humanize.naturalsize(partition['Size']),
-                    "direct-access": None,
-                    "removable": None,
-                    "writeable":
-                        'VolumeName' in partition and partition['VolumeName'] == 'boot'
-                }
-                details.append(entry)
+            detalis = get_from_diskutil()
 
         else:
             details = USB.get_from_dmesg()
@@ -551,6 +518,11 @@ class Burner(object):
                       f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
             print(command)
             os.system(command)
+
+            command = "sync"
+            print(command)
+            os.system(command)
+            
 
         else:
             raise NotImplementedError("Only implemented to be run on a PI")
@@ -904,13 +876,10 @@ class Burner(object):
             if host in ['linux', 'raspberry']:
 
                 _execute(f"eject {device}", f"sudo eject {device}")
-                time.sleep(1)
-
+                os.system("sync")
                 _execute(f"unmounting {card.boot_volume}", f"sudo umount {card.boot_volume}")
-                time.sleep(3)
                 _execute(f"unmounting  {card.root_volume}", f"sudo umount {card.root_volume}")
-
-                time.sleep(3)
+                os.system("sync")
 
                 rm = [f"sudo rmdir {card.boot_volume}",
                       f"sudo rmdir {card.root_volume}"]
@@ -1174,7 +1143,7 @@ class Burner(object):
         return ""
 
     @windows_not_supported
-    def format_device(self, device='dev/sdX', hostname=None, title="UNTITLED"):
+    def format_device(self, device='dev/sdX', hostname=None, title="UNTITLED", unmount=False):
         """
         Formats device with one FAT32 partition
 
@@ -1188,7 +1157,8 @@ class Burner(object):
         """
 
         def _execute(msg, command):
-            Console.ok(msg)
+            
+            banner(msg, c=".")
             try:
                 os.system(command)
             except:
@@ -1207,6 +1177,7 @@ class Burner(object):
             time.sleep(1)
             script = f"""
                 sudo eject -t {device}
+                ls /media/pi
                 sudo parted {device} --script -- mklabel msdos
                 sudo parted {device} --script -- mkpart primary fat32 1MiB 100%
                 sudo mkfs.vfat -n {title} -F32 {device}1
@@ -1215,9 +1186,10 @@ class Burner(object):
                 _execute(line, line)
 
             _execute("sync", "sync")
-            time.sleep(1)
-            self.unmount(device)
-            time.sleep(1)
+            if unmount:
+                time.sleep(1)
+                self.unmount(device)
+                time.sleep(1)
 
             Console.ok("Formatted SD Card")
 
@@ -1425,7 +1397,7 @@ class MultiBurner(object):
         # TODO what exactly should be done here?
 
         # ask if this is ok to burn otherwise
-        burn_all = yn_choice("Burn non-empty devices too?")
+        burn_all = yn_choice("Format the card before burning?")
 
         # if no burn all of them for which we have status "empty card"
         if not burn_all:
@@ -1456,6 +1428,9 @@ class MultiBurner(object):
 
             count += 1
             Console.info(f'Burned card {count}')
+            print()
+            Console.info('Please remove the card')
+            print()
             self.system('tput bel')  # ring the terminal bell to notify user
             if i < len(hostnames) - 1:
                 if (i + 1) != ((i + 1) % len(keys)):
@@ -1543,6 +1518,7 @@ class MultiBurner(object):
             burner.format_device(device=device, hostname=hostname)
 
         burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
+        
         burner.mount(device=device)
         burner.set_hostname(hostname)
         burner.disable_terminal_login(root_volume, password)
