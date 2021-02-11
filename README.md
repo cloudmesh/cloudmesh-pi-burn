@@ -20,7 +20,6 @@ contact laszewski@gmail.com*
   - [Quickstart for Bridged WiFi](#quickstart-for-bridged-wifi)
     - [Requirements](#requirements)
     - [Manager Pi](#manager-pi)
-    - [Single Card Burning](#single-card-burning)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
     - [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge)
   - [Set up of the SSH keys and SSH tunnel](#set-up-of-the-ssh-keys-and-ssh-tunnel)
@@ -39,6 +38,8 @@ contact laszewski@gmail.com*
     - [What packages do I need to run the info command on macOS](#what-packages-do-i-need-to-run-the-info-command-on-macos)
     - [Are there any unit tests?](#are-there-any-unit-tests)
     - [Using Pi Imager to setup a Manager Pi with headless access](#using-pi-imager-to-setup-a-manager-pi-with-headless-access)
+    - [Single Card Burning](#single-card-burning)
+    - [How to update firmware?](#how-to-update-firmware)
 
 <!--TOC-->
 
@@ -113,6 +114,7 @@ You will then want a method of accessing this manager Pi. You may either use SSH
 > Additionally you can check out the FAQ for step-by-step instructions. 
 > [Using Pi Imager to setup a Manager Pi with headless access](#using-pi-imager-to-setup-a-manager-pi-with-headless-access).
 
+> Update the firmware: See the FAQ [How to update firmware?]> (#how-to-update-firmware)
 
 **Step 1.** Installing Cloudmesh on the Manager Pi
 
@@ -196,39 +198,6 @@ to your SD Card.
 We can see from the information displayed that our SD card's path is
 `/dev/sda`. Of course, this may vary. 
 
-### Single Card Burning
-
-Step 0. Ensure the SD card is inserted.
-
-We can run `cms burn info` again as we did above to verify our 
-SD card is connected.
-
-Step 1. Burning the SD Card
-
-Choose a hostname for your card. We will use `red001` with ip
-`10.1.1.2`. The IP address `10.1.1.1` is reserved for the burner pi
-(ie. `managerpi`).
-
-> Note we are using the subnet `10.1.1.0/24` in this guide. We
-> currently recommend you do the same, otherwise the WiFi bridge will
-> not configure correctly. We will change this in the future to
-> support other
-> [Private IP Ranges](https://www.arin.net/reference/research/statistics/address_filters/)
-
-**!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
-
-```
-(ENV3) pi@managerpi:~ $ cms burn create --hostname=red001 --ip=10.1.1.2 --device=/dev/sda --tag=latest-lite
-```
-
-Wait for the card to burn. Once the process is complete, it is safe 
-to remove the SD card.
-
-We can now proceed to [the bridge setup](#connecting-pis-to-the-internet-via-bridge )
-
-To continue burning additional workers using the mulptile card example 
-continue reading below.
-
 ### Burning Multiple SD Cards with a Single Burner
 
 Step 0. Ensure the first SD card is inserted into the burner.
@@ -248,11 +217,17 @@ We can burn 2 SD cards as follows:
 **!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
 
 ```
-(ENV3) pi@managerpi:~ $ cms burn create --hostname=red00[2-3] --ip=10.1.1.[3-4] --device=/dev/sda --tag=latest-lite
+(ENV3) pi@managerpi:~ $ cms burn create --hostname=red00[1-4] --ip=10.1.1.
+[2-5] --device=/dev/sda --tag=latest-lite
 ```
 
 The user will be prompted to swap the SD cards after each card burn if 
 there are still remaining cards to burn.
+
+Step 3. Boot the cluster
+
+After all cards are burned. Turn off the cluster, insert the cards, and turn 
+the cluster back on.
 
 We can now proceed to the next section where we configure our bridge.
 
@@ -279,6 +254,10 @@ should now begin connecting your Pis together via network switch
 (unmanaged or managed) if you have not done so already. Ensure that
 `managerpi` is also connected into the network switch.
 
+We will assign the eth0 interface of the `managerpi` to be 10.1.1.1, and it 
+will act as the default gateway for the workers. The workers IPs were set 
+during the create command.
+
 **Step 1.** Configuring our Bridge
 
 We can easily create our bridge as follows. 
@@ -299,6 +278,19 @@ We should now reboot.
 > exist for ethernet connections.
 
 **Step 2.** Verifying internet connection 
+
+We should now be able to see our workers. 
+
+```
+arp -a
+```
+
+Note it may take a few minutes for them to populate in the neighbor table. If 
+you want to speed this up try to ping them individually.
+
+```
+ping red001
+```
 
 At this point, our workers should have internet access. Let us SSH
 into one and ping google.com to verify. Ensure you have booted your workers and connected them to the same network switch as the manager.
@@ -468,6 +460,7 @@ Note to execute the command on the commandline you have to type in
   burn install
   burn load --device=DEVICE
   burn format --device=DEVICE
+  burn imager [TAG...]
   burn mount [--device=DEVICE] [--os=OS]
   burn unmount [--device=DEVICE] [--os=OS]
   burn network list [--ip=IP] [--used]
@@ -717,6 +710,7 @@ Examples: ( \ is not shown)
 
 
 
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -744,6 +738,7 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
@@ -872,6 +867,7 @@ Description:
 
 
 
+
 ### Manual Page for the `pi` command
 
 Note to execute the command on the commandline you have to type in
@@ -949,6 +945,7 @@ Description:
 
 ```
 <!--MANUAL-PI-->
+
 
 
 
@@ -1244,7 +1241,7 @@ Change the password.
 pi@raspberrypi:~ $ passwd
 ```
 
-**Step 11.**
+**Step 12.**
 
 Change the hostname to managerpi.
 
@@ -1259,7 +1256,7 @@ Would you like to reboot?
 <Yes>
 ```
 
-**Step 12.**
+**Step 13.**
 
 Wait a minute or two and reconnect. Now using the new hostname.
 
@@ -1267,7 +1264,7 @@ Wait a minute or two and reconnect. Now using the new hostname.
 you@yourlaptop:~ $ ssh pi@managerpi.local
 ```
 
-**Step 13.**
+**Step 14.**
 
 You are all done. You are ready to proceed with [Quickstart for Bridged 
 WiFi](#quickstart-for-bridged-wifi). You will now witness the magic of how 
@@ -1277,7 +1274,46 @@ cms burn automates this process for you.
 pi@managerpi:~ $ 
 ```
 
+### Single Card Burning
 
+Step 0. Ensure the SD card is inserted.
 
+We can run `cms burn info` again as we did above to verify our 
+SD card is connected.
 
+Step 1. Burning the SD Card
 
+Choose a hostname for your card. We will use `red001` with ip
+`10.1.1.2`. The IP address `10.1.1.1` is reserved for the burner pi
+(ie. `managerpi`).
+
+> Note we are using the subnet `10.1.1.0/24` in this guide. We
+> currently recommend you do the same, otherwise the WiFi bridge will
+> not configure correctly. We will change this in the future to
+> support other
+> [Private IP Ranges](https://www.arin.net/reference/research/statistics/address_filters/)
+
+**!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
+
+```
+(ENV3) pi@managerpi:~ $ cms burn create --hostname=red001 --ip=10.1.1.2 --device=/dev/sda --tag=latest-lite
+```
+
+Wait for the card to burn. Once the process is complete, it is safe 
+to remove the SD card.
+
+We can now proceed to [the bridge setup](#connecting-pis-to-the-internet-via-bridge )
+
+### How to update firmware?
+
+To update the firmware reference the [raspi documentation](#https://www.raspberrypi.org/documentation/hardware/raspberrypi/booteeprom.md) 
+
+Or follow the simple instructions below.
+
+```
+pi@managerpi:~ $ sudo apt update
+pi@managerpi:~ $sudo apt full-upgrade
+pi@managerpi:~ $sudo reboot
+pi@managerpi:~ $sudo rpi-eeprom-update -a
+pi@managerpi:~ $sudo reboot
+```
