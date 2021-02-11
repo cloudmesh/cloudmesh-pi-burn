@@ -912,8 +912,8 @@ class Burner(object):
 
             print("OOOO", dev)
             volumes = [
-                {"dev": f"{dev}s1",  "mount": {card.boot_volume}},
-                {"dev": f"{dev}s2", "mount": {card.root_volume}},
+                {"dev": f"{dev}s1",  "mount": card.boot_volume},
+                {"dev": f"{dev}s2", "mount": card.root_volume},
             ]
             for volume in volumes:
                 print (volume)
