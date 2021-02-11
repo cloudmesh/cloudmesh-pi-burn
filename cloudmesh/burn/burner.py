@@ -390,7 +390,7 @@ class Burner(object):
                     "dev": f"/dev/{partition['DeviceIdentifier']}",
                     "active": True,
                     "info": partition['MountPoint'],
-                    "readable":  partition['MountPoint'] is not None,
+                    "readable": partition['MountPoint'] is not None,
                     "formatted": partition['Content'],
                     "empty": partition['Size'] == 0,
                     "size": humanize.naturalsize(partition['Size']),
@@ -568,23 +568,22 @@ class Burner(object):
 
             Console.error("not yet supported")
             return ""
-             #
-             # this has still a bug in the dd command, aslo pv needs to be installed with brew
-             #
+            #
+            # this has still a bug in the dd command, aslo pv needs to be installed with brew
+            #
 
             self.info(print_stdout=True)
 
             if not yn_choice("CONTINUE? Please execute on your on risk"):
                 return ""
 
-
             if device is None:
                 Console.error("Please specify a device")
             return
 
             command = f"dd if={image_path} |" \
-                        f" pv -w 80 |" \
-                        f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
+                      f" pv -w 80 |" \
+                      f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
             print(command)
             os.system(command)
 
@@ -952,7 +951,7 @@ class Burner(object):
                       f"sudo rmdir {card.root_volume}"]
 
                 for command in rm:
-                    _execute (command, command)
+                    _execute(command, command)
             elif host == "macos":
 
                 _execute(f"unmounting {card.boot_volume}", f"diskutil umount {card.boot_volume}")
@@ -1231,12 +1230,10 @@ class Burner(object):
                 # ignore error
                 pass
 
-        
         if os_is_linux() or os_is_pi():
 
             banner(f"format {device}")
 
-            
             _execute(f"sudo eject {device}", f"sudo eject {device}")
             time.sleep(1)
             self.unmount(device)

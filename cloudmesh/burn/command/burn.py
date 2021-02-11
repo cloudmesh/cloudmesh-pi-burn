@@ -288,7 +288,7 @@ class BurnCommand(PluginCommand):
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
         arguments.IMAGE = arguments["--image"]
-        arguments.output = "table" # hard code for now
+        arguments.output = "table"  # hard code for now
 
         # VERBOSE(arguments)
 
