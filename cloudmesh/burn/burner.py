@@ -610,7 +610,7 @@ class Burner(object):
             newlastline = '\n127.0.1.1 ' + hostname + '\n'
 
         if not self.dryrun:
-            new_hostsfile_contents = ''.join(lines) + newlastline
+            new_hostsfile_contents = '\n'.join(lines) + newlastline
             sudo_writefile(f'{mountpoint}/etc/hosts', new_hostsfile_contents)
         else:
             print()
