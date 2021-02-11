@@ -1066,41 +1066,35 @@ Take the SDCard into the PI and set it up there. as documented.
 | image ls        |    +  |    +   |    +  |         |
 | image delete    |    +  |    +   |    +  |         |
 | image get       |    +  |    +   |    +  |         |
-| info            |    +  |    +   | g  +  |         |
-| network         |    +  |    +   | TODO  |         |
+| info            |    +  |    +   |    +  |         |
+| network         |    +  |    +   |       |         |
 | backup          |    +  |    +   |    -  |         |
 | copy            |    +  |    +   |    -  |         |
-| shrink install  |    +  |    +   | TODO  |         |
-| shrink          |    +  |    +   | TODO  |         |
-| sdcard          |    +  |    +   | TODO  |         |
-| mount           |    +  |    +   | TODO  |         |
-| unmount         |    +  |    +   | g  +  |         |
-| enable ssh      |    +  |    +   | g  +  |         |
-| wifi            |    +  |    +   | g  +  |         |
+| shrink install  |    +  |    +   |       |         |
+| shrink          |    +  |    +   |       |         |
+| sdcard          |    +  |    +   |    +  |         |
+| mount           |    +  |    +   |       |         |
+| unmount         |    +  |    +   |    -  |         |
+| enable ssh      |    +  |    +   |    +  |         |
+| wifi            |    +  |    +   |    +  |         |
 | set             |    +  |    +   | TODO1 |         |
 | create          |  TODO |  TODO  | TODO  |         |
-| check           |    +  |    +   | g  +  |         |
-| format          |    +  |    +   | TODO  |         |
+| check           |    +  |    +   |    +  |         |
+| format          |    +  |    +   |    +  |         |
 | firmware        | a  +  | NA     |  NA   | NA      |
 
-* + verified throug unit test either by ANthony or Gregor
+* for macOS, only the image commands have unit tests
+* firmware does not have a unit test
+  
+
+empty = not yet implemented
+* + = verified throug unit test either by ANthony or Gregor
+* - broken
 
 * TODO1 = todo for boot fs, rootfs not supported
 
-* g = gregor
-* r = richie
-* a = anthony
-* ad = adam
-* as = asuri
-* ar = arjun
-
-* d = diffrent implementation between Linux and PI (compare)
 * 2 = change and add --ssd so its uniform
-* ? = needs test
-* - = broken
 1 = get needs to use the image versions refresh cache
-3 = does not report when the USB card is found
-t = has a unit test
 
 ### What packages do I need to run the info command on macOS
 

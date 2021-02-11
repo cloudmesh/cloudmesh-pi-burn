@@ -449,12 +449,12 @@ class Burner(object):
         # https://raspberry-pi-guide.readthedocs.io/en/latest/system.html
         # this is for fedora, but should also work for raspbian
 
-    def system(self, command):
+    def system_exec(self, command):
         """
         System command that uses subprocess to execute terminal commands
         Returns the stdout of the command
 
-        TODO: check typr of return
+        TODO: check typr of return<
 
         :param command: the command
         :type command: str
@@ -464,15 +464,19 @@ class Burner(object):
         # if self.dryrun:
         #     print(command)
         # else:
-        #     os.system(command)
 
-        res = subprocess.getstatusoutput(command)
+        print("Executing", command)
+
+        os.system(command)
+
+        #res = subprocess.getstatusoutput(command)
         # If exit code is not 0, warn user
-        if res[0] != 0 and res[0] != 32:
-            Console.warning(
-                f'Warning: "{command}" did not execute properly -> {res[1]} :: exit code {res[0]}')
+        #if res[0] != 0 and res[0] != 32:
+        #    Console.warning(
+        #        f'Warning: "{command}" did not execute properly -> {res[1]} :: exit code {res[0]}')
 
-        return res[1]
+        #return res[1]
+        return ""
 
     @windows_not_supported
     def burn_sdcard(self, image=None, tag=None, device=None, blocksize="4M"):
@@ -633,7 +637,7 @@ class Burner(object):
         mountpoint = card.root_volume
         # write the new hostname to /etc/hostname
         if not self.dryrun:
-            self.system(
+            self.system_exec_exec(
                 f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
         else:
             print()
@@ -821,9 +825,9 @@ class Burner(object):
     #         # Configure static wifi IP
     #         elif iface == "wlan0":
     #             dnss = \
-    #                 self.system("cat /etc/resolv.conf | grep nameserver").split()[
+    #                 self.system_exec_exec("cat /etc/resolv.conf | grep nameserver").split()[
     #                     1]  # index 0 is "nameserver" so ignore
-    #             routerss = self.system(
+    #             routerss = self.system_exec_exec(
     #                 "ip route | grep default | awk '{print $3}'")  # omit the \n at the end
     #             dhcp_conf = textwrap.dedent(f"""
     #                     interface wlan0
@@ -858,25 +862,26 @@ class Burner(object):
             raise NotImplementedError
 
         mountpoint = card.root_volume
-        self.system(f'mkdir -p {mountpoint}/home/pi/.ssh/')
-        self.system(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
+        self.system_exec(f'mkdir -p {mountpoint}/home/pi/.ssh/')
+        self.system_exec(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
     @windows_not_supported
-    def mount(self, device=None, card_os="raspberry", host=None):
+    def mount(self, device=None, card_os="raspberry"):
         """
         Mounts the current SD card
         """
-        host = host or get_platform()
+
+        host = get_platform()
         card = SDCard(card_os=card_os, host=host)
 
-        if host in ['linux', "raspberry"]:
+        if os_is_pi() or os_is_linux():
             dmesg = USB.get_from_dmesg()
 
             # TODO Need a better way to itentify which sd card to use for mounting
             # instead of iterating over all of them
 
             if not self.dryrun:
-                self.system('sudo sync')  # flush any pending/in-process writes
+                self.system_exec('sudo sync')  # flush any pending/in-process writes
 
                 for usbcard in dmesg:
 
@@ -887,20 +892,49 @@ class Burner(object):
                     try:
                         if os.path.exists(sd1):
                             Console.ok(f"mounting {sd1} {card.boot_volume}")
-                            self.system(f"sudo mkdir -p {card.boot_volume}")
-                            self.system(f"sudo mount -t vfat {sd1} {card.boot_volume}")
+                            self.system_exec(f"sudo mkdir -p {card.boot_volume}")
+                            self.system_exec(f"sudo mount -t vfat {sd1} {card.boot_volume}")
                     except Exception as e:
                         print(e)
                     try:
                         if os.path.exists(sd2):
                             Console.ok(f"mounting {sd2} {card.root_volume}")
-                            self.system(f"sudo mkdir -p {card.root_volume}")
-                            self.system(f"sudo mount -t ext4 {sd2} {card.root_volume}")
+                            self.system_exec(f"sudo mkdir -p {card.root_volume}")
+                            self.system_exec(f"sudo mount -t ext4 {sd2} {card.root_volume}")
                     except Exception as e:
                         print(e)
-            else:
-                Console.error("Not yet implemnted for your OS")
-                return ""
+            return ""
+
+        elif os_is_mac():
+            print ("MMMMM")
+
+            dev = USB.get_dev_from_diskutil()[0]
+
+            print("OOOO", dev)
+            volumes = [
+                {"dev": f"{dev}s1",  "mount": {card.boot_volume}},
+                {"dev": f"{dev}s2", "mount": {card.root_volume}},
+            ]
+            for volume in volumes:
+                print (volume)
+                dev = str(volume['dev'])
+                mount = volume['mount']
+
+
+                print (dev, mount, type(mount))
+                Console.ok(f"Mounting {dev} {mount}")
+
+                try:
+                    if os.path.exists(mount):
+                        self.system_exec(f"sudo mkdir -p {mount}")
+                        self.system_exec(f"sudo mount -t vfat {dev} {mount}")
+                except Exception as e:
+                    print(e)
+            return ""
+
+        else:
+            Console.error("Not yet implemnted for your OS")
+            return ""
 
         # Keeping in case this was needed. Worked without it in testing.
         # elif os_is_pi():
@@ -924,7 +958,7 @@ class Burner(object):
         #                sys.exit(1)
 
     @windows_not_supported
-    def unmount(self, device=None, card_os="raspberry", host=None):
+    def unmount(self, device=None, card_os="raspberry"):
         """
         Unmounts the current SD card
 
@@ -940,13 +974,13 @@ class Burner(object):
                 # ignore error
                 pass
 
-        host = host or get_platform()
+        host = get_platform()
         card = SDCard(card_os=card_os, host=host)
 
         if not self.dryrun:
-            self.system('sudo sync')  # flush any pending/in-process writes
+            self.system_exec('sudo sync')  # flush any pending/in-process writes
 
-            if host in ['linux', 'raspberry']:
+            if os_is_mac() or os_is_linux() or os_is_pi():
                 if device:
                     _execute(f"eject {device}", f"sudo eject {device}")
                     os.system("sync")
@@ -989,7 +1023,7 @@ class Burner(object):
         else:
             command = f'touch {card.boot_volume}/ssh'
 
-        self.system(command)
+        self.system_exec(command)
 
         return ""
 
@@ -1240,16 +1274,16 @@ class Burner(object):
         def prepare_sdcard():
             # ensures a card is detected and unmounted
             Console.ok(f'sudo eject -t {device}')
-            self.system(f'sudo eject -t {device}')
+            self.system_exec(f'sudo eject -t {device}')
             time.sleep(3)
             device_basename = os.path.basename(device)
-            result = self.system('lsblk')
+            result = self.system_exec('lsblk')
             if device_basename in result.split():
                 for line in result.splitlines():
                     line = line.split()
                     if device_basename in line[0] and len(line) > 6:
                         Console.ok(f'sudo umount {line[6]}')
-                        self.system(f'sudo umount {line[6]}')
+                        self.system_exec(f'sudo umount {line[6]}')
                 return True
             else:
                 Console.error("SD Card not detected. Please reinsert "
@@ -1577,7 +1611,7 @@ class MultiBurner(object):
             print()
             Console.info('Please remove the card')
             print()
-            self.system('tput bel')  # ring the terminal bell to notify user
+            self.system_exec('tput bel')  # ring the terminal bell to notify user
             if i < len(hostnames) - 1:
                 if (i + 1) != ((i + 1) % len(keys)):
                     choice = input(
@@ -1682,7 +1716,7 @@ class MultiBurner(object):
             interface = "wlan0" if ssid is not None else "eth0"
             burner.set_static_ip(ip, iface=interface)
 
-        burner.unmount(device)
+        burner.unmount(device=device)
         # for some reason, need to do unmount twice for it to work properly
         # burner.unmount(device)
         time.sleep(2)
