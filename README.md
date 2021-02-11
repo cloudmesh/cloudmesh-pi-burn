@@ -200,12 +200,12 @@ We can see from the information displayed that our SD card's path is
 
 ### Burning Multiple SD Cards with a Single Burner
 
-Step 0. Ensure the first SD card is inserted into the burner.
+**Step 0.** Ensure the first SD card is inserted into the burner.
 
 We can run `cms burn info` again as we did above to verify our SD 
 card is connected.
 
-Step 2. Burning the Cards
+**Step 1.** Burning the Cards
 
 `cms burn` supports logical incremenation of numbers/characters.
 
@@ -223,7 +223,7 @@ We can burn 2 SD cards as follows:
 The user will be prompted to swap the SD cards after each card burn if 
 there are still remaining cards to burn.
 
-Step 3. Boot the cluster
+**Step 2.** Boot the cluster
 
 After all cards are burned. Turn off the cluster, insert the cards, and turn 
 the cluster back on.
