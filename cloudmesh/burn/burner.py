@@ -889,14 +889,14 @@ class Burner(object):
                     sd1 = f"{dev}1"
                     sd2 = f"{dev}2"
                     try:
-                        if not os.path.exists(sd1):
+                        if os.path.exists(sd1):
                             Console.ok(f"mounting {sd1} {card.boot_volume}")
                             self.system_exec(f"sudo mkdir -p {card.boot_volume}")
                             self.system_exec(f"sudo mount -t vfat {sd1} {card.boot_volume}")
                     except Exception as e:
                         print(e)
                     try:
-                        if not os.path.exists(sd2):
+                        if os.path.exists(sd2):
                             Console.ok(f"mounting {sd2} {card.root_volume}")
                             self.system_exec(f"sudo mkdir -p {card.root_volume}")
                             self.system_exec(f"sudo mount -t ext4 {sd2} {card.root_volume}")
@@ -916,7 +916,7 @@ class Burner(object):
                 dev = str(volume['dev'])
                 mount = volume['mount']
                 try:
-                    if not os.path.exists(mount):
+                    if os.path.exists(mount):
                         self.system_exec(f"sudo mkdir -p {mount}")
                         self.system_exec(f"sudo mount -t vfat {dev} {mount}")
                 except Exception as e:
