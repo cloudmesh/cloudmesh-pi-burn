@@ -1187,10 +1187,24 @@ class Burner(object):
         :type hostname: str
         """
 
+        def _execute(msg, command):
+            Console.ok(msg)
+            try:
+                os.system(command)
+            except:
+                # ignore error
+                pass
+
+        
         if os_is_linux() or os_is_pi():
 
-            banner("format {device}")
+            banner(f"format {device}")
 
+            
+            _execute(f"sudo eject {device}", f"sudo eject {device}")
+            time.sleep(1)
+            self.unmount(device)
+            time.sleep(1)
             script = f"""
                 sudo eject -t {device}
                 sudo parted {device} --script -- mklabel msdos
@@ -1198,8 +1212,12 @@ class Burner(object):
                 sudo mkfs.vfat -n {title} -F32 {device}1
                 sudo parted {device} --script print""".strip().splitlines()
             for line in script:
-                print(line)
-                os.system(line)
+                _execute(line, line)
+
+            _execute("sync", "sync")
+            time.sleep(1)
+            self.unmount(device)
+            time.sleep(1)
 
             Console.ok("Formatted SD Card")
 
