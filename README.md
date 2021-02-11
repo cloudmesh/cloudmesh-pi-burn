@@ -218,8 +218,7 @@ Choose a hostname for your card. We will use `red001` with ip
 **!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
 
 ```
-(ENV3) pi@managerpi:~ $ cms burn create --hostname=red001 --ip=10.1.1.2 
---device=/dev/sda --tag=latest-lite
+(ENV3) pi@managerpi:~ $ cms burn create --hostname=red001 --ip=10.1.1.2 --device=/dev/sda --tag=latest-lite
 ```
 
 Wait for the card to burn. Once the process is complete, it is safe 
