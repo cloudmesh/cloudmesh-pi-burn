@@ -9,6 +9,7 @@ import sys
 
 import pytest
 from cloudmesh.burn.sdcard import SDCard
+from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.common.Benchmark import Benchmark
@@ -17,12 +18,43 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.util import HEADING
 from cloudmesh.common.util import yn_choice
+from cloudmesh.common.util import banner
+from cloudmesh.burn.usb import USB
+
 
 cloud = get_platform()
-device = "/dev/sdb"
+
+if os_is_mac():
+    device = "/dev/disk2"
+
+    details = USB.get_dev_from_diskutil()
+
+    # checking if string contains list element
+    valid = any(entry in device for entry in details)
+
+    if not valid:
+        Console.error("this device can not be used for the test")
+        sys.exit(1)
+
+    elif len(details) > 1:
+        Console.error("For security reasons, please only put one USB writer in")
+        sys.exit(1)
+
+else:
+    device = "/dev/sdb"
+
+
+
 user = os.environ["USER"]
 
-if not (os_is_linux() or os_is_pi()):
+os.system("cms burn info")
+
+banner(f"IS THE DEVICE CORRECTLY SET AS {device}?", c="#")
+
+if not yn_choice(f"Is the device correctly set as {device}"):
+    sys.exit(1)
+
+if not (os_is_linux() or os_is_pi() or os_is_mac()):
     Console.error("OS is not Linux or Pi, test can not be performed")
     sys.exit(1)
 
