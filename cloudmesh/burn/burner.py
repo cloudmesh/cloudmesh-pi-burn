@@ -77,6 +77,15 @@ class Burner(object):
         self.hostname = None
         self.keypath = None
 
+
+    @staticmethod
+    def detect():
+        if os_is_mac():
+            details = USB.get_from_diskutil()
+        else:
+            details = USB.get_from_dmesg()
+        return details
+
     @windows_not_supported
     def check(self, device="/dev/sdX"):
         """
@@ -364,9 +373,7 @@ class Burner(object):
         # print ('\n'.join(sorted(devices)))
 
         if os_is_mac():
-
             details = USB.get_from_diskutil()
-
         else:
             details = USB.get_from_dmesg()
 
@@ -1219,6 +1226,63 @@ class Burner(object):
                 time.sleep(1)
 
             Console.ok("Formatted SD Card")
+
+        elif os_is_mac():
+
+            details = USB.get_dev_from_diskutil()
+
+            # checking if string contains list element
+            valid = any(entry in device for entry in details)
+
+
+            if not valid:
+                Console.error("this device can not be used for formatting")
+                return ""
+
+            elif len(details) > 1:
+                Console.error("For security reasons, please only put one USB writer in")
+                return ""
+
+            else:
+
+                details = USB.get_from_diskutil()
+
+                output = "table"
+                print(Printer.write(details,
+                                    order=[
+                                        "dev",
+                                        "info",
+                                        "formatted",
+                                        "size",
+                                        "active",
+                                        "readable",
+                                        "empty",
+                                        "direct-access",
+                                        "removable",
+                                        "writeable"],
+                                    header=[
+                                        "Path",
+                                        "Info",
+                                        "Formatted",
+                                        "Size",
+                                        "Plugged-in",
+                                        "Readable",
+                                        "Empty",
+                                        "Access",
+                                        "Removable",
+                                        "Writeable"],
+                                    output=output)
+                      )
+
+                print()
+                if yn_choice(f"Do you loke to formatt {device} as {title}"):
+                    _execute(f"Formatting {device} as {title}",
+                             f"sudo diskutil eraseDisk FAT32 {title} MBRFormat {device}")
+
+
+
+
+
 
         else:
             raise NotImplementedError("Not implemented for this OS")
