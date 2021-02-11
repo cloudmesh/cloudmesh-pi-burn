@@ -8,7 +8,6 @@ import usb
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 
-
 def _get_attribute(attribute, lines):
     for line in lines:
         if attribute in line:
@@ -327,6 +326,25 @@ class USB(object):
                 })
         return details
         '''
+
+    @staticmethod
+    def get_dev_from_diskutil():
+        import plistlib
+        external = subprocess.check_output("diskutil list -plist external".split(" "))
+
+        r = dict(plistlib.loads(external))
+
+        details = []
+
+        if len(r['AllDisksAndPartitions']) == 0:
+            Console.error("No partition found")
+            return ""
+
+        else:
+            for dev in r['AllDisksAndPartitions']:
+                details.append(dev['DeviceIdentifier'])
+            return details
+
     @staticmethod
     def get_from_diskutil():
         import plistlib
@@ -366,4 +384,4 @@ class USB(object):
 
         return details        
 
-        
+
