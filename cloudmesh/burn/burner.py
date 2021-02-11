@@ -890,14 +890,14 @@ class Burner(object):
                     sd1 = f"{dev}1"
                     sd2 = f"{dev}2"
                     try:
-                        if os.path.exists(sd1):
+                        if not os.path.exists(sd1):
                             Console.ok(f"mounting {sd1} {card.boot_volume}")
                             self.system_exec(f"sudo mkdir -p {card.boot_volume}")
                             self.system_exec(f"sudo mount -t vfat {sd1} {card.boot_volume}")
                     except Exception as e:
                         print(e)
                     try:
-                        if os.path.exists(sd2):
+                        if not os.path.exists(sd2):
                             Console.ok(f"mounting {sd2} {card.root_volume}")
                             self.system_exec(f"sudo mkdir -p {card.root_volume}")
                             self.system_exec(f"sudo mount -t ext4 {sd2} {card.root_volume}")
@@ -906,30 +906,31 @@ class Burner(object):
             return ""
 
         elif os_is_mac():
-            print ("MMMMM")
 
             dev = USB.get_dev_from_diskutil()[0]
-
-            print("OOOO", dev)
             volumes = [
                 {"dev": f"{dev}s1",  "mount": card.boot_volume},
                 {"dev": f"{dev}s2", "mount": card.root_volume},
             ]
             for volume in volumes:
-                print (volume)
+
                 dev = str(volume['dev'])
                 mount = volume['mount']
-
-
-                print (dev, mount, type(mount))
-                Console.ok(f"Mounting {dev} {mount}")
-
                 try:
-                    if os.path.exists(mount):
+                    if not os.path.exists(mount):
                         self.system_exec(f"sudo mkdir -p {mount}")
                         self.system_exec(f"sudo mount -t vfat {dev} {mount}")
                 except Exception as e:
                     print(e)
+            for volume in volumes:
+                dev = str(volume['dev'])
+                mount = volume['mount']
+
+                if os.path.exists(mount):
+                    Console.ok(f"Mounted {mount}")
+                else:
+                    Console.error(f"Could not mounted {mount}")
+
             return ""
 
         else:
