@@ -290,7 +290,12 @@ class Burner(object):
         self.burn_sdcard(image=from_file, device=device)
 
     @windows_not_supported
-    def info(self, print_stdout=True):
+    def info(self,
+             print_os=True,
+             print_fdisk=True,
+             print_device_probe=True,
+             print_stdout=True,
+             output="table"):
         """
         Finds out information about USB devices
 
@@ -305,19 +310,20 @@ class Burner(object):
 
         print("dryrun:    ", self.dryrun)
 
-        if os_is_pi():
-            banner("This is  Raspberry PI")
-        elif os_is_mac():
-            banner("This is Mac")
-        elif os_is_windows():
-            banner("This is a Windows COmputer")
-        elif os_is_linux():
-            banner("This is a Linux Computer")
-        else:
-            Console.error("unkown OS")
-            sys.exit(1)
+        if print_os and print_stdout:
+            if os_is_pi():
+                banner("This is  Raspberry PI")
+            elif os_is_mac():
+                banner("This is Mac")
+            elif os_is_windows():
+                banner("This is a Windows COmputer")
+            elif os_is_linux():
+                banner("This is a Linux Computer")
+            else:
+                Console.error("unkown OS")
+                sys.exit(1)
 
-        if os_is_pi():
+        if os_is_pi() and print_fdisk and print_stdout:
             result = USB.fdisk("/dev/mmcblk0")
             if print_stdout:
                 banner("Operating System SD Card")
@@ -348,8 +354,8 @@ class Burner(object):
                         "Man.",
                         "Ser.Num.",
                         "USB Ver.",
-                        "Comment"]
-            )
+                        "Comment"],
+                output=output)
             )
 
         # devices = USB.get_devices()
@@ -428,7 +434,9 @@ class Burner(object):
                                     "Size",
                                     "Access",
                                     "Removable",
-                                    "Writeable"]))
+                                    "Writeable"],
+                                output=output)
+                  )
 
             # lsusb = USB.get_from_lsusb()
             # from pprint import pprint
@@ -455,7 +463,8 @@ class Burner(object):
                 if len(m) != 0:
                     print(Printer.write(m,
                                         order=["name", "path", "type", "device", "parameters"],
-                                        header=["Name", "Path", "Type", "Device", "Parameters"]))
+                                        header=["Name", "Path", "Type", "Device", "Parameters"],
+                                        output=output))
                 else:
                     Console.warning("No mount points found. Use cms burn mount")
                     print()
@@ -537,11 +546,14 @@ class Burner(object):
 
             image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
 
+        banner("Burning the SDCard")
+        print("Image:    ", image_path)
+        print("Device:   ", device)
+        print("Blocksize:", blocksize)
+        print()
+
         if os_is_linux() or os_is_pi():
 
-            print(image_path)
-            print(device)
-            print(blocksize)
             if device is None:
                 Console.error("Please specify a device")
                 return
@@ -549,6 +561,30 @@ class Burner(object):
             command = f"dd if={image_path} |" \
                       f" pv -w 80 |" \
                       f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
+            print(command)
+            os.system(command)
+
+        elif os_is_mac():
+
+            Console.error("not yet supported")
+            return ""
+             #
+             # this has still a bug in the dd command, aslo pv needs to be installed with brew
+             #
+
+            self.info(print_stdout=True)
+
+            if not yn_choice("CONTINUE? Please execute on your on risk"):
+                return ""
+
+
+            if device is None:
+                Console.error("Please specify a device")
+            return
+
+            command = f"dd if={image_path} |" \
+                        f" pv -w 80 |" \
+                        f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
             print(command)
             os.system(command)
 
