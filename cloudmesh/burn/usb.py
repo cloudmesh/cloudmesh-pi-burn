@@ -2,9 +2,9 @@ import glob
 import os
 import subprocess
 
+import humanize
 import requests
 import usb
-
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 

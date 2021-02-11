@@ -8,7 +8,6 @@ import subprocess
 import sys
 import textwrap
 import time
-import humanize
 
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.sdcard import SDCard
@@ -366,36 +365,35 @@ class Burner(object):
 
         if os_is_mac():
 
-            detalis = get_from_diskutil()
+            details = USB.get_from_diskutil()
 
         else:
             details = USB.get_from_dmesg()
 
+
         if print_stdout:
             banner("SD Cards Found")
+
+            from pprint import pprint
+            pprint(details)
+
             print(Printer.write(details,
-                                order=[  # "name",
+                                order=[
                                     "dev",
                                     "info",
                                     "formatted",
                                     "size",
-                                    # "device",
-                                    # "bus",
-                                    # "sg",
                                     "active",
                                     "readable",
                                     "empty",
                                     "direct-access",
                                     "removable",
                                     "writeable"],
-                                header=[  # "Name",
+                                header=[
                                     "Path",
                                     "Info",
                                     "Formatted",
                                     "Size",
-                                    # "Device",
-                                    # "Bus",
-                                    # "Sg",
                                     "Plugged-in",
                                     "Readable",
                                     "Empty",

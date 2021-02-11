@@ -17,7 +17,7 @@ from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 # from cloudmesh.common.debug import VERBOSE
-
+from cloudmesh.burn.Imager import Imager
 
 class BurnCommand(PluginCommand):
 
@@ -32,7 +32,7 @@ class BurnCommand(PluginCommand):
               burn install
               burn load --device=DEVICE
               burn format --device=DEVICE
-              burn imager
+              burn imager [TAG...]
               burn mount [--device=DEVICE] [--os=OS]
               burn unmount [--device=DEVICE] [--os=OS]
               burn network list [--ip=IP] [--used]
@@ -307,7 +307,18 @@ class BurnCommand(PluginCommand):
         StopWatch.stop("info")
         StopWatch.status("info", True)
 
-        if arguments.firmware and arguments.check:
+        if arguments.iamger:
+
+            arguments.TAG = arguments.TAG or ["latest-lite"]
+
+            Console.msg(f"Tags: {arguments.TAG}")
+            try:
+                file = Imager.find(tag=arguments.TAG)
+                Imager.format(file=file)
+            except Exception as e:
+                Console.error(f"could not find image with the tag {tag}\n\n{e}\n")
+
+        elif arguments.firmware and arguments.check:
 
             execute("firmware check", burner.firmware(action="check"))
             return ""
