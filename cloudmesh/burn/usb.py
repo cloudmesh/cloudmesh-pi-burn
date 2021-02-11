@@ -349,17 +349,18 @@ class USB(object):
             elif partition['Content'] == 'Windows_FAT_32':
                 partition['Content'] = 'FAT32'
 
+            info = partition['MountPoint']
             entry = {
                 "dev": f"/dev/{partition['DeviceIdentifier']}",
-                "active": None,
-                "info": partition['MountPoint'],
-                "readable": None,
+                "active": info is not None,
+                "info": info,
+                "readable": info is not None,
                 "formatted": partition['Content'],
-                "empty": None,
+                "empty": partition['Size'] == 0,
                 "size": humanize.naturalsize(partition['Size']),
-                "direct-access": None,
-                "removable": None,
-                "writeable": 'VolumeName' in partition and partition['VolumeName'] == 'boot'
+                "direct-access": True,
+                "removable": True,
+                "writeable": 'VolumeName' in partition
             }
             details.append(entry)
 

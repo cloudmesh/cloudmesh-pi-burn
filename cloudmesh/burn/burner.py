@@ -374,9 +374,6 @@ class Burner(object):
         if print_stdout:
             banner("SD Cards Found")
 
-            from pprint import pprint
-            pprint(details)
-
             print(Printer.write(details,
                                 order=[
                                     "dev",
