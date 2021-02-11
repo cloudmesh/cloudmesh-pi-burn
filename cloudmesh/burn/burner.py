@@ -1238,7 +1238,8 @@ class Burner(object):
             _execute("sync", "sync")
             if unmount:
                 time.sleep(1)
-                self.unmount(device)
+                self.unmount() #without dev we unmount but do not eject. If
+                # we completely eject, burn will fail to detect the device.
                 time.sleep(1)
 
             Console.ok("Formatted SD Card")
