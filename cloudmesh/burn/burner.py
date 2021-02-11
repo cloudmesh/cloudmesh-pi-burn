@@ -8,6 +8,7 @@ import subprocess
 import sys
 import textwrap
 import time
+import humanize
 
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.sdcard import SDCard
@@ -527,7 +528,7 @@ class Burner(object):
                 Console.error("Please specify a device")
                 return
 
-            command = f"dd if={image_path} |" \
+            command = f"sudo dd if={image_path} |" \
                       f" pv -w 80 |" \
                       f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
             print(command)
@@ -539,26 +540,66 @@ class Burner(object):
             
         elif os_is_mac():
 
-            Console.error("not yet supported")
-            return ""
+            details = USB.get_from_diskutil()
+
+            output = "table"
+            print(Printer.write(details,
+                                order=[
+                                    "dev",
+                                    "info",
+                                    "formatted",
+                                    "size",
+                                    "active",
+                                    "readable",
+                                    "empty",
+                                    "direct-access",
+                                    "removable",
+                                    "writeable"],
+                                header=[
+                                    "Path",
+                                    "Info",
+                                    "Formatted",
+                                    "Size",
+                                    "Plugged-in",
+                                    "Readable",
+                                    "Empty",
+                                    "Access",
+                                    "Removable",
+                                    "Writeable"],
+                                output=output)
+                  )
+
             #
-            # this has still a bug in the dd command, aslo pv needs to be installed with brew
+            # get size
             #
 
-            self.info(print_stdout=True)
+            size = humanize.naturalsize(os.path.getsize(image_path))
 
-            if not yn_choice("CONTINUE? Please execute on your on risk"):
-                return ""
+            # size = details[0]['size']
+            n, unit = size.split(" ")
+            unit = unit.replace("GB", "G")
+            unit = unit.replace("MB", "M")
+            n = int(round(float(n)))
+            print(n, unit)
+            size = f"{n}{unit}"
 
-            if device is None:
-                Console.error("Please specify a device")
-            return
+            blocksize = blocksize.replace("M", "m")
 
-            command = f"dd if={image_path} |" \
-                      f" pv -w 80 |" \
-                      f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
-            print(command)
-            os.system(command)
+
+            if yn_choice(f"Do you like to write to {device} the image {image_path}"):
+
+                # sudo dd if=/dev/rdiskX bs=1m | pv -s 64G | sudo dd of=/dev/rdiskY bs=1m
+
+                command = f"sudo dd if={image_path} bs={blocksize} |" \
+                          f' pv -s {size} |' \
+                          f" sudo dd of={device} bs={blocksize}"
+                print(command)
+
+                if not yn_choice("CONTINUE? Please execute on your on risk"):
+                    return ""
+
+
+                os.system(command)
 
         else:
             raise NotImplementedError("Only implemented to be run on a PI")
@@ -1275,14 +1316,9 @@ class Burner(object):
                       )
 
                 print()
-                if yn_choice(f"Do you loke to formatt {device} as {title}"):
+                if yn_choice(f"Do you like to format {device} as {title}"):
                     _execute(f"Formatting {device} as {title}",
                              f"sudo diskutil eraseDisk FAT32 {title} MBRFormat {device}")
-
-
-
-
-
 
         else:
             raise NotImplementedError("Not implemented for this OS")

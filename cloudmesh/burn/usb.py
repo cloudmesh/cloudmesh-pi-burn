@@ -7,6 +7,7 @@ import requests
 import usb
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
+from cloudmesh.common.console import Console
 
 def _get_attribute(attribute, lines):
     for line in lines:
