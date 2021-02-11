@@ -887,14 +887,13 @@ class Burner(object):
         :type device: str
         """
 
-        def execute(msg, command):
+        def _execute(msg, command):
             Console.ok(msg)
             try:
                 os.system(command)
             except:
                 # ignore error
                 pass
-
 
         host = host or get_platform()
         card = SDCard(card_os=card_os, host=host)
@@ -904,14 +903,12 @@ class Burner(object):
 
             if host in ['linux', 'raspberry']:
 
-                execute(f"eject {device}", f"sudo eject {device}")
-                time.sleep(1)
-                self.unmount(device)
+                _execute(f"eject {device}", f"sudo eject {device}")
                 time.sleep(1)
 
-                execute(f"unmounting {card.boot_volume}", f"sudo umount {card.boot_volume}")
+                _execute(f"unmounting {card.boot_volume}", f"sudo umount {card.boot_volume}")
                 time.sleep(3)
-                execute(f"unmounting  {card.root_volume}", f"sudo umount {card.root_volume}")
+                _execute(f"unmounting  {card.root_volume}", f"sudo umount {card.root_volume}")
 
                 time.sleep(3)
 
@@ -919,10 +916,10 @@ class Burner(object):
                       f"sudo rmdir {card.root_volume}"]
 
                 for command in rm:
-                    execute (command, command)
+                    _execute (command, command)
             elif host == "macos":
 
-                execute(f"unmounting {card.boot_volume}", f"diskutil umount {card.boot_volume}")
+                _execute(f"unmounting {card.boot_volume}", f"diskutil umount {card.boot_volume}")
 
             else:
                 Console.error("Not yet implemnted for your OS")
