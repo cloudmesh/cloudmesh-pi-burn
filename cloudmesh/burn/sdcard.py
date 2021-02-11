@@ -33,7 +33,6 @@ class SDCard:
         """
         user = os.environ.get('USER')
         if self.card_os == "raspberry" and self.host == "macos":
-            Console.error("Requires and ext4 writable file system. NOt supported by default.")
             return Path("/Volumes/rootfs")
         elif self.host == 'linux':
             if "raspberry" in self.card_os:
