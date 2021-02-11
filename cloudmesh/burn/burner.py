@@ -29,6 +29,7 @@ from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
+from cloudmesh.common.Shell import Shell
 
 
 # def dmesg():
@@ -636,7 +637,7 @@ class Burner(object):
         mountpoint = card.root_volume
         # write the new hostname to /etc/hostname
         if not self.dryrun:
-            self.system_exec_exec(
+            self.system_exec(
                 f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
         else:
             print()
@@ -1277,7 +1278,7 @@ class Burner(object):
             self.system_exec(f'sudo eject -t {device}')
             time.sleep(3)
             device_basename = os.path.basename(device)
-            result = self.system_exec('lsblk')
+            result = Shell.run('lsblk')
             if device_basename in result.split():
                 for line in result.splitlines():
                     line = line.split()
