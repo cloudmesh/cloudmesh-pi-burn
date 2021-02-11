@@ -917,7 +917,7 @@ class Burner(object):
                 dev = str(volume['dev'])
                 mount = volume['mount']
                 try:
-                    if os.path.exists(mount):
+                    if not os.path.exists(mount):
                         self.system_exec(f"sudo mkdir -p {mount}")
                         self.system_exec(f"sudo mount -t vfat {dev} {mount}")
                 except Exception as e:
