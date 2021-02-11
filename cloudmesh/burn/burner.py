@@ -28,6 +28,7 @@ from cloudmesh.common.util import writefile
 from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import yn_choice
+from cloudmesh.common.Shell import Shell
 
 
 # def dmesg():
@@ -903,9 +904,9 @@ class Burner(object):
             self.system('sudo sync')  # flush any pending/in-process writes
 
             if host in ['linux', 'raspberry']:
-
-                _execute(f"eject {device}", f"sudo eject {device}")
-                os.system("sync")
+                if device:
+                    _execute(f"eject {device}", f"sudo eject {device}")
+                    os.system("sync")
                 _execute(f"unmounting {card.boot_volume}", f"sudo umount {card.boot_volume}")
                 _execute(f"unmounting  {card.root_volume}", f"sudo umount {card.root_volume}")
                 os.system("sync")
@@ -1194,16 +1195,38 @@ class Burner(object):
                 # ignore error
                 pass
 
+        def prepare_sdcard():
+            # ensures a card is detected and unmounted
+            Console.ok(f'sudo eject -t {device}')
+            self.system(f'sudo eject -t {device}')
+            time.sleep(3)
+            device_basename = os.path.basename(device)
+            result = self.system('lsblk')
+            if device_basename in result.split():
+                for line in result.splitlines():
+                    line = line.split()
+                    if device_basename in line[0] and len(line) > 6:
+                        Console.ok(f'sudo umount {line[6]}')
+                        self.system(f'sudo umount {line[6]}')
+                return True
+            else:
+                Console.error("SD Card not detected. Please reinsert "
+                              "card reader. ")
+                if not yn_choice("Card reader re-inserted? No to cancel "
+                                 "operation"):
+                    return False
+                else:
+                    time.sleep(3)
+                    return prepare_sdcard()
+
         if os_is_linux() or os_is_pi():
 
             banner(f"format {device}")
 
-            _execute(f"sudo eject {device}", f"sudo eject {device}")
-            time.sleep(1)
-            self.unmount(device)
-            time.sleep(1)
-            script = f"""
-                sudo eject -t {device}
+            if not prepare_sdcard():
+                return False
+
+            script = f"""                
                 ls /media/pi
                 sudo parted {device} --script -- mklabel msdos
                 sudo parted {device} --script -- mkpart primary fat32 1MiB 100%
@@ -1222,6 +1245,8 @@ class Burner(object):
 
         else:
             raise NotImplementedError("Not implemented for this OS")
+
+        return True
 
     @windows_not_supported
     def load_device(self, device='dev/sdX'):
@@ -1542,7 +1567,11 @@ class MultiBurner(object):
         StopWatch.start(f"create {device} {hostname}")
 
         if fromatting:
-            burner.format_device(device=device, hostname=hostname)
+            success = burner.format_device(device=device, hostname=hostname)
+            if not success:
+                Console.warning("Skipping card due to failed format. "
+                                "Continuing with next hostname.")
+                return
 
         burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
         
