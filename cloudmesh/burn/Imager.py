@@ -4,6 +4,7 @@ from cloudmesh.common.Shell import Shell
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_pi
+from cloudmesh.burn.util import os_is_mac
 from cloudmesh.common.console import Console
 
 class Imager:
@@ -15,28 +16,38 @@ class Imager:
     
     @staticmethod
     def install(force=False):
-        if not installed or force:
+        if os_is_mac():
+            return
+        if not Imager.installed() or force:
             if os_is_linux() or os_is_pi():
                 os.system("sudo apt uninstall -y rpi-imager")
             else:
                 Console.warning("Instalation is not supported")
-    @staticmethod
-    def download(tag=["latest-lite"]):
-        pass
 
     @staticmethod
-    def format(file=None):
+    def fetch(tag=["latest-lite"]):
+        result = Image.create_version_cache()
+        file = Image().fetch(tag=tag)
+
+        return file
+
+    @staticmethod
+    def launch(file=None):
 
         if file is not None:
+
+            if not str(file).endswith(".img"):
+                raise ValueError(f"file {file} does not end with .img")
+
             if not os.path.exists(file):
                 raise ValueError(f"image file {file} does not exist")
 
-            if not file.endswith(".img"):
-               raise ValueError(f"file {file} does not end with .img")
-            
         elif file is None:
             file = ""
             
         Imager.install()
 
-        os.system(f"sudo rpi-imager {file}")
+        if os_is_linux() or os_is_pi():
+            os.system(f"sudo rpi-imager {file}")
+        elif os_is_mac():
+            os.system(f"/Applications/Raspberry\ Pi\ Imager.app/Contents/MacOS/rpi-imager {file} > /dev/null 2>&1")

@@ -86,7 +86,7 @@ class Image(object):
         cache = Path(os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
 
         def fetch_kind(kind=None):
-            print(f"finding {kind} repos ...", end="")
+            print(f"finding {kind} repos ...")
             image = Image()
             location = f"{image.raspberry_images[kind]}"
             repos = [location]
@@ -96,7 +96,6 @@ class Image(object):
             }
             for repo in repos:
                 versions, downloads = Image.versions(repo)
-                print("These images are available at")
                 for version, download in zip(versions, downloads):
                     entry = {
                         "version": version,
@@ -217,7 +216,7 @@ class Image(object):
             print()
             Console.warning(f"The file is already downloaded. Found at:\n\n"
                             f"    {img_file}\n")
-            return
+            return img_file
 
         # cancel if image already downloaded
         if os.path.isfile(str(img_file)):
@@ -225,7 +224,7 @@ class Image(object):
             Console.warning(f"The file is already downloaded. Found at:\n\n"
                             f"    {zip_file}\n")
 
-            return
+            return img_file
 
         # download the image, unzip it, and delete the zip file
 
@@ -242,6 +241,7 @@ class Image(object):
         print("Extracting {}".format(img_filename))
         self.unzip_image(zip_filename)
         Path(zip_filename).unlink()
+        return img_filename
 
     def unzip_image(self, zip_filename):
         """

@@ -307,16 +307,22 @@ class BurnCommand(PluginCommand):
         StopWatch.stop("info")
         StopWatch.status("info", True)
 
-        if arguments.iamger:
+        if arguments.imager:
 
             arguments.TAG = arguments.TAG or ["latest-lite"]
 
             Console.msg(f"Tags: {arguments.TAG}")
             try:
-                file = Imager.find(tag=arguments.TAG)
-                Imager.format(file=file)
+                file = Imager.fetch(tag=arguments.TAG)
+            except:
+                pass
+
+            try:
+                Imager.launch(file=file)
             except Exception as e:
-                Console.error(f"could not find image with the tag {tag}\n\n{e}\n")
+                Console.error(f"could not find image with the tag {arguments.TAG}\n\n{e}\n")
+
+            return ""
 
         elif arguments.firmware and arguments.check:
 
