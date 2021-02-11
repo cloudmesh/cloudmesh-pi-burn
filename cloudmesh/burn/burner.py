@@ -28,11 +28,10 @@ from cloudmesh.common.util import writefile
 from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.common.Shell import Shell
-
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
+
 
 def gen_strong_pass():
     """
@@ -77,7 +76,6 @@ class Burner(object):
         self.dryrun = dryrun
         self.hostname = None
         self.keypath = None
-
 
     @staticmethod
     def detect():
@@ -378,10 +376,8 @@ class Burner(object):
         else:
             details = USB.get_from_dmesg()
 
-
         if print_stdout:
             banner("SD Cards Found")
-
             print(Printer.write(details,
                                 order=[
                                     "dev",
@@ -537,14 +533,13 @@ class Burner(object):
             command = "sync"
             print(command)
             os.system(command)
-            
         elif os_is_mac():
 
             Console.error("not yet supported")
             return ""
-            #
+            # -----------
             # this has still a bug in the dd command, aslo pv needs to be installed with brew
-            #
+            # -----------
 
             self.info(print_stdout=True)
 
@@ -1194,7 +1189,6 @@ class Burner(object):
         """
 
         def _execute(msg, command):
-            
             banner(msg, c=".")
             try:
                 os.system(command)
@@ -1233,7 +1227,7 @@ class Burner(object):
             if not prepare_sdcard():
                 return False
 
-            script = f"""                
+            script = f"""
                 ls /media/pi
                 sudo parted {device} --script -- mklabel msdos
                 sudo parted {device} --script -- mkpart primary fat32 1MiB 100%
@@ -1245,7 +1239,7 @@ class Burner(object):
             _execute("sync", "sync")
             if unmount:
                 time.sleep(1)
-                self.unmount() #without dev we unmount but do not eject. If
+                self.unmount()  # without dev we unmount but do not eject. If
                 # we completely eject, burn will fail to detect the device.
                 time.sleep(1)
 
@@ -1257,7 +1251,6 @@ class Burner(object):
 
             # checking if string contains list element
             valid = any(entry in device for entry in details)
-
 
             if not valid:
                 Console.error("this device can not be used for formatting")
@@ -1302,11 +1295,6 @@ class Burner(object):
                 if yn_choice(f"Do you loke to formatt {device} as {title}"):
                     _execute(f"Formatting {device} as {title}",
                              f"sudo diskutil eraseDisk FAT32 {title} MBRFormat {device}")
-
-
-
-
-
 
         else:
             raise NotImplementedError("Not implemented for this OS")
@@ -1639,7 +1627,6 @@ class MultiBurner(object):
                 return
 
         burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
-        
         burner.mount(device=device)
         burner.set_hostname(hostname)
         burner.disable_terminal_login(root_volume, password)
