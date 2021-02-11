@@ -275,6 +275,7 @@ class BurnCommand(PluginCommand):
                        "sshkey",
                        "blocksize",
                        "dryrun",
+                       # "output",
                        "ssid",
                        "url",
                        "key",
@@ -288,6 +289,7 @@ class BurnCommand(PluginCommand):
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
         arguments.IMAGE = arguments["--image"]
+        arguments.output = "table"  # hard code for now
 
         # VERBOSE(arguments)
 
@@ -408,7 +410,8 @@ class BurnCommand(PluginCommand):
 
         elif arguments.info:
 
-            execute("info", burner.info())
+            output = arguments.output or "table"
+            execute("info", burner.info(output=output))
             return ""
 
         elif arguments.install:
