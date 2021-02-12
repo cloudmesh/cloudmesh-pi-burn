@@ -9,9 +9,7 @@ order = ["vendor",
           "price",
           "total",
           "comment",
-          "other",
-          "image"
-          ]
+          "image"]
 
 pd.options.display.float_format = '{:,.2f}'.format
 
@@ -55,37 +53,25 @@ df['description'] = df['link']
 
 
 df["total"] = df["count"] * df["price"]
-total = df["total"].sum()
+total = round(df["total"].sum(),2)
+df = df.round(2)
 
 
+df = df[order]
 
-line = {}
-for col in content[0]:
-    if col == "total":
-        line[col] = "========"
-    else:
-        line[col] = ""
-
-total_line = dict(line)
-total_line["total"] = total
+entry = {}
+for a in order:
+    entry[a] = ""
 
 
-# df = df.append(line,ignore_index=True)
-df = df.append(total_line,ignore_index=True)
+entry["total"] = " ======== "
+df = df.append(entry, ignore_index=True)
 
+entry["total"] = total
+df = df.append(entry, ignore_index=True)
 
-table = df[order].to_markdown().splitlines()
+table = df.to_markdown()
 
-
-table[0] = "| " + " | ".join(order) + "|"
-
-table[1] = len(order) * "| --- " + "|"
-
-
-for i in range(0, len(table)):
-    table[i] = " ".join(table[i].split())
-
-table = "\n".join(table)
 
 print()
 print (table)
