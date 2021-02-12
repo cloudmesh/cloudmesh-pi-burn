@@ -202,7 +202,7 @@
   vendor: "Amazon"
   description: "Case 8 layers"
   url: "https://www.amazon.com/GeeekPi-Raspberry-Cluster-Stackable-4-Layers/dp/B085XSPV7G/ref=sr_1_6?dchild=1&keywords=raspberry%2Bpi%2Bcluster%2Bcase%2Bwith%2Bvan&qid=1608317526&sr=8-6&th=1"
-  comment: "not to recommend due to to not able to use the faster SD Cards"
+  comment: "not recommend due to to not able to use the faster SD Cards, works well for PI3B+. For PI4 and 64GB card the voltage of the SDCard needs to be increased, but that means its slower"
   included: 1
   price: 64.99
   other: ""
