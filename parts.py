@@ -3,15 +3,6 @@ import sys
 from cloudmesh.common.util import readfile
 import pandas as pd
 
-order = ["vendor",
-          "description",
-          "count",
-          "price",
-          "total",
-          "comment",
-          "other"
-          ]
-
 pd.options.display.float_format = '{:,.2f}'.format
 
 try:
@@ -23,17 +14,9 @@ content = readfile(file)
 
 content = yaml.safe_load(content)
 
-for i in range(0,len(content)):
-    content[i]
-
-
 data = {}
 for i in range(0,len(content)):
-    description = content[i]["description"]
-    url = content[i]["url"]
-    content[i]["link"] = f"[{description}]({url})"
     data[i] = content[i]
-
 
 
 
@@ -44,17 +27,13 @@ df = pd.DataFrame(
            "count",
            "price",
            "comment",
-           "other",
-           "url",
-           "link"]
+           "other"]
 
 ).transpose()
 
-df['description'] = df['link']
-
-
 df["total"] = df["count"] * df["price"]
 total = df["total"].sum()
+
 
 
 
@@ -64,7 +43,6 @@ for col in content[0]:
         line[col] = "========"
     else:
         line[col] = ""
-
 total_line = dict(line)
 total_line["total"] = total
 
@@ -75,10 +53,12 @@ print (line)
 df = df.append(total_line,ignore_index=True)
 
 
-table = df[order].to_markdown().splitlines()
+print(df[["vendor",
+          "description",
+          "count",
+          "price",
+          "total",
+          "comment",
+          "other",
+          "url"]].to_markdown())
 
-
-table[1] = 7 * "| --- " + "|"
-
-
-print ("\n".join(table))
