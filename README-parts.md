@@ -35,10 +35,3 @@ This section will have the list of tools and parts that we recommend you get to 
 
 
 
-
-
-## FAQ
-
-### Alternatives
-
-* Duo SD Card Reader <https://www.amazon.com/dp/B07VB6C3QJ/ref=twister_B07VFBX16H?_encoding=UTF8&psc=1>
