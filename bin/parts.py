@@ -9,7 +9,8 @@ order = ["vendor",
           "price",
           "total",
           "comment",
-          "other"
+          "other",
+          "image"
           ]
 
 pd.options.display.float_format = '{:,.2f}'.format
@@ -33,9 +34,8 @@ for i in range(0,len(content)):
     url = content[i]["url"]
     content[i]["link"] = f"[{description}]({url})"
     data[i] = content[i]
-
-
-
+    image_url = content[i]["image"]
+    content[i]["image"] = f"![]({image_url})"
 
 df = pd.DataFrame(
     data=data,
@@ -46,7 +46,8 @@ df = pd.DataFrame(
            "comment",
            "other",
            "url",
-           "link"]
+           "link",
+           "image"]
 
 ).transpose()
 
@@ -68,8 +69,6 @@ for col in content[0]:
 total_line = dict(line)
 total_line["total"] = total
 
-print (line)
-
 
 # df = df.append(line,ignore_index=True)
 df = df.append(total_line,ignore_index=True)
@@ -78,7 +77,16 @@ df = df.append(total_line,ignore_index=True)
 table = df[order].to_markdown().splitlines()
 
 
-table[1] = 7 * "| --- " + "|"
+table[0] = "| " + " | ".join(order) + "|"
+
+table[1] = len(order) * "| --- " + "|"
 
 
-print ("\n".join(table))
+for i in range(0, len(table)):
+    table[i] = " ".join(table[i].split())
+
+table = "\n".join(table)
+
+print()
+print (table)
+print()

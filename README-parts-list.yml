@@ -64,7 +64,7 @@
 - vendor: "Amazon"
   description: "USB Charger 10-Port 120W"
   url: "https://www.amazon.com/gp/product/B071KBT4ZR/ref=ppx_yo_dt_b_asin_title_o03_s00?ie=UTF8&psc=1"
-  comment: ""
+  comment: "Warning when using the power switsh listed in the table, you must always switch it on and off from the build in switch. Never put the power supply on a power strip that has its own switch and use that switch to switch on and off via the power supply and leave the switch on the supply just open. THis coudl destroy your supply."
   count: 6
   price: 39.99
   other: ""
