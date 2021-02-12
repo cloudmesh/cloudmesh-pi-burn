@@ -1,126 +1,209 @@
-- vendor: "Cana Kit"
+- name: Pi4 8GB
+  vendor: "Cana Kit"
   description: "Raspberry Pi 4 8GBSKU: PI4-8GB"
   url: "https://www.canakit.com/raspberry-pi-4-8gb.html?defpid=4630"
   comment: ""
-  count: 42
+  included: 1
   price: 75.00
   other: ""
   image: "https://images-na.ssl-images-amazon.com/images/I/71XIid%2BfQIL._AC_UL115_.jpg"
 
-- vendor: "Amazon"
+- name: Power cable with switch
+  vendor: "Amazon"
   description: "Cable with switch"
   url: "https://www.amazon.com/VEGET-Raspberry-Switch-Arduino-Devices%EF%BC%883-Pack%EF%BC%89/dp/B07VSC1X2Y/ref=sr_1_38?dchild=1&keywords=raspberry+pi+4+power+switch&s=electronics&sr=1-38"
-  comment: "unavailable"
-  count: 8
+  comment: "3 pack, unavailable"
+  included: 1
   price: 9.99
   other: ""
-  image: "https://www.amazon.com/Pastall-Raspberry-Switch-Type-C-2-Pack/dp/B082QQ962S/ref=dp_prsubs_2?pd_rd_i=B082QQ962S&psc=1"
+  image: "https://m.media-amazon.com/images/I/51fGtzImuwL._AC_SS260_.jpg"
 
-- vendor: "Amazon"
+- name: Heat Sinks
+  vendor: "Amazon"
   description: "Heat Sinks"
   url: "https://www.amazon.com/dp/B082RT8CMS/ref=sspa_dk_detail_1?psc=1&pd_rd_i=B082RT8CMS&pd_rd_w=3exm1&pf_rd_p=7d37a48b-2b1a-4373-8c1a-bdcc5da66be9&pd_rd_wg=X8rdX&pf_rd_r=QJYGCRZD3HBP38TH3VZK&pd_rd_r=52cc97b3-1cf0-4402-ba98-0b7d8d5f8649&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUFUNzNXRU1BTFk3OUsmZW5jcnlwdGVkSWQ9QTA1NTE5NzEyME1EUFk4QVAxMTMmZW5jcnlwdGVkQWRJZD1BMDc2NDQ1MDNLTVhaWE5US0xEMUMmd2lkZ2V0TmFtZT1zcF9kZXRhaWwmYWN0aW9uPWNsaWNrUmVkaXJlY3QmZG9Ob3RMb2dDbGljaz10cnVl"
   comment: ""
-  count: 1
+  included: 12
   price: 12.99
   other: ""
   image: "https://images-na.ssl-images-amazon.com/images/I/71falXitXBL._AC_UL115_.jpg"
 
-- vendor: "Amazon"
+- name: "Ethernet cable"
+  vendor: "Amazon"
   description: "Ethernet cable"
   url: "https://www.amazon.com/Cat-Ethernet-Cable-White-Connectors/dp/B01IQWGRPU/ref=sr_1_3?dchild=1&keywords=network+cable&qid=1604589880&refinements=p_n_feature_keywords_three_browse-bin%3A7070221011&rnid=5462369011&s=pc&sr=1-3"
   comment: ""
-  count: 2
+  included: 6
   price: 6.64
   other: ""
-  image: "https://www.amazon.com/Cat-Ethernet-Cable-White-Connectors/dp/B01IQWGI04/ref=dp_prsubs_1?pd_rd_i=B01IQWGI04&psc=1"
+  image: "https://images-na.ssl-images-amazon.com/images/I/71YTQEXpoKL._AC_UL115_.jpg"
 
-- vendor: "Amazon"
+- name: "Black Spacers"
+  vendor: "Amazon"
   description: "Spacers"
   url: "https://www.amazon.com/Uxcell-a15060200ux0459-Female-Thread-Standoff/dp/B013G1Q300/ref=pd_sbs_328_1/142-4311132-1603634?_encoding=UTF8&pd_rd_i=B013G1Q300&pd_rd_r=a582d19c-1fc3-4f0a-b6cf-3da0968605e3&pd_rd_w=CFQDF&pd_rd_wg=zZcXu&pf_rd_p=ed1e2146-ecfe-435e-b3b5-d79fa072fd58&pf_rd_r=9AS1B4D8FP6WVANPDNJK&psc=1&refRID=9AS1B4D8FP6WVANPDNJK"
   comment: "slightoy too big screw portion, will work, but buy oothers next time"
-  count: 1
+  included: 50
   price: 11.85
   other: ""
-  image: "https://www.amazon.com/Uxcell-a15060200ux0459-Female-Thread-Standoff/dp/B013G1Q300/ref=pd_sbs_328_1/142-4311132-1603634?_encoding=UTF8&pd_rd_i=B013G1Q300&pd_rd_r=a582d19c-1fc3-4f0a-b6cf-3da0968605e3&pd_rd_w=CFQDF&pd_rd_wg=zZcXu&pf_rd_p=ed1e2146-ecfe-435e-b3b5-d79fa072fd58&pf_rd_r=9AS1B4D8FP6WVANPDNJK&psc=1&refRID=9AS1B4D8FP6WVANPDNJK"
+  image: "https://m.media-amazon.com/images/I/61SUGyHJ6AL._AC_SS350_.jpg"
 
-- vendor: "Amazon"
-  description: "WRONG Mini HDMI adapter"
-  url: "https://www.amazon.com/Benfei-Adapter-Compatible-Raspberry-Camcorder/dp/B07GGG5JWS/ref=sr_1_2_sspa?dchild=1&keywords=mini-hdmi+to+hdmi+adapter&pd_rd_r=b550da81-bde2-4609-973e-468ef096cb9a&pd_rd_w=MCZDc&pd_rd_wg=EEXPa&pf_rd_p=0ec05f25-9534-48fe-9c3e-40b89957230e&pf_rd_r=FDMR0VC21CBCCEHMMBCC&qid=1604593399&sr=8-2-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUEzRTFCSDlXMUxVR1VOJmVuY3J5cHRlZElkPUEwMDAzODEzRTVJVk5DOEVBQzlKJmVuY3J5cHRlZEFkSWQ9QTA0MTM0MzJESVhMNE9DT1BMVTUmd2lkZ2V0TmFtZT1zcF9hdGYmYWN0aW9uPWNsaWNrUmVkaXJlY3QmZG9Ob3RMb2dDbGljaz10cnVl"
-  comment: "wrong part, do not buy"
-  count: 5
-  price: 7.99
-  other: ""
-  image: "https://images-na.ssl-images-amazon.com/images/I/71wIRelJ3IL._AC_UL115_.jpg"
-
-- vendor: "Amazon"
-  description: "sd cards 64GB EVO Select"
+- name: "sd card 64GB"
+  vendor: "Amazon"
+  description: "SD Card 64GB EVO Select"
   url: "https://www.amazon.com/SAMSUNG-Select-microSDXC-Adapter-MB-ME64HA/dp/B08879MG33/ref=sr_1_2?dchild=1&keywords=sd+cards&qid=1604598396&refinements=p_n_feature_two_browse-bin%3A6518305011%2Cp_89%3APNY%7CSAMSUNG%7CSanDisk&rnid=2528832011&s=pc&sr=1-2"
   comment: ""
-  count: 60
+  included: 1
   price: 9.99
   other: ""
   image: "https://images-na.ssl-images-amazon.com/images/I/81T-dh3PhUL._AC_UL115_.jpg"
 
-- vendor: "Amazon"
+- name: "USB Charger 10-Port"
+  vendor: "Amazon"
   description: "USB Charger 10-Port 120W"
   url: "https://www.amazon.com/gp/product/B071KBT4ZR/ref=ppx_yo_dt_b_asin_title_o03_s00?ie=UTF8&psc=1"
   comment: "Warning when using the power switsh listed in the table, you must always switch it on and off from the build in switch. Never put the power supply on a power strip that has its own switch and use that switch to switch on and off via the power supply and leave the switch on the supply just open. THis coudl destroy your supply."
-  count: 6
+  included: 1
   price: 39.99
   other: ""
   image: "https://images-na.ssl-images-amazon.com/images/I/61tZznbrI4L._AC_UL115_.jpg"
 
-- vendor: "Amazon"
+- name: Geekpi Case for 8
+  vendor: "Amazon"
   description: "Case 8 layers"
   url: "https://www.amazon.com/GeeekPi-Raspberry-Cluster-Stackable-4-Layers/dp/B085XSPV7G/ref=sr_1_6?dchild=1&keywords=raspberry%2Bpi%2Bcluster%2Bcase%2Bwith%2Bvan&qid=1608317526&sr=8-6&th=1"
   comment: "not to recommend due to to not able to use the faster SD Cards"
-  count: 6
+  included: 1
   price: 64.99
   other: ""
   image: "https://images-na.ssl-images-amazon.com/images/I/61m-TB3%2BdpL._AC_UL115_.jpg"
 
-- vendor: "Amazon"
+- name: Standoffs
+  vendor: "Amazon"
   description: "HONJIE M2.5 x 11mm"
   url: "https://www.amazon.com/gp/product/B0824G9YGN/ref=ppx_yo_dt_b_asin_title_o03_s00?ie=UTF8&psc=1"
   comment: ""
-  count: 3
+  included: 50
   price: 7.56
   other: ""
   image: "https://images-na.ssl-images-amazon.com/images/I/61g-4kBBomL._AC_UL115_.jpg"
 
-- vendor: "Amazon"
+- name: "Standoffs Srews"
+  vendor: "Amazon"
   description: "Standoffs"
   url: "https://www.amazon.com/gp/product/B0721SP83Q/ref=ppx_yo_dt_b_asin_title_o02_s00?ie=UTF8&psc=1"
   comment: ""
-  count: 2
+  included: 10
   price: 5.49
   other: ""
   image: "https://images-na.ssl-images-amazon.com/images/I/41OuQXxXErL._AC_.jpg"
 
-- vendor: "Amazon"
+- name: "Mustex Case"
+  vendor: "Amazon"
   description: "Case"
   url: "https://www.amazon.com/dp/B08KDHQKYL/?coliid=IS4WAW93LHZEX&colid=19DQ1O5T0I53M&psc=1&ref_=lv_ov_lig_dp_it"
   comment: ""
-  count: 1
+  included: 1
   price: 59.39
   other: ""
   image: "https://m.media-amazon.com/images/S/aplus-media/sc/61d034b4-4779-44a1-b611-ffcdb494dbea.__CR0,0,150,300_PT0_SX150_V1___.jpg"
 
-- vendor: "Amazon"
+- name: "Big USB Charger"
+  vendor: "Amazon"
   description: "USB Charging Station"
   url: "https://www.amazon.com/G-daimler-Charging-Intelligent-Protection-organizer/dp/B077VGZBVS/ref=sr_1_2?dchild=1&keywords=60+port+usb+charger&qid=1608319889&s=electronics&sr=1-2"
   comment: ""
-  count: 1
+  included: 1
   price: 119.99
   other: ""
   image: "https://m.media-amazon.com/images/I/71eh7WFgpgL._AC_SS350_.jpg"
 
-- vendor: "Amazon"
+- name: "Fan Cable"
+  vendor: "Amazon"
   description: "Fan cable"
   url: "https://www.amazon.com/CRJ-Voltage-Step-Up-Sleeved-Adapter/dp/B07QFG6LFR"
   comment: ""
-  count: 2
+  included: 1
   price: 10.99
   other: ""
   image: "https://images-na.ssl-images-amazon.com/images/I/81T3AgBahML._AC_UL115_.jpg"
 
+- name: "Duo SD Card Reader"
+  vendor: "Amazon"
+  description: "Duo SD Card Reader"
+  url: "https://www.amazon.com/dp/B07VB6C3QJ/ref=twister_B07VFBX16H?_encoding=UTF8&psc=1"
+  comment: ""
+  included: 1
+  price: 7.99
+  other: ""
+  image: "https://images-na.ssl-images-amazon.com/images/I/51EWYgXoZ8L._AC_UL115_.jpg"
+
+- name: "Power USB Switch Type-C Cable"
+  vendor: "Amazon"
+  description: "Power USB Switch Type-C Cable"
+  url: "https://www.amazon.com/VEGET-Raspberry-Switch-Type-C-Devices%EF%BC%881-Pack%EF%BC%89/dp/B07VLW8Q6T/ref=sr_1_8?keywords=usb+to+usbc+power+cable+pi&qid=1579099507&s=electronics&sr=1-8"
+  comment: "expensive"
+  included: 1
+  price: 5.89
+  other: ""
+  image: "https://images-na.ssl-images-amazon.com/images/I/51fGtzImuwL._AC_UL115_.jpg"
+
+- name: "HDMI Cable"
+  vendor: "Amazon"
+  description: "CanaKit Raspberry Pi 4 Micro HDMI Cable - 6 Feet (Pack of 2)"
+  url: "https://www.amazon.com/CanaKit-Raspberry-Micro-HDMI-Cable/dp/B07TTKD38N/ref=sr_1_1?dchild=1&keywords=CanaKit+Premium+Raspberry+Pi+4+Micro+HDMI+Cable+-+6+Feet&qid=1613164997&s=instant-video&sr=1-1"
+  comment: ""
+  included: 2
+  price: 9.99
+  other: ""
+  image: "https://images-na.ssl-images-amazon.com/images/I/51yE14NxDLL._AC_UL115_.jpg"
+
+- name: "Power Supply with ON Off Switch"
+  vendor: "Amazon"
+  description: "Compatible with Raspberry Pi 4 Power Supply with ON/Off Switch"
+  url: "https://www.amazon.com/Smraza-Compatible-Raspberry-Charger-Rotation/dp/B07VFDYNL4/ref=sr_1_4?crid=1T9Q9UVNFZJXU&keywords=raspberry+4+power+supply&qid=1579099146&s=electronics&sprefix=raspberry+4+%2Celectronics%2C148&sr=1-4"
+  comment: ""
+  included: 1
+  price: 9.99
+  other: ""
+  image: "https://images-na.ssl-images-amazon.com/images/I/71Hr5njQjoL._AC_UL115_.jpg"
+
+- name: "TP-Link 8 Port Gigabit Ethernet Network Switch"
+  vendor: "Amazon"
+  description: "TP-Link 8 Port Gigabit Ethernet Network Switch"
+  url: "https://www.amazon.com/Ethernet-Splitter-Optimization-Unmanaged-TL-SG108/dp/B00A121WN6/ref=sxin_0_ac_d_pm?ac_md=1-0-VW5kZXIgJDI1-ac_d_pm&crid=24HQ4WYMS87EK&cv_ct_cx=network+switch+8+port+gigabit&keywords=network+switch+8+port+gigabit&pd_rd_i=B00A121WN6&pd_rd_r=ca9eca7c-5023-40a5-96de-63e0d33307ec&pd_rd_w=7KFIO&pd_rd_wg=Me9bz&pf_rd_p=ef07af27-e48f-451d-ab63-8b6b216a0bc3&pf_rd_r=9TJZ9PHMZF52FTYN9PNX&psc=1&qid=1579098368&sprefix=network+switch%5C%2Caps%2C150"
+  comment: ""
+  included: 1
+  price: 19.99
+  other: ""
+  image: "https://images-na.ssl-images-amazon.com/images/I/71%2BbqPCPpIL._AC_UL115_.jpg"
+
+- name: "SanDisk 32GB Ultra microSDHC"
+  vendor: "Amazon"
+  description: "SanDisk 32GB Ultra microSDHC"
+  url: "https://www.amazon.com/SanDisk-Ultra-microSDXC-Memory-Adapter/dp/B073JWXGNT/ref=sr_1_4?keywords=32+GB+sd+card&qid=1579096243&sr=8-4"
+  comment: ""
+  included: 1
+  price: 10.99
+  other: ""
+  image: "https://images-na.ssl-images-amazon.com/images/I/61wtfkbzUIL._AC_UL115_.jpg"
+
+- name: "50 Pcs M2 X 20mm + 5mm Hex Hexagonal Threaded Spacer"
+  vendor: "Amazon"
+  description: "50 Pcs M2 X 20mm + 5mm Hex Hexagonal Threaded Spacer"
+  url: "https://www.amazon.com/20mm-Hexagonal-Threaded-Spacer-Support/dp/B00FH8AB8Q/ref=sr_1_1?dchild=1&keywords=50pcs+m2+x+20mm+%2B+5mm+hex+hexagonal+threaded&qid=1613164621&s=instant-video&sr=1-1"
+  comment: "fit very good, a bit thin"
+  included: 50
+  price: $11.49
+  other: ""
+  image: "https://images-na.ssl-images-amazon.com/images/I/51MfVTSrZWL._AC_SL1100_.jpg"
+
+- name: "Anker 60W 6-Port USB Wall Charger"
+  vendor: "Amazon"
+  description: "Anker 60W 6-Port USB Wall Charger"
+  url: "https://www.amazon.com/Anker-6-Port-Charger-PowerPort-iPhone/dp/B00P933OJC"
+  comment: "pay attention to get as much W as possible"
+  included: 1
+  price: 27.99
+  other: ""
+  image: "https://images-na.ssl-images-amazon.com/images/I/517ZyDrAvzL._AC_UL115_.jpg"

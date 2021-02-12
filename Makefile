@@ -22,10 +22,15 @@ install:
 
 readme:
 	cms man readme -p --toc
-	cms man readme -p --tag="MANUAL-BURN" burn
-	cms man readme -p --tag="MANUAL-BRIDGE" bridge
-	cms man readme -p --tag="MANUAL-HOST" host
-	cms man readme -p --tag="MANUAL-PI" pi
+	cms man readme -p --tag="MANUAL-BURN" --command=burn
+	cms man readme -p --tag="MANUAL-BRIDGE" --command=bridge
+	cms man readme -p --tag="MANUAL-HOST" --command=host
+	cms man readme -p --tag="MANUAL-PI" --command=pi
+
+parts:
+	python bin/parts.py > tmp.md 2>&1
+	cms man readme -p --tag="PARTS" --file=README-parts.md --include=tmp.md
+	rm -rf tmp.md
 
 source:
 	cd ../cloudmesh.cmd5; make source

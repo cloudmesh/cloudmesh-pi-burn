@@ -5,9 +5,8 @@ import pandas as pd
 
 order = ["vendor",
           "description",
-          "count",
+          "included",
           "price",
-          "total",
           "comment",
           "image"]
 
@@ -39,7 +38,7 @@ df = pd.DataFrame(
     data=data,
     index=["vendor",
            "description",
-           "count",
+           "included",
            "price",
            "comment",
            "other",
@@ -52,8 +51,8 @@ df = pd.DataFrame(
 df['description'] = df['link']
 
 
-df["total"] = df["count"] * df["price"]
-total = round(df["total"].sum(),2)
+#df["total"] = df["count"] * df["price"]
+#total = round(df["total"].sum(),2)
 df = df.round(2)
 
 
@@ -64,11 +63,11 @@ for a in order:
     entry[a] = ""
 
 
-entry["total"] = " ======== "
-df = df.append(entry, ignore_index=True)
+#entry["total"] = " ======== "
+#df = df.append(entry, ignore_index=True)
 
-entry["total"] = total
-df = df.append(entry, ignore_index=True)
+#entry["total"] = total
+#df = df.append(entry, ignore_index=True)
 
 table = df.to_markdown()
 
