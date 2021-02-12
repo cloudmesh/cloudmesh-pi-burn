@@ -48,11 +48,21 @@
   other: ""
   image: "https://images-na.ssl-images-amazon.com/images/I/51EWYgXoZ8L._AC_UL115_.jpg"
 
+- name: "1-Pi UCTRONICS for Raspberry Pi 4 Power Supply with Switch"
+  vendor: "Amazon"
+  description: "Compatible with Raspberry Pi 4 Power Supply with ON/Off Switch"
+  url: "https://www.amazon.com/UCTRONICS-Raspberry-Supply-Charger-Adapter/dp/B08C9VYLLK/ref=pd_sbs_20?pd_rd_w=gD9Fs&pf_rd_p=c52600a3-624a-4791-b4c4-3b112e19fbbc&pf_rd_r=KDH6QB1D5CP7S9TRPMCW&pd_rd_r=4e1b31d9-4bd7-4029-8003-cffb9dd23c84&pd_rd_wg=NfsSJ&pd_rd_i=B08C9VYLLK&psc=1"
+  comment: ""
+  included: 1
+  price: 9.99
+  other: ""
+  image: "https://images-na.ssl-images-amazon.com/images/I/61zbBFZW1iL._AC_UL115_.jpg"
+
 - name: "1-Pi Power Supply with ON Off Switch"
   vendor: "Amazon"
   description: "Compatible with Raspberry Pi 4 Power Supply with ON/Off Switch"
   url: "https://www.amazon.com/Smraza-Compatible-Raspberry-Charger-Rotation/dp/B07VFDYNL4/ref=sr_1_4?crid=1T9Q9UVNFZJXU&keywords=raspberry+4+power+supply&qid=1579099146&s=electronics&sprefix=raspberry+4+%2Celectronics%2C148&sr=1-4"
-  comment: ""
+  comment: "cable is build in the utronics seems betetr as we can take it out"
   included: 1
   price: 9.99
   other: ""
