@@ -711,6 +711,7 @@ Examples: ( \ is not shown)
 
 
 
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -718,6 +719,7 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BRIDGE-->
 ```
+
 Options:
     --interface=INTERFACE  The interface name [default: eth1]
                            You can also specify wlan0 if you wnat
@@ -727,17 +729,21 @@ Options:
    --ip=IP  The ip address to assign on the eth0 interface,
             ie. the listening interface [default: 10.1.1.1]
 
+  --dns=NAMESERVER  The ip address of a nameserver to set statically
+           For example, --dns=8.8.8.8,8.8.4.4 will use google nameservers
+
 Description:
 
   Command used to set up a bride so that all nodes route the traffic
   trough the manager PI.
 
-  bridge create [--interface=INTERFACE] [--ip=IP]
+  bridge create [--interface=INTERFACE] [--ip=IP] [--dns=NAMESERVER]
       creates the bridge on the current device.
       A reboot is required.
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
@@ -872,6 +878,7 @@ Description:
 
 
 
+
 ### Manual Page for the `pi` command
 
 Note to execute the command on the commandline you have to type in
@@ -949,6 +956,7 @@ Description:
 
 ```
 <!--MANUAL-PI-->
+
 
 
 
