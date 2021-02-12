@@ -48,18 +48,11 @@ df = pd.DataFrame(
 df['description'] = df['link']
 
 
-print ("OOOO")
-
 df["total"] = df["count"] * df["price"]
-print ("GGGG", df["total"])
-
 total = round(df["total"].sum(),2)
-print ("LLLL")
-
 
 df = df.round(2)
 
-print ("OOOO")
 
 df = df[order]
 
