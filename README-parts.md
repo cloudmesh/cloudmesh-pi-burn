@@ -21,7 +21,15 @@ This section will have the list of tools and parts that we recommend you get to 
 | Amazon                            | Fan cable                      |                     | 2  | $10.99  |     | https://www.amazon.com/CRJ-Voltage-Step-Up-Sleeved-Adapter/dp/B07QFG6LFR                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |  |
 |                                   |                                |                     |    |         |  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |  |
 
-###Anthony
+## FAQ
 
-Duo SD Card Reader <https://www.amazon.com/dp/B07VB6C3QJ/ref=twister_B07VFBX16H?
-_encoding=UTF8&psc=1>
+### (1) Prevent power supply from breaking
+
+**WARNING WARNING WARNING**:
+
+> Warning when using the power switsh listed in the table, you must always switch it on and off from the build in switch. Never put the power supply on a power strip that has its own switch and use that switch to switch on and off via the power supply and leave the switch on the supply just open. THis coudl destroy your supply.
+
+
+### Alternatives
+
+* Duo SD Card Reader <https://www.amazon.com/dp/B07VB6C3QJ/ref=twister_B07VFBX16H?_encoding=UTF8&psc=1>
