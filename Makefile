@@ -32,6 +32,14 @@ parts:
 	cms man readme -p --tag="PARTS" --file=README-parts.md --include=tmp.md
 	rm -rf tmp.md
 
+	python bin/parts-cluster.py  README-parts-3.yml > tmp.md 2>&1
+	cms man readme -p --tag="PARTS" --file=README-parts-3.md --include=tmp.md
+	rm -rf tmp.md
+
+	python bin/parts-cluster.py  README-parts-8.yml > tmp.md 2>&1
+	cms man readme -p --tag="PARTS" --file=README-parts-8.md --include=tmp.md
+	rm -rf tmp.md
+
 source:
 	cd ../cloudmesh.cmd5; make source
 	$(call banner, "Install cloudmesh-{package}")

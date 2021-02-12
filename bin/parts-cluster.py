@@ -7,15 +7,14 @@ order = ["vendor",
           "description",
           "included",
           "price",
+          "count",
+          "total",
           "comment",
           "image"]
 
 pd.options.display.float_format = '{:,.2f}'.format
 
-try:
-    file = sys.argv[1]
-except:
-    file = "README-parts-list.yml"
+file = sys.argv[1]  # yaml file
 
 content = readfile(file)
 
@@ -31,6 +30,7 @@ for i in range(0,len(content)):
     image_url = content[i]["image"]
     content[i]["image"] = f"![]({image_url})"
 
+
 df = pd.DataFrame(
     data=data,
     index=["vendor",
@@ -41,17 +41,25 @@ df = pd.DataFrame(
            "other",
            "url",
            "link",
-           "image"]
-
+           "image",
+           "count"]
 ).transpose()
 
 df['description'] = df['link']
 
 
-#df["total"] = df["count"] * df["price"]
-#total = round(df["total"].sum(),2)
+print ("OOOO")
+
+df["total"] = df["count"] * df["price"]
+print ("GGGG", df["total"])
+
+total = round(df["total"].sum(),2)
+print ("LLLL")
+
+
 df = df.round(2)
 
+print ("OOOO")
 
 df = df[order]
 
@@ -60,11 +68,11 @@ for a in order:
     entry[a] = ""
 
 
-#entry["total"] = " ======== "
-#df = df.append(entry, ignore_index=True)
+entry["total"] = " ======== "
+df = df.append(entry, ignore_index=True)
 
-#entry["total"] = total
-#df = df.append(entry, ignore_index=True)
+entry["total"] = total
+df = df.append(entry, ignore_index=True)
 
 table = df.to_markdown()
 

@@ -714,6 +714,7 @@ Examples: ( \ is not shown)
 
 
 
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -745,6 +746,7 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
@@ -885,6 +887,7 @@ Description:
 
 
 
+
 ### Manual Page for the `pi` command
 
 Note to execute the command on the commandline you have to type in
@@ -962,6 +965,7 @@ Description:
 
 ```
 <!--MANUAL-PI-->
+
 
 
 

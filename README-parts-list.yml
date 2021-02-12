@@ -98,6 +98,16 @@
   other: ""
   image: "https://m.media-amazon.com/images/I/71eh7WFgpgL._AC_SS350_.jpg"
 
+- name: "2 Power cables with switch"
+  vendor: "Amazon"
+  description: "Cable with switch"
+  url: "https://www.amazon.com/Pastall-Raspberry-Switch-Type-C-2-Pack/dp/B082QQ962S/ref=pd_sbs_7?pd_rd_w=8sVVp&pf_rd_p=c52600a3-624a-4791-b4c4-3b112e19fbbc&pf_rd_r=FFBWW6TVCZGS95XD0YFG&pd_rd_r=53877786-173e-4651-9193-7a741733df5f&pd_rd_wg=YdxRj&pd_rd_i=B082QQ962S&psc=1"
+  comment: "has 2 cables included and as the 3 cable option is not available making tis a good option"
+  included: 2
+  price: 8.89
+  other: ""
+  image: "https://images-na.ssl-images-amazon.com/images/I/51wbUxd2X3L._AC_UL115_.jpg"
+
 - name: "Power USB Switch Type-C Cable"
   vendor: "Amazon"
   description: "Power USB Switch Type-C Cable"
@@ -124,7 +134,7 @@
   url: "https://www.amazon.com/20mm-Hexagonal-Threaded-Spacer-Support/dp/B00FH8AB8Q/ref=sr_1_1?dchild=1&keywords=50pcs+m2+x+20mm+%2B+5mm+hex+hexagonal+threaded&qid=1613164621&s=instant-video&sr=1-1"
   comment: "fit very good, a bit thin"
   included: 50
-  price: $11.49
+  price: 11.49
   other: ""
   image: "https://images-na.ssl-images-amazon.com/images/I/51MfVTSrZWL._AC_SL1100_.jpg"
 
