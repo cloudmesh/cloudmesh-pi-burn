@@ -205,11 +205,15 @@ class Image(object):
             'Content-length']
         zip_filename = os.path.basename(source_url)
         img_filename = zip_filename.replace('.zip', '.img')
+        sha1_filename = zip_filename + '.sha1'
+        sha256_filename = zip_filename + '.sha256'
 
-        print("Downloading {}".format(zip_filename))
+        print(f"Downloading {zip_filename}")
 
         img_file = Path(Path(self.directory) / Path(img_filename))
         zip_file = Path(Path(self.directory) / Path(zip_filename))
+        sha1_file = Path(Path(self.directory) / Path(sha1_filename))
+        sha256_file = Path(Path(self.directory) / Path(sha256_filename))
 
         # cancel if image already downloaded
         if os.path.exists(img_filename):
@@ -218,17 +222,16 @@ class Image(object):
                             f"    {img_file}\n")
             return img_file
 
-        # cancel if image already downloaded
-        if os.path.isfile(str(img_file)):
-            print()
-            Console.warning(f"The file is already downloaded. Found at:\n\n"
-                            f"    {zip_file}\n")
-
-            return img_file
 
         # download the image, unzip it, and delete the zip file
 
-        os.system("wget -O {} {}".format(zip_filename, image["url"]))
+        image['sha1'] = image['url'] + ".sha1"
+        image['sha256'] = image['url'] + ".sha256"
+        os.system(f'wget -O {sha1_filename} {image["sha1"]}')
+        os.system(f'wget -O {sha256_filename} {image["sha256"]}')
+
+        os.system(f'wget -O {zip_filename} {image["url"]}')
+
         zip_size = os.path.getsize(zip_file)
         if int(size) != zip_size:
             Console.error(f"Repository reported zip size {size} does not equal "
