@@ -21,7 +21,6 @@ from cloudmesh.common.util import yn_choice
 from cloudmesh.common.util import banner
 from cloudmesh.burn.usb import USB
 
-
 cloud = get_platform()
 
 if os_is_mac():
@@ -42,8 +41,6 @@ if os_is_mac():
 
 else:
     device = "/dev/sdb"
-
-
 
 user = os.environ["USER"]
 
