@@ -1520,7 +1520,7 @@ class MultiBurner(object):
              password=None,
              ssid=None,
              psk=None,
-             fromatting=True,
+             formatting=True,
              tag='latest-lite'):
         """
         Burns the image on the specific device
