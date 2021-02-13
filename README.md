@@ -1131,6 +1131,7 @@ empty = not yet implemented
 
 ```
 brew install libusb
+nrew install pv
 ```
 
 ### Are there any unit tests?
