@@ -202,47 +202,27 @@ class Burner(object):
         :param action: the cations to be performed. It is "check" or "update"
         :type action: str
         """
+
+        def _execute(command):
+            print(command)
+            print()
+            os.system(command)
+            print()
+
         if not os_is_pi():
             Console.error("This command can only be run on a PI")
         else:
             if action == "check":
-                command = 'sudo apt update'
-                print(command)
-                print()
-                os.system(command)
-                print()
-                command = 'sudo apt install rpi-eeprom'
-                print(command)
-                print()
-                os.system(command)
-                print()
-                command = "sudo rpi-eeprom-update"
-                print(command)
-                print()
-                os.system(command)
-                print()
-                os.system("vcgencmd bootloader_version")
-                print()
-                print("For more information see:")
-                print()
+                _execute('sudo apt update')
+                _execute('sudo apt install rpi-eeprom')
+                _execute("sudo rpi-eeprom-update")
+                _execute("vcgencmd bootloader_version")
                 print("* https://www.raspberrypi.org/documentation/hardware/raspberrypi/booteeprom.md")
                 print()
             elif action == "update":
-                command = 'sudo apt update'
-                print(command)
-                print()
-                os.system(command)
-                print()
-                command = 'sudo apt install rpi-eeprom'
-                print(command)
-                print()
-                os.system(command)
-                print()
-                command = "sudo rpi-eeprom-update -a"
-                print(command)
-                print()
-                os.system(command)
-                print()
+                _execute('sudo apt update')
+                _execute('sudo apt install rpi-eeprom')
+                _execute("sudo rpi-eeprom-update -a")
                 os.system("sudo reboot")
 
     @windows_not_supported
