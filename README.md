@@ -1134,6 +1134,8 @@ brew install libusb
 nrew install pv
 ```
 
+**Access to ext4**: For the more advanced features of `burn` you will need full write access to the ext4 partition on your SDCard that is created when you burn it. Unfortunately the tools that used t be freely available see no longerto work properly, so you could use [extFS for Mac by Paragon Software](https://www.paragon-software.com/us/home/extfs-mac/) which does cost $40 for a license.
+
 ### Are there any unit tests?
 
 As `cms burn` may delete format, delete, and remove files during unit
