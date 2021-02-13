@@ -2,7 +2,6 @@ import os
 import textwrap
 import zipfile
 from pathlib import Path
-import hashlib
 
 import oyaml as yaml
 import requests
@@ -215,8 +214,8 @@ class Image(object):
 
         img_file = Path(Path(self.directory) / Path(img_filename))
         zip_file = Path(Path(self.directory) / Path(zip_filename))
-        sha1_file = Path(Path(self.directory) / Path(sha1_filename))
-        sha256_file = Path(Path(self.directory) / Path(sha256_filename))
+        # sha1_file = Path(Path(self.directory) / Path(sha1_filename))
+        # sha256_file = Path(Path(self.directory) / Path(sha256_filename))
 
         # cancel if image already downloaded
         if os.path.exists(img_filename):

@@ -10,6 +10,7 @@ from cloudmesh.common.console import Console
 
 class Imager:
 
+    @staticmethod
     def installed():
         r = Shell.which("rpi-imager")
         return r is not None
