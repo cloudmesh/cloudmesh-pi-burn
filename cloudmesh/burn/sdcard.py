@@ -15,7 +15,7 @@ class SDCard:
         :param os: the os that is part of the mount. Default: raspberry
         :type os: str
         :param host: the host on which we execute the command
-        :type host: possible values: raspeberry, macos, linux
+        :type host: possible values: raspberry, macos, linux
         """
         self.card_os = card_os or "raspberry"
         self.host = host or get_platform()

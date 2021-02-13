@@ -73,7 +73,7 @@ class Burner(object):
         TODO: dryrun may not be specified for all functions. Not yet enabled.
               Hence do not use dryrun
 
-        :param dryrun: if True onle the commands will be listed that would
+        :param dryrun: if True only the commands will be listed that would
                        be executed
         """
         self.dryrun = dryrun
@@ -238,7 +238,7 @@ class Burner(object):
     def install(self):
         """
         Installs /usr/local/bin/pishrink.sh
-        Installes parted
+        Installs parted
         :return:
         :rtype:
         """
@@ -306,7 +306,7 @@ class Burner(object):
             elif os_is_mac():
                 banner("This is Mac")
             elif os_is_windows():
-                banner("This is a Windows COmputer")
+                banner("This is a Windows Computer")
             elif os_is_linux():
                 banner("This is a Linux Computer")
             else:
@@ -436,7 +436,7 @@ class Burner(object):
         System command that uses subprocess to execute terminal commands
         Returns the stdout of the command
 
-        TODO: check typr of return<
+        TODO: check type of return<
 
         :param command: the command
         :type command: str
@@ -604,7 +604,7 @@ class Burner(object):
 
         :param hostname: the hostname
         :type hostname: str
-        :param mountpoint: the mountpunt of the device on which the hostanme
+        :param mountpoint: the mountpunt of the device on which the hostname
                            is found
         :type mountpoint: str
         """
@@ -857,7 +857,7 @@ class Burner(object):
         if os_is_pi() or os_is_linux():
             dmesg = USB.get_from_dmesg()
 
-            # TODO Need a better way to itentify which sd card to use for mounting
+            # TODO Need a better way to identify which sd card to use for mounting
             # instead of iterating over all of them
 
             if not self.dryrun:
@@ -914,7 +914,7 @@ class Burner(object):
             return ""
 
         else:
-            Console.error("Not yet implemnted for your OS")
+            Console.error("Not yet implemented for your OS")
             return ""
 
         # Keeping in case this was needed. Worked without it in testing.
@@ -979,7 +979,7 @@ class Burner(object):
                 _execute(f"unmounting {card.boot_volume}", f"diskutil umount {card.boot_volume}")
 
             else:
-                Console.error("Not yet implemnted for your OS")
+                Console.error("Not yet implemented for your OS")
                 return ""
 
     @windows_not_supported
@@ -1235,10 +1235,10 @@ class Burner(object):
         """
         Formats device with one FAT32 partition
 
-        WARNING: make sure you have the right device, this comamnd could
+        WARNING: make sure you have the right device, this command could
                  potentially erase your OS
 
-        :param device: The defice on which we format
+        :param device: The device on which we format
         :type device: str
         :param hostname: the hostname
         :type hostname: str
@@ -1362,7 +1362,7 @@ class Burner(object):
         """
         Loads the USB device via trayload
 
-        :param device: The defice on which we format
+        :param device: The device on which we format
         :type device: str
         :param hostname: the hostname
         :type hostname: str
@@ -1483,7 +1483,7 @@ class MultiBurner(object):
                  password=None,
                  ssid=None,
                  psk=None,
-                 fromatting=True,
+                 formatting=True,
                  tag='latest-lite'):
         """
         TODO: provide documentation
@@ -1508,8 +1508,8 @@ class MultiBurner(object):
         :type ssid:
         :param psk:
         :type psk:
-        :param fromatting:
-        :type fromatting:
+        :param formatting:
+        :type formatting:
         :return:
         :rtype:
         """
@@ -1585,7 +1585,7 @@ class MultiBurner(object):
             ip = None if not ips else ips[i]
 
             self.burn(image, device, blocksize, progress, hostname,
-                      ip, key, password, ssid, psk, fromatting, tag)
+                      ip, key, password, ssid, psk, formatting, tag)
 
             count += 1
             Console.info(f'Burned card {count}')
@@ -1648,8 +1648,8 @@ class MultiBurner(object):
         :type ssid:
         :param psk:
         :type psk:
-        :param fromatting:
-        :type fromatting:
+        :param formatting:
+        :type formatting:
         :return:
         :rtype:
         """
@@ -1675,7 +1675,7 @@ class MultiBurner(object):
         print("counter", counter)
         StopWatch.start(f"create {device} {hostname}")
 
-        if fromatting:
+        if formatting:
             success = burner.format_device(device=device, hostname=hostname)
             if not success:
                 Console.warning("Skipping card due to failed format. "

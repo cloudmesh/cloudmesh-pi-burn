@@ -76,7 +76,7 @@ def check_root(dryrun=False, terminate=True):
     """
     check if I am the root user. If not simply exist the program.
 
-    TODO: should probably mocve to cloudmesh.common
+    TODO: should probably move to cloudmesh.common
 
     :param dryrun: if set to true, does not terminate if not root user
     :type dryrun: bool

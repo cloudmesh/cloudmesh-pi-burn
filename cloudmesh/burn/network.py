@@ -3,7 +3,7 @@ import socket
 import subprocess
 
 
-# TODO: ther eseems to be some overlap with hardware.py and some functions in
+# TODO: there seems to be some overlap with hardware.py and some functions in
 #       hardware introduced that are not used here such as getfqdn and hostname.
 #       Should it be removed form hardware, or should this be changed here to
 #       use the methods from hardware?
@@ -25,8 +25,8 @@ class Network:
             details = None
         for entry in details:
             try:
-                adresses = entry['addr_info']
-                for n in adresses:
+                addresses = entry['addr_info']
+                for n in addresses:
                     if entry['ifname'] not in ['lo']:
                         element = {
                             'ip': socket.gethostbyname(hostname),

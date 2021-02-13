@@ -23,7 +23,7 @@ class Imager:
             if os_is_linux() or os_is_pi():
                 os.system("sudo apt uninstall -y rpi-imager")
             else:
-                Console.warning("Instalation is not supported")
+                Console.warning("Installation is not supported")
 
     @staticmethod
     def fetch(tag=["latest-lite"]):

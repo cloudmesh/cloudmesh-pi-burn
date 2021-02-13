@@ -27,7 +27,7 @@ class USB(object):
 
     def get_product(self, vendor, product):
         """
-        internal method used to retrive the vendor, product string
+        internal method used to retrieve the vendor, product string
         :param vendor: the vendor name
         :type vendor: str
         :param product: the product name
@@ -91,7 +91,7 @@ class USB(object):
 
     def get_vendor(self):
         """
-        Retrives the names of vendors from linux-usb.org
+        Retrieves the names of vendors from linux-usb.org
 
         :return: the content of the file
         :rtype: str
@@ -119,7 +119,7 @@ class USB(object):
     @staticmethod
     def fdisk(dev):
         """
-        calls fdosk on the specified device
+        calls fdisk on the specified device
 
         :param dev: device, example /dev/sdz
         :type dev: str
@@ -131,7 +131,7 @@ class USB(object):
     @staticmethod
     def get_from_usb():
         """
-        TODO: explain differnce to get_from_lsusb
+        TODO: explain difference to get_from_lsusb
 
         Finds the information about attached USB devices from lsusb
         Attributes of the devices found include
@@ -139,7 +139,7 @@ class USB(object):
             'comment'
             "hVendor"
             "hProduct"
-            "serach"
+            "search"
 
         :return: list of dicts
         :rtype: list
@@ -175,7 +175,7 @@ class USB(object):
                 except:
                     data["hVendor"] = h(data, "idVendor")
                     data["hProduct"] = h(data, "idProduct")
-                data["serach"] = "tbd"
+                data["search"] = "tbd"
                 details.append(data)
         return details
 
@@ -235,7 +235,7 @@ class USB(object):
         :param pluggedin: Only listed the plugged in USB devices
         :type pluggedin: bool
         :return: list of dicts
-        :rtype: lits of dicts
+        :rtype: list of dicts
         """
 
         lines = subprocess.getoutput("dmesg -t").splitlines()

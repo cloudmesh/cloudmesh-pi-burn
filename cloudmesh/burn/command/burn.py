@@ -92,7 +92,7 @@ class BurnCommand(PluginCommand):
                      if the passwd flag is added the default password is
                      queried from the commandline and added to all SDCards
 
-                     if the flag is ommitted login via the password is
+                     if the flag is omitted login via the password is
                      disabled and only login via the sshkey is allowed
 
               Network
@@ -141,7 +141,7 @@ class BurnCommand(PluginCommand):
 
                 cms burn install
 
-                    installs a program to shring img files. THis is
+                    installs a program to shrink img files. THis is
                     useful, after you created a backup to make the
                     backup smaller and allow faster burning in case of
                     recovery
@@ -149,7 +149,7 @@ class BurnCommand(PluginCommand):
                 cms burn load --device=DEVICE
 
                     loads the sdcard into the USB drive. Thi sis similar to
-                    loading a cdrom drive. It s the oposite to eject
+                    loading a cdrom drive. It s the opposite to eject
 
                 cms burn format --device=DEVICE
 
@@ -207,7 +207,7 @@ class BurnCommand(PluginCommand):
 
                 cms burn shrink [--image=IMAGE]
 
-                    shrinks the size of a backoup or image file that
+                    shrinks the size of a backup or image file that
                     is on your local file system. It can only be used
                     for .img files
 
@@ -223,10 +223,8 @@ class BurnCommand(PluginCommand):
                                 [--wifipassword=PSK]
                                 [--format]
 
-                    This is a comprehensif cuntion that not only can
-                    format the SDCard, but also initializes it with
-                    specific falues
-
+                    This command  not only can format the SDCard, but
+                    also initializes it with specific values
 
                 cms burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
 
@@ -238,7 +236,7 @@ class BurnCommand(PluginCommand):
                              [--mount=MOUNTPOINT]
 
                     this sets specific values on the sdcard after it
-                    has ben created with the creat, copy or sdcard
+                    has ben created with the create, copy or sdcard
                     command
 
                     a --ssh is missing from this command
@@ -249,8 +247,8 @@ class BurnCommand(PluginCommand):
 
                 cms burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
 
-                    this sets the wifi ssid and password afterthe card
-                    is created, copies, or sdcard is used.
+                    this sets the wifi ssid and password after the card
+                    is created, copied, or the sdcard is used.
 
                     The option country option expects an ISO 3166-1
                     two digit country code. The default is "US" and
@@ -586,7 +584,7 @@ class BurnCommand(PluginCommand):
                     blocksize=blocksize,
                     progress=True,
                     hostnames=hostnames,
-                    # not difference between names and name, maybe we shoudl allign
+                    # not difference between names and name, maybe we should align
                     ips=ips,
                     key=key,
                     password=passwd,
