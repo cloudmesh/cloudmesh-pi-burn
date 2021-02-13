@@ -2,6 +2,7 @@ import os
 import textwrap
 import zipfile
 from pathlib import Path
+import hashlib
 
 import oyaml as yaml
 import requests
@@ -11,6 +12,8 @@ from cloudmesh.common.util import readfile, writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.Tabulate import Printer
+from cloudmesh.burn.util import sha1sum
+from cloudmesh.burn.util import sha256sum
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -167,7 +170,7 @@ class Image(object):
     def get_name(url):
         return os.path.basename(url).replace('.zip', '')
 
-    def fetch(self, url=None, tag=None):
+    def fetch(self, url=None, tag=None, verify=True):
         """
         Download the image from the URL in self.image_name
         If it is 'latest', download the latest image - afterwards use
@@ -222,15 +225,27 @@ class Image(object):
                             f"    {img_file}\n")
             return img_file
 
-
         # download the image, unzip it, and delete the zip file
 
         image['sha1'] = image['url'] + ".sha1"
         image['sha256'] = image['url'] + ".sha256"
-        os.system(f'wget -O {sha1_filename} {image["sha1"]}')
-        os.system(f'wget -O {sha256_filename} {image["sha256"]}')
+        if verify:
+            os.system(f'wget -O {sha1_filename} {image["sha1"]}')
+            os.system(f'wget -O {sha256_filename} {image["sha256"]}')
 
         os.system(f'wget -O {zip_filename} {image["url"]}')
+
+        if verify:
+            sha1 = sha1sum(zip_file)
+            sha256 = sha256sum(zip_filename)
+
+            f_sha1 = readfile(sha1_filename).split(" ")[0]
+            f_sha256 = readfile(sha256_filename).split(" ")[0]
+
+            if f_sha1 == sha1:
+                Console.ok("SHA1 is ok")
+            if f_sha256 == sha256:
+                Console.ok("SHA256 is ok")
 
         zip_size = os.path.getsize(zip_file)
         if int(size) != zip_size:
@@ -241,7 +256,7 @@ class Image(object):
         #   if latest:  # rename filename from 'latest' to the actual image name
         #        Path('raspbian_lite_latest').rename(zip_filename)
 
-        print("Extracting {}".format(img_filename))
+        print(f"Extracting {img_filename}")
         self.unzip_image(zip_filename)
         Path(zip_filename).unlink()
         return img_filename

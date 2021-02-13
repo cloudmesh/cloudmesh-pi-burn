@@ -4,6 +4,23 @@ import sys
 
 from cloudmesh.common.util import readfile
 
+import hashlib
+import mmap
+
+def sha1sum(filename):
+    h  = hashlib.sha1()
+    with open(filename, 'rb') as f:
+        with mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ) as mm:
+            h.update(mm)
+    return h.hexdigest()
+
+def sha256sum(filename):
+    h  = hashlib.sha256()
+    with open(filename, 'rb') as f:
+        with mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ) as mm:
+            h.update(mm)
+    return h.hexdigest()
+
 
 def os_is_windows():
     """
