@@ -1,4 +1,5 @@
-import PySimpleGUI as sg  # Part 1 - The import
+import PySimpleGUI as sg
+#import PySimpleGUIWx as sg
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.Tabulate import Printer
@@ -72,6 +73,8 @@ layout.append([sg.Button('',
                          image_subsample=2,
                          border_width=0,
                          key='LOGO')])
+
+# layout.append([sg.Image(filename=logo, size=(30,30))])
 
 for device in devices:
     layout.append([sg.Radio(device['dev'], group_id="DEVICE"),
