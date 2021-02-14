@@ -63,7 +63,7 @@ devices = yaml.safe_load(Printer.write(details,
                         "Writeable"],
                     output="yaml"))
 layout = []
-background = '#000000'
+background = '#64778d'
 
 layout.append([sg.Button('',
                          button_color=(background,background),
@@ -80,10 +80,10 @@ for device in devices:
                    sg.Text(device["formatted"]),
                    ])
 
-layout.append([sg.Text('Master'), sg.Input(default_text="red")])
+layout.append([sg.Text('Master '), sg.Input(default_text="red")])
 layout.append([sg.Text('Workers'), sg.Input(default_text="red[01-02")])
 
-layout.append([sg.Text('Image'), sg.Input(default_text="latest-lite")])
+layout.append([sg.Text('Image  '), sg.Input(default_text="latest-lite")])
 layout.append([sg.Text("Choose Image: "), sg.FileBrowse()])
 
 
