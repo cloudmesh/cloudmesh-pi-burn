@@ -74,7 +74,11 @@ layout.append([sg.Button('',
                          key='LOGO')])
 
 for device in devices:
-    layout.append([sg.Radio(device['dev'], group_id="DEVICE"), sg.Text(device["size"])])
+    layout.append([sg.Radio(device['dev'], group_id="DEVICE"),
+                   sg.Text(device["size"]),
+                   sg.Text(device["info"]),
+                   sg.Text(device["formatted"]),
+                   ])
 
 layout.append([sg.Text('Master'), sg.Input(default_text="red")])
 layout.append([sg.Text('Workers'), sg.Input(default_text="red[01-02")])
