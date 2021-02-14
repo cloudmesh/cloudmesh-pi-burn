@@ -573,7 +573,7 @@ class BurnCommand(PluginCommand):
             key = arguments.sshkey
             tag = arguments['--tag']
 
-            if os_is_pi():
+            if os_is_pi() or os_is_linux():
                 blocksize = arguments.blocksize
                 StopWatch.start("total")
 
