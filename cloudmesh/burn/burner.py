@@ -1,6 +1,5 @@
 import crypt
 import os
-import pathlib
 import random
 import re
 import string
@@ -18,6 +17,7 @@ from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_windows
 from cloudmesh.common.JobScript import JobScript
+from cloudmesh.common.Shell import Shell
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
@@ -29,7 +29,6 @@ from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.common.Shell import Shell
 
 
 # def dmesg():
@@ -1067,7 +1066,6 @@ class Burner(object):
             # with open(sshd_config, "w") as f:
             #     f.write(new_sshd_config)
             sudo_writefile(sshd_config, new_sshd_config)
-
 
     @windows_not_supported
     def configure_wifi(self,
