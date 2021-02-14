@@ -10,6 +10,7 @@ import textwrap
 import time
 
 import humanize
+from cloudmesh.bridge.Bridge import Bridge
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.usb import USB
@@ -21,6 +22,7 @@ from cloudmesh.common.JobScript import JobScript
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
+from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
@@ -30,6 +32,7 @@ from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Shell import Shell
+from cloudmesh.inventory.inventory import Inventory
 
 
 # def dmesg():
@@ -1562,8 +1565,6 @@ class MultiBurner(object):
         elif key == 'root':
             key = f'/{key}/.ssh/id_rsa.pub'
 
-        else:
-            key = f'/home/{key}/.ssh/id_rsa.pub'
 
         # don't do the input() after burning the last card
         # use a counter to check this
@@ -1602,3 +1603,100 @@ class MultiBurner(object):
         time.sleep(2)
         StopWatch.stop(f"create {device} {hostname}")
         StopWatch.status(f"create {device} {hostname}", True)
+
+    def burn_inventory(self, inventory, name, device):
+        i = Inventory(inventory)
+
+        # if name = manager,worker
+        if ',' in name:
+            manager, worker = name.split(',')
+            workers = Parameter.expand(worker)
+        else:
+            Console.error("We do not yet support individual burning of workers and masters. Both must be done together")
+            return
+
+        devices = Parameter.expand(device)
+
+        manager_search_results = i.find(host=manager)
+        if len(manager_search_results) == 0:
+            Console.error(f"Could not find {manager} in inventory {inventory}. Please correct before continuing.")
+            return
+        elif len(manager_search_results) > 1:
+            Console.error(f"Found duplicate {manager} configurations in inventory {inventory}. Please correct before contuing")
+            return
+
+        manager_config = {
+            "hostname": manager,
+            "tag": i.get(manager, "tag"),
+            "ip": i.get(manager, "ip"),
+            "services": i.get(manager, "services"),
+            "keyfile": i.get(manager, "keyfile"),
+            "dns": ','.join(i.get(manager, "dns"))
+        }
+        worker_configs = []
+        for worker in workers:
+            worker_config = {
+                "hostname": worker,
+                "tag": i.get(worker, "tag"),
+                "ip": i.get(worker, "ip"),
+                "services": i.get(worker, "services"),
+                "keyfile": i.get(worker, "keyfile")
+            }
+            worker_configs.append(worker_config)
+        
+        _, system_hostname = subprocess.getstatusoutput("cat /etc/hostname")
+
+        # Set up this pi as a bridge if the hostname is the same 
+        # as the manager and if the user wishes
+        if system_hostname == manager_config["hostname"]:
+            if yn_choice(f"Manager hostname is the same as this system's hostname. Is this intended?"):
+                if yn_choice(f"Do you wish to configure this system as a WiFi bridge? A restart is required after this command terminates"):
+                    Bridge.create(managerIP=manager_config['ip'],
+                          priv_interface='eth0',
+                          ext_interface='wlan0',
+                          dns=manager_config["dns"])
+            else:
+                Console.error("Terminating")
+                return
+
+        # The code below was taken from self.multi_burn
+        # It would be nice to move this functionality of cycling over
+        # sd card slots into a nice one liner function
+        count = 0
+        for i in range(len(worker_configs)):
+            
+            device = devices[i % len(devices)]
+            worker_config = worker_configs[i]
+
+            self.burn(
+                device=device,
+                hostname=worker_config["hostname"],
+                ip=worker_config["ip"],
+                key=worker_config["keyfile"],
+                tag=worker_config["tag"],
+                password=gen_strong_pass()
+            )
+
+            count += 1
+            Console.info(f'Burned card {count}')
+            print()
+            Console.info('Please remove the card')
+            print()
+            self.system_exec('tput bel')  # ring the terminal bell to notify user
+            if i < len(worker_configs) - 1:
+                if (i + 1) != ((i + 1) % len(devices)):
+                    choice = input(
+                        f"Slot {devices[(i + 1) % len(devices)]} "
+                        "needs to be reused. Do you wish to continue? [y/n] ")
+                    while (choice != 'y') and (choice != 'n'):
+                        choice = input("Please use [y/n] ")
+                    if choice == 'n':
+                        break
+                    elif choice == 'y':
+                        input('Insert next card and press enter...')
+                print('Burning next card...')
+                print()
+
+        Console.info(f"You burned {count} SD Cards")
+        Console.ok("Done :)")
+

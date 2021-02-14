@@ -58,6 +58,8 @@ class BurnCommand(PluginCommand):
                           [--wifipassword=PSK]
                           [--format]
                           [--tag=TAG]
+                          [--inventory=INVENTORY]
+                          [--name=NAME]
               burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
@@ -72,7 +74,7 @@ class BurnCommand(PluginCommand):
               --version              Show version.
               --image=IMAGE          The image filename,
                                      e.g. 2019-09-26-raspbian-buster.img
-              --device=DEVICE        The device, e.g. /dev/mmcblk0
+              --device=DEVICE        The device, e.g. /dev/sdX
               --hostname=HOSTNAME    The hostname
               --ip=IP                The IP address
               --key=KEY              The name of the SSH key file
@@ -87,6 +89,12 @@ class BurnCommand(PluginCommand):
                 Location where the images will be stored for reuse
 
             Description:
+                cms burn create --inventory=INVENTORY --device=DEVICE --name=NAME
+
+                    Will refer to a specified cloudmesh inventory file (see cms help inventory).
+                    Will search the configurations for NAME inside of INVENTORY and will burn
+                    to DEVICE. Supports parameter expansion.
+
                 cms burn create --passwd=PASSWD
 
                      if the passwd flag is added the default password is
@@ -296,7 +304,9 @@ class BurnCommand(PluginCommand):
                        "version",
                        "to",
                        "os",
-                       "country")
+                       "country",
+                       "inventory",
+                       "name")
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
@@ -533,6 +543,23 @@ class BurnCommand(PluginCommand):
             execute("image fetch", image.fetch(tag="latest"))
             return ""
 
+        elif arguments.create and arguments.inventory:
+            if not os_is_pi():
+                Console.error("This command has only been safely tested on Raspberry Pis. Terminating for caution")
+                return
+            if not arguments.name:
+                Console.error("Missing --name parameter. See cms help burn for usage")
+                return ""
+            if not arguments.device:
+                Console.error("Missing --device parameter. See cms help burn for usage")
+                return ""
+
+            multi_burner = MultiBurner()
+            # Perhaps we want to change the path at some point
+            inventory = f"~/.cloudmesh/{arguments.inventory}"
+            execute("burn inventory", multi_burner.burn_inventory(inventory=inventory, name=arguments.name, device=arguments.device))
+            return ""
+
         elif arguments.create:
 
             if arguments["--passwd"]:
@@ -540,7 +567,6 @@ class BurnCommand(PluginCommand):
             elif "PASSWD" in os.environ:
                 passwd = os.environ["PASSWD"]
             else:
-                # Shouldn't go here...
                 passwd = gen_strong_pass()
 
             psk = None
