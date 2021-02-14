@@ -40,6 +40,7 @@ contact laszewski@gmail.com*
     - [Using Pi Imager to setup a Manager Pi with headless access](#using-pi-imager-to-setup-a-manager-pi-with-headless-access)
     - [Single Card Burning](#single-card-burning)
     - [How to update firmware?](#how-to-update-firmware)
+    - [How to burn a cluster using Linux](#how-to-burn-a-cluster-using-linux)
 
 <!--TOC-->
 
@@ -517,8 +518,8 @@ Description:
          if the passwd flag is added the default password is
          queried from the commandline and added to all SDCards
 
-         if the flag is ommitted login via the password is disabled
-         and only login via the sshkey is allowed
+         if the flag is omitted login via the password is
+         disabled and only login via the sshkey is allowed
 
   Network
 
@@ -566,19 +567,21 @@ Description:
 
     cms burn install
 
-        installs a program to shring img files. THis is useful, after
-        you created a backup to make the backup smaller and allow
-        faster burning in case of recovery
+        installs a program to shrink img files. THis is
+        useful, after you created a backup to make the
+        backup smaller and allow faster burning in case of
+        recovery
 
     cms burn load --device=DEVICE
 
         loads the sdcard into the USB drive. Thi sis similar to
-        loading a cdrom drive. It s the oposite to eject
+        loading a cdrom drive. It s the opposite to eject
 
     cms burn format --device=DEVICE
 
-        formats the SDCard in the specified device. Be careful it is
-        the correct device.  cms burn info will help you to identifying it
+        formats the SDCard in the specified device. Be
+        careful it is the correct device.  cms burn info
+        will help you to identifying it
 
     cms burn mount [--device=DEVICE] [--os=OS]
 
@@ -594,23 +597,29 @@ Description:
 
     cms burn image versions [--refresh] [--yaml]
 
-        The images that you like to burn onto your SDCard can be cached locally with the image command.
-        The available images for the PI can be found when using the --refresh option. If you do not
-        specify it it reads a copy of the image list from our cache
+        The images that you like to burn onto your SDCard
+        can be cached locally with the image command.  The
+        available images for the PI can be found when
+        using the --refresh option. If you do not specify
+        it it reads a copy of the image list from our
+        cache
 
     cms burn image ls
 
-        Lists all downloaded images in our cache. You can download
-        them with the cms burn image get command
+        Lists all downloaded images in our cache. You can
+        download them with the cms burn image get command
 
     cms burn image delete [--image=IMAGE]
 
-        deletes the specified image. The name can be found with the image ls command
+        deletes the specified image. The name can be found
+        with the image ls command
 
     cms burn image get [--url=URL] [TAG...]
 
-        downloads a specific image or the latest image. The tag are a number of words
-        separated by a space that must occur in the tag that you find in the versions command
+        downloads a specific image or the latest
+        image. The tag are a number of words separated by
+        a space that must occur in the tag that you find
+        in the versions command
 
     cms burn backup [--device=DEVICE] [--to=DESTINATION]
 
@@ -619,12 +628,14 @@ Description:
     cms burn copy [--device=DEVICE] [--from=DESTINATION]
 
         copies the file form the destination on the SDCard
-        this is the same as the SDCard command. we will in future remove one
+        this is the same as the SDCard command. we will in
+        future remove one
 
     cms burn shrink [--image=IMAGE]
 
-        shrinks the size of a backoup or image file that is on
-        your local file system. It can only be used for .img files
+        shrinks the size of a backup or image file that
+        is on your local file system. It can only be used
+        for .img files
 
     cms burn create [--image=IMAGE]
                     [--device=DEVICE]
@@ -638,9 +649,8 @@ Description:
                     [--wifipassword=PSK]
                     [--format]
 
-        This is a comprehensif cuntion that not only can format the SDCard, but also
-        initializes it with specific falues
-
+        This command  not only can format the SDCard, but
+        also initializes it with specific values
 
     cms burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
 
@@ -651,8 +661,9 @@ Description:
                  [--key=KEY]
                  [--mount=MOUNTPOINT]
 
-        this sets specific values on the sdcard after it has ben created
-        with the creat, copy or sdcard command
+        this sets specific values on the sdcard after it
+        has ben created with the create, copy or sdcard
+        command
 
         a --ssh is missing from this command
 
@@ -662,18 +673,19 @@ Description:
 
     cms burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
 
-        this sets the wifi ssid and password afterthe card is created,
-        copies, or sdcard is used.
+        this sets the wifi ssid and password after the card
+        is created, copied, or the sdcard is used.
 
-        The option country option expects an ISO
-        3166-1 two digit country code. The default is "US" and
+        The option country option expects an ISO 3166-1
+        two digit country code. The default is "US" and
         the option not required if suitable. See
         https://en.wikipedia.org/wiki/ISO_3166-1 for other
         countries.
 
     cms burn check [--device=DEVICE]
 
-        this command lists the parameters that were set with the set or create command
+        this command lists the parameters that were set
+        with the set or create command
 
 Examples: ( \ is not shown)
 
@@ -716,6 +728,7 @@ Examples: ( \ is not shown)
 
 
 
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -726,7 +739,7 @@ Note to execute the command on the commandline you have to type in
 
 Options:
     --interface=INTERFACE  The interface name [default: eth1]
-                           You can also specify wlan0 if you wnat
+                           You can also specify wlan0 if you want
                            to bridge through WIFI on the manager
                            eth0 requires a USB to WIFI adapter
 
@@ -734,7 +747,8 @@ Options:
             ie. the listening interface [default: 10.1.1.1]
 
   --dns=NAMESERVER  The ip address of a nameserver to set statically
-           For example, --dns=8.8.8.8,8.8.4.4 will use google nameservers
+           For example, --dns=8.8.8.8,8.8.4.4 will use google
+           nameservers
 
 Description:
 
@@ -747,6 +761,7 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
@@ -778,6 +793,7 @@ Note to execute the command on the commandline you have to type in
     host key gather NAMES [--authorized_keys] [FILE]
     host key scatter NAMES FILE
     host tunnel create NAMES [--port=PORT]
+    host mac NAMES [--eth] [--wlan] [--output=FORMAT]
 
 This command does some useful things.
 
@@ -875,8 +891,13 @@ Description:
       Example:
           cms host tunnel create red00[1-3]
 
+    host mac NAMES
+
+      returns the list of mac addresses of the named pis.
+
 ```
 <!--MANUAL-HOST-->
+
 
 
 
@@ -937,10 +958,10 @@ Options:
 
 Description:
 
-  This command switches on and off the LEDs of the specified PIs. If
-  the hostname is ommitted. IT is assumed that the code is executed on
-  a PI and its LED are set. To list the PIs LED status you can use the
-  list command
+  This command switches on and off the LEDs of the specified
+  PIs. If the hostname is omitted. It is assumed that the
+  code is executed on a PI and its LED are set. To list the
+  PIs LED status you can use the list command
 
   Examples:
 
@@ -962,12 +983,13 @@ Description:
 
       cms pi led red sequence  "red,red[01-03]"
 
-          goes in sequential order and switches on and off the led of
-          the given PIs
+          goes in sequential order and switches on and off
+          the led of the given PIs
 
 
 ```
 <!--MANUAL-PI-->
+
 
 
 
