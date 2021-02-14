@@ -676,7 +676,7 @@ class Burner(object):
         sudo_writefile('/etc/hosts', config)
 
     @windows_not_supported
-    def set_static_ip(self, ip, iface="eth0", mask="24"):
+    def set_static_ip(self, ip, iface="eth0", mask="24", router_ip="10.1.1.1"):
         """
         Sets the static ip on the sd card for the specified interface
         Also writes to manager hosts file for easy access
@@ -705,7 +705,6 @@ class Burner(object):
         mountpoint = card.root_volume
         if self.hostname is not None:
             self.add_to_hosts(ip)
-        router_ip = '10.1.1.1'
 
         iface = f'interface {iface}'
         static_ip = f'static ip_address={ip}/{mask}'
@@ -1524,7 +1523,8 @@ class MultiBurner(object):
              ssid=None,
              psk=None,
              formatting=True,
-             tag='latest-lite'):
+             tag='latest-lite',
+             router="10.1.1.1"):
         """
         Burns the image on the specific device
 
@@ -1595,7 +1595,7 @@ class MultiBurner(object):
         burner.set_key(key)
         if ip:
             interface = "wlan0" if ssid is not None else "eth0"
-            burner.set_static_ip(ip, iface=interface)
+            burner.set_static_ip(ip, iface=interface, router_ip=router)
 
         burner.unmount(device=device)
         # for some reason, need to do unmount twice for it to work properly
@@ -1607,7 +1607,7 @@ class MultiBurner(object):
     def burn_inventory(self, inventory, name, device):
         i = Inventory(inventory)
 
-        # if name = manager,worker
+        # name formatted as manager,worker
         if ',' in name:
             manager, worker = name.split(',')
             workers = Parameter.expand(worker)
@@ -1674,7 +1674,8 @@ class MultiBurner(object):
                 ip=worker_config["ip"],
                 key=worker_config["keyfile"],
                 tag=worker_config["tag"],
-                password=gen_strong_pass()
+                password=gen_strong_pass(),
+                router=manager_config["ip"]
             )
 
             count += 1
