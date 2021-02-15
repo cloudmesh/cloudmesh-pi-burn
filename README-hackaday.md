@@ -118,7 +118,7 @@ Add More Links
 ## Team
 
 * Gregor von Laszewski
-* Richard Otten
+* Richard Otten https://hackaday.io/devrick
 * Anthony Orlowski
 
 You need to create an account on hackaday.io, i need the account name.
