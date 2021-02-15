@@ -58,7 +58,7 @@ DESCRIPTION = "A command `cms burn` to burn many Raspberry PI "\
 
 AUTHOR = "Gregor von Laszewski"
 AUTHOR_EMAIL = "laszewski@gmail.com"
-URL = "https://github.com/cloudmesh/cloudmesh-burn"
+URL = "https://github.com/cloudmesh/cloudmesh-pi-burn"
 
 setup(
     name=NAME,
