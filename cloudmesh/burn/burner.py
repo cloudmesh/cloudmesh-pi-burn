@@ -31,7 +31,6 @@ from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.common.Shell import Shell
 from cloudmesh.inventory.inventory import Inventory
 
 
@@ -1564,7 +1563,6 @@ class MultiBurner(object):
         elif key == 'root':
             key = f'/{key}/.ssh/id_rsa.pub'
 
-
         # don't do the input() after burning the last card
         # use a counter to check this
 
@@ -1621,7 +1619,8 @@ class MultiBurner(object):
             Console.error(f"Could not find {manager} in inventory {inventory}. Please correct before continuing.")
             return
         elif len(manager_search_results) > 1:
-            Console.error(f"Found duplicate {manager} configurations in inventory {inventory}. Please correct before contuing")
+            Console.error(
+                f"Found duplicate {manager} configurations in inventory {inventory}. Please correct before contuing")
             return
 
         manager_config = {
@@ -1642,18 +1641,21 @@ class MultiBurner(object):
                 "keyfile": i.get(worker, "keyfile")
             }
             worker_configs.append(worker_config)
-        
+
         _, system_hostname = subprocess.getstatusoutput("cat /etc/hostname")
 
-        # Set up this pi as a bridge if the hostname is the same 
+        # Set up this pi as a bridge if the hostname is the same
         # as the manager and if the user wishes
         if system_hostname == manager_config["hostname"]:
-            if yn_choice(f"Manager hostname is the same as this system's hostname. Is this intended?"):
-                if yn_choice(f"Do you wish to configure this system as a WiFi bridge? A restart is required after this command terminates"):
+            if yn_choice("Manager hostname is the same as this system's "
+                         "hostname. Is this intended?"):
+                if yn_choice("Do you wish to configure this system as a WiFi "
+                             "bridge? A restart is required after this "
+                             "command terminates"):
                     Bridge.create(managerIP=manager_config['ip'],
-                          priv_interface='eth0',
-                          ext_interface='wlan0',
-                          dns=manager_config["dns"])
+                                  priv_interface='eth0',
+                                  ext_interface='wlan0',
+                                  dns=manager_config["dns"])
             else:
                 Console.error("Terminating")
                 return
@@ -1663,7 +1665,7 @@ class MultiBurner(object):
         # sd card slots into a nice one liner function
         count = 0
         for i in range(len(worker_configs)):
-            
+
             device = devices[i % len(devices)]
             worker_config = worker_configs[i]
 
@@ -1699,4 +1701,3 @@ class MultiBurner(object):
 
         Console.info(f"You burned {count} SD Cards")
         Console.ok("Done :)")
-

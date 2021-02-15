@@ -557,7 +557,11 @@ class BurnCommand(PluginCommand):
             multi_burner = MultiBurner()
             # Perhaps we want to change the path at some point
             inventory = f"~/.cloudmesh/{arguments.inventory}"
-            execute("burn inventory", multi_burner.burn_inventory(inventory=inventory, name=arguments.name, device=arguments.device))
+            execute("burn inventory",
+                    multi_burner.burn_inventory(
+                        inventory=inventory,
+                        name=arguments.name,
+                        device=arguments.device))
             return ""
 
         elif arguments.create:

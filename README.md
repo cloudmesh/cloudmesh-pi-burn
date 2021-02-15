@@ -6,7 +6,9 @@ and Windows 10**. If you want to help us port to any of these OSes, please
 contact laszewski@gmail.com*
 
 
-[![image](https://img.shields.io/travis/TankerHQ/cloudmesh-pi-burn.svg?branch=main)](https://travis-ci.org/TankerHQ/cloudmesn-pi-burn)
+https://travis-ci.com/cloudmesh/cloudmesh-pi-burn.svg?branch=main
+
+[![image](https://travis-ci.com/cloudmesh/cloudmesh-pi-burn.svg?branch=main)](https://travis-ci.com/github/cloudmesh/cloudmesh-pi-burn)
 [![image](https://img.shields.io/pypi/pyversions/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn)
 [![image](https://img.shields.io/pypi/v/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
