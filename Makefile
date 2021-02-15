@@ -20,7 +20,7 @@ flake8:
 install:
 	pip install -e .
 
-readme: parts
+readme:
 	cms man readme -p --toc
 	cms man readme -p --tag="MANUAL-BURN" --command=burn
 	cms man readme -p --tag="MANUAL-BRIDGE" --command=bridge

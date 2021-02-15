@@ -33,13 +33,14 @@ contact laszewski@gmail.com*
     - [How can I enhance the `get` script?](#how-can-i-enhance-the-get-script)
     - [Can I use a Mesh Network for the setup?](#can-i-use-a-mesh-network-for-the-setup)
     - [Can I use cms burn on Linux?](#can-i-use-cms-burn-on-linux)
-    - [What is the status of the implementation?](#what-is-the-status-of-the-implementation)
     - [What packages do I need to run the info command on macOS](#what-packages-do-i-need-to-run-the-info-command-on-macos)
     - [Are there any unit tests?](#are-there-any-unit-tests)
     - [Using Pi Imager to setup a Manager Pi with headless access](#using-pi-imager-to-setup-a-manager-pi-with-headless-access)
     - [Single Card Burning](#single-card-burning)
     - [How to update firmware?](#how-to-update-firmware)
     - [How to burn a cluster using Linux](#how-to-burn-a-cluster-using-linux)
+  - [Alternatives](#alternatives)
+    - [What is the status of the implementation?](#what-is-the-status-of-the-implementation)
 
 <!--TOC-->
 
@@ -479,6 +480,8 @@ Note to execute the command on the commandline you have to type in
               [--wifipassword=PSK]
               [--format]
               [--tag=TAG]
+              [--inventory=INVENTORY]
+              [--name=NAME]
   burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
   burn set [--hostname=HOSTNAME]
            [--ip=IP]
@@ -493,7 +496,7 @@ Options:
   --version              Show version.
   --image=IMAGE          The image filename,
                          e.g. 2019-09-26-raspbian-buster.img
-  --device=DEVICE        The device, e.g. /dev/mmcblk0
+  --device=DEVICE        The device, e.g. /dev/sdX
   --hostname=HOSTNAME    The hostname
   --ip=IP                The IP address
   --key=KEY              The name of the SSH key file
@@ -508,6 +511,12 @@ Files:
     Location where the images will be stored for reuse
 
 Description:
+    cms burn create --inventory=INVENTORY --device=DEVICE --name=NAME
+
+        Will refer to a specified cloudmesh inventory file (see cms help inventory).
+        Will search the configurations for NAME inside of INVENTORY and will burn
+        to DEVICE. Supports parameter expansion.
+
     cms burn create --passwd=PASSWD
 
          if the passwd flag is added the default password is
@@ -703,6 +712,7 @@ Examples: ( \ is not shown)
 <!--MANUAL-BURN-->
 
 
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -735,6 +745,7 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 ### Manual Page for the `host` command
@@ -859,6 +870,7 @@ Description:
 <!--MANUAL-HOST-->
 
 
+
 ### Manual Page for the `pi` command
 
 Note to execute the command on the commandline you have to type in
@@ -936,6 +948,7 @@ Description:
 
 ```
 <!--MANUAL-PI-->
+
 
 
 
