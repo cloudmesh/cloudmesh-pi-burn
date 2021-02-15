@@ -5,9 +5,6 @@ to use **Linux** are included in the FAQ. We are working on support for **macOS
 and Windows 10**. If you want to help us port to any of these OSes, please 
 contact laszewski@gmail.com*
 
-
-https://travis-ci.com/cloudmesh/cloudmesh-pi-burn.svg?branch=main
-
 [![image](https://travis-ci.com/cloudmesh/cloudmesh-pi-burn.svg?branch=main)](https://travis-ci.com/github/cloudmesh/cloudmesh-pi-burn)
 [![image](https://img.shields.io/pypi/pyversions/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn)
 [![image](https://img.shields.io/pypi/v/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn/)
