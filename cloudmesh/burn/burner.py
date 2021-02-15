@@ -1659,7 +1659,19 @@ class MultiBurner(object):
             else:
                 Console.error("Terminating")
                 return
+        else:
+            dns_line = f"$ cms inventory set {system_hostname} dns to {manager_config['dns']} --inventory={inventory.split('/')[-1]} --listvalue" if manager_config["dns"] is not None else ""
+            Console.error("Burning manager SD cards is not yet supported.")
+            Console.info(textwrap.dedent(f"""
+            You might want to use your current pi as the manager. You can do this with the following:
 
+            $ cms inventory add {system_hostname} --service=manager --inventory={inventory.split("/")[-1]} --ip={manager_config['ip']} --keyfile={manager_config["keyfile"]} --tag={manager_config["tag"]}
+
+            {dns_line}
+
+            $ cms burn create --inventory={inventory.split("/")[-1]} --device={device} --name={system_hostname},{name.split(',')[-1]}
+            """))
+            return
         # The code below was taken from self.multi_burn
         # It would be nice to move this functionality of cycling over
         # sd card slots into a nice one liner function
