@@ -550,20 +550,23 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif (arguments.cluster and         # noqa: W504
-              not os_is_pi() and            # noqa: W504
-              not arguments.tag and         # noqa: W504
-              not arguments.master and      # noqa: W504
-              arguments.hostname and        # noqa: W504
+              arguments.ip and
+              arguments.device and
+              arguments.hostname and
               arguments.ssid and            # noqa: W504
               arguments.wifipassword):
 
-            # is tru when
+            # is true when
             #
-            # cms burn create --hostname=red,red00[1-2] --device=/dev/sdb --ip=10.1.1.[1-3] \
+            # cms burn cluster --hostname=red,red00[1-2] --device=/dev/sdb
+            # --ip=10.1.1.[1-3] \
             #          --ssid=myssid --wifipassword=mypass
             #
-            # and executed on a non pi
-            #
+
+            if not (os_is_pi() or os_is_linux()):
+                Console.error("Only supported on Pi and Linux")
+                return
+
             hostnames = Parameter.expand(arguments.hostname)
             manager, workers = get_hostnames(hostnames)
             ips = Parameter.expand(arguments.ip)
@@ -574,8 +577,50 @@ class BurnCommand(PluginCommand):
             print("SSID:         ", arguments.ssid)
             print("Wifi Password:", arguments.wifipassword)
 
-            Console.error("special case not yet implemented")
+            Console.info(f"Preparing to burn the manager: {manager}")
+            input('Insert sd card and press enter...')
 
+            multi = MultiBurner()
+
+            multi.burn(self,
+                     device=arguments.device,
+                     blocksize="4M",
+                     progress=True,
+                     hostname=manager,
+                     ip=ips[0],
+                     key="~/.ssh/id_rsa.pub",
+                     password=gen_strong_pass(),
+                     ssid=arguments.ssid,
+                     psk=arguments.wifipassword,
+                     formatting=True,
+                     tag='latest-full',
+                     router=None,
+                     generate_key=True,
+                     store_key=True)
+
+            Console.info(f"Completed manager: {manager}")
+
+            Console.info(f"Preparing to burn the workers: {workers}")
+            for worker, ip in zip(workers, ips[1:]):
+                input('Insert the next sd card and press enter...')
+                multi.burn(self,
+                     device=arguments.device,
+                     blocksize="4M",
+                     progress=True,
+                     hostname=worker,
+                     ip=ip,
+                     key='~/.cloudmesh/cmburn/id_rsa.pub',
+                     password=gen_strong_pass(),
+                     ssid=None,
+                     psk=None,
+                     formatting=True,
+                     tag='latest-lite',
+                     router=ips[0],
+                     generate_key=False,
+                     store_key=False)
+            Console.info(f"Completed workers: {workers}")
+            Console.info("Cluster burn is complete.")
+            Burner.remove_public_key()
             return ""
 
         elif arguments.create and arguments.inventory:
@@ -662,7 +707,7 @@ class BurnCommand(PluginCommand):
 
                 StopWatch.benchmark(sysinfo=False, csv=False)
             else:
-                Console.error("This command is only supported ona Pi")
+                Console.error("This command is only supported ona Pi and Linux")
             return ""
 
         Console.error("see manual page: cms help burn")
