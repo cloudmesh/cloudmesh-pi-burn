@@ -583,20 +583,20 @@ class BurnCommand(PluginCommand):
             multi = MultiBurner()
 
             multi.burn(self,
-                     device=arguments.device,
-                     blocksize="4M",
-                     progress=True,
-                     hostname=manager,
-                     ip=ips[0],
-                     key="~/.ssh/id_rsa.pub",
-                     password=gen_strong_pass(),
-                     ssid=arguments.ssid,
-                     psk=arguments.wifipassword,
-                     formatting=True,
-                     tag='latest-full',
-                     router=None,
-                     generate_key=True,
-                     store_key=True)
+                       device=arguments.device,
+                       blocksize="4M",
+                       progress=True,
+                       hostname=manager,
+                       ip=ips[0],
+                       key="~/.ssh/id_rsa.pub",
+                       password=gen_strong_pass(),
+                       ssid=arguments.ssid,
+                       psk=arguments.wifipassword,
+                       formatting=True,
+                       tag='latest-full',
+                       router=None,
+                       generate_key=True,
+                       store_key=True)
 
             Console.info(f"Completed manager: {manager}")
 
@@ -604,20 +604,20 @@ class BurnCommand(PluginCommand):
             for worker, ip in zip(workers, ips[1:]):
                 input('Insert the next sd card and press enter...')
                 multi.burn(self,
-                     device=arguments.device,
-                     blocksize="4M",
-                     progress=True,
-                     hostname=worker,
-                     ip=ip,
-                     key='~/.cloudmesh/cmburn/id_rsa.pub',
-                     password=gen_strong_pass(),
-                     ssid=None,
-                     psk=None,
-                     formatting=True,
-                     tag='latest-lite',
-                     router=ips[0],
-                     generate_key=False,
-                     store_key=False)
+                           device=arguments.device,
+                           blocksize="4M",
+                           progress=True,
+                           hostname=worker,
+                           ip=ip,
+                           key='~/.cloudmesh/cmburn/id_rsa.pub',
+                           password=gen_strong_pass(),
+                           ssid=None,
+                           psk=None,
+                           formatting=True,
+                           tag='latest-lite',
+                           router=ips[0],
+                           generate_key=False,
+                           store_key=False)
             Console.info(f"Completed workers: {workers}")
             Console.info("Cluster burn is complete.")
             Burner.remove_public_key()
