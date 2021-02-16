@@ -18,6 +18,7 @@ from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
+from cloudmesh.burn.burner import get_hostnames
 
 
 class BurnCommand(PluginCommand):
@@ -46,6 +47,11 @@ class BurnCommand(PluginCommand):
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
               burn shrink [--image=IMAGE]
+              burn cluster [--device=DEVICE]
+                           [--hostname=HOSTNAME]
+                           [--ip=IP]
+                           [--ssid=SSID]
+                           [--wifipassword=PSK]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -541,6 +547,35 @@ class BurnCommand(PluginCommand):
         elif arguments["get"] and arguments['image']:
             image = Image()
             execute("image fetch", image.fetch(tag="latest"))
+            return ""
+
+        elif (arguments.cluster and         # noqa: W504
+              not os_is_pi() and            # noqa: W504
+              not arguments.tag and         # noqa: W504
+              not arguments.master and      # noqa: W504
+              arguments.hostname and        # noqa: W504
+              arguments.ssid and            # noqa: W504
+              arguments.wifipassword):
+
+            # is tru when
+            #
+            # cms burn create --hostname=red,red00[1-2] --device=/dev/sdb --ip=10.1.1.[1-3] \
+            #          --ssid=myssid --wifipassword=mypass
+            #
+            # and executed on a non pi
+            #
+            hostnames = Parameter.expand(arguments.hostname)
+            manager, workers = get_hostnames(hostnames)
+            ips = Parameter.expand(arguments.ip)
+            print("Manager:      ", manager)
+            print("Workers:      ", workers)
+            print("IPS:          ", ips)
+            print("Device:       ", arguments.device)
+            print("SSID:         ", arguments.ssid)
+            print("Wifi Password:", arguments.wifipassword)
+
+            Console.error("special case not yet implemented")
+
             return ""
 
         elif arguments.create and arguments.inventory:
