@@ -47,6 +47,11 @@ class BurnCommand(PluginCommand):
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
               burn shrink [--image=IMAGE]
+              burn cluster [--device=DEVICE]
+                           [--hostname=HOSTNAME]
+                           [--ip=IP]
+                           [--ssid=SSID]
+                           [--wifipassword=PSK]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -544,7 +549,7 @@ class BurnCommand(PluginCommand):
             execute("image fetch", image.fetch(tag="latest"))
             return ""
 
-        elif (arguments.create and          # noqa: W504
+        elif (arguments.cluster and         # noqa: W504
               not os_is_pi() and            # noqa: W504
               not arguments.tag and         # noqa: W504
               not arguments.master and      # noqa: W504
