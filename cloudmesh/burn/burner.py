@@ -48,12 +48,15 @@ def get_hostnames(names):
     @rtype: tuple
     """
     manager = None
-    workers = None
+    workers = []
     for name in names:
         if any(map(str.isdigit, name)):
             workers.append(name)
         else:
             manager = name
+
+    if len(workers) == 0:
+        workers = None
 
     return manager, workers
 

@@ -544,20 +544,34 @@ class BurnCommand(PluginCommand):
             execute("image fetch", image.fetch(tag="latest"))
             return ""
 
-        elif (arguments.create and
-              not os_is_pi() and
-              not arguments.tag and
-              not arguments.master and
-              arguments.hostname and
-              arguments.ssid and
+        elif (arguments.create and          # noqa: W504
+              not os_is_pi() and            # noqa: W504
+              not arguments.tag and         # noqa: W504
+              not arguments.master and      # noqa: W504
+              arguments.hostname and        # noqa: W504
+              arguments.ssid and            # noqa: W504
               arguments.wifipassword):
 
+            # is tru when
+            #
+            # cms burn create --hostname=red,red00[1-2] --device=/dev/sdb --ip=10.1.1.[1-3] \
+            #          --ssid=myssid --wifipassword=mypass
+            #
+            # and executed on a non pi
+            #
             hostnames = Parameter.expand(arguments.hostname)
-            master, workers = get_hostnames(hostnames)
+            manager, workers = get_hostnames(hostnames)
+            ips = Parameter.expand(arguments.ip)
+            print("Manager:      ", manager)
+            print("Workers:      ", workers)
+            print("IPS:          ", ips)
+            print("Device:       ", arguments.device)
+            print("SSID:         ", arguments.ssid)
+            print("Wifi Password:", arguments.wifipassword)
 
-            print(master)
-            print(workers)
             Console.error("special case not yet implemented")
+
+            return ""
 
         elif arguments.create and arguments.inventory:
             if not os_is_pi():
