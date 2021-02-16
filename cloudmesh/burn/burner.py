@@ -44,7 +44,7 @@ def get_hostnames(names):
 
     @param names: list of names
     @type names: str
-    @return: manager, worker as lists
+    @return: manager, worker as list
     @rtype: tuple
     """
     manager = None
