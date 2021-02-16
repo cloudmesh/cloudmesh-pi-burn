@@ -41,6 +41,7 @@ contact laszewski@gmail.com*
     - [How to burn a cluster using Linux](#how-to-burn-a-cluster-using-linux)
   - [Alternatives](#alternatives)
     - [What is the status of the implementation?](#what-is-the-status-of-the-implementation)
+  - [How can I contribute Contributing](#how-can-i-contribute-contributing)
 
 <!--TOC-->
 
@@ -713,6 +714,7 @@ Examples: ( \ is not shown)
 
 
 
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -745,6 +747,7 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
@@ -871,6 +874,7 @@ Description:
 
 
 
+
 ### Manual Page for the `pi` command
 
 Note to execute the command on the commandline you have to type in
@@ -948,6 +952,7 @@ Description:
 
 ```
 <!--MANUAL-PI-->
+
 
 
 
@@ -1426,3 +1431,16 @@ empty = not yet implemented
 
 * 2 = change and add --ssd so its uniform
 1 = get needs to use the image versions refresh cache
+
+## How can I contribute Contributing
+
+The code uses a variety of cloudmesh components. This mainly includes
+
+  * [GitHub cloudmesh-pi-burn](https://github.com/cloudmesh/cloudmesh-pi-burn)
+  * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-pi-cluster)
+    
+Additional cloudmesh components ar used. For example:
+  * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-inventory)
+  * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-common)
+  * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-cmd5)
+
