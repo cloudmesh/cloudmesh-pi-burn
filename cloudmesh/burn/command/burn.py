@@ -18,6 +18,7 @@ from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
+from cloudmesh.burn.burner import get_hostnames
 
 
 class BurnCommand(PluginCommand):
@@ -542,6 +543,21 @@ class BurnCommand(PluginCommand):
             image = Image()
             execute("image fetch", image.fetch(tag="latest"))
             return ""
+
+        elif (arguments.create and
+              not os_is_pi() and
+              not arguments.tag and
+              not arguments.master and
+              arguments.hostname and
+              arguments.ssid and
+              arguments.wifipassword):
+
+            hostnames = Parameter.expand(arguments.hostname)
+            master, workers = get_hostnames(hostnames)
+
+            print(master)
+            print(workers)
+            Console.error("special case not yet implemented")
 
         elif arguments.create and arguments.inventory:
             if not os_is_pi():
