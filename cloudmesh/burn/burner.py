@@ -50,12 +50,13 @@ def get_hostnames(names):
     manager = None
     workers = None
     for name in names:
-        if any(map(str.isdigit, s)):
+        if any(map(str.isdigit, name)):
             workers.append(name)
         else:
             manager = name
 
     return manager, workers
+
 
 def gen_strong_pass():
     """
