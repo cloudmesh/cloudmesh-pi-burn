@@ -21,6 +21,11 @@ contact laszewski@gmail.com*
     - [Manager Pi](#manager-pi)
     - [Burning Multiple SD Cards with a Single Burner](#burning-multiple-sd-cards-with-a-single-burner)
     - [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge)
+  - [Quickstart for Bridged Wifi with Inventory](#quickstart-for-bridged-wifi-with-inventory)
+    - [Initial Manager Setup](#initial-manager-setup)
+    - [Creating our inventory](#creating-our-inventory)
+    - [Burning SD Cards using Inventory](#burning-sd-cards-using-inventory)
+    - [Booting Up Workers and Verifying Connection](#booting-up-workers-and-verifying-connection)
   - [Set up of the SSH keys and SSH tunnel](#set-up-of-the-ssh-keys-and-ssh-tunnel)
   - [Manual Pages](#manual-pages)
     - [Manual Page for the `burn` command](#manual-page-for-the-burn-command)
@@ -316,7 +321,7 @@ Note it may take a few minutes for them to populate in the neighbor table. If
 you want to speed this up try to ping them individually.
 
 ```
-ping red001
+ping red002
 ```
 
 At this point, our workers should have internet access. Let us SSH
@@ -324,9 +329,9 @@ into one and ping google.com to verify. Ensure you have booted your
 workers and connected them to the same network switch as the manager.
 
 ```
-(ENV3) pi@managerpi:~ $ ssh red001
+(ENV3) pi@managerpi:~ $ ssh red002
 
-pi@red001:~ $ ping google.com
+pi@red002:~ $ ping google.com
 PING google.com (142.250.64.238) 56(84) bytes of data.
 64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=1 ttl=106 time=48.2 ms
 64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=2 ttl=106 time=48.3 ms
@@ -341,6 +346,105 @@ rtt min/avg/max/mdev = 47.924/48.169/48.511/0.291 ms
 
 Note how we are able to omit the pi user and .local extension. We have
 successfully configured our bridge. Our pis are now ready to cluster.
+
+## Quickstart for Bridged Wifi with Inventory
+
+In this guide, we will show how you can configure a Cloudmesh Inventory to easily burn a cluster of SD cards as well as configure the current Pi as the manager if desired. 
+
+We will follow the same network setup as the Bridged Wifi above:
+
+![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-bridge.png)
+
+The requirements for this guide are the same as the [Quickstart for Bridged WiFi](#quickstart-for-bridged-wifi).
+
+### Initial Manager Setup
+
+First, we need to setup our manager with cloudmesh. Follow Steps 0-4 of the [Manager-pi setup](#manager-pi) in the Bridged Wifi Guide. For this guide, we will rename our Pi hostname to `managerpi`. 
+
+### Creating our inventory
+
+For this guide, we will create two workers for `managerpi`. We can do this as follows:
+
+```
+(ENV3) pi@managerpi:~ $ cms inventory create --manager=managerpi --workers=red00[2-3] --ip=10.1.1.1,10.1.1.[2-3]  --inventory="cluster.yaml" --keyfile=~/.ssh/id_rsa.pub latest-lite
+```
+
+We can then use the following to list the entries of our inventory.
+
+```
+(ENV3) pi@managerpi:~ $ cms inventory list --inventory=cluster.yaml
+inventory list --inventory=cluster.yaml
++-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
+| host      | name      | type | tag         | cluster | label | service | services | ip       | dns | project | owners | comment | description | keyfile           | status   |
++-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
+| managerpi | managerpi |      | latest-lite | cluster |       | manager |          | 10.1.1.1 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| red002 | red002 |      | latest-lite | cluster |       | worker  |          | 10.1.1.2 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| red003 | red003 |      | latest-lite | cluster |       | worker  |          | 10.1.1.3 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
++-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
+```
+
+### Burning SD Cards using Inventory
+
+First, verify that you have plugged in your SD card writer with an SD card into the `managerpi`. For this guide, we will simply use one SD card burner to burn both SD cards.
+
+Verify your SD card is detected with the following:
+
+```
+(ENV3) pi@managerpi:~ $ cms burn info
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++----------+------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------+
+| Path     | Info                   | Formatted   | Size             | Plugged-in   | Readable   | Empty   | Access   | Removable   | Writeable   |
+|----------+------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------|
+| /dev/sdb | Generic STORAGE DEVICE | True        | 64.1 GB/59.7 GiB | True         | True       | False   | True     | True        | True        |
++----------+------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------+
+```
+> Some information has been ommitted from cms burn info for simplicity
+
+Note your device. In our case, it is `/dev/sdb`. Of course, on your machine it may vary. 
+
+We can now burn our cards as follows:
+
+```
+(ENV3) pi@managerpi:~ $ cms burn create --inventory=cluster.yaml --name=managerpi,red00[2-3] --device=/dev/sdb
+
+Manager hostname is the same as this system's hostname. Is this intended? (Y/n) Y
+Do you wish to configure this system as a WiFi bridge? A restart is required after this command terminates (Y/n) Y
+
+# Cut out output of burn command for simplicity
+
+INFO: Burned card 1
+
+INFO: Please remove the card
+
+Slot /dev/sdb needs to be reused. Do you wish to continue? [y/n] y
+Insert next card and press enter...
+
+# Cut out output of burn command for simplicity
+
+INFO: Burned card 2
+
+INFO: Please remove the card
+
+INFO: You burned 2 SD Cards
+Done :)
+```
+
+Note that in this example, the hostname of the manager passed into `cms burn create` is the same as the current system's hostname. This is intentnional (as indicated by our `Y` choice) and we are also configuring the `managerpi` as a bridge (as indicated by our `)
+
+We must now reboot the manager.
+
+```
+(ENV3) pi@managerpi:~ $ sudo reboot
+```
+
+### Booting Up Workers and Verifying Connection
+
+Insert the burned worker cards into 
+
+Refer to Step 2 in [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge) for instructions
 
 ## Set up of the SSH keys and SSH tunnel
 
