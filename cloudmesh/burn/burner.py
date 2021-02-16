@@ -37,6 +37,25 @@ from cloudmesh.inventory.inventory import Inventory
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
 
+def get_hostnames(names):
+    """
+    Given a list of host names it identifies if they have numbers in them. If so, they are assumed workers.
+    If not, it is a manager. There can only be one manager.
+
+    @param names: list of names
+    @type names: str
+    @return: manager, worker as lists
+    @rtype: tuple
+    """
+    manager = None
+    workers = None
+    for name in names:
+        if any(map(str.isdigit, s)):
+            workers.append(name)
+        else:
+            manager = name
+
+    return manager, workers
 
 def gen_strong_pass():
     """
