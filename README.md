@@ -39,6 +39,7 @@ contact laszewski@gmail.com*
     - [Single Card Burning](#single-card-burning)
     - [How to update firmware?](#how-to-update-firmware)
     - [How to burn a cluster using Linux](#how-to-burn-a-cluster-using-linux)
+    - [Shortcut to burn a standard cluster using Linux or a Pi](#shortcut-to-burn-a-standard-cluster-using-linux-or-a-pi)
   - [Alternatives](#alternatives)
     - [What is the status of the implementation?](#what-is-the-status-of-the-implementation)
   - [How can I contribute Contributing](#how-can-i-contribute-contributing)
@@ -496,6 +497,11 @@ Note to execute the command on the command line you have to type in
   burn backup [--device=DEVICE] [--to=DESTINATION]
   burn copy [--device=DEVICE] [--from=DESTINATION]
   burn shrink [--image=IMAGE]
+  burn cluster [--device=DEVICE]
+               [--hostname=HOSTNAME]
+               [--ip=IP]
+               [--ssid=SSID]
+               [--wifipassword=PSK]
   burn create [--image=IMAGE]
               [--device=DEVICE]
               [--hostname=HOSTNAME]
@@ -742,6 +748,7 @@ Examples: ( \ is not shown)
 
 
 
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -774,6 +781,7 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
@@ -902,6 +910,7 @@ Description:
 
 
 
+
 ### Manual Page for the `pi` command
 
 Note to execute the command on the command line you have to type in
@@ -941,7 +950,7 @@ Description:
 
   This command switches on and off the LEDs of the specified
   PIs. If the hostname is omitted. It is assumed that the
-  code is executed on a PI and its LED is set. To list the
+  code is executed on a PI and its LED are set. To list the
   PIs LED status you can use the list command
 
   Examples:
@@ -970,6 +979,7 @@ Description:
 
 ```
 <!--MANUAL-PI-->
+
 
 
 
