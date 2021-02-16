@@ -5,22 +5,34 @@ import sys
 from cloudmesh.common.util import readfile
 
 import hashlib
-import mmap
+# import mmap
+
+BUF_SIZE = 65536
 
 
 def sha1sum(filename):
     h = hashlib.sha1()
     with open(filename, 'rb') as f:
-        with mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ) as mm:
-            h.update(mm)
+        # with mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ) as mm:
+        #     h.update(mm)
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            h.update(data)
     return h.hexdigest()
 
 
 def sha256sum(filename):
     h = hashlib.sha256()
     with open(filename, 'rb') as f:
-        with mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ) as mm:
-            h.update(mm)
+        # with mmap.mmap(f.fileno(), 0, prot=mmap.PROT_READ) as mm:
+        #     h.update(mm)
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            h.update(data)
     return h.hexdigest()
 
 
