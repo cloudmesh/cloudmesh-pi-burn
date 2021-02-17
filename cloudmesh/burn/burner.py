@@ -886,17 +886,17 @@ class Burner(object):
         :rtype: bool
         """
 
-        files = textwrap.dedent(
-            """
-            boot/ssh
-            boot/wpa_supplicant.conf
-            rootfs/etc/hosts
-            rootfs/etc/dhcpcd.conf
-            rootfs/etc/hostname
-            rootfs/home/pi/.ssh/authorized_keys
-            rootfs/home/pi/.ssh/id_rsa
-            rootfs/home/pi/.ssh/id_rsa.pub
-            """).splitlines()
+        # file, owner, grooup
+        files = [
+            ["boot/ssh", 1000, 1000],
+            ["boot/wpa_supplicant.conf", 1000, 1000],
+            ["rootfs/etc/hosts", 1000, 1000],
+            ["rootfs/etc/dhcpcd.conf", 1000, 1000],
+            ["rootfs/etc/hostname", 1000, 1000],
+            ["rootfs/home/pi/.ssh/authorized_keys", 1000, 1000],
+            ["rootfs/home/pi/.ssh/id_rsa", 1000, 1000],
+            ["rootfs/home/pi/.ssh/id_rsa.pub", 1000, 1000]
+        ]
 
         card = SDCard()
 
