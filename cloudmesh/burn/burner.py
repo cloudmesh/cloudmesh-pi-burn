@@ -1504,33 +1504,34 @@ class Burner(object):
         if manager is not None:
             image.fetch(tag=["latest-full"])
 
-        banner("Burn the manager", c="#")
-
-        Console.info(f"Preparing to burn the manager: {manager}")
-        if not yn_choice('Would you like to continue?'):
-            Console.error("Aborting ...")
-            return ""
-
         multi = MultiBurner()
 
-        multi.burn(device=arguments.device,
-                   blocksize="4M",
-                   progress=True,
-                   hostname=manager,
-                   ip=ips[0],
-                   key=key,
-                   password=gen_strong_pass(),
-                   ssid=arguments.ssid,
-                   psk=arguments.wifipassword,
-                   formatting=True,
-                   tag='latest-full',
-                   router=None,
-                   generate_key=True,
-                   store_key=True,
-                   write_local_hosts=False,
-                   cluster_hosts=cluster_hosts)
+        if manager is not None:
+            banner("Burn the manager", c="#")
 
-        Console.info(f"Completed manager: {manager}")
+            Console.info(f"Preparing to burn the manager: {manager}")
+            if not yn_choice('Would you like to continue?'):
+                Console.error("Aborting ...")
+                return ""
+
+            multi.burn(device=arguments.device,
+                       blocksize="4M",
+                       progress=True,
+                       hostname=manager,
+                       ip=ips[0],
+                       key=key,
+                       password=gen_strong_pass(),
+                       ssid=arguments.ssid,
+                       psk=arguments.wifipassword,
+                       formatting=True,
+                       tag='latest-full',
+                       router=None,
+                       generate_key=True,
+                       store_key=True,
+                       write_local_hosts=False,
+                       cluster_hosts=cluster_hosts)
+
+            Console.info(f"Completed manager: {manager}")
 
         banner("Burn the workers", c="#")
 
