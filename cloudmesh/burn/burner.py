@@ -1447,9 +1447,9 @@ class Burner(object):
         image = Image()
 
         if workers is not None:
-            image.fetch(tag="latest-light")
+            image.fetch(tag=["latest", "light"])
         if manager is not None:
-            image.fetch(tag="latest-full")
+            image.fetch(tag=["latest", "full"])
 
         banner("Burn the manager", c="#")
 
