@@ -1440,6 +1440,17 @@ class Burner(object):
         print("Wifi Password:", arguments.wifipassword)
         print("Key:          ", key)
 
+        banner("Download Images")
+
+        result = Image.create_version_cache(refresh=True)
+
+        image = Image()
+
+        if workers is not None:
+            image.fetch(tag="latest-light")
+        if manager is not None:
+            image.fetch(tag="latest-full")
+
         banner("Burn the manager", c="#")
 
         Console.info(f"Preparing to burn the manager: {manager}")
