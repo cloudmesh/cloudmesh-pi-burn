@@ -3,6 +3,7 @@ import platform
 import sys
 
 from cloudmesh.common.util import readfile
+from cloudmesh.common.console import Console
 
 import hashlib
 # import mmap
