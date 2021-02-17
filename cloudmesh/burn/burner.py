@@ -1836,6 +1836,7 @@ class MultiBurner(object):
                                  write_local_hosts=write_local_hosts)
             if not write_local_hosts:
                 burner.write_cluster_hosts(cluster_hosts)
+        burner.write_fix()
 
         burner.unmount(device=device)
         # for some reason, need to do unmount twice for it to work properly
