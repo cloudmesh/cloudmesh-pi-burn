@@ -635,7 +635,7 @@ class Burner(object):
         :type mountpoint: str
         """
         self.hostname = hostname
-        if os_is_pi() or os_is_linux():
+        if not os_is_windows():
             card = SDCard()
         else:
             raise NotImplementedError
