@@ -23,8 +23,6 @@ def activate_ssh(self, public_key, debug=False, interactive=False):
     :rtype: bool
     """
 
-    raise NotImplementedError
-
     # set the keypath
     self.keypath = public_key
     if debug:
