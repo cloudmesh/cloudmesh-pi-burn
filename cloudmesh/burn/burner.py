@@ -1435,6 +1435,8 @@ class Burner(object):
         n = len(workers) + 1
         if arguments.ip is None:
             ips = Parameter.expand(f"10.0.0.[1-{n}]")
+        else:
+            ips = Parameter.expand(ips)
 
         key = path_expand("~/.ssh/id_rsa.pub")
 
