@@ -893,6 +893,9 @@ class Burner(object):
             Console.error("key does not exist", public_key)
             return False
 
+        # TODO: we likely have this already
+        self.disable_password_ssh()
+
         # TODO: this is likely also done elsewhere
         # activate ssh by creating an empty ssh file in the boot drive
         pathlib.Path(f"{card.boot_volume}/ssh").touch()
@@ -905,58 +908,60 @@ class Burner(object):
         auth_keys = ssh_dir / "authorized_keys"
         auth_keys.write_text(key)
 
-        # We need to fix the permissions on the .ssh folder but it is hard to
-        # get this working from a host OS because the host OS must have a user
-        # and group with the same pid and gid as the raspberry pi OS. On the PI
-        # the pi uid and gid are both 1000.
 
-        # All of the following do not work on OS X:
-        # execute("chown 1000:1000 {ssh_dir}".format(ssh_dir=ssh_dir))
-        # shutil.chown(ssh_dir, user=1000, group=1000)
-        # shutil.chown(ssh_dir, user=1000, group=1000)
-        # execute("sudo chown 1000:1000 {ssh_dir}".format(ssh_dir=ssh_dir))
 
-        # Changing the modification attributes does work, but we can just handle
-        # this the same way as the previous chown issue for consistency.
-        # os.chmod(ssh_dir, 0o700)
-        # os.chmod(auth_keys, 0o600)
+        if os.getuid() != 1000:
 
-        # /etc/rc.local runs at boot with root permissions - since the file
-        # already exists modifying it shouldn't change ownership or permissions
-        # so it should run correctly. Is there a better solution?
-        # after the first boot, I think this should be be removed?
-        #
-        new_lines = textwrap.dedent('''
-                    # FIX298-START: Fix permissions for .ssh directory
-                    if [ -d "/home/pi/.ssh" ]; then
-                        chown pi:pi /home/pi/.ssh
-                        chmod 700 /home/pi/.ssh
-                        if [ -f "/home/pi/.ssh/authorized_keys" ]; then
-                            chown pi:pi /home/pi/.ssh/authorized_keys
-                            chmod 600 /home/pi/.ssh/authorized_keys
+            # We need to fix the permissions on the .ssh folder but it is hard to
+            # get this working from a host OS because the host OS must have a user
+            # and group with the same pid and gid as the raspberry pi OS. On the PI
+            # the pi uid and gid are both 1000.
+
+            # All of the following do not work on OS X:
+            # execute("chown 1000:1000 {ssh_dir}".format(ssh_dir=ssh_dir))
+            # shutil.chown(ssh_dir, user=1000, group=1000)
+            # shutil.chown(ssh_dir, user=1000, group=1000)
+            # execute("sudo chown 1000:1000 {ssh_dir}".format(ssh_dir=ssh_dir))
+
+            # Changing the modification attributes does work, but we can just handle
+            # this the same way as the previous chown issue for consistency.
+            # os.chmod(ssh_dir, 0o700)
+            # os.chmod(auth_keys, 0o600)
+
+            # /etc/rc.local runs at boot with root permissions - since the file
+            # already exists modifying it shouldn't change ownership or permissions
+            # so it should run correctly. Is there a better solution?
+            # after the first boot, I think this should be be removed?
+            #
+            new_lines = textwrap.dedent('''
+                        # FIX298-START: Fix permissions for .ssh directory
+                        if [ -d "/home/pi/.ssh" ]; then
+                            chown pi:pi /home/pi/.ssh
+                            chmod 700 /home/pi/.ssh
+                            if [ -f "/home/pi/.ssh/authorized_keys" ]; then
+                                chown pi:pi /home/pi/.ssh/authorized_keys
+                                chmod 600 /home/pi/.ssh/authorized_keys
+                            fi
                         fi
-                    fi
-                    # FIX298-END
-                    ''')
+                        # FIX298-END
+                        ''')
 
-        rc_local = f"{card.root_volume}/etc/rc.local"
-        new_rc_local = ""
-        already_updated = False
-        with rc_local.open() as f:
-            for line in f:
-                if "FIX298" in line:
-                    already_updated = True
-                    break
-                if line == "exit 0\n":
-                    new_rc_local += new_lines
-                    new_rc_local += line
-                else:
-                    new_rc_local += line
-        if not already_updated:
-            with rc_local.open("w") as f:
-                f.write(new_rc_local)
-        # TODO: we likely have this already
-        self.disable_password_ssh()
+            rc_local = f"{card.root_volume}/etc/rc.local"
+            new_rc_local = ""
+            already_updated = False
+            with rc_local.open() as f:
+                for line in f:
+                    if "FIX298" in line:
+                        already_updated = True
+                        break
+                    if line == "exit 0\n":
+                        new_rc_local += new_lines
+                        new_rc_local += line
+                    else:
+                        new_rc_local += line
+            if not already_updated:
+                with rc_local.open("w") as f:
+                    f.write(new_rc_local)
         return True
 
     @windows_not_supported
