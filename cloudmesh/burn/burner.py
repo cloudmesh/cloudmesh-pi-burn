@@ -7,6 +7,7 @@ import subprocess
 import sys
 import textwrap
 import time
+from getpass import getpass
 
 import humanize
 from cloudmesh.bridge.Bridge import Bridge
@@ -1402,23 +1403,32 @@ class Burner(object):
         #                  --ssid=myssid
         #                  --wifipassword=mypass
         #
-        if not (os_is_pi() or os_is_linux()):
-            Console.error("Only supported on Pi and Linux")
+        if os_is_windows():
+            Console.error("Only supported on Pi and Linux. On Mac you will "
+                          "need to have ext4 write access.")
             return ""
 
-        if not (arguments.cluster and  # noqa: W504
-                arguments.ip and  # noqa: W504
-                arguments.device and  # noqa: W504
-                arguments.hostname and  # noqa: W504
-                arguments.ssid and  # noqa: W504
-                arguments.wifipassword):  # noqa: W504
-
-            Console.error("Parameters not complete")
-            return ""
 
         hostnames = Parameter.expand(arguments.hostname)
         manager, workers = get_hostnames(hostnames)
-        ips = Parameter.expand(arguments.ip)
+
+        if not (arguments.cluster and  # noqa: W504
+                arguments.device and  # noqa: W504
+                arguments.hostname):  # noqa: W504
+            Console.error("Parameters not complete")
+            return ""
+
+        if manager is not None and arguments.ssid is None:
+            Console.error("Please set ssid")
+            return ""
+
+        if manager is not None and (arguments.wifipassword is None or arguments.wifipassword.tolower() in ['input', "none", ""]):
+            arguments.wifipassword = getpass()
+
+        n = len(workers) + 1
+        if arguments.ip is None:
+            ips = Parameter.expand(f"10.0.0.[1-{n}]")
+
         key = path_expand("~/.ssh/id_rsa.pub")
 
         print("Manager:      ", manager)
@@ -1432,7 +1442,9 @@ class Burner(object):
         banner("Burn the manager", c="#")
 
         Console.info(f"Preparing to burn the manager: {manager}")
-        input('Insert sd card and press enter...')
+        if not yn_choice('Would you like to continue?'):
+            Console.error("Aborting ...")
+            return ""
 
         multi = MultiBurner()
 

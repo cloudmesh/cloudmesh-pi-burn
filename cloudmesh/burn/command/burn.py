@@ -46,8 +46,7 @@ class BurnCommand(PluginCommand):
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
               burn shrink [--image=IMAGE]
-              burn cluster [--device=DEVICE]
-                           [--hostname=HOSTNAME]
+              burn cluster --device=DEVICE --hostname=HOSTNAME
                            [--ip=IP]
                            [--ssid=SSID]
                            [--wifipassword=PSK]
@@ -548,12 +547,7 @@ class BurnCommand(PluginCommand):
             execute("image fetch", image.fetch(tag="latest"))
             return ""
 
-        elif (arguments.cluster and         # noqa: W504
-              arguments.ip and              # noqa: W504
-              arguments.device and          # noqa: W504
-              arguments.hostname and        # noqa: W504
-              arguments.ssid and            # noqa: W504
-              arguments.wifipassword):
+        elif arguments.cluster:
 
             # is true when
             #
