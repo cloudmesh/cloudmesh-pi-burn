@@ -615,8 +615,8 @@ class BurnCommand(PluginCommand):
 
             image = 'latest' or arguments.IMAGE
 
-            environ_DEV = os.environ['DEV'] if 'DEV' in os.environ else None
-            devices = arguments["--device"] or environ_DEV or None
+            dev = os.environ['DEV'] if 'DEV' in os.environ else None
+            devices = arguments["--device"] or dev or None
 
             if devices is not None:
                 devices = Parameter.expand_string(devices)
