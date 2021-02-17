@@ -1662,9 +1662,9 @@ class MultiBurner(object):
                 Console.error("Terminating")
                 return
         else:
-            dns_line = f"$ cms inventory set {system_hostname} dns to {manager_config['dns']} --inventory={inventory.split('/')[-1]} --listvalue" if manager_config['dns'] is not None else ""  # noqa: E501
             Console.error("Burning manager SD cards is not yet supported.")
 
+            dns_line = f"$ cms inventory set {system_hostname} dns to {manager_config['dns']} --inventory={inventory.split('/')[-1]} --listvalue" if manager_config['dns'] is not None else ""  # noqa: E501
             line1 = f'$ cms inventory add {system_hostname} --service=manager --inventory={inventory.split("/")[-1]} --ip={manager_config["ip"]} --keyfile={manager_config["keyfile"]} --tag={manager_config["tag"]}'  # noqa: E501
             line2 = f'$ cms burn create --inventory={inventory.split("/")[-1]} --device={device} --name={system_hostname},{name.split(",")[-1]}'  # noqa: E501
             Console.info(textwrap.dedent(f"""

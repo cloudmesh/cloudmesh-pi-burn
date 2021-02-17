@@ -1434,6 +1434,12 @@ There are several alternatives to make the setup easier:
   clusters this requires multiple Servers so that the network is not overwhelmed. 
   Starting the cluster takes much longer.
 
+### How do I scann for WIFI networks?
+
+```
+sudo iwlist wlan0 scan
+```
+
 
 ### What is the status of the implementation?
 
