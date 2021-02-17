@@ -197,7 +197,7 @@ class USB(object):
         """
         lsusb = subprocess.getoutput("lsusb").splitlines()
 
-        all = {}
+        found = {}
         for line in lsusb:
             line = line.replace("Bus ", "")
             line = line.replace("Device ", "")
@@ -219,11 +219,11 @@ class USB(object):
                     'product': content[3],
                     'comment': ' '.join(content[4:])
                 }
-                all[f"{bus}-{addr}"] = data
+                found[f"{bus}-{addr}"] = data
             except Exception as e:  # noqa: F841
                 pass
 
-        return all
+        return found
 
     @staticmethod
     def get_from_dmesg(pluggedin=True):
