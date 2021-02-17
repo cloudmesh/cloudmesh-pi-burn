@@ -904,7 +904,7 @@ class Burner(object):
 
         card = SDCard()
         fix = "/boot/fix_permissions.py"
-        writefile(fix, script)
+        writefile(f"{card.boot_volume}{fix}", script)
 
         rc_local = f"{card.root_volume}/etc/rc.local"
         content = readfile(rc_local)
