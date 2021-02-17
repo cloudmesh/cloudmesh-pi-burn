@@ -872,7 +872,7 @@ class Burner(object):
         self.system_exec(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
     @windows_not_supported
-    def activate_ssh(self, public_key, debug=False, interactive=False):
+    def activate_ssh(self, public_key="~/.ssh/id_rsa.pub", debug=False, interactive=False):
         """
         Sets the public key path and copies it to the SD card
 
@@ -886,27 +886,19 @@ class Burner(object):
         :rtype: bool
         """
 
-        # set the keypath
-        self.keypath = public_key
-        if debug:
-            print(self.keypath)
-        if not os.path.isfile(self.keypath):
-            Console.error("key does not exist", self.keypath)
-            sys.exit()
+        card = SDCard()
 
-        if self.dryrun:
-            print("DRY RUN - skipping:")
-            print("Activate ssh authorized_keys pkey:{}".format(public_key))
-            return
-        elif interactive:
-            if not yn_choice("About to write ssh config. Please confirm:"):
-                return
+        public_key = path_expand(public_key)
+        if not os.path.isfile(public_key):
+            Console.error("key does not exist", public_key)
+            return False
 
+        # TODO: this is likely also done elsewhere
         # activate ssh by creating an empty ssh file in the boot drive
-        pathlib.Path(self.filename("/ssh")).touch()
+        pathlib.Path(f"{card.boot_volume}/ssh").touch()
         # Write the content of the ssh rsa to the authorized_keys file
         key = pathlib.Path(public_key).read_text()
-        ssh_dir = self.filename("/home/pi/.ssh")
+        ssh_dir = f"{card.root_volume}/home/pi/.ssh"
         print(ssh_dir)
         if not os.path.isdir(ssh_dir):
             os.makedirs(ssh_dir)
@@ -947,7 +939,7 @@ class Burner(object):
                     # FIX298-END
                     ''')
         # TODO: this shoudl be the file on the SDCARD., se we need to use card.rootfs / ...
-        rc_local = self.filename("/etc/rc.local")
+        rc_local = f"{card.root_volume}/etc/rc.local"
         new_rc_local = ""
         already_updated = False
         with rc_local.open() as f:
@@ -965,6 +957,7 @@ class Burner(object):
                 f.write(new_rc_local)
         # TODO: we likely have this already
         self.disable_password_ssh()
+        return True
 
     @windows_not_supported
     def mount(self, device=None, card_os="raspberry"):
