@@ -720,7 +720,7 @@ class Burner(object):
         # router_ip statically set to default ip configured with cms bridge
         # create. Rewrite to consider the IP of the manager on iface
 
-        if os_is_pi() or os_is_linux():
+        if not os_is_windows():
             card = SDCard()
         else:
             raise NotImplementedError
@@ -862,7 +862,7 @@ class Burner(object):
         """
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
-        if os_is_pi() or os_is_linux():
+        if not os_is_windows():
             card = SDCard()
         else:
             raise NotImplementedError
