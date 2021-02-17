@@ -698,8 +698,18 @@ class Burner(object):
 
         sudo_writefile('/etc/hosts', config)
 
+    def write_cluster_hosts(self, cluster_hosts):
+        card = SDCard()
+        hosts = sudo_readfile(f'{card.root_volume}/etc/hosts', split=False)
+        hosts += '\n'
+        for ip, hostname in cluster_hosts:
+            hosts += (f"{ip}\t{hostname}\n")
+        sudo_writefile(f'{card.root_volume}/etc/hosts', hosts)
+
+
     @windows_not_supported
-    def set_static_ip(self, ip, iface="eth0", mask="24", router_ip="10.1.1.1"):
+    def set_static_ip(self, ip, iface="eth0", mask="24",
+                      router_ip="10.1.1.1", write_local_hosts=True):
         """
         Sets the static ip on the sd card for the specified interface
         Also writes to manager hosts file for easy access
@@ -726,7 +736,7 @@ class Burner(object):
             raise NotImplementedError
 
         mountpoint = card.root_volume
-        if self.hostname is not None:
+        if self.hostname is not None and write_local_hosts:
             self.add_to_hosts(ip)
 
         iface = f'interface {iface}'
@@ -1474,6 +1484,8 @@ class Burner(object):
         else:
             ips = Parameter.expand(arguments.ip)
 
+        cluster_hosts = tuple(zip(ips, hostnames))
+
         key = path_expand("~/.ssh/id_rsa.pub")
 
         print("Manager:      ", manager)
@@ -1522,14 +1534,17 @@ class Burner(object):
                    tag='latest-full',
                    router=None,
                    generate_key=True,
-                   store_key=True)
+                   store_key=True,
+                   write_local_hosts=False,
+                   cluster_hosts=cluster_hosts)
+
 
         Console.info(f"Completed manager: {manager}")
 
         banner("Burn the workers", c="#")
 
         Console.info(f"Preparing to burn the workers: {workers}")
-        for worker, ip in zip(workers, ips[1:]):
+        for worker, ip in tuple(zip(workers, ips[1:])):
             print()
             Console.info("Please insert the next SD Card")
             print()
@@ -1550,7 +1565,10 @@ class Burner(object):
                        tag='latest-lite',
                        router=ips[0],
                        generate_key=False,
-                       store_key=False)
+                       store_key=False,
+                       write_local_hosts=False,
+                       cluster_hosts=cluster_hosts)
+
         Console.info(f"Completed workers: {workers}")
         Console.info("Cluster burn is complete.")
         Burner.remove_public_key()
@@ -1735,7 +1753,9 @@ class MultiBurner(object):
              tag='latest-lite',
              router="10.1.1.1",
              generate_key=False,
-             store_key=False):
+             store_key=False,
+             write_local_hosts=True,
+             cluster_hosts=None):
         """
         Burns the image on the specific device
 
@@ -1821,7 +1841,10 @@ class MultiBurner(object):
             # --wifi_router
             #
             interface = 'eth0'
-            burner.set_static_ip(ip, iface=interface, router_ip=router)
+            burner.set_static_ip(ip, iface=interface, router_ip=router,
+                                 write_local_hosts=write_local_hosts)
+            if not write_local_hosts:
+                burner.write_cluster_hosts(cluster_hosts)
 
         burner.unmount(device=device)
         # for some reason, need to do unmount twice for it to work properly
