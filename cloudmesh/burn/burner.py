@@ -1233,13 +1233,13 @@ class Burner(object):
             valid = any(entry in device for entry in details)
 
             if not valid:
-                Console.error("this device can not be used for formatting")
-                return ""
+                Console.error(f"this device can not be used for formatting: {device}")
+                return False
 
             elif len(details) > 1:
                  Console.error("For security reasons, please only put one USB writer in")
                  Console.msg(f"we found {details}")
-                 return ""
+                 return False
 
             else:
 
@@ -1726,7 +1726,7 @@ class MultiBurner(object):
         StopWatch.start(f"create {device} {hostname}")
 
         if formatting:
-            success = burner.format_device(device=device, hostname=hostname)
+            success = burner.format_device(device=device, hostname=hostname, unmount=True)
             if not success:
                 Console.warning("Skipping card due to failed format. "
                                 "Continuing with next hostname.")
