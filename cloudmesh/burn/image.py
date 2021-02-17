@@ -68,7 +68,10 @@ class Image(object):
                 match = match and t in entry["tag"]
             if match:
                 found.append(entry)
-        return found
+        if len(found) == 0:
+            return None
+        else:
+            return found
 
     @staticmethod
     def create_version_cache(refresh=False):
@@ -192,7 +195,6 @@ class Image(object):
                                     header=["Tag", "Version"]))
                 return None
 
-            print ("IIII", tag, image)
             image = image[0]
 
             # image_path = Image().directory + "/" + Image.get_name(image[

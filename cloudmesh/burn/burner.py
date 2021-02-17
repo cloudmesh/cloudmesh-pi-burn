@@ -1446,13 +1446,17 @@ class Burner(object):
         if result is None:
             result = Image.create_version_cache(refresh=True)
 
-        print (result)
+
+
         image = Image()
+        image.read_version_cache()
+
+
 
         if workers is not None:
-            image.fetch(tag=["latest", "light"])
+            image.fetch(tag=["latest-light"])
         if manager is not None:
-            image.fetch(tag=["latest", "full"])
+            image.fetch(tag=["latest-full"])
 
         banner("Burn the manager", c="#")
 
