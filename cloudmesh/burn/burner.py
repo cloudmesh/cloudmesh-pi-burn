@@ -1755,8 +1755,10 @@ class MultiBurner(object):
                 Console.warning("Skipping card due to failed format. "
                                 "Continuing with next hostname.")
                 return
-
-        burner.unmount(device=device)
+        if os_is_linux() or os_is_pi():
+            burner.unmount() # can not fully eject before burn on pi or linux
+        elif os_is_mac():
+            burner.unmount(device=device)
 
         burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
         burner.mount(device=device)
