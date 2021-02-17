@@ -184,14 +184,15 @@ class Image(object):
 
             if image is None:
                 Console.error("No matching image found.")
-                return ""
+                return None
             elif len(image) > 1:
                 Console.error("Too many images found")
                 print(Printer.write(image,
                                     order=["tag", "version"],
                                     header=["Tag", "Version"]))
-                return ""
+                return None
 
+            print ("IIII", tag, image)
             image = image[0]
 
             # image_path = Image().directory + "/" + Image.get_name(image[
@@ -250,7 +251,7 @@ class Image(object):
         if int(size) != zip_size:
             Console.error(f"Repository reported zip size {size} does not equal "
                           f"download size {zip_size}. Please try again.")
-            return
+            return None
 
         #   if latest:  # rename filename from 'latest' to the actual image name
         #        Path('raspbian_lite_latest').rename(zip_filename)

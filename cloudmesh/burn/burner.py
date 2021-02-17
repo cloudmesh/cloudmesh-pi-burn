@@ -1442,8 +1442,11 @@ class Burner(object):
 
         banner("Download Images")
 
-        result = Image.create_version_cache(refresh=True)
+        result = Image.create_version_cache()
+        if result is None:
+            result = Image.create_version_cache(refresh=True)
 
+        print (result)
         image = Image()
 
         if workers is not None:
