@@ -984,29 +984,36 @@ class Burner(object):
         host = get_platform()
         card = SDCard(card_os=card_os, host=host)
 
-        if not self.dryrun:
-            self.system_exec('sudo sync')  # flush any pending/in-process writes
+        self.system_exec('sudo sync')  # flush any pending/in-process writes
 
-            if os_is_mac() or os_is_linux() or os_is_pi():
-                if device:
-                    _execute(f"eject {device}", f"sudo eject {device}")
-                    os.system("sync")
-                _execute(f"unmounting {card.boot_volume}", f"sudo umount {card.boot_volume}")
-                _execute(f"unmounting  {card.root_volume}", f"sudo umount {card.root_volume}")
-                os.system("sync")
 
-                rm = [f"sudo rmdir {card.boot_volume}",
-                      f"sudo rmdir {card.root_volume}"]
+        if os_is_linux() or os_is_pi():
+            if device:
+                _execute(f"eject {device}", f"sudo eject {device}")
 
-                for command in rm:
-                    _execute(command, command)
-            elif host == "macos":
+        os.system("sync")
+        if os_is_linux() or os_is_pi():
+            _execute(f"unmounting {card.boot_volume}", f"sudo umount {card.boot_volume}")
+            _execute(f"unmounting  {card.root_volume}", f"sudo umount {card.root_volume}")
+        elif os_is_mac():
 
-                _execute(f"unmounting {card.boot_volume}", f"diskutil umount {card.boot_volume}")
+            _execute(f"unmounting {card.boot_volume}", f"diskutil umount {card.boot_volume}")
+            _execute(f"unmounting {card.root_volume}", f"diskutil umount {card.root_volume}")
 
-            else:
-                Console.error("Not yet implemented for your OS")
-                return ""
+        else:
+            Console.error("Not yet implemented for your OS")
+            return ""
+
+
+        os.system("sync")
+
+        rm = [f"sudo rmdir {card.boot_volume}",
+              f"sudo rmdir {card.root_volume}"]
+
+        for command in rm:
+            _execute(command, command)
+
+        return True
 
     @windows_not_supported
     def enable_ssh(self):
@@ -1446,8 +1453,6 @@ class Burner(object):
         if result is None:
             result = Image.create_version_cache(refresh=True)
 
-
-
         image = Image()
         image.read_version_cache()
 
@@ -1749,6 +1754,8 @@ class MultiBurner(object):
                 Console.warning("Skipping card due to failed format. "
                                 "Continuing with next hostname.")
                 return
+
+        burner.unmount(device=device)
 
         burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
         burner.mount(device=device)
