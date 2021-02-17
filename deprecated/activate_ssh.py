@@ -1,9 +1,4 @@
-# originally from burner.py
-
-
-# IMPROVE
-# ok osx
-# @windows_not_supported
+@windows_not_supported
 def activate_ssh(self, public_key, debug=False, interactive=False):
     """
     Sets the public key path and copies it to the SD card
