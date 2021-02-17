@@ -1237,8 +1237,9 @@ class Burner(object):
                 return ""
 
             elif len(details) > 1:
-                Console.error("For security reasons, please only put one USB writer in")
-                return ""
+                 Console.error("For security reasons, please only put one USB writer in")
+                 Console.msg(f"we found {details}")
+                 return ""
 
             else:
 
@@ -1473,7 +1474,7 @@ class Burner(object):
             Console.info("Please insert the next SD Card")
             print()
 
-            if not yn_choice("Say Y once entered ..."):
+            if not yn_choice("Say Y once you inserted it. Press no to terminate ..."):
                 return ""
             
             multi.burn(device=arguments.device,
