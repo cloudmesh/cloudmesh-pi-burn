@@ -997,8 +997,7 @@ class Burner(object):
             _execute(f"unmounting  {card.root_volume}", f"sudo umount {card.root_volume}")
         elif os_is_mac():
 
-            _execute(f"unmounting {card.boot_volume}", f"diskutil umount {card.boot_volume}")
-            _execute(f"unmounting {card.root_volume}", f"diskutil umount {card.root_volume}")
+            _execute(f"unmounting {card.boot_volume}", f"diskutil umountDisk {device}")
 
         else:
             Console.error("Not yet implemented for your OS")
