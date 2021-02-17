@@ -1422,7 +1422,7 @@ class Burner(object):
             Console.error("Please set ssid")
             return ""
 
-        if manager is not None and (arguments.wifipassword is None or arguments.wifipassword.tolower() in ['input', "none", ""]):
+        if manager is not None and (arguments.wifipassword is None or arguments.wifipassword.lower() in ['input', "none", ""]):
             arguments.wifipassword = getpass()
 
         n = len(workers) + 1
@@ -1469,7 +1469,13 @@ class Burner(object):
 
         Console.info(f"Preparing to burn the workers: {workers}")
         for worker, ip in zip(workers, ips[1:]):
-            input('Insert the next sd card and press enter...')
+            print()
+            Console.info("Please insert the next SD Card")
+            print()
+
+            if not yn_choice("Say Y once entered ..."):
+                return ""
+            
             multi.burn(device=arguments.device,
                        blocksize="4M",
                        progress=True,
