@@ -876,11 +876,6 @@ class Burner(object):
         """
         Sets the public key path and copies it to the SD card
 
-        TODO: this has bugs as we have not yet thought about debug,
-              interactive, yesno yesno we can take form cloudmesh.common
-
-        BUG: this just raise a non implementation error
-
         :param public_key: the public key location
         :type public_key: str
         :param debug: if set to tru debug messages will be printed
@@ -938,7 +933,7 @@ class Burner(object):
         # already exists modifying it shouldn't change ownership or permissions
         # so it should run correctly. Is there a better solution?
         # after the first boot, I think this should be be removed?
-        # 
+        #
         new_lines = textwrap.dedent('''
                     # FIX298-START: Fix permissions for .ssh directory
                     if [ -d "/home/pi/.ssh" ]; then
@@ -951,6 +946,7 @@ class Burner(object):
                     fi
                     # FIX298-END
                     ''')
+        # TODO: this shoudl be the file on the SDCARD., se we need to use card.rootfs / ...
         rc_local = self.filename("/etc/rc.local")
         new_rc_local = ""
         already_updated = False
@@ -967,6 +963,7 @@ class Burner(object):
         if not already_updated:
             with rc_local.open("w") as f:
                 f.write(new_rc_local)
+        # TODO: we likely have this already
         self.disable_password_ssh()
 
     @windows_not_supported
