@@ -1394,8 +1394,6 @@ class Burner(object):
     @staticmethod
     def cluster(arguments=None):
 
-
-
         # is true when
         #
         # cms burn cluster --hostname=red,red00[1-2]
@@ -1431,15 +1429,14 @@ class Burner(object):
         print("Wifi Password:", arguments.wifipassword)
         print("Key:          ", key)
 
-        banner("Burn the manager",  c="#")
+        banner("Burn the manager", c="#")
 
         Console.info(f"Preparing to burn the manager: {manager}")
         input('Insert sd card and press enter...')
 
         multi = MultiBurner()
 
-        multi.burn(self,
-                   device=arguments.device,
+        multi.burn(device=arguments.device,
                    blocksize="4M",
                    progress=True,
                    hostname=manager,
@@ -1461,8 +1458,7 @@ class Burner(object):
         Console.info(f"Preparing to burn the workers: {workers}")
         for worker, ip in zip(workers, ips[1:]):
             input('Insert the next sd card and press enter...')
-            multi.burn(self,
-                       device=arguments.device,
+            multi.burn(device=arguments.device,
                        blocksize="4M",
                        progress=True,
                        hostname=worker,

@@ -18,7 +18,6 @@ from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
-from cloudmesh.burn.burner import get_hostnames
 
 
 class BurnCommand(PluginCommand):
@@ -550,9 +549,9 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif (arguments.cluster and         # noqa: W504
-              arguments.ip and
-              arguments.device and
-              arguments.hostname and
+              arguments.ip and              # noqa: W504
+              arguments.device and          # noqa: W504
+              arguments.hostname and        # noqa: W504
               arguments.ssid and            # noqa: W504
               arguments.wifipassword):
 
@@ -567,7 +566,6 @@ class BurnCommand(PluginCommand):
 
             execute("cluster", burner.cluster(arguments=arguments))
             return ""
-
 
         elif arguments.create and arguments.inventory:
             if not os_is_pi():
