@@ -886,6 +886,18 @@ class Burner(object):
         :rtype: bool
         """
 
+        files = textwrap.dedent(
+            """
+            boot/ssh
+            boot/wpa_supplicant.conf
+            rootfs/etc/hosts
+            rootfs/etc/dhcpcd.conf
+            rootfs/etc/hostname
+            rootfs/home/pi/.ssh/authorized_keys
+            rootfs/home/pi/.ssh/id_rsa
+            rootfs/home/pi/.ssh/id_rsa.pub
+            """).splitlines()
+
         card = SDCard()
 
         public_key = path_expand(public_key)
