@@ -706,7 +706,6 @@ class Burner(object):
             hosts += (f"{ip}\t{hostname}\n")
         sudo_writefile(f'{card.root_volume}/etc/hosts', hosts)
 
-
     @windows_not_supported
     def set_static_ip(self, ip, iface="eth0", mask="24",
                       router_ip="10.1.1.1", write_local_hosts=True):
@@ -885,10 +884,8 @@ class Burner(object):
 
         script = textwrap.dedent("""
             #! /usr/bin/env python
-            
             # file, owner, group, permissions
             import os
-    
             files = [
                 ["/boot/ssh", 0, 0, 0o777],
                 ["/boot/wpa_supplicant.conf", 0, 0, 0o600],
@@ -899,9 +896,7 @@ class Burner(object):
                 ["/home/pi/.ssh/id_rsa", 1000, 1000, 0o600],
                 ["/home/pi/.ssh/id_rsa.pub", 1000, 1000, 0o644]
             ]
-    
             for name, uid, gui, permission in files:
-    
                 if os.path.exists(name):
                     os.chown(name, uid, guid)
                     os.chmod(name, permission)
@@ -909,7 +904,7 @@ class Burner(object):
 
         card = SDCard()
         fix = "/boot/fix_permissions.py"
-        writefile(fix)
+        writefile(fix, script)
 
         rc_local = f"{card.root_volume}/etc/rc.local"
         content = readfile(rc_local)
@@ -1034,7 +1029,6 @@ class Burner(object):
 
         self.system_exec('sudo sync')  # flush any pending/in-process writes
 
-
         if os_is_linux() or os_is_pi():
             if device:
                 _execute(f"eject {device}", f"sudo eject {device}")
@@ -1050,7 +1044,6 @@ class Burner(object):
         else:
             Console.error("Not yet implemented for your OS")
             return ""
-
 
         os.system("sync")
 
@@ -1461,7 +1454,6 @@ class Burner(object):
                           "need to have ext4 write access.")
             return ""
 
-
         hostnames = Parameter.expand(arguments.hostname)
         manager, workers = get_hostnames(hostnames)
 
@@ -1475,7 +1467,9 @@ class Burner(object):
             Console.error("Please set ssid")
             return ""
 
-        if manager is not None and (arguments.wifipassword is None or arguments.wifipassword.lower() in ['input', "none", ""]):
+        if manager is not None and \
+            (arguments.wifipassword is None
+             or arguments.wifipassword.lower() in ['input', "none", ""]):  # noqa: W503
             arguments.wifipassword = getpass()
 
         n = len(workers) + 1
@@ -1504,8 +1498,6 @@ class Burner(object):
 
         image = Image()
         image.read_version_cache()
-
-
 
         if workers is not None:
             image.fetch(tag=["latest-lite"])
@@ -1538,7 +1530,6 @@ class Burner(object):
                    write_local_hosts=False,
                    cluster_hosts=cluster_hosts)
 
-
         Console.info(f"Completed manager: {manager}")
 
         banner("Burn the workers", c="#")
@@ -1551,7 +1542,7 @@ class Burner(object):
 
             if not yn_choice("Say Y once you inserted it. Press no to terminate ..."):
                 return ""
-            
+
             multi.burn(device=arguments.device,
                        blocksize="4M",
                        progress=True,
@@ -1812,7 +1803,7 @@ class MultiBurner(object):
                                 "Continuing with next hostname.")
                 return
         if os_is_linux() or os_is_pi():
-            burner.unmount() # can not fully eject before burn on pi or linux
+            burner.unmount()   # can not fully eject before burn on pi or linux
         elif os_is_mac():
             burner.unmount(device=device)
 
