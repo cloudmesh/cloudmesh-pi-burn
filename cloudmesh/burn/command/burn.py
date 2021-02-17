@@ -18,6 +18,7 @@ from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
+from cloudmesh.burn.burner import get_hostnames
 
 
 class BurnCommand(PluginCommand):
@@ -46,6 +47,11 @@ class BurnCommand(PluginCommand):
               burn backup [--device=DEVICE] [--to=DESTINATION]
               burn copy [--device=DEVICE] [--from=DESTINATION]
               burn shrink [--image=IMAGE]
+              burn cluster [--device=DEVICE]
+                           [--hostname=HOSTNAME]
+                           [--ip=IP]
+                           [--ssid=SSID]
+                           [--wifipassword=PSK]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -543,6 +549,80 @@ class BurnCommand(PluginCommand):
             execute("image fetch", image.fetch(tag="latest"))
             return ""
 
+        elif (arguments.cluster and         # noqa: W504
+              arguments.ip and
+              arguments.device and
+              arguments.hostname and
+              arguments.ssid and            # noqa: W504
+              arguments.wifipassword):
+
+            # is true when
+            #
+            # cms burn cluster --hostname=red,red00[1-2] --device=/dev/sdb
+            # --ip=10.1.1.[1-3] \
+            #          --ssid=myssid --wifipassword=mypass
+            #
+
+            if not (os_is_pi() or os_is_linux()):
+                Console.error("Only supported on Pi and Linux")
+                return
+
+            hostnames = Parameter.expand(arguments.hostname)
+            manager, workers = get_hostnames(hostnames)
+            ips = Parameter.expand(arguments.ip)
+            print("Manager:      ", manager)
+            print("Workers:      ", workers)
+            print("IPS:          ", ips)
+            print("Device:       ", arguments.device)
+            print("SSID:         ", arguments.ssid)
+            print("Wifi Password:", arguments.wifipassword)
+
+            Console.info(f"Preparing to burn the manager: {manager}")
+            input('Insert sd card and press enter...')
+
+            multi = MultiBurner()
+
+            multi.burn(self,
+                       device=arguments.device,
+                       blocksize="4M",
+                       progress=True,
+                       hostname=manager,
+                       ip=ips[0],
+                       key="~/.ssh/id_rsa.pub",
+                       password=gen_strong_pass(),
+                       ssid=arguments.ssid,
+                       psk=arguments.wifipassword,
+                       formatting=True,
+                       tag='latest-full',
+                       router=None,
+                       generate_key=True,
+                       store_key=True)
+
+            Console.info(f"Completed manager: {manager}")
+
+            Console.info(f"Preparing to burn the workers: {workers}")
+            for worker, ip in zip(workers, ips[1:]):
+                input('Insert the next sd card and press enter...')
+                multi.burn(self,
+                           device=arguments.device,
+                           blocksize="4M",
+                           progress=True,
+                           hostname=worker,
+                           ip=ip,
+                           key='~/.cloudmesh/cmburn/id_rsa.pub',
+                           password=gen_strong_pass(),
+                           ssid=None,
+                           psk=None,
+                           formatting=True,
+                           tag='latest-lite',
+                           router=ips[0],
+                           generate_key=False,
+                           store_key=False)
+            Console.info(f"Completed workers: {workers}")
+            Console.info("Cluster burn is complete.")
+            Burner.remove_public_key()
+            return ""
+
         elif arguments.create and arguments.inventory:
             if not os_is_pi():
                 Console.error("This command has only been safely tested on Raspberry Pis. Terminating for caution")
@@ -627,7 +707,7 @@ class BurnCommand(PluginCommand):
 
                 StopWatch.benchmark(sysinfo=False, csv=False)
             else:
-                Console.error("This command is only supported ona Pi")
+                Console.error("This command is only supported ona Pi and Linux")
             return ""
 
         Console.error("see manual page: cms help burn")

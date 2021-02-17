@@ -37,6 +37,29 @@ from cloudmesh.inventory.inventory import Inventory
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
 
+def get_hostnames(names):
+    """
+    Given a list of host names it identifies if they have numbers in them. If so, they are assumed workers.
+    If not, it is a manager. There can only be one manager.
+
+    @param names: list of names
+    @type names: str
+    @return: manager, worker as list
+    @rtype: tuple
+    """
+    manager = None
+    workers = []
+    for name in names:
+        if any(map(str.isdigit, name)):
+            workers.append(name)
+        else:
+            manager = name
+
+    if len(workers) == 0:
+        workers = None
+
+    return manager, workers
+
 
 def gen_strong_pass():
     """
@@ -727,7 +750,8 @@ class Burner(object):
         else:
             curr_config.append(iface)
             curr_config.append(static_ip)
-            curr_config.append(static_routers)
+            if router_ip:
+                curr_config.append(static_routers)
             curr_config.append('\n')
             # curr_config.append('nolink\n')
 
@@ -1345,6 +1369,28 @@ class Burner(object):
         #     f.writelines(data)
         sudo_writefile(f'{mountpoint}/etc/shadow', content)
 
+    def generate_key(self, hostname=None):
+        card = SDCard()
+        # TODO investigate what happens if not run as UID 1000 (e.g. first user)
+
+        cmd = f'mkdir -p {card.root_volume}/home/pi/.ssh/'
+        self.system_exec(cmd)
+
+        cmd = f'ssh-keygen -q -N "" -C "pi@{hostname}" -f ' \
+              f'{card.root_volume}/home/pi/.ssh/id_rsa'
+        self.system_exec(cmd)
+
+    @staticmethod
+    def store_public_key():
+        card = SDCard()
+        cmd = f'cp {card.root_volume}/home/pi/.ssh/id_rsa.pub ~/.cloudmesh/cmburn/'
+        os.system(cmd)
+
+    @staticmethod
+    def remove_public_key():
+        cmd = 'rm ~/.cloudmesh/cmburn/id_rsa.pub'
+        os.system(cmd)
+
 
 class MultiBurner(object):
     """
@@ -1522,7 +1568,9 @@ class MultiBurner(object):
              psk=None,
              formatting=True,
              tag='latest-lite',
-             router="10.1.1.1"):
+             router="10.1.1.1",
+             generate_key=False,
+             store_key=False):
         """
         Burns the image on the specific device
 
@@ -1582,6 +1630,10 @@ class MultiBurner(object):
         burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
         burner.mount(device=device)
         burner.set_hostname(hostname)
+        if generate_key:
+            burner.generate_key(hostname)
+        if store_key:
+            Burner.store_public_key()
         burner.disable_terminal_login(root_volume, password)
         if ssid:
             Console.warning("In the future, try to interface with the workers via "
@@ -1591,7 +1643,15 @@ class MultiBurner(object):
         burner.disable_password_ssh()
         burner.set_key(key)
         if ip:
-            interface = "wlan0" if ssid is not None else "eth0"
+            # TODO
+            # interface = "wlan0" if ssid is not None else "eth0"
+            #
+            # we can't rely on ssid to determine which interface to static set.
+            # for burning a cluster we want to static set the eth on manager
+            # and enable wifi. We will need to add options --wifi_ip
+            # --wifi_router
+            #
+            interface = 'eth0'
             burner.set_static_ip(ip, iface=interface, router_ip=router)
 
         burner.unmount(device=device)
