@@ -614,8 +614,8 @@ class Burner(object):
         """
         Sets the hostname for which we probe the MAC addresses
 
-        :param hostname: the hostname
-        :type hostname: str
+        :param hostnames: the hostnames
+        :type hostnames: str
         """
         self.hostnames = hostnames
 
@@ -871,110 +871,43 @@ class Burner(object):
         self.system_exec(f'mkdir -p {mountpoint}/home/pi/.ssh/')
         self.system_exec(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
-    @windows_not_supported
-    def activate_ssh(self, public_key="~/.ssh/id_rsa.pub", debug=False, interactive=False):
-        """
-        Sets the public key path and copies it to the SD card
+    def write_fix(self):
 
-        :param public_key: the public key location
-        :type public_key: str
-        :param debug: if set to tru debug messages will be printed
-        :type debug: bool
-        :param interactive: set to tru if you like interactive mode
-        :type interactive: bool
-        :return: True if successful
-        :rtype: bool
-        """
-
-        # file, owner, grooup
-        files = [
-            ["boot/ssh", 1000, 1000],
-            ["boot/wpa_supplicant.conf", 1000, 1000],
-            ["rootfs/etc/hosts", 1000, 1000],
-            ["rootfs/etc/dhcpcd.conf", 1000, 1000],
-            ["rootfs/etc/hostname", 1000, 1000],
-            ["rootfs/home/pi/.ssh/authorized_keys", 1000, 1000],
-            ["rootfs/home/pi/.ssh/id_rsa", 1000, 1000],
-            ["rootfs/home/pi/.ssh/id_rsa.pub", 1000, 1000]
-        ]
+        script = textwrap.dedent("""
+            #! /usr/bin/env python
+            
+            # file, owner, group, permissions
+            import os
+    
+            files = [
+                ["/boot/ssh", 0, 0, 0o777],
+                ["/boot/wpa_supplicant.conf", 0, 0, 0o600],
+                ["/etc/hosts", 0, 0, 0o644],
+                ["/etc/dhcpcd.conf", 0, 109, 0o664],
+                ["/etc/hostname", 0, 0, 0o644],
+                ["/home/pi/.ssh/authorized_keys", 1000, 1000, 0o644],
+                ["/home/pi/.ssh/id_rsa", 1000, 1000, 0o600],
+                ["/home/pi/.ssh/id_rsa.pub", 1000, 1000, 0o644]
+            ]
+    
+            for name, uid, gui, permission in files:
+    
+                if os.path.exists(name):
+                    os.chown(name, uid, guid)
+                    os.chmod(name, permission)
+        """)
 
         card = SDCard()
+        fix = "/boot/fix_permissions.py"
+        writefile(fix)
 
-        public_key = path_expand(public_key)
-        if not os.path.isfile(public_key):
-            Console.error("key does not exist", public_key)
-            return False
-
-        # TODO: we likely have this already
-        self.disable_password_ssh()
-
-        # TODO: this is likely also done elsewhere
-        # activate ssh by creating an empty ssh file in the boot drive
-        pathlib.Path(f"{card.boot_volume}/ssh").touch()
-        # Write the content of the ssh rsa to the authorized_keys file
-        key = pathlib.Path(public_key).read_text()
-        ssh_dir = f"{card.root_volume}/home/pi/.ssh"
-        print(ssh_dir)
-        if not os.path.isdir(ssh_dir):
-            os.makedirs(ssh_dir)
-        auth_keys = ssh_dir / "authorized_keys"
-        auth_keys.write_text(key)
-
-
-
-        if os.getuid() != 1000:
-
-            # We need to fix the permissions on the .ssh folder but it is hard to
-            # get this working from a host OS because the host OS must have a user
-            # and group with the same pid and gid as the raspberry pi OS. On the PI
-            # the pi uid and gid are both 1000.
-
-            # All of the following do not work on OS X:
-            # execute("chown 1000:1000 {ssh_dir}".format(ssh_dir=ssh_dir))
-            # shutil.chown(ssh_dir, user=1000, group=1000)
-            # shutil.chown(ssh_dir, user=1000, group=1000)
-            # execute("sudo chown 1000:1000 {ssh_dir}".format(ssh_dir=ssh_dir))
-
-            # Changing the modification attributes does work, but we can just handle
-            # this the same way as the previous chown issue for consistency.
-            # os.chmod(ssh_dir, 0o700)
-            # os.chmod(auth_keys, 0o600)
-
-            # /etc/rc.local runs at boot with root permissions - since the file
-            # already exists modifying it shouldn't change ownership or permissions
-            # so it should run correctly. Is there a better solution?
-            # after the first boot, I think this should be be removed?
-            #
-            new_lines = textwrap.dedent('''
-                        # FIX298-START: Fix permissions for .ssh directory
-                        if [ -d "/home/pi/.ssh" ]; then
-                            chown pi:pi /home/pi/.ssh
-                            chmod 700 /home/pi/.ssh
-                            if [ -f "/home/pi/.ssh/authorized_keys" ]; then
-                                chown pi:pi /home/pi/.ssh/authorized_keys
-                                chmod 600 /home/pi/.ssh/authorized_keys
-                            fi
-                        fi
-                        # FIX298-END
-                        ''')
-
-            rc_local = f"{card.root_volume}/etc/rc.local"
-            new_rc_local = ""
-            already_updated = False
-            with rc_local.open() as f:
-                for line in f:
-                    if "FIX298" in line:
-                        already_updated = True
-                        break
-                    if line == "exit 0\n":
-                        new_rc_local += new_lines
-                        new_rc_local += line
-                    else:
-                        new_rc_local += line
-            if not already_updated:
-                with rc_local.open("w") as f:
-                    f.write(new_rc_local)
-        return True
+        rc_local = f"{card.root_volume}/etc/rc.local"
+        content = readfile(rc_local)
+        if fix in content:
+            return
+        else:
+            content = content + "\n" + f"sudo python {fix}"
+            writefile(rc_local, content)
 
     @windows_not_supported
     def mount(self, device=None, card_os="raspberry"):
@@ -1348,9 +1281,9 @@ class Burner(object):
                 return False
 
             elif len(details) > 1:
-                 Console.error("For security reasons, please only put one USB writer in")
-                 Console.msg(f"we found {details}")
-                 return False
+                Console.error("For security reasons, please only put one USB writer in")
+                Console.msg(f"we found {details}")
+                return False
 
             else:
 
@@ -1400,8 +1333,6 @@ class Burner(object):
 
         :param device: The device on which we format
         :type device: str
-        :param hostname: the hostname
-        :type hostname: str
         """
         if os_is_linux() or os_is_pi():
 
