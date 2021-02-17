@@ -1460,7 +1460,7 @@ class Burner(object):
 
 
         if workers is not None:
-            image.fetch(tag=["latest-light"])
+            image.fetch(tag=["latest-lite"])
         if manager is not None:
             image.fetch(tag=["latest-full"])
 
