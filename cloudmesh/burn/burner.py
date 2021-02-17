@@ -938,7 +938,7 @@ class Burner(object):
                     fi
                     # FIX298-END
                     ''')
-        # TODO: this shoudl be the file on the SDCARD., se we need to use card.rootfs / ...
+
         rc_local = f"{card.root_volume}/etc/rc.local"
         new_rc_local = ""
         already_updated = False
