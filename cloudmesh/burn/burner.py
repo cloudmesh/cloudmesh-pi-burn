@@ -1923,6 +1923,20 @@ class MultiBurner(object):
 
         _, system_hostname = subprocess.getstatusoutput("cat /etc/hostname")
 
+        banner("Retrieving Images", figlet=True)
+        # Get Images if not already downloaded
+        result = Image.create_version_cache()
+        if result is None:
+            result = Image.create_version_cache(refresh=True)
+
+        image = Image()
+        image.read_version_cache()
+
+        if manager is not None and system_hostname != manager_config["hostname"]:
+            image.fetch(tag=["latest-full"])
+        if workers is not None:
+            image.fetch(tag=["latest-lite"])
+
         # Set up this pi as a bridge if the hostname is the same
         # as the manager and if the user wishes
         if system_hostname == manager_config["hostname"]:
