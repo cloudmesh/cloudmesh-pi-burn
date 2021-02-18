@@ -1696,19 +1696,20 @@ class MultiBurner(object):
         # detect if there is an issue with the cards, readers
         # TODO what exactly should be done here?
 
+        # TODO This does nothing relevant
         # ask if this is ok to burn otherwise
-        burn_all = yn_choice("Format the card before burning?")
+        # burn_all = yn_choice("Format the card before burning?")
 
-        # if no burn all of them for which we have status "empty card"
-        if not burn_all:
-            # delete from devices dict any non-empty devices
-            devices_to_delete = []
-            for device in devices.keys():
-                if devices[device]:
-                    # can't delete while iterating
-                    devices_to_delete.append(device)
-            for device in devices_to_delete:
-                del devices[device]
+        # # if no burn all of them for which we have status "empty card"
+        # if not burn_all:
+        #     # delete from devices dict any non-empty devices
+        #     devices_to_delete = []
+        #     for device in devices.keys():
+        #         if devices[device]:
+        #             # can't delete while iterating
+        #             devices_to_delete.append(device)
+        #     for device in devices_to_delete:
+        #         del devices[device]
 
         print("Burning these devices:")
         print(' '.join(devices.keys()))
