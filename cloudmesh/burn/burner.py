@@ -593,7 +593,7 @@ class Burner(object):
 
             blocksize = blocksize.replace("M", "m")
 
-            if yn_choice(f"Do you like to write to {device} the image {image_path}"):
+            if yn_choice(f"\nDo you like to write to {device} the image {image_path}"):
 
                 # sudo dd if=/dev/rdiskX bs=1m | pv -s 64G | sudo dd of=/dev/rdiskY bs=1m
 
@@ -1325,7 +1325,7 @@ class Burner(object):
                       )
 
                 print()
-                if yn_choice(f"Do you like to format {device} as {title}"):
+                if yn_choice(f"\nDo you like to format {device} as {title}"):
                     _execute(f"Formatting {device} as {title}",
                              f"sudo diskutil eraseDisk FAT32 {title} MBRFormat {device}")
 
@@ -1475,7 +1475,8 @@ class Burner(object):
         if manager is not None and \
             (arguments.wifipassword is None
              or arguments.wifipassword.lower() in ['input', "none", ""]):  # noqa: W503
-            arguments.wifipassword = getpass()
+            print()
+            arguments.wifipassword = getpass("Wifi Password: ")
 
         if workers is None:
             n = 1
@@ -1490,6 +1491,8 @@ class Burner(object):
 
         key = path_expand("~/.ssh/id_rsa.pub")
 
+        banner("Parameters", figlet=True)
+
         print("Manager:      ", manager)
         print("Workers:      ", workers)
         print("IPS:          ", ips)
@@ -1497,6 +1500,10 @@ class Burner(object):
         print("SSID:         ", arguments.ssid)
         print("Wifi Password:", arguments.wifipassword)
         print("Key:          ", key)
+
+        if not yn_choice('\nWould you like to continue?'):
+            Console.error("Aborting ...")
+            return ""
 
         banner("Download Images", figlet=True)
 
@@ -1515,10 +1522,10 @@ class Burner(object):
         multi = MultiBurner()
 
         if manager is not None:
-            banner("Burn the manager", c="#")
+            banner("Burn the Manager", figlet=True)
 
             Console.info(f"Preparing to burn the manager: {manager}")
-            if not yn_choice('Would you like to continue?'):
+            if not yn_choice('\nWould you like to continue?'):
                 Console.error("Aborting ...")
                 return ""
 
@@ -1541,7 +1548,7 @@ class Burner(object):
 
             Console.info(f"Completed manager: {manager}")
 
-        banner("Burn the workers", c="#")
+        banner("Burn the Workers", figlet=True)
 
         Console.info(f"Preparing to burn the workers: {workers}")
         for worker, ip in tuple(zip(workers, ips[1:])):
@@ -1572,6 +1579,8 @@ class Burner(object):
         Console.info(f"Completed workers: {workers}")
         Console.info("Cluster burn is complete.")
         Burner.remove_public_key()
+
+        banner ("Done", figlet=True)
         return ""
 
 

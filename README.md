@@ -850,7 +850,6 @@ Examples: ( \ is not shown)
 <!--MANUAL-BURN-->
 
 
-
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -884,8 +883,6 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
-
-
 
 
 ### Manual Page for the `host` command
@@ -1022,8 +1019,6 @@ Description:
 <!--MANUAL-HOST-->
 
 
-
-
 ### Manual Page for the `pi` command
 
 Note to execute the command on the command line you have to type in
@@ -1097,6 +1092,8 @@ Description:
 
 
 
+
+
 ## FAQ and Hints
 
 Here, we provide some useful FAQs and hints.
@@ -1113,7 +1110,7 @@ laptop$ cms info
 Identify the device. In Linux it is /dev/sdX in macOS it is /dev/diskX.
 
 ```
-2 laptop$ cms burn cluster --device=/dev/disk2 --hostname="red,red01,red02" --ssid=SSID
+2 laptop$ cms burn cluster --device=/dev/disk2 --hostname="red,red0[1-2]" --ssid=SSID
 ```
 
 Plug in the SD Cards in the PI's and start them up. It will take at least 60 
@@ -1716,11 +1713,9 @@ sudo iwlist wlan0 scan
 
 * for macOS, only the image commands have unit tests
 * firmware does not have a unit test
-  
-
 * empty = not yet implemented
-* + = verified throug unit test either by ANthony or Gregor
-* - broken
+* - = broken
+* NA = Not applicable for this OS
 
 * TODO1 = todo for boot fs, rootfs not supported
 
