@@ -892,6 +892,7 @@ class Burner(object):
                 ["/etc/hosts", 0, 0, 0o644],
                 ["/etc/dhcpcd.conf", 0, 109, 0o664],
                 ["/etc/hostname", 0, 0, 0o644],
+                ["/home/pi/.ssh", 1000, 1000, 0o700],
                 ["/home/pi/.ssh/authorized_keys", 1000, 1000, 0o644],
                 ["/home/pi/.ssh/id_rsa", 1000, 1000, 0o600],
                 ["/home/pi/.ssh/id_rsa.pub", 1000, 1000, 0o644]
