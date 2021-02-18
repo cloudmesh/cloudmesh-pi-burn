@@ -1532,6 +1532,7 @@ class Burner(object):
                        write_local_hosts=False,
                        cluster_hosts=cluster_hosts)
 
+
             Console.info(f"Completed manager: {manager}")
 
         banner("Burn the workers", c="#")
@@ -1839,6 +1840,11 @@ class MultiBurner(object):
             if not write_local_hosts:
                 burner.write_cluster_hosts(cluster_hosts)
         burner.write_fix()
+        try:
+            os.system(f"sudo rm -f {card.root_volume}/etc/xdg/autostart/piwiz.desktop")
+        except:
+            Console.error("Gui wizzard not found at "
+                          f"{card.root_volume}/etc/xdg/autostart/piwiz.desktop")
 
         burner.unmount(device=device)
         # for some reason, need to do unmount twice for it to work properly
