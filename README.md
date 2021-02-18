@@ -1195,7 +1195,7 @@ Copy the specified command output to your ~/.ssh/config file on your laptop.
 W weill soon have a command that will add them for you without using an editor.
 
 ```
-(ENV3) pi@mred:~ $ sudo reboot
+(ENV3) pi@red:~ $ sudo reboot
 ```
 
 
