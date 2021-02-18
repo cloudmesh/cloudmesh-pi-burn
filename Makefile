@@ -21,6 +21,7 @@ install:
 	pip install -e .
 
 readme:
+	cms markdown -p numbers ./README.md
 	cms man readme -p --toc
 	cms man readme -p --tag="MANUAL-BURN" --command=burn
 	cms man readme -p --tag="MANUAL-BRIDGE" --command=bridge
