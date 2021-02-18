@@ -1475,7 +1475,10 @@ class Burner(object):
              or arguments.wifipassword.lower() in ['input', "none", ""]):  # noqa: W503
             arguments.wifipassword = getpass()
 
-        n = len(workers) + 1
+        if workers is None:
+            n = 1
+        else:
+            n = len(workers) + 1
         if arguments.ip is None:
             ips = Parameter.expand(f"10.0.0.[1-{n}]")
         else:
