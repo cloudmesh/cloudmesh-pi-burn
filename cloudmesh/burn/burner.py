@@ -913,7 +913,8 @@ class Burner(object):
         if fix in content:
             return
         else:
-            content = content + "\n" + f"sudo python {fix}"
+            content.replace("exit 0", f"sudo python {fix}")
+            content = content + "\n" + "exit 0\n"
             writefile(rc_local, content)
 
     @windows_not_supported
