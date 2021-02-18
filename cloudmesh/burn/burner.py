@@ -887,11 +887,13 @@ class Burner(object):
             # file, owner, group, permissions
             import os
             files = [
+                ["/boot/fix_permissions.py", 0, 0, 0o777],
                 ["/boot/ssh", 0, 0, 0o777],
                 ["/boot/wpa_supplicant.conf", 0, 0, 0o600],
                 ["/etc/hosts", 0, 0, 0o644],
                 ["/etc/dhcpcd.conf", 0, 109, 0o664],
                 ["/etc/hostname", 0, 0, 0o644],
+                ["/etc/rc.local", 0, 0, 0o751],
                 ["/home/pi/.ssh", 1000, 1000, 0o700],
                 ["/home/pi/.ssh/authorized_keys", 1000, 1000, 0o644],
                 ["/home/pi/.ssh/id_rsa", 1000, 1000, 0o600],
@@ -906,7 +908,7 @@ class Burner(object):
         card = SDCard()
         fix = "/boot/fix_permissions.py"
         fix_on_sdcard = f"{card.boot_volume}/fix_permissions.py"
-        writefile(fix_on_sdcard, script)
+        sudo_writefile(fix_on_sdcard, script)
 
         rc_local = f"{card.root_volume}/etc/rc.local"
         content = readfile(rc_local)
@@ -915,7 +917,7 @@ class Burner(object):
         else:
             content.replace("exit 0", f"sudo python {fix}")
             content = content + "\n" + "exit 0\n"
-            writefile(rc_local, content)
+            sudo_writefile(rc_local, content)
 
     @windows_not_supported
     def mount(self, device=None, card_os="raspberry"):
