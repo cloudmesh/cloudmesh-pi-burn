@@ -32,6 +32,7 @@ from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
+from cloudmesh.common.wifi import Wifi
 from cloudmesh.inventory.inventory import Inventory
 
 
@@ -1170,6 +1171,9 @@ class Burner(object):
 
         country = country or 'US'
 
+        card = SDCard(card_os=card_os, host=host)
+        path = f"{card.boot_volume}/wpa_supplicant.conf"
+
         if psk:
             wifi = textwrap.dedent("""\
                     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -1191,8 +1195,6 @@ class Burner(object):
                             key_mgmt=NONE
                     }}""".format(network=ssid, country=country))
 
-        card = SDCard(card_os=card_os, host=host)
-        path = f"{card.boot_volume}/wpa_supplicant.conf"
         if self.dryrun:
             print("DRY RUN - skipping:")
             print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
@@ -1880,6 +1882,23 @@ class MultiBurner(object):
             return
 
         devices = Parameter.expand(device)
+
+        # Warn user if they are burning non-empty devices
+        info_statuses = Burner().info()
+
+        try:
+            empty_statuses = {}
+            for device in devices:
+                empty_statuses[device] = info_statuses[device]['empty']
+        except KeyError:
+            Console.error("Device specified not found by cms burn info. Did you specify the correct path? Is the card properly inserted?")
+            return
+
+        for dev, empty_status in empty_statuses.items():
+            if not empty_status:
+                if not yn_choice(f"Device {dev} is not empty. Do you wish to continue?"):
+                    Console.error("Terminating")
+                    return
 
         manager_search_results = i.find(host=manager)
         if len(manager_search_results) == 0:
