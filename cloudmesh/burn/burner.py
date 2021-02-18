@@ -902,7 +902,7 @@ class Burner(object):
             for name, uid, guid, permission in files:
                 if os.path.exists(name):
                     os.chown(name, uid, guid)
-                    os.chmod(name, permission)
+                    os.chmod(name, permission)                
         """)
 
         card = SDCard()
