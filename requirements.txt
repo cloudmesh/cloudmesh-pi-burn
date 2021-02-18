@@ -11,3 +11,4 @@ pyyaml
 oyaml
 requests
 pyusb
+pyfiglet
