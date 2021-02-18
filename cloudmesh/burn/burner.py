@@ -1532,7 +1532,6 @@ class Burner(object):
                        write_local_hosts=False,
                        cluster_hosts=cluster_hosts)
 
-
             Console.info(f"Completed manager: {manager}")
 
         banner("Burn the workers", c="#")
