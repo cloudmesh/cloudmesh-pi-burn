@@ -1185,14 +1185,14 @@ class Burner(object):
 
         if psk:
             if os_is_mac():
-                Wifi.set(ssid=network, password=psk, country=country, location=path)
+                Wifi.set(ssid=ssid, password=psk, country=country, location=path)
             else:
-                Wifi.set(ssid=network, password=psk, country=country, location=path, sudo=True)
+                Wifi.set(ssid=ssid, password=psk, country=country, location=path, sudo=True)
         else:
             if os_is_mac():
-                Wifi.set(ssid=network, psk=False, country=country, location=path)
+                Wifi.set(ssid=ssid, psk=False, country=country, location=path)
             else:
-                Wifi.set(ssid=network, psk=False, country=country, location=path, sudo=True)
+                Wifi.set(ssid=ssid, psk=False, country=country, location=path, sudo=True)
 
         return ""
 
