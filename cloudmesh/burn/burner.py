@@ -892,6 +892,7 @@ class Burner(object):
                 ["/etc/hosts", 0, 0, 0o644],
                 ["/etc/dhcpcd.conf", 0, 109, 0o664],
                 ["/etc/hostname", 0, 0, 0o644],
+                ["/home/pi/.ssh", 1000, 1000, 0o700],
                 ["/home/pi/.ssh/authorized_keys", 1000, 1000, 0o644],
                 ["/home/pi/.ssh/id_rsa", 1000, 1000, 0o600],
                 ["/home/pi/.ssh/id_rsa.pub", 1000, 1000, 0o644]
@@ -912,7 +913,8 @@ class Burner(object):
         if fix in content:
             return
         else:
-            content = content + "\n" + f"sudo python {fix}"
+            content.replace("exit 0", f"sudo python {fix}")
+            content = content + "\n" + "exit 0\n"
             sudo_writefile(rc_local, content)
 
     @windows_not_supported
@@ -1473,7 +1475,10 @@ class Burner(object):
              or arguments.wifipassword.lower() in ['input', "none", ""]):  # noqa: W503
             arguments.wifipassword = getpass()
 
-        n = len(workers) + 1
+        if workers is None:
+            n = 1
+        else:
+            n = len(workers) + 1
         if arguments.ip is None:
             ips = Parameter.expand(f"10.0.0.[1-{n}]")
         else:
@@ -1839,6 +1844,11 @@ class MultiBurner(object):
             if not write_local_hosts:
                 burner.write_cluster_hosts(cluster_hosts)
         burner.write_fix()
+        try:
+            os.system(f"sudo rm -f {card.root_volume}/etc/xdg/autostart/piwiz.desktop")
+        except:
+            Console.error("Gui wizzard not found at "
+                          f"{card.root_volume}/etc/xdg/autostart/piwiz.desktop")
 
         burner.unmount(device=device)
         # for some reason, need to do unmount twice for it to work properly
