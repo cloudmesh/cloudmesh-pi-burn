@@ -701,9 +701,9 @@ class Burner(object):
     def write_cluster_hosts(self, cluster_hosts):
         card = SDCard()
         hosts = sudo_readfile(f'{card.root_volume}/etc/hosts', split=False)
-        hosts += '\n'
+        hosts = hosts + '\n'
         for ip, hostname in cluster_hosts:
-            hosts += (f"{ip}\t{hostname}\n")
+            hosts = hosts + f"{ip}\t{hostname}\n"
         sudo_writefile(f'{card.root_volume}/etc/hosts', hosts)
 
     @windows_not_supported
