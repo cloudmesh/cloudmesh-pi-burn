@@ -43,8 +43,6 @@ to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
     - [Using Pi Imager to setup a Manager Pi with headless access](#using-pi-imager-to-setup-a-manager-pi-with-headless-access)
     - [Single Card Burning](#single-card-burning)
     - [How to update firmware?](#how-to-update-firmware)
-    - [How to burn a cluster using Linux](#how-to-burn-a-cluster-using-linux)
-    - [Shortcut to burn a standard cluster using Linux or a Pi](#shortcut-to-burn-a-standard-cluster-using-linux-or-a-pi)
     - [Alternatives](#alternatives)
     - [How do I scann for WIFI networks?](#how-do-i-scann-for-wifi-networks)
     - [What is the status of the implementation?](#what-is-the-status-of-the-implementation)
@@ -850,6 +848,7 @@ Examples: ( \ is not shown)
 <!--MANUAL-BURN-->
 
 
+
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -883,6 +882,7 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 ### Manual Page for the `host` command
@@ -1019,6 +1019,7 @@ Description:
 <!--MANUAL-HOST-->
 
 
+
 ### Manual Page for the `pi` command
 
 Note to execute the command on the command line you have to type in
@@ -1087,6 +1088,7 @@ Description:
 
 ```
 <!--MANUAL-PI-->
+
 
 ## FAQ and Hints
 
