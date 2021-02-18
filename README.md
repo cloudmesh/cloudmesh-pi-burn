@@ -46,6 +46,7 @@ to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
     - [7.12 Alternatives](#712-alternatives)
     - [7.13 How do I scann for WIFI networks?](#713-how-do-i-scann-for-wifi-networks)
     - [7.14 What is the status of the implementation?](#714-what-is-the-status-of-the-implementation)
+    - [7.14 I run into a Kernal Panic on my burned Pi. What do I do?](#714-i-run-into-a-kernal-panic-on-my-burned-pi-what-do-i-do)
   - [8. How can I contribute Contributing](#8-how-can-i-contribute-contributing)
 
 <!--TOC-->
@@ -1114,6 +1115,7 @@ images, full for master, and lite for workers.
 * We recommend pip version 21.0.0 or newer
 * You have a private and public ssh key named ~/.ssh/id_rsa and ~/.
   ssh/id_rsa.pub
+* macOS dependencies [What packages do I need to run the info command on macOS](#what-packages-do-i-need-to-run-the-info-command-on-macos)  
 
 #### 7.1.2 Install Cloudmesh
 
@@ -1143,7 +1145,21 @@ Plug in a sd card reader with sd card to the laptop and identify the device.
 In Linux it is /dev/sdX in macOS it is /dev/diskX.
 
 ```
-you@laptop:~ $ cms info 
+(ENV3) you@laptop:~ $ cms burn info 
+```
+
+```
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++----------+----------------------------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------+
+| Path     | Info                                         | Formatted   | Size             | Plugged-in   | Readable   | Empty   | Access   | Removable   | Writeable   |
+|----------+----------------------------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------|
+| /dev/diskX | Generic- USB3.0 CRW-SD/MS 1.00 PQ: 0 ANSI: 6 | True        | 
+64.1 GB/59.7 GiB | True         | True       | False   | True     | True        | True        |
++----------+----------------------------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------+
+
 ```
 
 **Step 2.** Burn the SD cards 
@@ -1152,8 +1168,7 @@ You will be prompted to input your wifi password for your SSID when runing the
 command below.
 
 ```
-you@laptop:~ $ cms burn cluster --device=/dev/diskX --hostname="red,red00[1-2]" 
---ssid=SSID
+(ENV3) you@laptop:~ $ cms burn cluster --device=/dev/diskX --hostname="red,red00[1-2]" --ssid=SSID
 ```
 
 **Step 3.** Boot the cluster and complete setup of cloudmesh and all ssh 
@@ -1165,7 +1180,7 @@ seconds for them to boot for the first time.
 Now login to the manager with 
 
 ```
-you@laptop:~ $ ssh pi@red.local
+(ENV3) you@laptop:~ $ ssh pi@red.local
 ```
 
 On the manager you call the follwoing commands
@@ -1180,9 +1195,46 @@ Copy the specified command output to your ~/.ssh/config file on your laptop.
 W weill soon have a command that will add them for you without using an editor.
 
 ```
-(ENV3) pi@mred:~ $ sudo reboot
+# ----------------------------------------------------------------------
+# copy to ~/.ssh/config on remote host (i.e laptop)
+# ----------------------------------------------------------------------
+
+Host red
+     HostName red.local
+     User pi
+
+Host red001
+     HostName red.local
+     User pi
+     Port 8001
+
+Host red002
+     HostName red.local
+     User pi
+     Port 8002
+
 ```
 
+
+```
+(ENV3) pi@red:~ $ sudo reboot
+```
+
+Let us test by running a command from the laptop to get the Pis' 
+temperatures.
+
+```
+(ENV3) you@laptop:~ $ cms pi temp red,red00[1-2]              
+pi temp red,red00[1-2]
++--------+--------+-------+----------------------------+
+| host   |    cpu |   gpu | date                       |
+|--------+--------+-------+----------------------------|
+| red    | 50.147 |  50.1 | 2021-02-18 21:10:05.942494 |
+| red001 | 51.608 |  51.6 | 2021-02-18 21:10:06.153189 |
+| red002 | 45.764 |  45.7 | 2021-02-18 21:10:06.163067 |
++--------+--------+-------+----------------------------+
+
+```
 
 ### 7.2 Can I use the LEDs on the PI Motherboard?
 
@@ -1583,6 +1635,17 @@ sudo iwlist wlan0 scan
 * NA = Not applicable for this OS
 
 * TODO1 = todo for boot fs, rootfs not supported
+
+### 7.14 I run into a Kernal Panic on my burned Pi. What do I do?
+Occassionally, one may run into an error similar to the following:
+
+```
+Kernel panic-not syncing: VFS: unable to mount root fs on unknown-block(179,2)
+```
+
+See [here](https://raspberrypi.stackexchange.com/questions/40854/kernel-panic-not-syncing-vfs-unable-to-mount-root-fs-on-unknown-block179-6) for more information on this bug.
+
+This error has been reported in the past. A simple reburn using `cms burn` tends to resolve the issue.
 
 
 ## 8. How can I contribute Contributing

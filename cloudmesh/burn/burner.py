@@ -32,6 +32,7 @@ from cloudmesh.common.util import sudo_readfile
 from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
+from cloudmesh.common.wifi import Wifi
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.common.Benchmark import Benchmark
 
@@ -525,6 +526,9 @@ class Burner(object):
             image = image[0]
 
             image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+            if not os.path.isfile(image_path):
+                Console.error(f"Image {tag} not found")
+                raise FileNotFoundError
 
         banner("Burning the SDCard")
         print("Image:    ", image_path)
@@ -1171,39 +1175,25 @@ class Burner(object):
 
         country = country or 'US'
 
-        if psk:
-            wifi = textwrap.dedent("""\
-                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-                    update_config=1
-                    country={country}
-
-                    network={{
-                            ssid=\"{network}\"
-                            psk=\"{psk}\"
-                    }}""".format(network=ssid, psk=psk, country=country))
-        else:
-            wifi = textwrap.dedent("""\
-                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-                    update_config=1
-                    country={country}
-
-                    network={{
-                            ssid=\"{network}\"
-                            key_mgmt=NONE
-                    }}""".format(network=ssid, country=country))
-
         card = SDCard(card_os=card_os, host=host)
         path = f"{card.boot_volume}/wpa_supplicant.conf"
+
         if self.dryrun:
             print("DRY RUN - skipping:")
             print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
                                                              psk, path))
             return ""
 
-        if os_is_mac():
-            writefile(path, wifi)
+        if psk:
+            if os_is_mac():
+                Wifi.set(ssid=network, password=psk, country=country, location=path)
+            else:
+                Wifi.set(ssid=network, password=psk, country=country, location=path, sudo=True)
         else:
-            sudo_writefile(path, wifi)
+            if os_is_mac():
+                Wifi.set(ssid=network, psk=False, country=country, location=path)
+            else:
+                Wifi.set(ssid=network, psk=False, country=country, location=path, sudo=True)
 
         return ""
 
@@ -1705,19 +1695,20 @@ class MultiBurner(object):
         # detect if there is an issue with the cards, readers
         # TODO what exactly should be done here?
 
+        # TODO This does nothing relevant
         # ask if this is ok to burn otherwise
-        burn_all = yn_choice("Format the card before burning?")
+        # burn_all = yn_choice("Format the card before burning?")
 
-        # if no burn all of them for which we have status "empty card"
-        if not burn_all:
-            # delete from devices dict any non-empty devices
-            devices_to_delete = []
-            for device in devices.keys():
-                if devices[device]:
-                    # can't delete while iterating
-                    devices_to_delete.append(device)
-            for device in devices_to_delete:
-                del devices[device]
+        # # if no burn all of them for which we have status "empty card"
+        # if not burn_all:
+        #     # delete from devices dict any non-empty devices
+        #     devices_to_delete = []
+        #     for device in devices.keys():
+        #         if devices[device]:
+        #             # can't delete while iterating
+        #             devices_to_delete.append(device)
+        #     for device in devices_to_delete:
+        #         del devices[device]
 
         print("Burning these devices:")
         print(' '.join(devices.keys()))
@@ -1880,7 +1871,9 @@ class MultiBurner(object):
         StopWatch.status(f"create {device} {hostname}", True)
 
     def burn_inventory(self, inventory, name, device):
+        banner("Burning Inventory", figlet=True)
         i = Inventory(inventory)
+        i.print()
 
         # name formatted as manager,worker
         if ',' in name:
@@ -1891,6 +1884,23 @@ class MultiBurner(object):
             return
 
         devices = Parameter.expand(device)
+
+        # Warn user if they are burning non-empty devices
+        info_statuses = Burner().info(print_stdout=False)
+
+        try:
+            empty_statuses = {}
+            for device in devices:
+                empty_statuses[device] = info_statuses[device]['empty']
+        except KeyError:
+            Console.error("Device specified not found by cms burn info. Did you specify the correct path? Is the card properly inserted?")
+            return
+
+        for dev, empty_status in empty_statuses.items():
+            if not empty_status:
+                if not yn_choice(f"Device {dev} is not empty. Do you wish to continue?"):
+                    Console.error("Terminating")
+                    return
 
         manager_search_results = i.find(host=manager)
         if len(manager_search_results) == 0:

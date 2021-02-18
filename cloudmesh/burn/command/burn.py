@@ -572,14 +572,17 @@ class BurnCommand(PluginCommand):
                 Console.error("Missing --device parameter. See cms help burn for usage")
                 return ""
 
+            StopWatch.start("burn inventory")
             multi_burner = MultiBurner()
             # Perhaps we want to change the path at some point
             inventory = f"~/.cloudmesh/{arguments.inventory}"
-            execute("burn inventory",
-                    multi_burner.burn_inventory(
-                        inventory=inventory,
-                        name=arguments.name,
-                        device=arguments.device))
+            multi_burner.burn_inventory(
+                inventory=inventory,
+                name=arguments.name,
+                device=arguments.device)
+            StopWatch.stop("burn inventory")
+            StopWatch.status("burn inventory", True)
+            StopWatch.benchmark(sysinfo=False, csv=False)
             return ""
 
         elif arguments.create:
