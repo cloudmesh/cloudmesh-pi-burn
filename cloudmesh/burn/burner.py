@@ -915,7 +915,7 @@ class Burner(object):
         if fix in content:
             return
         else:
-            content.replace("exit 0", f"sudo python {fix}")
+            content = content.replace("exit 0", f"sudo python {fix}")
             content = content + "\n" + "exit 0\n"
             sudo_writefile(rc_local, content)
 
