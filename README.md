@@ -1145,7 +1145,7 @@ Plug in a sd card reader with sd card to the laptop and identify the device.
 In Linux it is /dev/sdX in macOS it is /dev/diskX.
 
 ```
-you@laptop:~ $ cms burn info 
+(ENV3) you@laptop:~ $ cms burn info 
 ```
 
 ```
@@ -1168,7 +1168,7 @@ You will be prompted to input your wifi password for your SSID when runing the
 command below.
 
 ```
-you@laptop:~ $ cms burn cluster --device=/dev/diskX --hostname="red,red00[1-2]" --ssid=SSID
+(ENV3) you@laptop:~ $ cms burn cluster --device=/dev/diskX --hostname="red,red00[1-2]" --ssid=SSID
 ```
 
 **Step 3.** Boot the cluster and complete setup of cloudmesh and all ssh 
@@ -1180,7 +1180,7 @@ seconds for them to boot for the first time.
 Now login to the manager with 
 
 ```
-you@laptop:~ $ ssh pi@red.local
+(ENV3) you@laptop:~ $ ssh pi@red.local
 ```
 
 On the manager you call the follwoing commands
