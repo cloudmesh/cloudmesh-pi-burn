@@ -1580,7 +1580,7 @@ class Burner(object):
         Console.info("Cluster burn is complete.")
         Burner.remove_public_key()
 
-        banner ("Done", figlet=True)
+        banner("Done", figlet=True)
         return ""
 
 
