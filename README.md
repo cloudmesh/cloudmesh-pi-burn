@@ -46,6 +46,7 @@ to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
     - [7.12 Alternatives](#712-alternatives)
     - [7.13 How do I scann for WIFI networks?](#713-how-do-i-scann-for-wifi-networks)
     - [7.14 What is the status of the implementation?](#714-what-is-the-status-of-the-implementation)
+    - [7.14 I run into a Kernal Panic on my burned Pi. What do I do?](#714-i-run-into-a-kernal-panic-on-my-burned-pi-what-do-i-do)
   - [8. How can I contribute Contributing](#8-how-can-i-contribute-contributing)
 
 <!--TOC-->
