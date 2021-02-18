@@ -896,7 +896,7 @@ class Burner(object):
                 ["/home/pi/.ssh/id_rsa", 1000, 1000, 0o600],
                 ["/home/pi/.ssh/id_rsa.pub", 1000, 1000, 0o644]
             ]
-            for name, uid, gui, permission in files:
+            for name, uid, guid, permission in files:
                 if os.path.exists(name):
                     os.chown(name, uid, guid)
                     os.chmod(name, permission)
