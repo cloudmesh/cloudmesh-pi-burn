@@ -32,6 +32,7 @@ to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
     - [Manual Page for the `host` command](#manual-page-for-the-host-command)
     - [Manual Page for the `pi` command](#manual-page-for-the-pi-command)
   - [FAQ and Hints](#faq-and-hints)
+    - [Setup of a cluster from macOS or Linux with no burning on a PI.](#setup-of-a-cluster-from-macos-or-linux-with-no-burning-on-a-pi)
     - [Can I use the LEDs on the PI Motherboard?](#can-i-use-the-leds-on-the-pi-motherboard)
     - [How can I use pycharm, to edit files or access files in general from my Laptop on the PI?](#how-can-i-use-pycharm-to-edit-files-or-access-files-in-general-from-my-laptop-on-the-pi)
     - [How can I enhance the `get` script?](#how-can-i-enhance-the-get-script)
@@ -44,7 +45,8 @@ to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
     - [How to update firmware?](#how-to-update-firmware)
     - [How to burn a cluster using Linux](#how-to-burn-a-cluster-using-linux)
     - [Shortcut to burn a standard cluster using Linux or a Pi](#shortcut-to-burn-a-standard-cluster-using-linux-or-a-pi)
-  - [Alternatives](#alternatives)
+    - [Alternatives](#alternatives)
+    - [How do I scann for WIFI networks?](#how-do-i-scann-for-wifi-networks)
     - [What is the status of the implementation?](#what-is-the-status-of-the-implementation)
   - [How can I contribute Contributing](#how-can-i-contribute-contributing)
 
@@ -600,8 +602,7 @@ Note to execute the command on the command line you have to type in
   burn backup [--device=DEVICE] [--to=DESTINATION]
   burn copy [--device=DEVICE] [--from=DESTINATION]
   burn shrink [--image=IMAGE]
-  burn cluster [--device=DEVICE]
-               [--hostname=HOSTNAME]
+  burn cluster --device=DEVICE --hostname=HOSTNAME
                [--ip=IP]
                [--ssid=SSID]
                [--wifipassword=PSK]
@@ -850,8 +851,6 @@ Examples: ( \ is not shown)
 
 
 
-
-
 ### Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -859,19 +858,20 @@ Note to execute the command on the commandline you have to type in
 
 <!--MANUAL-BRIDGE-->
 ```
+  bridge create [--interface=INTERFACE] [--ip=IP] [--dns=NAMESERVER]
 
 Options:
-    --interface=INTERFACE  The interface name [default: eth1]
-                           You can also specify wlan0 if you want
-                           to bridge through WIFI on the manager
-                           eth0 requires a USB to WIFI adapter
+  --interface=INTERFACE  The interface name [default: eth1]
+                         You can also specify wlan0 if you want
+                         to bridge through WIFI on the manager
+                         eth0 requires a USB to WIFI adapter
 
-   --ip=IP  The ip address to assign on the eth0 interface,
-            ie. the listening interface [default: 10.1.1.1]
+  --ip=IP  The ip address to assign on the eth0 interface,
+           ie. the listening interface [default: 10.1.1.1]
 
-  --dns=NAMESERVER  The ip address of a nameserver to set statically
-           For example, --dns=8.8.8.8,8.8.4.4 will use google
-           nameservers
+  --dns=NAMESERVER  The ip address of a nameserver to set
+                    statically. For example, --dns=8.8.8.8,8.8.4.4
+                    will use the google nameservers
 
 Description:
 
@@ -884,7 +884,6 @@ Description:
 
 ```
 <!--MANUAL-BRIDGE-->
-
 
 
 
@@ -906,6 +905,7 @@ Note to execute the command on the commandline you have to type in
     host key scatter NAMES FILE
     host tunnel create NAMES [--port=PORT]
     host mac NAMES [--eth] [--wlan] [--output=FORMAT]
+    host setup WORKERS [LAPTOP]
 
 This command does some useful things.
 
@@ -1007,9 +1007,19 @@ Description:
 
       returns the list of mac addresses of the named pis.
 
+    host setup WORKERS [LAPTOP]
+
+      Executes the following steps
+
+          cms bridge create --interface='wlan0'
+          cms host key create red00[1-3]
+          cms host key gather red00[1-3],you@yourlaptop.local keys.txt
+          cms host key scatter red00[1-3],localhost keys.txt
+          rm keys.txt
+          cms host tunnel create red00[1-3]
+
 ```
 <!--MANUAL-HOST-->
-
 
 
 
@@ -1087,10 +1097,50 @@ Description:
 
 
 
-
 ## FAQ and Hints
 
 Here, we provide some useful FAQs and hints.
+
+### Setup of a cluster from macOS or Linux with no burning on a PI.
+
+We demonstarte here how to burn 1 manager and 2 worker SD Cards. The manager 
+is called red, the workers are re01 and red02.
+
+```bash
+laptop$ cms info 
+```
+
+Identify the device. In Linux it is /dev/sdX in macOS it is /dev/diskX.
+
+```
+2 laptop$ cms burn cluster --device=/dev/disk2 --hostname="red,red01,red02" --ssid=SSID
+```
+
+Plug in the SD Cards in the PI's and start them up. It will take at least 60 
+seconds for them to boot for the first time.
+
+Now login to the manager with 
+
+```bash
+laptop$ ssh pi@red.locsl
+
+```
+
+ON the manager you call the follwoing commands
+
+```bash
+pi@red:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
+i@red:~ $ source ~/ENV3/bin/activate
+(ENV3) pi@red:~ $ cms host setup red00[1-3] you@yourlaptop.local 
+```
+
+Copy the specified command output to your ~/.ssh/config file on your laptop. 
+W weill soon have a command that will add them for you without using an editor.
+
+```bash
+(ENV3) pi@mred:~ $ sudo reboot
+```
+
 
 ### Can I use the LEDs on the PI Motherboard?
 
@@ -1616,7 +1666,7 @@ See section [Set up of the SSH keys and SSH tunnel](#set-up-of-the-ssh-keys-and-
 
 **Step 8.** Enjoy your Pi cluster :)
 
-## Alternatives
+### Alternatives
 
 There are several alternatives to make the setup easier:
 
@@ -1686,43 +1736,3 @@ Additional cloudmesh components are used. For example:
   * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-common)
   * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-cmd5)
   * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-inventory)
-
-## Setup of a cluster from macOS or Linux with no burning on a PI.
-
-We demonstarte here how to burn 1 manager and 2 worker SD Cards. The manager 
-is called red, the workers are re01 and red02.
-
-```bash
-laptop$ cms info 
-```
-
-Identify the device. In Linux it is /dev/sdX in macOS it is /dev/diskX.
-
-```
-2 laptop$ cms burn cluster --device=/dev/disk2 --hostname="red,red01,red02" --ssid=SSID
-```
-
-Plug in the SD Cards in the PI's and start them up. It will take at least 60 
-seconds for them to boot for the first time.
-
-Now login to the manager with 
-
-```bash
-laptop$ ssh pi@red.locsl
-
-```
-
-ON the manager you call the follwoing commands
-
-```bash
-pi@red:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
-i@red:~ $ source ~/ENV3/bin/activate
-(ENV3) pi@red:~ $ cms host setup red00[1-3] you@yourlaptop.local 
-```
-
-Copy the specified command output to your ~/.ssh/config file on your laptop. 
-W weill soon have a command that will add them for you without using an editor.
-
-```bash
-(ENV3) pi@mred:~ $ sudo reboot
-```

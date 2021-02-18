@@ -1498,7 +1498,7 @@ class Burner(object):
         print("Wifi Password:", arguments.wifipassword)
         print("Key:          ", key)
 
-        banner("Download Images")
+        banner("Download Images", figlet=True)
 
         result = Image.create_version_cache()
         if result is None:
