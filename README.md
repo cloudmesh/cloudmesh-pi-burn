@@ -1195,9 +1195,46 @@ Copy the specified command output to your ~/.ssh/config file on your laptop.
 W weill soon have a command that will add them for you without using an editor.
 
 ```
+# ----------------------------------------------------------------------
+# copy to ~/.ssh/config on remote host (i.e laptop)
+# ----------------------------------------------------------------------
+
+Host red
+     HostName red.local
+     User pi
+
+Host red001
+     HostName red.local
+     User pi
+     Port 8001
+
+Host red002
+     HostName red.local
+     User pi
+     Port 8002
+
+```
+
+
+```
 (ENV3) pi@red:~ $ sudo reboot
 ```
 
+Let us test by running a command from the laptop to get the Pis' 
+temperatures.
+
+```
+(ENV3) you@laptop:~ $ cms pi temp red,red00[1-2]              
+pi temp red,red00[1-2]
++--------+--------+-------+----------------------------+
+| host   |    cpu |   gpu | date                       |
+|--------+--------+-------+----------------------------|
+| red    | 50.147 |  50.1 | 2021-02-18 21:10:05.942494 |
+| red001 | 51.608 |  51.6 | 2021-02-18 21:10:06.153189 |
+| red002 | 45.764 |  45.7 | 2021-02-18 21:10:06.163067 |
++--------+--------+-------+----------------------------+
+
+```
 
 ### 7.2 Can I use the LEDs on the PI Motherboard?
 
