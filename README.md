@@ -1,9 +1,8 @@
 # Cloudmesh Pi Burner for SD Cards
 
 **WARNING:** *This program is designed for a **Raspberry Pi**. Instructions 
-to use **Linux** are included in the FAQ. We are working on support for **macOS 
-and Windows 10**. If you want to help us port to any of these OSes, please 
-contact laszewski@gmail.com*
+to use **Linux** and macOS are included in the FAQ. If you want to help us port 
+to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
 
 [![image](https://travis-ci.com/cloudmesh/cloudmesh-pi-burn.svg?branch=main)](https://travis-ci.com/github/cloudmesh/cloudmesh-pi-burn)
 [![image](https://img.shields.io/pypi/pyversions/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn)
@@ -1662,7 +1661,8 @@ sudo iwlist wlan0 scan
 | create          |  TODO |  TODO  | TODO  |         |
 | check           |    +  |    +   |    +  |         |
 | format          |    +  |    +   |    +  |         |
-| firmware        |    +  | NA     |  NA   | NA      |
+| cluster         |   NA  |    +   |    +  |         | 
+| firmware        |    +  |   NA   |   NA  | NA      |
 
 * for macOS, only the image commands have unit tests
 * firmware does not have a unit test
@@ -1687,3 +1687,42 @@ Additional cloudmesh components are used. For example:
   * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-cmd5)
   * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-inventory)
 
+## Setup of a cluster from macOS or Linux with no burning on a PI.
+
+We demonstarte here how to burn 1 manager and 2 worker SD Cards. The manager 
+is called red, the workers are re01 and red02.
+
+```bash
+laptop$ cms info 
+```
+
+Identify the device. In Linux it is /dev/sdX in macOS it is /dev/diskX.
+
+```
+2 laptop$ cms burn cluster --device=/dev/disk2 --hostname="red,red01,red02" --ssid=SSID
+```
+
+Plug in the SD Cards in the PI's and start them up. It will take at least 60 
+seconds for them to boot for the first time.
+
+Now login to the manager with 
+
+```bash
+laptop$ ssh pi@red.locsl
+
+```
+
+ON the manager you call the follwoing commands
+
+```bash
+pi@red:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
+i@red:~ $ source ~/ENV3/bin/activate
+(ENV3) pi@red:~ $ cms host setup red00[1-3] you@yourlaptop.local 
+```
+
+Copy the specified command output to your ~/.ssh/config file on your laptop. 
+W weill soon have a command that will add them for you without using an editor.
+
+```bash
+(ENV3) pi@mred:~ $ sudo reboot
+```
