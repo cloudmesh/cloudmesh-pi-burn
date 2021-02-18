@@ -1860,7 +1860,9 @@ class MultiBurner(object):
         StopWatch.status(f"create {device} {hostname}", True)
 
     def burn_inventory(self, inventory, name, device):
+        banner("Burning Inventory", figlet=True)
         i = Inventory(inventory)
+        i.print()
 
         # name formatted as manager,worker
         if ',' in name:
@@ -1873,7 +1875,7 @@ class MultiBurner(object):
         devices = Parameter.expand(device)
 
         # Warn user if they are burning non-empty devices
-        info_statuses = Burner().info()
+        info_statuses = Burner().info(print_stdout=False)
 
         try:
             empty_statuses = {}
