@@ -7,6 +7,7 @@ import requests
 import usb
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
+from cloudmesh.common.util import path_expand
 from cloudmesh.common.console import Console
 
 
@@ -97,13 +98,13 @@ class USB(object):
         :rtype: str
         """
         filename = 'usb.ids'
-
-        if not os.path.isfile(filename):
+        full_path = path_expand(f"~/.cloudmesh/cmburn/{filename}")
+        if not os.path.isfile(full_path):
             r = requests.get(f'http://www.linux-usb.org/{filename}')
             content = r.text
-            writefile(filename, content)
+            writefile(full_path, content)
         else:
-            content = readfile('usb.ids')
+            content = readfile(full_path)
         return content
 
     @staticmethod
