@@ -1598,6 +1598,17 @@ sudo iwlist wlan0 scan
 
 * TODO1 = todo for boot fs, rootfs not supported
 
+### 7.14 I run into a Kernal Panic on my burned Pi. What do I do?
+Occassionally, one may run into an error similar to the following:
+
+```
+Kernel panic-not syncing: VFS: unable to mount root fs on unknown-block(179,2)
+```
+
+See [here](https://raspberrypi.stackexchange.com/questions/40854/kernel-panic-not-syncing-vfs-unable-to-mount-root-fs-on-unknown-block179-6) for more information on this bug.
+
+This error has been reported in the past. A simple reburn using `cms burn` tends to resolve the issue.
+
 
 ## 8. How can I contribute Contributing
 
