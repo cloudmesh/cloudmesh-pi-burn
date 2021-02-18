@@ -525,6 +525,9 @@ class Burner(object):
             image = image[0]
 
             image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+            if not os.path.isfile(image_path):
+                Console.error(f"Image {tag} not found")
+                raise FileNotFoundError
 
         banner("Burning the SDCard")
         print("Image:    ", image_path)
