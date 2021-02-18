@@ -79,7 +79,7 @@ This setup is intended for those who have restricted access to their
 network (ie. cannot access router controls).  For example, those
 on campus WiFis or regulated apartment WiFis.
 
-The Figure 1 describes our network configuration. We have 5
+Figure 1 describes our network configuration. We have 5
 Raspberry Pi 4s: 1 manager and 4 workers. We have WiFi access, but we
 do not necessarily have wired access or access to the router's controls.
 
@@ -98,8 +98,8 @@ For the quickstart we have the following hardware requirements:
 
 * SD Cards and Raspberry Pis
 
-* You will need an SD card writer (USB-A) to burn new cards We
-  recommend that you invest in a USB 3.0 SDCard writer as they are
+* You will need an SD card reader/writer (USB-A) to burn new cards. We
+  recommend that you buy a USB 3.0 SDCard reader/writer as they are
   significantly faster and you can reuse them on PI'4s. Make sure to
   get an adapter if your normal computer only supports USB-C
   

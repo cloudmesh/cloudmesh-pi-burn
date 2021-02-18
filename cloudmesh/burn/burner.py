@@ -33,6 +33,7 @@ from cloudmesh.common.util import sudo_writefile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.inventory.inventory import Inventory
+from cloudmesh.common.Benchmark import Benchmark
 
 
 # def dmesg():
@@ -1507,6 +1508,8 @@ class Burner(object):
 
         banner("Download Images", figlet=True)
 
+        StopWatch.start("download image")
+
         result = Image.create_version_cache()
         if result is None:
             result = Image.create_version_cache(refresh=True)
@@ -1518,6 +1521,10 @@ class Burner(object):
             image.fetch(tag=["latest-lite"])
         if manager is not None:
             image.fetch(tag=["latest-full"])
+
+        StopWatch.stop("download image")
+        StopWatch.status("download image", True)
+
 
         multi = MultiBurner()
 
@@ -1580,6 +1587,10 @@ class Burner(object):
         Console.info("Cluster burn is complete.")
         Burner.remove_public_key()
 
+
+        banner("Benchmark", figlet=True)
+
+        Benchmark.print(sysinfo=True, csv=True, tag="local")
         banner("Done", figlet=True)
         return ""
 
