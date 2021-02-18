@@ -1088,53 +1088,88 @@ Description:
 ```
 <!--MANUAL-PI-->
 
-
-
-
-
-
-
 ## FAQ and Hints
 
 Here, we provide some useful FAQs and hints.
 
 ### Setup of a cluster from macOS or Linux with no burning on a PI.
 
-We demonstarte here how to burn 1 manager and 2 worker SD Cards. The manager 
-is called red, the workers are re01 and red02.
+This will setup the same cluster seen in [Quickstart for Bridged WiFi](#quickstart-for-bridged-wifi). Pi imager and a manual manager pi setup 
+is not required using this method. It will use the latest Pi OS 
+images, full for master, and lite for workers.
 
-```bash
-laptop$ cms info 
+#### Prerequisites
+
+* We recommend Python 3.8.2 Python or newer.
+* We recommend pip version 21.0.0 or newer
+* You have a private and public ssh key named ~/.ssh/id_rsa and ~/.
+  ssh/id_rsa.pub
+
+#### Install Cloudmesh
+
+Create a Python virtual environment `ENV3` in which to install cloudmesh. 
+This will keep cloudmesh and its dependencies separate from your default 
+environment. 
+
+Always make sure to `source` this environment when working with cloudmesh.
+
+```
+you@laptop:~ $ python -m venv ~/ENV3
+you@laptop:~ $ source ~/ENV3/bin/activate 
+(ENV3) you@laptop:~ $ mkdir cm
+(ENV3) you@laptop:~ $ cd cm
+(ENV3) you@laptop:~/cm $ pip install cloudmesh-installer
+(ENV3) you@laptop:~/cm $ cloudmesh-installer get pi 
 ```
 
-Identify the device. In Linux it is /dev/sdX in macOS it is /dev/diskX.
+#### Create a Cluster
+
+Here, we demonstarte how to burn 1 manager and 2 worker SD Cards. The 
+manager is called red, the workers are red001 and red002.
+
+**Step 1.** Identify the SD card device
+
+Plug in a sd card reader with sd card to the laptop and identify the device.
+In Linux it is /dev/sdX in macOS it is /dev/diskX.
 
 ```
-2 laptop$ cms burn cluster --device=/dev/disk2 --hostname="red,red0[1-2]" --ssid=SSID
+you@laptop:~ $ cms info 
 ```
+
+**Step 2.** Burn the SD cards 
+
+You will be prompted to input your wifi password for your SSID when runing the 
+command below.
+
+```
+you@laptop:~ $ cms burn cluster --device=/dev/diskX --hostname="red,red00[1-2]" 
+--ssid=SSID
+```
+
+**Step 3.** Boot the cluster and complete setup of cloudmesh and all ssh 
+access
 
 Plug in the SD Cards in the PI's and start them up. It will take at least 60 
 seconds for them to boot for the first time.
 
 Now login to the manager with 
 
-```bash
-laptop$ ssh pi@red.locsl
-
+```
+you@laptop:~ $ ssh pi@red.local
 ```
 
-ON the manager you call the follwoing commands
+On the manager you call the follwoing commands
 
-```bash
+```
 pi@red:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
-i@red:~ $ source ~/ENV3/bin/activate
-(ENV3) pi@red:~ $ cms host setup red00[1-3] you@yourlaptop.local 
+pi@red:~ $ source ~/ENV3/bin/activate
+(ENV3) pi@red:~ $ cms host setup red00[1-2] you@laptop.local 
 ```
 
 Copy the specified command output to your ~/.ssh/config file on your laptop. 
 W weill soon have a command that will add them for you without using an editor.
 
-```bash
+```
 (ENV3) pi@mred:~ $ sudo reboot
 ```
 
@@ -1482,186 +1517,6 @@ pi@managerpi:~ $ sudo reboot
 pi@managerpi:~ $ sudo rpi-eeprom-update -a
 pi@managerpi:~ $ sudo reboot
 ```
-
-### How to burn a cluster using Linux
-
-This will setup the same cluster seen in [Quickstart for Bridged WiFi](#quickstart-for-bridged-wifi)
-using only a Linux machine. Pi imager and a manual manager pi setup process is 
-not required using this method. 
-
-#### Prerequisites
-
-* We recommend Python 3.8.2 Python or newer.
-* We recommend pip version 21.0.0 or newer
-* You have a private and public ssh key named ~/.ssh/id_rsa and ~/.
-  ssh/id_rsa.pub
-
-#### Install Cloudmesh
-
-Create a Python virtual environment `ENV3` in which to install cloudmesh. 
-This will keep cloudmesh and its dependencies separate from your default 
-environment. 
-
-Always make sure to `source` this environment when working with cloudmesh.
-
-```
-you@yourlaptop:~ $ python -m venv ~/ENV3
-you@yourlaptop:~ $ source ~/ENV3/bin/activate 
-(ENV3) you@yourlaptop:~ $ mkdir cm
-(ENV3) you@yourlaptop:~ $ cd cm
-(ENV3) you@yourlaptop:~ $ pip install cloudmesh-installer
-(ENV3) you@yourlaptop:~ $ cloudmesh-installer get pi 
-```
-
-#### Create a Manager Pi
-
-**Step 1.** Get the latest RaspiOS-full image
-
-```
-(ENV3) you@yourlaptop:~ $ cms burn image get latest-full
-```
-
-**Step 1.** Insert and SD Card to your laptop and identify the sd card device 
-name using:
-
-```
-(ENV3) you@yourlaptop:~ $ cms burn info
-```
-
-**Step 2.** Burn the manager pi.
-
-> **!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
-
-```
-(ENV3) you@yourlaptop:~ $ cms burn create --hostname=managerpi --tag=latest-full--device=/dev/sdX --ssid=your_wifi --wifipassword=your_password
-```
-#### Create the workers
-
-**Step 1.** Download the latest RaspiOS-lite image
-
-```
-(ENV3) cms burn image get latest-lite
-```
-
-**Step 2.** Burn the workers
-
-> **!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
-
-```
-(ENV3) cms burn create --hostname=red00[1-4] --ip=10.1.1.[2-5] --device=/dev/sdX --tag=latest-lite
-```
-
-**Step 3.** Turn off the cluster, insert sd cards, turn on the cluster, and 
-connect to the manager pi.
-
-```
-(ENV3) you@yourlaptop:~ $ ssh pi@mangerpi.local
-```
-
-**Step 4.** Update and install cloudmesh on your manager pi
-
-Update pip. The simple curl command below will generate an ssh-key,
-update your system, and install cloudmesh.
-
-```
-pi@managerpi:~ $ pip install pip -U
-pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -                
-pi@managerpi:~ $ sudo reboot
-```
-
-**Step 4.** Enable the bridge on the mangerpi.
-
-See section [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge)
-
-**Step 5.** Generate and distribute SSH keys
-
-See section [Set up of the SSH keys and SSH tunnel](#set-up-of-the-ssh-keys-and-ssh-tunnel)
-
-**Step 6.** Enjoy your Pi cluster :)
-
-### Shortcut to burn a standard cluster using Linux or a Pi
-
-This will setup the same cluster seen in [Quickstart for Bridged WiFi](#quickstart-for-bridged-wifi). Pi imager and a manual manager pi setup 
-process is not required using this method. It will use the latest Pi OS 
-images, full for master, and lite for workers.
-
-#### Prerequisites
-
-* We recommend Python 3.8.2 Python or newer.
-* We recommend pip version 21.0.0 or newer
-* You have a private and public ssh key named ~/.ssh/id_rsa and ~/.
-  ssh/id_rsa.pub
-
-#### Install Cloudmesh
-
-Create a Python virtual environment `ENV3` in which to install cloudmesh. 
-This will keep cloudmesh and its dependencies separate from your default 
-environment. 
-
-Always make sure to `source` this environment when working with cloudmesh.
-
-```
-you@yourlaptop:~ $ python -m venv ~/ENV3
-you@yourlaptop:~ $ source ~/ENV3/bin/activate 
-(ENV3) you@yourlaptop:~ $ mkdir cm
-(ENV3) you@yourlaptop:~ $ cd cm
-(ENV3) you@yourlaptop:~ $ pip install cloudmesh-installer
-(ENV3) you@yourlaptop:~ $ cloudmesh-installer get pi 
-```
-
-#### Burn the cluster
-
-**Step 1.** Get the latest RaspiOS-full image and RaspiOS-lite image
-
-```
-(ENV3) you@yourlaptop:~ $ cms burn image get latest-full
-(ENV3) you@yourlaptop:~ $ cms burn image get latest-lite
-```
-
-**Step 2.** Insert and SD Card to your laptop and identify the sd card device 
-name using:
-
-```
-(ENV3) you@yourlaptop:~ $ cms burn info
-```
-
-**Step 3.** Burn the cluster cards.
-
-> NOTE: All options shown below are required.
-
-> **!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
-
-```
-(ENV3) you@yourlaptop:~ $ cms burn cluster --hostname=managerpi,red00[1-4] --ip=10.1.1.[1-5] --device=/dev/sdX --ssid=your_wifi --wifipassword=your_password
-```
-
-**Step 4.** Turn off the cluster, insert sd cards, turn on the cluster, and 
-connect to the manager pi.
-
-```
-(ENV3) you@yourlaptop:~ $ ssh pi@mangerpi.local
-```
-
-**Step 5.** Update and install cloudmesh on your manager pi
-
-Update pip. The simple curl command below will generate an ssh-key,
-update your system, and install cloudmesh.
-
-```
-pi@managerpi:~ $ pip install pip -U
-pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -                
-pi@managerpi:~ $ sudo reboot
-```
-
-**Step 6.** Enable the bridge on the mangerpi.
-
-See section [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge)
-
-**Step 7.** Generate and distribute SSH keys
-
-See section [Set up of the SSH keys and SSH tunnel](#set-up-of-the-ssh-keys-and-ssh-tunnel)
-
-**Step 8.** Enjoy your Pi cluster :)
 
 ### Alternatives
 
