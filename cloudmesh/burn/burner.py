@@ -1177,37 +1177,22 @@ class Burner(object):
         card = SDCard(card_os=card_os, host=host)
         path = f"{card.boot_volume}/wpa_supplicant.conf"
 
-        if psk:
-            wifi = textwrap.dedent("""\
-                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-                    update_config=1
-                    country={country}
-
-                    network={{
-                            ssid=\"{network}\"
-                            psk=\"{psk}\"
-                    }}""".format(network=ssid, psk=psk, country=country))
-        else:
-            wifi = textwrap.dedent("""\
-                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-                    update_config=1
-                    country={country}
-
-                    network={{
-                            ssid=\"{network}\"
-                            key_mgmt=NONE
-                    }}""".format(network=ssid, country=country))
-
         if self.dryrun:
             print("DRY RUN - skipping:")
             print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
                                                              psk, path))
             return ""
 
-        if os_is_mac():
-            writefile(path, wifi)
+        if psk:
+            if os_is_mac():
+                Wifi.set(ssid=network, password=psk, country=country, location=path)
+            else:
+                Wifi.set(ssid=network, password=psk, country=country, location=path, sudo=True)
         else:
-            sudo_writefile(path, wifi)
+            if os_is_mac():
+                Wifi.set(ssid=network, psk=False, country=country, location=path)
+            else:
+                Wifi.set(ssid=network, psk=False, country=country, location=path, sudo=True)
 
         return ""
 
