@@ -1106,6 +1106,7 @@ images, full for master, and lite for workers.
 * We recommend pip version 21.0.0 or newer
 * You have a private and public ssh key named ~/.ssh/id_rsa and ~/.
   ssh/id_rsa.pub
+* macOS dependencies [What packages do I need to run the info command on macOS](#what-packages-do-i-need-to-run-the-info-command-on-macos)  
 
 #### Install Cloudmesh
 
@@ -1135,7 +1136,21 @@ Plug in a sd card reader with sd card to the laptop and identify the device.
 In Linux it is /dev/sdX in macOS it is /dev/diskX.
 
 ```
-you@laptop:~ $ cms info 
+you@laptop:~ $ cms burn info 
+```
+
+```
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++----------+----------------------------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------+
+| Path     | Info                                         | Formatted   | Size             | Plugged-in   | Readable   | Empty   | Access   | Removable   | Writeable   |
+|----------+----------------------------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------|
+| /dev/diskX | Generic- USB3.0 CRW-SD/MS 1.00 PQ: 0 ANSI: 6 | True        | 
+64.1 GB/59.7 GiB | True         | True       | False   | True     | True        | True        |
++----------+----------------------------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------+
+
 ```
 
 **Step 2.** Burn the SD cards 
@@ -1144,8 +1159,7 @@ You will be prompted to input your wifi password for your SSID when runing the
 command below.
 
 ```
-you@laptop:~ $ cms burn cluster --device=/dev/diskX --hostname="red,red00[1-2]" 
---ssid=SSID
+you@laptop:~ $ cms burn cluster --device=/dev/diskX --hostname="red,red00[1-2]" --ssid=SSID
 ```
 
 **Step 3.** Boot the cluster and complete setup of cloudmesh and all ssh 
