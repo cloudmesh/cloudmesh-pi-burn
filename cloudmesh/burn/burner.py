@@ -659,15 +659,11 @@ class Burner(object):
         # 127.0.1.1 raspberrypi   # default
         # 127.0.1.1 red47         # new
         if not self.dryrun:
-            # with open(f'{mountpoint}/etc/hosts', 'r') as f:  # read /etc/hosts
-            f = sudo_readfile(f'{mountpoint}/etc/hosts')
-            # lines = [l for l in f.readlines()][:-1]  # ignore the last line
-            lines = f[:-1]
-            newlastline = '\n127.0.1.1 ' + hostname + '\n'
+            lines = sudo_readfile(f'{mountpoint}/etc/hosts', split=False)
+            lines = lines.replace("raspberrypi", f"{hostname}\n#")
 
         if not self.dryrun:
-            new_hostsfile_contents = '\n'.join(lines) + newlastline
-            sudo_writefile(f'{mountpoint}/etc/hosts', new_hostsfile_contents)
+            sudo_writefile(f'{mountpoint}/etc/hosts', lines)
         else:
             print()
             print("Write to /etc/hosts")
@@ -701,7 +697,7 @@ class Burner(object):
         for line in hosts:
             config = config + line + '\n'
 
-        sudo_writefile('/etc/hosts', config)
+        sudo_writefile('/etc/hosts', config + "\n#")
 
     def write_cluster_hosts(self, cluster_hosts):
         card = SDCard()
@@ -1545,37 +1541,39 @@ class Burner(object):
 
             Console.info(f"Completed manager: {manager}")
 
-        banner("Burn the Workers", figlet=True)
 
-        Console.info(f"Preparing to burn the workers: {workers}")
-        for worker, ip in tuple(zip(workers, ips[1:])):
-            print()
-            Console.info("Please insert the next SD Card")
-            print()
+        if workers is not None:
+            banner("Burn the Workers", figlet=True)
 
-            if not yn_choice("Say Y once you inserted it. Press no to terminate ..."):
-                return ""
+            Console.info(f"Preparing to burn the workers: {workers}")
+            for worker, ip in tuple(zip(workers, ips[1:])):
+                print()
+                Console.info("Please insert the next SD Card")
+                print()
 
-            multi.burn(device=arguments.device,
-                       blocksize="4M",
-                       progress=True,
-                       hostname=worker,
-                       ip=ip,
-                       key='~/.cloudmesh/cmburn/id_rsa.pub',
-                       password=gen_strong_pass(),
-                       ssid=None,
-                       psk=None,
-                       formatting=True,
-                       tag='latest-lite',
-                       router=ips[0],
-                       generate_key=False,
-                       store_key=False,
-                       write_local_hosts=False,
-                       cluster_hosts=cluster_hosts)
+                if not yn_choice("Say Y once you inserted it. Press no to terminate ..."):
+                    return ""
 
-        Console.info(f"Completed workers: {workers}")
-        Console.info("Cluster burn is complete.")
-        Burner.remove_public_key()
+                multi.burn(device=arguments.device,
+                           blocksize="4M",
+                           progress=True,
+                           hostname=worker,
+                           ip=ip,
+                           key='~/.cloudmesh/cmburn/id_rsa.pub',
+                           password=gen_strong_pass(),
+                           ssid=None,
+                           psk=None,
+                           formatting=True,
+                           tag='latest-lite',
+                           router=ips[0],
+                           generate_key=False,
+                           store_key=False,
+                           write_local_hosts=False,
+                           cluster_hosts=cluster_hosts)
+
+            Console.info(f"Completed workers: {workers}")
+            Console.info("Cluster burn is complete.")
+            Burner.remove_public_key()
 
 
         banner("Benchmark", figlet=True)
