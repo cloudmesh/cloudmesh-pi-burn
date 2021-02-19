@@ -885,13 +885,11 @@ class Burner(object):
         self.system_exec(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
 
     def write_fix(self):
-
-
-
         """
-        /etc/systemd/system/sshd.service
-        /etc/passwd
-        /etc/ssh/sshd_config
+        Not yet integrated:
+            /etc/systemd/system/sshd.service
+            /etc/passwd
+            /etc/ssh/sshd_config
         """
 
         script = textwrap.dedent("""
@@ -1848,11 +1846,13 @@ class MultiBurner(object):
         elif os_is_mac():
             burner.unmount(device=device)
 
+        Sudo.password()
         StopWatch.start(f"write image {device} {hostname}")
         burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
         StopWatch.stop(f"write image {device} {hostname}")
         StopWatch.status(f"write image {device} {hostname}", True)
 
+        Sudo.password()
         StopWatch.start(f"write host data {device} {hostname}")
         burner.mount(device=device)
         burner.set_hostname(hostname)
