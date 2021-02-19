@@ -1780,8 +1780,8 @@ class MultiBurner(object):
         :type blocksize:
         :param progress:
         :type progress:
-        :param hostname:
-        :type hostname:
+        :param hostname: The hostnames to burn
+        :type hostname: str
         :param ip:
         :type ip:
         :param key:
