@@ -1822,17 +1822,27 @@ class MultiBurner(object):
         StopWatch.start(f"create {device} {hostname}")
 
         if formatting:
+            StopWatch.start(f"format {device} {hostname}")
             success = burner.format_device(device=device, hostname=hostname, unmount=True)
+            StopWatch.stop(f"format {device} {hostname}")
+
             if not success:
                 Console.warning("Skipping card due to failed format. "
                                 "Continuing with next hostname.")
                 return
+            StopWatch.status(f"format {device} {hostname}", True)
+
         if os_is_linux() or os_is_pi():
             burner.unmount()   # can not fully eject before burn on pi or linux
         elif os_is_mac():
             burner.unmount(device=device)
 
+        StopWatch.start(f"write image{device} {hostname}")
         burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
+        StopWatch.stop(f"write image {device} {hostname}")
+        StopWatch.status(f"write image {device} {hostname}", True)
+
+        StopWatch.start(f"write host data {device} {hostname}")
         burner.mount(device=device)
         burner.set_hostname(hostname)
         if generate_key:
@@ -1871,6 +1881,9 @@ class MultiBurner(object):
         burner.unmount(device=device)
         # for some reason, need to do unmount twice for it to work properly
         # burner.unmount(device)
+        StopWatch.stop(f"write host data {device} {hostname}")
+        StopWatch.status(f"write host data {device} {hostname}", True)
+
         time.sleep(2)
         StopWatch.stop(f"create {device} {hostname}")
         StopWatch.status(f"create {device} {hostname}", True)
@@ -1990,6 +2003,12 @@ class MultiBurner(object):
         count = 0
         for i in range(len(worker_configs)):
 
+            banner("Burning Next Card")
+
+            if not yn_choice("Insert the next card and continue?"):
+                Console.error("Terminating")
+                return ""
+
             device = devices[i % len(devices)]
             worker_config = worker_configs[i]
 
@@ -2008,20 +2027,11 @@ class MultiBurner(object):
             print()
             Console.info('Please remove the card')
             print()
-            self.system_exec('tput bel')  # ring the terminal bell to notify user
-            if i < len(worker_configs) - 1:
-                if (i + 1) != ((i + 1) % len(devices)):
-                    choice = input(
-                        f"Slot {devices[(i + 1) % len(devices)]} "
-                        "needs to be reused. Do you wish to continue? [y/n] ")
-                    while (choice != 'y') and (choice != 'n'):
-                        choice = input("Please use [y/n] ")
-                    if choice == 'n':
-                        break
-                    elif choice == 'y':
-                        input('Insert next card and press enter...')
-                print('Burning next card...')
-                print()
+            if not yn_choice("Do you want to continue?") and i < len(worker_configs) -1:
+                Console.error("Terminating")
+                return ""
+
 
         Console.info(f"You burned {count} SD Cards")
         Console.ok("Done :)")
+        
