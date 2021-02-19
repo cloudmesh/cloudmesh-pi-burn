@@ -37,6 +37,7 @@ from cloudmesh.common.sudo import Sudo
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
 
+
 def get_hostnames(names):
     """
     Given a list of host names it identifies if they have numbers in them. If so, they are assumed workers.
@@ -527,8 +528,6 @@ class Burner(object):
                 Console.error(f"Image {tag} not found")
                 raise FileNotFoundError
 
-
-
         orig_size = size = humanize.naturalsize(os.path.getsize(image_path))
 
         # size = details[0]['size']
@@ -666,7 +665,7 @@ class Burner(object):
         ::1        localhost ip6-localhost ip6-loopback
         ff02::1    ip6-allnodes
         ff02::2    ip6-allrouters
-        
+        #
         127.0.1.1  {hostname}
         #
         """).strip()
@@ -1518,7 +1517,6 @@ class Burner(object):
         StopWatch.stop("download image")
         StopWatch.status("download image", True)
 
-
         multi = MultiBurner()
 
         if manager is not None:
@@ -1547,7 +1545,6 @@ class Burner(object):
                        cluster_hosts=cluster_hosts)
 
             Console.info(f"Completed manager: {manager}")
-
 
         if workers is not None:
             banner("Burn the Workers", figlet=True)
@@ -1581,7 +1578,6 @@ class Burner(object):
             Console.info(f"Completed workers: {workers}")
             Console.info("Cluster burn is complete.")
             Burner.remove_public_key()
-
 
         banner("Benchmark", figlet=True)
 
@@ -1911,7 +1907,8 @@ class MultiBurner(object):
             for device in devices:
                 empty_statuses[device] = info_statuses[device]['empty']
         except KeyError:
-            Console.error("Device specified not found by cms burn info. Did you specify the correct path? Is the card properly inserted?")
+            Console.error("Device specified not found by cms burn info. "
+                          "Did you specify the correct path? Is the card properly inserted?")
             return
 
         for dev, empty_status in empty_statuses.items():
@@ -2027,11 +2024,9 @@ class MultiBurner(object):
             print()
             Console.info('Please remove the card')
             print()
-            if not yn_choice("Do you want to continue?") and i < len(worker_configs) -1:
+            if not yn_choice("Do you want to continue?") and i < len(worker_configs) - 1:
                 Console.error("Terminating")
                 return ""
 
-
         Console.info(f"You burned {count} SD Cards")
         Console.ok("Done :)")
-        
