@@ -235,7 +235,8 @@ Card is connected.
 
 **Step 1.** Burning the Cards
 
-`cms burn` supports parameterized hostnames that allow automatic incrementation of numbers.
+`cms burn` supports parameterized hostnames that allow automatic incrementation
+of numbers.
 
 For example, `red00[1-2]` is interpreted by cms burn as `[red001, red002]`.
 Similarly, `red[a-c]` is interpreted by cms burn as `[reda, redb, redc]`.
@@ -1143,25 +1144,35 @@ pi temp red,red00[1-2]
 
 ### Using a Pi to Burn a Cluster Using Inventory
 
-In this guide, we will show how you can configure a Cloudmesh Inventory to easily burn a cluster of SD cards as well as configure the current Pi as the manager if desired. 
+In this guide, we will show how you can configure a Cloudmesh Inventory to
+easily burn a cluster of SD cards as well as configure the current Pi as the
+manager if desired.
 
-We will follow the same network setup as the Bridged Wifi above:
-
-![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-bridge.png)
+We will follow the same network setup as the Bridged Wifi explained in a
+previous section (see Figure 1).
 
 The requirements for this guide are the same as the [Quickstart for Bridged WiFi](#quickstart-for-bridged-wifi).
 
 #### Initial Manager Setup
 
-Ensure you have burned an SD card from your laptop using [Raspberry Pi Imager](#https://www.raspberrypi.org/software/). Ensure you burn the card with **Raspberry Pi OS 32-bit with desktop and recommended applications**. This will serve as our manager.
+Ensure you have burned an SD card from your laptop using [Raspberry Pi
+Imager](#https://www.raspberrypi.org/software/). Ensure you burn the card with
+**Raspberry Pi OS 32-bit with desktop and recommended applications**. This will
+serve as our manager.
 
-Once you have burned your manager card, plug this into a Raspberry Pi. Connect this Pi to a keyboard, mouse, and monitor and boot. Walk through the initial setup prompt to rename your Pi's hostname to `managerpi` as well as connect to Wifi. You should also change your password in doing so.
+Once you have burned your manager card, plug this into a Raspberry Pi. Connect
+this Pi to a keyboard, mouse, and monitor and boot. Walk through the initial
+setup prompt to rename your Pi's hostname to `managerpi` as well as connect to
+Wifi. You should also change your password in doing so.
 
-If you are logged in via SSH, you may accomplish the above with `sudo raspi-config`. For more information on setups, see [Manager Pi Setup](#32-manager-pi)
+If you are logged in via SSH, you may accomplish the above with `sudo
+raspi-config`. For more information on setups, see [Manager Pi
+Setup](#32-manager-pi)
 
 From here, we assume your Pi hostname is `managerpi`.
 
-Once you have gone through this, you may install cloudmesh and configure your system with the following:
+Once you have gone through this, you may install cloudmesh and configure your
+system with the following:
 
 ```
 pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
@@ -1175,7 +1186,8 @@ pi@managerpi:~ $ sudo reboot
 
 #### Creating our inventory
 
-For this guide, we will create two workers for `managerpi`. We can do this as follows:
+For this guide, we will create two workers for `managerpi`. We can do this as
+follows:
 
 ```
 (ENV3) pi@managerpi:~ $ cms inventory create --manager=managerpi --workers=red00[2-3] --ip=10.1.1.1,10.1.1.[2-3]  --inventory="cluster.yaml" --keyfile=~/.ssh/id_rsa.pub latest-lite
@@ -1197,7 +1209,9 @@ inventory list --inventory=cluster.yaml
 
 #### Burning SD Cards using Inventory
 
-First, verify that you have plugged in your SD card writer with an SD card into the `managerpi`. For this guide, we will simply use one SD card burner to burn both SD cards.
+First, verify that you have plugged in your SD card writer with an SD card into
+the `managerpi`. For this guide, we will simply use one SD card burner to burn
+both SD cards.
 
 Verify your SD card is detected with the following:
 
@@ -1244,7 +1258,10 @@ INFO: You burned 2 SD Cards
 Done :)
 ```
 
-Note that in this example, the hostname of the manager passed into `cms burn create` is the same as the current system's hostname. This is intentnional (as indicated by our `Y` choice) and we are also configuring the `managerpi` as a bridge (as indicated by our `)
+Note that in this example, the hostname of the manager passed into `cms burn
+create` is the same as the current system's hostname. This is intentnional (as
+indicated by our `Y` choice) and we are also configuring the `managerpi` as a
+bridge (as indicated by our `)
 
 We must now reboot the manager.
 
