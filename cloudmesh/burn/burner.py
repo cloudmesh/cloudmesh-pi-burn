@@ -1485,7 +1485,7 @@ class Burner(object):
         else:
             n = len(workers) + 1
         if arguments.ip is None:
-            ips = Parameter.expand(f"10.0.0.[1-{n}]")
+            ips = Parameter.expand(f"10.1.1.[1-{n}]")
         else:
             ips = Parameter.expand(arguments.ip)
 
