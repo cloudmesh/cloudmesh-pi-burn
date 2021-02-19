@@ -33,6 +33,7 @@ from cloudmesh.common.wifi import Wifi
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.sudo import Sudo
+from pathlib import Path
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
@@ -874,9 +875,10 @@ class Burner(object):
         #   mountpoint/home/pi/.ssh/authorized_keys
         card = SDCard()
 
+        location = Path(name).resolve()
         mountpoint = card.root_volume
-        self.system_exec(f'mkdir -p {mountpoint}/home/pi/.ssh/')
-        self.system_exec(f'cp {name} {mountpoint}/home/pi/.ssh/authorized_keys')
+        Sudo.execute(f'mkdir -p {mountpoint}/home/pi/.ssh/')
+        Sudo.execute(f'cp {location} {mountpoint}/home/pi/.ssh/authorized_keys')
 
     def write_fix(self):
         """
