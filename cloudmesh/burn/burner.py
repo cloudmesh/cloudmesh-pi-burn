@@ -34,6 +34,7 @@ from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.wifi import Wifi
 from cloudmesh.inventory.inventory import Inventory
+from cloudmesh.common.Benchmark import Benchmark
 
 
 # def dmesg():
@@ -525,6 +526,9 @@ class Burner(object):
             image = image[0]
 
             image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+            if not os.path.isfile(image_path):
+                Console.error(f"Image {tag} not found")
+                raise FileNotFoundError
 
         banner("Burning the SDCard")
         print("Image:    ", image_path)
@@ -1174,37 +1178,22 @@ class Burner(object):
         card = SDCard(card_os=card_os, host=host)
         path = f"{card.boot_volume}/wpa_supplicant.conf"
 
-        if psk:
-            wifi = textwrap.dedent("""\
-                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-                    update_config=1
-                    country={country}
-
-                    network={{
-                            ssid=\"{network}\"
-                            psk=\"{psk}\"
-                    }}""".format(network=ssid, psk=psk, country=country))
-        else:
-            wifi = textwrap.dedent("""\
-                    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-                    update_config=1
-                    country={country}
-
-                    network={{
-                            ssid=\"{network}\"
-                            key_mgmt=NONE
-                    }}""".format(network=ssid, country=country))
-
         if self.dryrun:
             print("DRY RUN - skipping:")
             print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
                                                              psk, path))
             return ""
 
-        if os_is_mac():
-            writefile(path, wifi)
+        if psk:
+            if os_is_mac():
+                Wifi.set(ssid=ssid, password=psk, country=country, location=path)
+            else:
+                Wifi.set(ssid=ssid, password=psk, country=country, location=path, sudo=True)
         else:
-            sudo_writefile(path, wifi)
+            if os_is_mac():
+                Wifi.set(ssid=ssid, psk=False, country=country, location=path)
+            else:
+                Wifi.set(ssid=ssid, psk=False, country=country, location=path, sudo=True)
 
         return ""
 
@@ -1509,6 +1498,8 @@ class Burner(object):
 
         banner("Download Images", figlet=True)
 
+        StopWatch.start("download image")
+
         result = Image.create_version_cache()
         if result is None:
             result = Image.create_version_cache(refresh=True)
@@ -1520,6 +1511,10 @@ class Burner(object):
             image.fetch(tag=["latest-lite"])
         if manager is not None:
             image.fetch(tag=["latest-full"])
+
+        StopWatch.stop("download image")
+        StopWatch.status("download image", True)
+
 
         multi = MultiBurner()
 
@@ -1582,6 +1577,10 @@ class Burner(object):
         Console.info("Cluster burn is complete.")
         Burner.remove_public_key()
 
+
+        banner("Benchmark", figlet=True)
+
+        Benchmark.print(sysinfo=True, csv=True, tag="local")
         banner("Done", figlet=True)
         return ""
 
@@ -1696,19 +1695,20 @@ class MultiBurner(object):
         # detect if there is an issue with the cards, readers
         # TODO what exactly should be done here?
 
+        # TODO This does nothing relevant
         # ask if this is ok to burn otherwise
-        burn_all = yn_choice("Format the card before burning?")
+        # burn_all = yn_choice("Format the card before burning?")
 
-        # if no burn all of them for which we have status "empty card"
-        if not burn_all:
-            # delete from devices dict any non-empty devices
-            devices_to_delete = []
-            for device in devices.keys():
-                if devices[device]:
-                    # can't delete while iterating
-                    devices_to_delete.append(device)
-            for device in devices_to_delete:
-                del devices[device]
+        # # if no burn all of them for which we have status "empty card"
+        # if not burn_all:
+        #     # delete from devices dict any non-empty devices
+        #     devices_to_delete = []
+        #     for device in devices.keys():
+        #         if devices[device]:
+        #             # can't delete while iterating
+        #             devices_to_delete.append(device)
+        #     for device in devices_to_delete:
+        #         del devices[device]
 
         print("Burning these devices:")
         print(' '.join(devices.keys()))
@@ -1780,8 +1780,8 @@ class MultiBurner(object):
         :type blocksize:
         :param progress:
         :type progress:
-        :param hostname:
-        :type hostname:
+        :param hostname: The hostnames to burn
+        :type hostname: str
         :param ip:
         :type ip:
         :param key:
@@ -1871,7 +1871,9 @@ class MultiBurner(object):
         StopWatch.status(f"create {device} {hostname}", True)
 
     def burn_inventory(self, inventory, name, device):
+        banner("Burning Inventory", figlet=True)
         i = Inventory(inventory)
+        i.print()
 
         # name formatted as manager,worker
         if ',' in name:
@@ -1884,7 +1886,7 @@ class MultiBurner(object):
         devices = Parameter.expand(device)
 
         # Warn user if they are burning non-empty devices
-        info_statuses = Burner().info()
+        info_statuses = Burner().info(print_stdout=False)
 
         try:
             empty_statuses = {}
@@ -1931,6 +1933,20 @@ class MultiBurner(object):
             worker_configs.append(worker_config)
 
         _, system_hostname = subprocess.getstatusoutput("cat /etc/hostname")
+
+        banner("Retrieving Images", figlet=True)
+        # Get Images if not already downloaded
+        result = Image.create_version_cache()
+        if result is None:
+            result = Image.create_version_cache(refresh=True)
+
+        image = Image()
+        image.read_version_cache()
+
+        if manager is not None and system_hostname != manager_config["hostname"]:
+            image.fetch(tag=["latest-full"])
+        if workers is not None:
+            image.fetch(tag=["latest-lite"])
 
         # Set up this pi as a bridge if the hostname is the same
         # as the manager and if the user wishes
