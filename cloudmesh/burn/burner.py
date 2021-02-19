@@ -640,21 +640,21 @@ class Burner(object):
                            is found
         :type mountpoint: str
         """
+
+        # On macOS we have
+        # 644 -rw-r--r--  1 user  group  /Volumes/rootfs/etc/hostname
+
+        # od -c  /Volumes/rootfs/etc/hostname
+        # 0000000    r   a   s   p   b   e   r   r   y   p   i  \n
+        # 0000014
+
+        Sudo.password()
         self.hostname = hostname
-        if not os_is_windows():
-            card = SDCard()
-        else:
-            raise NotImplementedError
+        card = SDCard()
 
         mountpoint = card.root_volume
-        # write the new hostname to /etc/hostname
-        if not self.dryrun:
-            self.system_exec(
-                f'echo {hostname} | sudo cp /dev/stdin {mountpoint}/etc/hostname')
-        else:
-            print()
-            print("Write to /etc/hostname")
-            print(hostname)
+
+        Sudo.writefile(f"{mountpoint}/etc/hostname", f"{hostname}")
 
         # change last line of /etc/hosts to have the new hostname
         # 127.0.1.1 raspberrypi   # default
@@ -669,11 +669,11 @@ class Burner(object):
         127.0.1.1  {hostname}
         #
         """).strip()
+
         print(f'Writingg: {mountpoint}/etc/hosts')
         print(hosts)
 
-        if not self.dryrun:
-            Sudo.writefile(f'{mountpoint}/etc/hosts', hosts)
+        Sudo.writefile(f'{mountpoint}/etc/hosts', hosts)
 
     def add_to_hosts(self, ip):
         hosts = Sudo.readfile('/etc/hosts', split=True, decode=True)
@@ -886,8 +886,16 @@ class Burner(object):
 
     def write_fix(self):
 
+
+
+        """
+        /etc/systemd/system/sshd.service
+        /etc/passwd
+        /etc/ssh/sshd_config
+        """
+
         script = textwrap.dedent("""
-            #! /usr/bin/env python
+            #! /usr/bin/env python<
             # file, owner, group, permissions
             import os
             files = [
@@ -1412,7 +1420,7 @@ class Burner(object):
 
         content = '\n'.join(data)
 
-        banner("old: /etc/shadow")
+        banner("new: /etc/shadow")
 
         print(content)
 
@@ -1840,7 +1848,7 @@ class MultiBurner(object):
         elif os_is_mac():
             burner.unmount(device=device)
 
-        StopWatch.start(f"write image{device} {hostname}")
+        StopWatch.start(f"write image {device} {hostname}")
         burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
         StopWatch.stop(f"write image {device} {hostname}")
         StopWatch.status(f"write image {device} {hostname}", True)
