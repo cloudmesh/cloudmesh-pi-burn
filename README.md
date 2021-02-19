@@ -392,14 +392,14 @@ section.
 public ssh keys into a file.
 
 ```
-(ENV3) pi@managerpi:~ $ cms host key gather red00[1-3],you@yourlaptop.local keys.txt
+(ENV3) pi@managerpi:~ $ cms host key gather red00[1-3],you@yourlaptop.local ~/.ssh/authorized_keys
 ```
 
 **Step 3.** On the manager scatter the public keys to all the workers
 and manager ~/.ssh/authorized_hosts file
 
 ```
-(ENV3) pi@managerpi:~ $ cms host key scatter red00[1-3],localhost keys.txt
+(ENV3) pi@managerpi:~ $ cms host key scatter red00[1-3],localhost ~/.ssh/authorized_keys
 ```
 
 **Step 4.** Remove undeeded keys.txt file
