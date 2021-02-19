@@ -897,6 +897,7 @@ class Burner(object):
                 ["/etc/hosts", 0, 0, 0o644],
                 ["/etc/dhcpcd.conf", 0, 109, 0o664],
                 ["/etc/hostname", 0, 0, 0o644],
+                ["/etc/shadow", 0, 0, 0o600],
                 ["/etc/rc.local", 0, 0, 0o751],
                 ["/home/pi/.ssh", 1000, 1000, 0o700],
                 ["/home/pi/.ssh/authorized_keys", 1000, 1000, 0o644],
@@ -1377,7 +1378,7 @@ class Burner(object):
         #        with open(f'{mountpoint}/etc/passwd', 'r') as f:
         #            info = [l for l in f.readlines()]
 
-        info = Sudo.readfile(f'{mountpoint}/etc/passwd', split=True)
+        info = Sudo.readfile(f'{mountpoint}/etc/passwd', split=True, decode=True)
 
         for i in range(len(info)):
             inf = info[i].split(":")
@@ -1396,7 +1397,11 @@ class Burner(object):
         # with open(f'{mountpoint}/etc/shadow', 'r') as f:
         #     data = [l for l in f.readlines()]
 
-        data = Sudo.readfile(f'{mountpoint}/etc/shadow', decode=True)
+        data = Sudo.readfile(f'{mountpoint}/etc/shadow', decode=True, split=True)
+
+        banner("old: /etc/shadow")
+
+        print (data)
 
         content = ""
         for i in range(len(data)):
@@ -1407,8 +1412,10 @@ class Burner(object):
 
         content = '\n'.join(data)
 
-        # with open(f'{mountpoint}/etc/shadow', 'w') as f:
-        #     f.writelines(data)
+        banner("old: /etc/shadow")
+
+        print (content)
+
         Sudo.writefile(f'{mountpoint}/etc/shadow', content)
 
     def generate_key(self, hostname=None):
