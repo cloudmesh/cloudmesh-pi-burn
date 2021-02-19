@@ -155,8 +155,7 @@ anyone can attempt to access your pi.
 > instructions.
 > [Using Pi Imager to setup a Manager Pi with headless access](#using-pi-imager-to-setup-a-manager-pi-with-headless-access).
 
-> Update the firmware: See the FAQ [How to update firmware?]>
-> (#how-to-update-firmware)
+> Update the firmware: See the FAQ [How to update firmware?](#712-how-to-update-firmware)
 
 **Step 1.** Installing Cloudmesh on the Manager Pi
 
