@@ -1401,7 +1401,7 @@ class Burner(object):
 
         banner("old: /etc/shadow")
 
-        print (data)
+        print(data)
 
         content = ""
         for i in range(len(data)):
@@ -1414,7 +1414,7 @@ class Burner(object):
 
         banner("old: /etc/shadow")
 
-        print (content)
+        print(content)
 
         Sudo.writefile(f'{mountpoint}/etc/shadow', content)
 
