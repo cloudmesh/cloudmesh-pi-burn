@@ -50,6 +50,7 @@ class BurnCommand(PluginCommand):
                            [--ip=IP]
                            [--ssid=SSID]
                            [--wifipassword=PSK]
+                           [--bs=BLOCKSIZE]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -310,12 +311,14 @@ class BurnCommand(PluginCommand):
                        "os",
                        "country",
                        "inventory",
-                       "name")
+                       "name",
+                       "bs")
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
         arguments.IMAGE = arguments["--image"]
         arguments.output = "table"  # hard code for now
+        arguments.bs = arguments.bs or "4M"
 
         # VERBOSE(arguments)
 

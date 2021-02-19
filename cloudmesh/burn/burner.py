@@ -28,14 +28,11 @@ from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
-from cloudmesh.common.util import sudo_readfile
-from cloudmesh.common.util import sudo_writefile
-from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.wifi import Wifi
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.common.Benchmark import Benchmark
-
+from cloudmesh.common.sudo import Sudo
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
@@ -530,10 +527,22 @@ class Burner(object):
                 Console.error(f"Image {tag} not found")
                 raise FileNotFoundError
 
-        banner("Burning the SDCard")
-        print("Image:    ", image_path)
-        print("Device:   ", device)
-        print("Blocksize:", blocksize)
+
+
+        orig_size = size = humanize.naturalsize(os.path.getsize(image_path))
+
+        # size = details[0]['size']
+        n, unit = size.split(" ")
+        unit = unit.replace("GB", "G")
+        unit = unit.replace("MB", "M")
+        n = int(round(float(n)))
+        size = f"{n}{unit}"
+
+        banner("Preparing the SDCard")
+        print(f"Image:      {image_path}")
+        print(f"Image Size: {orig_size}")
+        print(f"Device:     {device}")
+        print(f"Blocksize:  {blocksize}")
         print()
 
         if os_is_linux() or os_is_pi():
@@ -586,29 +595,22 @@ class Burner(object):
             # get size
             #
 
-            size = humanize.naturalsize(os.path.getsize(image_path))
-
-            # size = details[0]['size']
-            n, unit = size.split(" ")
-            unit = unit.replace("GB", "G")
-            unit = unit.replace("MB", "M")
-            n = int(round(float(n)))
-            print(n, unit)
-            size = f"{n}{unit}"
-
             blocksize = blocksize.replace("M", "m")
 
             if yn_choice(f"\nDo you like to write to {device} the image {image_path}"):
 
-                # sudo dd if=/dev/rdiskX bs=1m | pv -s 64G | sudo dd of=/dev/rdiskY bs=1m
+                # sudo dd if=/dev/diskX bs=1m | pv -s 64G | sudo dd of=/dev/diskX bs=1m
 
                 command = f"sudo dd if={image_path} bs={blocksize} |" \
                           f' pv -s {size} |' \
                           f" sudo dd of={device} bs={blocksize}"
-                print(command)
-
-                if not yn_choice("CONTINUE? Please execute on your on risk"):
+                print()
+                Console.info(command)
+                print()
+                if not yn_choice("Please execute on your own risk. "
+                                 "You are writing to {device}. CONTINUE?"):
                     return ""
+                print()
 
                 os.system(command)
 
@@ -658,23 +660,24 @@ class Burner(object):
         # change last line of /etc/hosts to have the new hostname
         # 127.0.1.1 raspberrypi   # default
         # 127.0.1.1 red47         # new
-        if not self.dryrun:
-            lines = sudo_readfile(f'{mountpoint}/etc/hosts', split=False)
-            lines = lines.replace("raspberrypi", f"{hostname}\n#")
+
+        hosts = textwrap.dedent(f"""
+        127.0.0.1  localhost
+        ::1        localhost ip6-localhost ip6-loopback
+        ff02::1    ip6-allnodes
+        ff02::2    ip6-allrouters
+        
+        127.0.1.1  {hostname}
+        #
+        """).strip()
+        print(f'Writingg: {mountpoint}/etc/hosts')
+        print(hosts)
 
         if not self.dryrun:
-            sudo_writefile(f'{mountpoint}/etc/hosts', lines)
-        else:
-            print()
-            print("Write to /etc/hosts")
-            print('127.0.1.1 ' + hostname + '\n')
-
-        # Adds the ip and hostname to /etc/hosts if it isn't already there.
+            Sudo.writefile(f'{mountpoint}/etc/hosts', hosts)
 
     def add_to_hosts(self, ip):
-        # with open('/etc/hosts', 'r') as host_file:
-        #     hosts = host_file.readlines()
-        hosts = sudo_readfile('/etc/hosts')
+        hosts = Sudo.readfile('/etc/hosts', split=True, decode=True)
 
         replaced = False
         for i in range(len(hosts)):
@@ -697,15 +700,16 @@ class Burner(object):
         for line in hosts:
             config = config + line + '\n'
 
-        sudo_writefile('/etc/hosts', config + "\n#")
+        Sudo.writefile('/etc/hosts', config + "\n#\n")
 
     def write_cluster_hosts(self, cluster_hosts):
         card = SDCard()
-        hosts = sudo_readfile(f'{card.root_volume}/etc/hosts', split=False)
+        hosts = Sudo.readfile(f'{card.root_volume}/etc/hosts', split=False, decode=True)
         hosts = hosts + '\n'
         for ip, hostname in cluster_hosts:
             hosts = hosts + f"{ip}\t{hostname}\n"
-        sudo_writefile(f'{card.root_volume}/etc/hosts', hosts)
+        hosts = hosts + "#\n"
+        Sudo.writefile(f'{card.root_volume}/etc/hosts', hosts)
 
     @windows_not_supported
     def set_static_ip(self, ip, iface="eth0", mask="24",
@@ -743,7 +747,7 @@ class Burner(object):
         static_ip = f'static ip_address={ip}/{mask}'
         static_routers = f'static routers={router_ip}'
 
-        curr_config = sudo_readfile(f'{mountpoint}/etc/dhcpcd.conf')
+        curr_config = Sudo.readfile(f'{mountpoint}/etc/dhcpcd.conf', decode=True, split=True)
         if iface in curr_config:
             Console.warning("Found previous settings. Overwriting")
             # If setting already present, replace it and the static ip line
@@ -766,7 +770,7 @@ class Burner(object):
             curr_config.append('\n')
             # curr_config.append('nolink\n')
 
-        sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', '\n'.join(curr_config))
+        Sudo.writefile(f'{mountpoint}/etc/dhcpcd.conf', '\n'.join(curr_config))
 
     # TODO:
     # Deprecated function as dhcpcd.conf is the recommended file for
@@ -794,7 +798,7 @@ class Burner(object):
     #     def add_to_hosts(ip):
     #         # with open('/etc/hosts', 'r') as host_file:
     #         #     hosts = host_file.readlines()
-    #         hosts = sudo_readfile('/etc/hosts')
+    #         hosts = Sudo.readfile('/etc/hosts', decode=True)
 
     #         replaced = False
     #         for i in range(len(hosts)):
@@ -819,7 +823,7 @@ class Burner(object):
     #         for line in hosts:
     #             config = config + line + '\n'
 
-    #         sudo_writefile('/etc/hosts', config)
+    #         Sudo.writefile('/etc/hosts', config)
 
     #     # Add static IP and hostname to manager's hosts file and configure worker with static IP
     #     if not self.dryrun:
@@ -835,7 +839,7 @@ class Burner(object):
     #             # with open(f'{mountpoint}/etc/network/interfaces',
     #             #           'a') as config:
     #             #     config.write(interfaces_conf)
-    #             sudo_writefile(f'{mountpoint}/etc/network/interfaces',
+    #             Sudo.writefile(f'{mountpoint}/etc/network/interfaces',
     #                            interfaces_conf, append=True)
 
     #         # Configure static wifi IP
@@ -853,7 +857,7 @@ class Burner(object):
     #                     """)
     #             # with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
     #             #     config.write(dhcp_conf)
-    #             sudo_writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf,
+    #             Sudo.writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf,
     #                            append=True)
     #     else:
     #         print('interface eth0\n')
@@ -909,7 +913,7 @@ class Burner(object):
         card = SDCard()
         fix = "/boot/fix_permissions.py"
         fix_on_sdcard = f"{card.boot_volume}/fix_permissions.py"
-        sudo_writefile(fix_on_sdcard, script)
+        Sudo.writefile(fix_on_sdcard, script)
 
         rc_local = f"{card.root_volume}/etc/rc.local"
         content = readfile(rc_local)
@@ -918,7 +922,7 @@ class Burner(object):
         else:
             content = content.replace("exit 0", f"sudo python {fix}")
             content = content + "\n" + "exit 0\n"
-            sudo_writefile(rc_local, content)
+            Sudo.writefile(rc_local, content)
 
     @windows_not_supported
     def mount(self, device=None, card_os="raspberry"):
@@ -1118,7 +1122,7 @@ class Burner(object):
 
         found_params = set()
         # with open(sshd_config, 'r') as f:
-        f = sudo_readfile(sshd_config)
+        f = Sudo.readfile(sshd_config, decode=True, split=True)
 
         for line in f:
             found_a_param = False
@@ -1145,7 +1149,7 @@ class Burner(object):
             # self.truncate_file(sshd_config)
             # with open(sshd_config, "w") as f:
             #     f.write(new_sshd_config)
-            sudo_writefile(sshd_config, new_sshd_config)
+            Sudo.writefile(sshd_config, new_sshd_config)
 
     @windows_not_supported
     def configure_wifi(self,
@@ -1374,7 +1378,7 @@ class Burner(object):
         #        with open(f'{mountpoint}/etc/passwd', 'r') as f:
         #            info = [l for l in f.readlines()]
 
-        info = sudo_readfile(f'{mountpoint}/etc/passwd')
+        info = Sudo.readfile(f'{mountpoint}/etc/passwd', split=True)
 
         for i in range(len(info)):
             inf = info[i].split(":")
@@ -1387,13 +1391,13 @@ class Burner(object):
         # with open(f'{mountpoint}/etc/passwd', 'w') as f:
         #     f.writelines(info)
 
-        sudo_writefile(f'{mountpoint}/etc/passwd', content)
+        Sudo.writefile(f'{mountpoint}/etc/passwd', content)
 
         # Add it to shadow file
         # with open(f'{mountpoint}/etc/shadow', 'r') as f:
         #     data = [l for l in f.readlines()]
 
-        data = sudo_readfile(f'{mountpoint}/etc/shadow')
+        data = Sudo.readfile(f'{mountpoint}/etc/shadow', decode=True)
 
         content = ""
         for i in range(len(data)):
@@ -1406,7 +1410,7 @@ class Burner(object):
 
         # with open(f'{mountpoint}/etc/shadow', 'w') as f:
         #     f.writelines(data)
-        sudo_writefile(f'{mountpoint}/etc/shadow', content)
+        Sudo.writefile(f'{mountpoint}/etc/shadow', content)
 
     def generate_key(self, hostname=None):
         card = SDCard()
@@ -1465,6 +1469,8 @@ class Burner(object):
             print()
             arguments.wifipassword = getpass("Wifi Password: ")
 
+        Sudo.password()
+
         if workers is None:
             n = 1
         else:
@@ -1487,6 +1493,7 @@ class Burner(object):
         print("SSID:         ", arguments.ssid)
         print("Wifi Password:", arguments.wifipassword)
         print("Key:          ", key)
+        print("Blocksize:    ", arguments.bs)
 
         if not yn_choice('\nWould you like to continue?'):
             Console.error("Aborting ...")
@@ -1523,7 +1530,7 @@ class Burner(object):
                 return ""
 
             multi.burn(device=arguments.device,
-                       blocksize="4M",
+                       blocksize=arguments.bs,
                        progress=True,
                        hostname=manager,
                        ip=ips[0],
@@ -1555,7 +1562,7 @@ class Burner(object):
                     return ""
 
                 multi.burn(device=arguments.device,
-                           blocksize="4M",
+                           blocksize=arguments.bs,
                            progress=True,
                            hostname=worker,
                            ip=ip,
