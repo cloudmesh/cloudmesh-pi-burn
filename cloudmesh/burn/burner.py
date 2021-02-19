@@ -733,10 +733,7 @@ class Burner(object):
         # router_ip statically set to default ip configured with cms bridge
         # create. Rewrite to consider the IP of the manager on iface
 
-        if not os_is_windows():
-            card = SDCard()
-        else:
-            raise NotImplementedError
+        card = SDCard()
 
         mountpoint = card.root_volume
         if self.hostname is not None and write_local_hosts:
@@ -875,10 +872,7 @@ class Burner(object):
         """
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
-        if not os_is_windows():
-            card = SDCard()
-        else:
-            raise NotImplementedError
+        card = SDCard()
 
         mountpoint = card.root_volume
         self.system_exec(f'mkdir -p {mountpoint}/home/pi/.ssh/')
@@ -1445,6 +1439,7 @@ class Burner(object):
     def remove_public_key():
         cmd = 'rm -f ~/.cloudmesh/cmburn/id_rsa.pub'
         os.system(cmd)
+
 
     @staticmethod
     def cluster(arguments=None):
