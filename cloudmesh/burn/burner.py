@@ -861,12 +861,12 @@ class Burner(object):
     #         print(f'static ip_address={ip}/{mask}')
 
     @windows_not_supported
-    def set_key(self, name):
+    def set_key(self, key_file):
         """
         Copies the public key into the .ssh/authorized_keys file on the sd card
 
-        :param name: name of public key, e.g. 'id_rsa' for ~/.ssh/id_rsa.pub
-        :type name: str
+        :param key_file: key_file of public key, e.g. 'id_rsa' for ~/.ssh/id_rsa.pub
+        :type key_file: str
         :param mountpoint: the mountpunt of the device on which the key
                            is found
         :type mountpoint: str
@@ -875,7 +875,7 @@ class Burner(object):
         #   mountpoint/home/pi/.ssh/authorized_keys
         card = SDCard()
 
-        location = Path(name).resolve()
+        location = Path(key_file).resolve()
         mountpoint = card.root_volume
         Sudo.execute(f'mkdir -p {mountpoint}/home/pi/.ssh/')
         Sudo.execute(f'cp {location} {mountpoint}/home/pi/.ssh/authorized_keys')
