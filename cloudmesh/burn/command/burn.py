@@ -69,6 +69,7 @@ class BurnCommand(PluginCommand):
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
                        [--key=KEY]
+                       [--keyboard=COUNTRY]
               burn enable ssh
               burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
               burn check [--device=DEVICE]
@@ -247,6 +248,7 @@ class BurnCommand(PluginCommand):
                              [--ip=IP]
                              [--key=KEY]
                              [--mount=MOUNTPOINT]
+                             [--keyboard=COUNTRY]
 
                     this sets specific values on the sdcard after it
                     has ben created with the create, copy or sdcard
@@ -304,6 +306,7 @@ class BurnCommand(PluginCommand):
                        "ssid",
                        "url",
                        "key",
+                       "keyboard",
                        "passwd",
                        "wifipassword",
                        "version",
@@ -511,6 +514,9 @@ class BurnCommand(PluginCommand):
 
             if arguments.key:
                 execute("set key", burner.set_key(arguments.key))
+
+            if arguments.keyboard:
+                execute("set keyboard", burner.set_keyboard(country=arguments.keyboard))
 
             return ""
 

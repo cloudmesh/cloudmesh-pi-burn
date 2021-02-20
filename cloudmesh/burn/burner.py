@@ -659,7 +659,7 @@ class Burner(object):
         name = hostname.strip()
 
         # Write it 3 times as sometimes it does not work
-        for i in range(0,3):
+        for i in range(0, 3):
             time.sleep(0.5)
             SDCard.writefile(f"{card.root_volume}/etc/hostname", name)
 
@@ -867,6 +867,46 @@ class Burner(object):
     #         print(f'static ip_address={ip}/{mask}')
 
     @windows_not_supported
+    def keyboard(self, country="US"):
+        """
+        Sets the country on the SDCard
+
+        :param country: two letter country code
+        :type country: str
+        :return: true if set
+        :rtype: bool
+        """
+
+        # cat /etc/default/keyboard
+        # # KEYBOARD CONFIGURATION FILE
+        #
+        # # Consult the keyboard(5) manual page.
+        #
+        # XKBMODEL="pc105"
+        # XKBLAYOUT=us
+        # XKBVARIANT=""
+        # XKBOPTIONS=""
+        #
+        # BACKSPACE="guess"
+
+        card = SDCard()
+
+        layout = f"{card.root_volume}/etc/default/keyboard"
+
+        content = SDCard.readfile(layout, decode=True, splt=True)
+
+        found = False
+        for i in range(0, len(content)):
+            if content[i].strip().startswith("XKBLAYOUT"):
+                content[i] = "XKBLAYOUT=us"
+                found = True
+                break
+
+            SDCard.writefile(layout, content)
+
+        return found
+
+    @windows_not_supported
     def set_key(self, key_file):
         """
         Copies the public key into the .ssh/authorized_keys file on the sd card
@@ -903,6 +943,7 @@ class Burner(object):
             # file, owner, group, permissions
             import os
             files = [
+                ["/etc/default/keyboard", 0, 0, 0o644],
                 ["/boot/fix_permissions.py", 0, 0, 0o777],
                 ["/boot/ssh", 0, 0, 0o777],
                 ["/boot/wpa_supplicant.conf", 0, 0, 0o600],
@@ -1567,8 +1608,11 @@ class Burner(object):
 
             Console.info(f"Preparing to burn the workers: {workers}")
             for worker, ip in tuple(zip(workers, ips[1:])):
+
+                banner(f"Worker {worker}", figlet=True)
+
                 print()
-                Console.info("Please insert the next SD Card")
+                Console.info(f"Please insert SD Card for worker {worker}")
                 print()
 
                 if not yn_choice("Say Y once you inserted it. Press no to terminate ..."):

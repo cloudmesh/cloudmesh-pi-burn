@@ -7,8 +7,7 @@ from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.sudo import Sudo
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.common.util import readfile
-from cloudmesh.common.util import writefile
-import subprocess
+
 
 class SDCard:
 
@@ -113,7 +112,6 @@ class SDCard:
                 }
                 details[detail["name"]] = detail
         return details
-
 
     @staticmethod
     def execute(command, decode="True", debug=False):
