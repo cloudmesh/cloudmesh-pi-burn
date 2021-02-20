@@ -1291,9 +1291,19 @@ We must now reboot the manager.
 
 #### 7.2.4 Booting Up Workers and Verifying Connection
 
-Insert the burned worker cards into 
+Insert the burned worker cards into the worker Pis and boot.
 
-Refer to Step 2 in [Connecting Pis to the Internet via Bridge](#connecting-pis-to-the-internet-via-bridge) for instructions
+With the following command, you can verify connection to your workers:
+
+```
+(ENV3) pi@managerpi:~ $ cms pi temp red002
+pi temp red002
++--------+--------+-------+----------------------------+
+| host   |    cpu |   gpu | date                       |
+|--------+--------+-------+----------------------------|
+| red002 | 37.485 |  37.4 | 2021-02-20 00:47:19.212921 |
++--------+--------+-------+----------------------------+
+```
 
 ### 7.3 Can I use the LEDs on the PI Motherboard?
 
