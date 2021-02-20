@@ -612,7 +612,7 @@ class Burner(object):
                 Console.info(command)
                 print()
                 if not yn_choice("Please execute on your own risk. "
-                                 "You are writing {name} on {device}. CONTINUE?"):
+                                 f"You are writing {name} on {device}. CONTINUE?"):
                     return ""
                 print()
 
@@ -657,7 +657,11 @@ class Burner(object):
         card = SDCard()
 
         name = hostname.strip()
-        SDCard.writefile(f"{card.root_volume}/etc/hostname", name)
+
+        # Write it 3 times as sometimes it does not work
+        for i in range(0,3):
+            time.sleep(0.5)
+            SDCard.writefile(f"{card.root_volume}/etc/hostname", name)
 
         # change last line of /etc/hosts to have the new hostname
         # 127.0.1.1 raspberrypi   # default
@@ -1221,6 +1225,10 @@ class Burner(object):
         :param hostname: the hostname
         :type hostname: str
         """
+        if len(title) > 8:
+            _title = title[0:8]
+        else:
+            _title = title
 
         def _execute(msg, command):
             banner(msg, c=".")
@@ -1231,7 +1239,6 @@ class Burner(object):
                 pass
 
         def prepare_sdcard():
-            Sudo.password()
             # ensures a card is detected and unmounted
             Console.ok(f'sudo eject -t {device}')
             self.system_exec(f'sudo eject -t {device}')
@@ -1255,6 +1262,7 @@ class Burner(object):
                     time.sleep(3)
                     return prepare_sdcard()
 
+        Sudo.password()
         if os_is_linux() or os_is_pi():
 
             banner(f"format {device}")
@@ -1266,7 +1274,7 @@ class Burner(object):
                 ls /media/pi
                 sudo parted {device} --script -- mklabel msdos
                 sudo parted {device} --script -- mkpart primary fat32 1MiB 100%
-                sudo mkfs.vfat -n {title} -F32 {device}1
+                sudo mkfs.vfat -n {_title} -F32 {device}1
                 sudo parted {device} --script print""".strip().splitlines()
             for line in script:
                 _execute(line, line)
@@ -1328,9 +1336,9 @@ class Burner(object):
                       )
 
                 print()
-                if yn_choice(f"\nDo you like to format {device} as {title}"):
-                    _execute(f"Formatting {device} as {title}",
-                             f"sudo diskutil eraseDisk FAT32 {title} MBRFormat {device}")
+                if yn_choice(f"\nDo you like to format {device} as {_title}"):
+                    _execute(f"Formatting {device} as {_title}",
+                             f"sudo diskutil eraseDisk FAT32 {_title} MBRFormat {device}")
 
         else:
             raise NotImplementedError("Not implemented for this OS")
@@ -1827,7 +1835,10 @@ class MultiBurner(object):
 
         if formatting:
             StopWatch.start(f"format {device} {hostname}")
-            success = burner.format_device(device=device, hostname=hostname, unmount=True)
+            success = burner.format_device(device=device,
+                                           hostname=hostname,
+                                           unmount=True,
+                                           title=hostname.upper())
             StopWatch.stop(f"format {device} {hostname}")
 
             if not success:
