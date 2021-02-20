@@ -929,7 +929,7 @@ class Burner(object):
         """
 
         script = textwrap.dedent("""
-            #! /usr/bin/env python<
+            #! /usr/bin/env python
             # file, owner, group, permissions
             import os
             files = [
@@ -938,8 +938,10 @@ class Burner(object):
                 ["/boot/ssh", 0, 0, 0o777],
                 ["/boot/wpa_supplicant.conf", 0, 0, 0o600],
                 ["/etc/hosts", 0, 0, 0o644],
+                ["/etc/passwd", 0, 0, 0o644],
                 ["/etc/dhcpcd.conf", 0, 109, 0o664],
                 ["/etc/hostname", 0, 0, 0o644],
+                ["/etc/ssh/sshd_config", 0, 0, 0o644],
                 ["/etc/shadow", 0, 0, 0o600],
                 ["/etc/rc.local", 0, 0, 0o751],
                 ["/home/pi/.ssh", 1000, 1000, 0o700],

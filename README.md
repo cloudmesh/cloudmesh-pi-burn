@@ -1338,12 +1338,27 @@ Please create a `./.ssh/config file that contains the following:
       IdentityFile ~/.ssh/id_rsa.pub
 ```
 
-Now let us create a directory in which we mount the remote PI directories
+Now let us create a directory in which we mount the remote PI directories in our 
+case we mount the directory cm
 
 ```
-mkdir manager
-sshfs manager: manager -o auto_cache
+mkdir redcm
+sshfs red:/home/pi/cm  redcm -o auto_cache
 ```
+
+To unmount the filesystem use on LInux
+
+```
+$ fusermount -u redcm
+```
+
+and on macOS
+
+```
+umount redcm
+```
+
+If you need other directories, pleas apply  our strategy accordingly
 
 ### 7.5 How can I enhance the `get` script?
 
