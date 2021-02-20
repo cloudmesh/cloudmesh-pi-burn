@@ -966,7 +966,7 @@ class Burner(object):
                 ["/etc/dhcpcd.conf", 0, 109, 0o664],
                 ["/etc/hostname", 0, 0, 0o644],
                 ["/etc/ssh/sshd_config", 0, 0, 0o644],
-                ["/etc/shadow", 0, 0, 0o600],
+                ["/etc/shadow", 0, 42, 0o640],
                 ["/etc/rc.local", 0, 0, 0o751],
                 ["/home/pi/.ssh", 1000, 1000, 0o700],
                 ["/home/pi/.ssh/authorized_keys", 1000, 1000, 0o644],
