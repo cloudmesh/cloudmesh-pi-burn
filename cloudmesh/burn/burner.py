@@ -33,7 +33,6 @@ from cloudmesh.common.wifi import Wifi
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.sudo import Sudo
-from pathlib import Path
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
@@ -873,12 +872,17 @@ class Burner(object):
         """
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
+
+        Sudo.password()
         card = SDCard()
 
-        location = Path(key_file).resolve()
-        mountpoint = card.root_volume
-        Sudo.execute(f'mkdir -p {mountpoint}/home/pi/.ssh/')
-        Sudo.execute(f'cp {location} {mountpoint}/home/pi/.ssh/authorized_keys')
+        location = path_expand(key_file)
+
+        Sudo.execute(f'mkdir -p {card.root_volume}/home/pi/.ssh/')
+        Sudo.execute(f'cp {location} {card.root_volume}/home/pi/.ssh/authorized_keys')
+        # cleanup
+        if os.path.exists(f"{card.root_volume}/home/pi/.ssh/._authorized_keys"):
+            Sudo.execute(f"rm -f {card.root_volume}/home/pi/.ssh/._authorized_keys")
 
     def write_fix(self):
         """
@@ -1401,10 +1405,6 @@ class Burner(object):
 
         data = Sudo.readfile(f'{mountpoint}/etc/shadow', decode=True, split=True)
 
-        banner("old: /etc/shadow")
-
-        print(data)
-
         content = ""
         for i in range(len(data)):
             dat = data[i].split(":")
@@ -1413,10 +1413,6 @@ class Burner(object):
                 data[i] = ':'.join(dat)
 
         content = '\n'.join(data)
-
-        banner("new: /etc/shadow")
-
-        print(content)
 
         Sudo.writefile(f'{mountpoint}/etc/shadow', content)
 
@@ -1427,9 +1423,8 @@ class Burner(object):
         cmd = f'mkdir -p {card.root_volume}/home/pi/.ssh/'
         self.system_exec(cmd)
 
-        cmd = f'ssh-keygen -q -N "" -C "pi@{hostname}" -f ' \
-              f'{card.root_volume}/home/pi/.ssh/id_rsa'
-        self.system_exec(cmd)
+        cmd = f'ssh-keygen -q -N "" -C "pi@{hostname}" -f {card.root_volume}/home/pi/.ssh/id_rsa'
+        os.system(cmd)
 
     @staticmethod
     def store_public_key():
@@ -1441,7 +1436,6 @@ class Burner(object):
     def remove_public_key():
         cmd = 'rm -f ~/.cloudmesh/cmburn/id_rsa.pub'
         os.system(cmd)
-
 
     @staticmethod
     def cluster(arguments=None):
