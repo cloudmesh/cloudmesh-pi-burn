@@ -1827,7 +1827,8 @@ class MultiBurner(object):
              generate_key=False,
              store_key=False,
              write_local_hosts=True,
-             cluster_hosts=None):
+             cluster_hosts=None,
+             keyboard="us"):
         """
         Burns the image on the specific device
 
@@ -1904,6 +1905,7 @@ class MultiBurner(object):
         Sudo.password()
         StopWatch.start(f"write host data {device} {hostname}")
         burner.mount(device=device)
+        burner.keyboard(country=keyboard)
         burner.set_hostname(hostname)
         if generate_key:
             burner.generate_key(hostname)
