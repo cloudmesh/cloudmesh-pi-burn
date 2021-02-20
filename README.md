@@ -1695,11 +1695,11 @@ sudo iwlist wlan0 scan
 | image delete    |    +  |    +   |    +  |         |
 | image get       |    +  |    +   |    +  |         |
 | info            |    +  |    +   |    +  |         |
-| network         |    +  |    +   |    -  |         |
+| network         |    +  |    +   |       |         |
 | backup          |    +  |    +   |    +  |         |
 | copy            |    +  |    +   |       |         |
-| shrink install  |    +  |    +   |   NA  |         |
-| shrink          |    +  |    +   |   NA  |         |
+| shrink install  |    +  |    +   |       |         |
+| shrink          |    +  |    +   |       |         |
 | sdcard          |    +  |    +   |    +  |         |
 | mount           |    +  |    +   |    +  |         |
 | unmount         |    +  |    +   |    +  |         |
@@ -1712,11 +1712,13 @@ sudo iwlist wlan0 scan
 | format          |    +  |    +   |    +  |         |
 | cluster         |   NA  |    +   |    +  |         | 
 | firmware        |    +  |   NA   |   NA  | NA      |
+| inventory       |       |        |       |         |
 
-* (1)  use the create command instead 
+* (1)  use the `cluster` command instead 
 * for macOS, only the image commands have unit tests
 * firmware does not have a unit test
-* empty = not yet implemented
+* empty = not yet implemented or teste, an implementation could be provided by 
+  the community
 * - = broken
 * NA = Not applicable for this OS
 
