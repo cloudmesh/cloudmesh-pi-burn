@@ -895,15 +895,16 @@ class Burner(object):
         layout = f"{card.root_volume}/etc/default/keyboard"
 
         content = SDCard.readfile(layout, decode=True, split=True)
-
+        country = country.lower()
         found = False
         for i in range(0, len(content)):
             if content[i].strip().startswith("XKBLAYOUT"):
-                content[i] = "XKBLAYOUT=us"
+                content[i] = f"XKBLAYOUT={country}"
                 found = True
                 break
 
-            SDCard.writefile(layout, content)
+        content = "\n".join(content)
+        SDCard.writefile(layout, content)
 
         return found
 
@@ -1645,6 +1646,9 @@ class Burner(object):
             Burner.remove_public_key()
 
         banner("Benchmark", figlet=True)
+
+        StopWatch.status("load", True)
+        StopWatch.status("command", True)
 
         Benchmark.print(sysinfo=True, csv=True, tag="local")
         banner("Done", figlet=True)
