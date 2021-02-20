@@ -4,6 +4,11 @@
 
 ## Description
 
+Authors: 
+- Gregor von Laszewski, laszewski@gmail.com
+- Richard Otten
+- Anthony Orlowski
+
 ### Introduction
 
 Over time we have seen many efforts to create Clusters using Pi's 
@@ -76,6 +81,20 @@ Next, download the newest raspbianOS with
 ```
 
 TODO: fill out the rest
+
+### Acknowledgement
+
+We would liek to thank the following community members for testing the recent versions:
+Venkata Sai Dhakshesh Kolli,
+Rama Asuri,
+Adam Ratzman.
+
+Previous versions of the software obtained code contributions from 
+Sub Raizada,
+Jonathan Branam,
+FUgang Wnag,
+Anand Sriramulu, 
+Akshay Kowshik.
 
 ### Refernces
 
