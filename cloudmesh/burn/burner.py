@@ -466,24 +466,11 @@ class Burner(object):
 
         :param command: the command
         :type command: str
-        :return: the stdout of the command
+        :return: the stdout of the command not implemented
         :rtype: str
         """
-        # if self.dryrun:
-        #     print(command)
-        # else:
-
-        print("Executing", command)
-
         os.system(command)
 
-        # res = subprocess.getstatusoutput(command)
-        # If exit code is not 0, warn user
-        # if res[0] != 0 and res[0] != 32:
-        #    Console.warning(
-        #        f'Warning: "{command}" did not execute properly -> {res[1]} :: exit code {res[0]}')
-
-        # return res[1]
         return ""
 
     @windows_not_supported
@@ -678,8 +665,9 @@ class Burner(object):
         #
         """).strip()
 
-        print(f'Writingg: {card.root_volume}/etc/hosts')
+        print(f'Writing: {card.root_volume}/etc/hosts')
         print(hosts)
+        print()
 
         SDCard.writefile(f'{card.root_volume}/etc/hosts', hosts)
 
@@ -1129,10 +1117,6 @@ class Burner(object):
         """
         host = get_platform()
 
-        if host == "windows":
-            Console.error("Not yet implemented for this OS")
-            return ""
-
         if host in ['raspberry', "linux"]:
             sudo = True
         else:
@@ -1154,8 +1138,9 @@ class Burner(object):
     # TODO: docstring
     @windows_not_supported
     def disable_password_ssh(self):
+
         # sshd_config = self.filename("/etc/ssh/sshd_config")
-        card = SDCard(card_os="raspberry")
+        card = SDCard()
         sshd_config = f'{card.root_volume}/etc/ssh/sshd_config'
         new_sshd_config = ""
         updated_params = False
@@ -1202,12 +1187,14 @@ class Burner(object):
         if updated_params:
             # NOTE: This is actually necessary, see comment in method
             #
-            # as we no longer do it on osx, we need to identify if this is still needed
+            # as we do it on osx, we need to identify if this is still needed
             #
             # self.truncate_file(sshd_config)
             # with open(sshd_config, "w") as f:
             #     f.write(new_sshd_config)
+
             SDCard.writefile(sshd_config, new_sshd_config)
+
 
     @windows_not_supported
     def configure_wifi(self,

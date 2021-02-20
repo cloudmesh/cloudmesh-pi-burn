@@ -6,7 +6,7 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.sudo import Sudo
 from cloudmesh.burn.util import os_is_mac
-from cloudmesh.common.util import readfile
+from cloudmesh.common.util import readfile as common_readfile
 
 
 class SDCard:
@@ -149,7 +149,7 @@ class SDCard:
                 mode = "r"
             else:
                 mode = "rb"
-            content = readfile(filename, mode=mode)
+            content = common_readfile(filename, mode=mode)
         else:
             Sudo.password()
             result = Sudo.execute(f"cat {filename}", decode=decode)
@@ -178,10 +178,9 @@ class SDCard:
         :return: the output created by the write process
         :rtype: int
         """
-
+        os.system("sync")
         if append:
             content = Sudo.readfile(filename, split=False, decode=True) + content
-
         os.system(f"echo '{content}' | sudo cp /dev/stdin {filename}")
         os.system("sync")
 
