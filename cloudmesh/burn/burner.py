@@ -2028,7 +2028,7 @@ class MultiBurner(object):
             count += 1
             Console.info(f'Burned card {count}')
             print()
-            Console.info('Please remove the card')
+            Console.info('Card is safe to remove')
             print()
 
             if i < len(worker_configs) - 1:
