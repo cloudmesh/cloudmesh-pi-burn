@@ -699,7 +699,7 @@ class Burner(object):
         for line in hosts:
             config = config + line + '\n'
 
-        Sudo.writefile('/etc/hosts', config + "\n#\n")
+        Sudo.writefile('/etc/hosts', config + "\n")
 
     def write_cluster_hosts(self, cluster_hosts):
         card = SDCard()
