@@ -2012,12 +2012,6 @@ class MultiBurner(object):
         count = 0
         for i in range(len(worker_configs)):
 
-            banner("Burning Next Card")
-
-            if not yn_choice("Insert the next card and continue?"):
-                Console.error("Terminating")
-                return ""
-
             device = devices[i % len(devices)]
             worker_config = worker_configs[i]
 
