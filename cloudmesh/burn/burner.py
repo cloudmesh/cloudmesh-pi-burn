@@ -612,7 +612,8 @@ class Burner(object):
                 Console.info(command)
                 print()
                 if not (yes or yn_choice("Please execute on your own risk. "
-                                 f"You are writing {name} on {device}. CONTINUE?")):
+                                         f"You are writing {name} on {device}. "
+                                         "CONTINUE?")):
                     return ""
                 print()
 
