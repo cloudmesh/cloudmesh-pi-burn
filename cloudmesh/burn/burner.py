@@ -488,7 +488,7 @@ class Burner(object):
 
     @windows_not_supported
     def burn_sdcard(self, image=None, tag=None, device=None, blocksize="4M",
-                    name="the inserted card"):
+                    name="the inserted card", yes=False):
         """
         Burns the SD Card with an image
 
@@ -601,7 +601,7 @@ class Burner(object):
 
             blocksize = blocksize.replace("M", "m")
 
-            if yn_choice(f"\nDo you like to write {name} on {device} with the image {image_path}"):
+            if yes or yn_choice(f"\nDo you like to write {name} on {device} with the image {image_path}"):
 
                 # sudo dd if=/dev/diskX bs=1m | pv -s 64G | sudo dd of=/dev/diskX bs=1m
 
@@ -611,8 +611,8 @@ class Burner(object):
                 print()
                 Console.info(command)
                 print()
-                if not yn_choice("Please execute on your own risk. "
-                                 f"You are writing {name} on {device}. CONTINUE?"):
+                if not (yes or yn_choice("Please execute on your own risk. "
+                                 f"You are writing {name} on {device}. CONTINUE?")):
                     return ""
                 print()
 
@@ -893,7 +893,7 @@ class Burner(object):
 
         layout = f"{card.root_volume}/etc/default/keyboard"
 
-        content = SDCard.readfile(layout, decode=True, splt=True)
+        content = SDCard.readfile(layout, decode=True, split=True)
 
         found = False
         for i in range(0, len(content)):
@@ -1254,7 +1254,7 @@ class Burner(object):
         return ""
 
     @windows_not_supported
-    def format_device(self, device='dev/sdX', hostname=None, title="UNTITLED", unmount=False):
+    def format_device(self, device='dev/sdX', hostname=None, title="UNTITLED", unmount=False, yes=False):
         """
         Formats device with one FAT32 partition
 
@@ -1377,7 +1377,7 @@ class Burner(object):
                       )
 
                 print()
-                if yn_choice(f"\nDo you like to format {device} as {_title}"):
+                if yes or yn_choice(f"\nDo you like to format {device} as {_title}"):
                     _execute(f"Formatting {device} as {_title}",
                              f"sudo diskutil eraseDisk FAT32 {_title} MBRFormat {device}")
 
@@ -1503,6 +1503,9 @@ class Burner(object):
         #                  --ssid=myssid
         #                  --wifipassword=mypass
         #
+
+        yes = arguments.yes
+
         if os_is_windows():
             Console.error("Only supported on Pi and Linux. On Mac you will "
                           "need to have ext4 write access.")
@@ -1551,7 +1554,7 @@ class Burner(object):
         print("Key:          ", key)
         print("Blocksize:    ", arguments.bs)
 
-        if not yn_choice('\nWould you like to continue?'):
+        if not (yes or yn_choice('\nWould you like to continue?')):
             Console.error("Aborting ...")
             return ""
 
@@ -1633,7 +1636,8 @@ class Burner(object):
                            generate_key=False,
                            store_key=False,
                            write_local_hosts=False,
-                           cluster_hosts=cluster_hosts)
+                           cluster_hosts=cluster_hosts,
+                           yes=yes)
 
             Console.info(f"Completed workers: {workers}")
             Console.info("Cluster burn is complete.")
@@ -1828,7 +1832,8 @@ class MultiBurner(object):
              store_key=False,
              write_local_hosts=True,
              cluster_hosts=None,
-             keyboard="us"):
+             keyboard="us",
+             yes=False):
         """
         Burns the image on the specific device
 
@@ -1883,7 +1888,8 @@ class MultiBurner(object):
             success = burner.format_device(device=device,
                                            hostname=hostname,
                                            unmount=True,
-                                           title=hostname.upper())
+                                           title=hostname.upper(),
+                                           yes=yes)
             StopWatch.stop(f"format {device} {hostname}")
 
             if not success:
@@ -1898,7 +1904,11 @@ class MultiBurner(object):
             burner.unmount(device=device)
 
         StopWatch.start(f"write image {device} {hostname}")
-        burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize, name=hostname)
+        burner.burn_sdcard(tag=tag,
+                           device=device,
+                           blocksize=blocksize,
+                           name=hostname,
+                           yes=yes)
         StopWatch.stop(f"write image {device} {hostname}")
         StopWatch.status(f"write image {device} {hostname}", True)
 
@@ -2087,8 +2097,11 @@ class MultiBurner(object):
 
             if i < len(worker_configs) - 1:
                 if (i + 1) != ((i + 1) % len(devices)):
-                    if yn_choice(f"Slot {devices[(i + 1) % len(devices)]} needs to be reused. Do you wish to continue?"):
-                        input('Insert next card and press enter...')
+                    slot = devices[(i + 1) % len(devices)]
+                    print()
+                    print(f"Please remove any card from slot {slot} and insert a new one.")
+                    if yn_choice("Is the card inserted and do you wish to continue?"):
+                        pass
                     else:
                         return ""
 

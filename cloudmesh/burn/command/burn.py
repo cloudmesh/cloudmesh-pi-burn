@@ -51,6 +51,7 @@ class BurnCommand(PluginCommand):
                            [--ssid=SSID]
                            [--wifipassword=PSK]
                            [--bs=BLOCKSIZE]
+                           [-y]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -566,6 +567,7 @@ class BurnCommand(PluginCommand):
             #                  --ssid=myssid
             #                  --wifipassword=mypass
             #
+            arguments.yes = arguments["-y"]
 
             execute("cluster", burner.cluster(arguments=arguments))
             return ""
