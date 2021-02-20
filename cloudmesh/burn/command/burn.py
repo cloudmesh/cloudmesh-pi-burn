@@ -416,7 +416,6 @@ class BurnCommand(PluginCommand):
                 Console.error("Not yet implemented on MacOS")
                 return ""
 
-
             ip = arguments.ip or Network.address()[0]['local']
 
             details = Network.nmap(ip=ip)
@@ -487,7 +486,6 @@ class BurnCommand(PluginCommand):
                 Console.error("Not yet implemented on MacOS")
                 return ""
 
-
             execute("install", burner.install())
             return ""
 
@@ -496,7 +494,6 @@ class BurnCommand(PluginCommand):
             if os_is_mac():
                 Console.error("Not yet implemented on MacOS")
                 return ""
-
 
             execute("shrink", burner.shrink(image=arguments.IMAGE))
             return ""
