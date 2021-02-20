@@ -487,7 +487,8 @@ class Burner(object):
         return ""
 
     @windows_not_supported
-    def burn_sdcard(self, image=None, tag=None, device=None, blocksize="4M"):
+    def burn_sdcard(self, image=None, tag=None, device=None, blocksize="4M",
+                    name="the inserted card"):
         """
         Burns the SD Card with an image
 
@@ -505,7 +506,7 @@ class Burner(object):
                           "and tag.")
             return ""
 
-        Console.info("Burning...")
+        Console.info(f"Burning {name} ...")
         if image is not None:
             image_path = image
         else:
@@ -537,12 +538,16 @@ class Burner(object):
         n = int(round(float(n)))
         size = f"{n}{unit}"
 
-        banner("Preparing the SDCard")
+        banner(f"Preparing the SDCard {name}")
+        print(f"Name:       {name}")
         print(f"Image:      {image_path}")
         print(f"Image Size: {orig_size}")
         print(f"Device:     {device}")
         print(f"Blocksize:  {blocksize}")
+
         print()
+
+        Sudo.password()
 
         if os_is_linux() or os_is_pi():
 
@@ -596,7 +601,7 @@ class Burner(object):
 
             blocksize = blocksize.replace("M", "m")
 
-            if yn_choice(f"\nDo you like to write to {device} the image {image_path}"):
+            if yn_choice(f"\nDo you like to write {name} on {device} with the image {image_path}"):
 
                 # sudo dd if=/dev/diskX bs=1m | pv -s 64G | sudo dd of=/dev/diskX bs=1m
 
@@ -607,7 +612,7 @@ class Burner(object):
                 Console.info(command)
                 print()
                 if not yn_choice("Please execute on your own risk. "
-                                 "You are writing to {device}. CONTINUE?"):
+                                 "You are writing {name} on {device}. CONTINUE?"):
                     return ""
                 print()
 
@@ -648,13 +653,11 @@ class Burner(object):
         # 0000000    r   a   s   p   b   e   r   r   y   p   i  \n
         # 0000014
 
-        Sudo.password()
         self.hostname = hostname
         card = SDCard()
 
-        mountpoint = card.root_volume
-
-        Sudo.writefile(f"{mountpoint}/etc/hostname", f"{hostname}")
+        name = hostname.strip()
+        SDCard.writefile(f"{card.root_volume}/etc/hostname", name)
 
         # change last line of /etc/hosts to have the new hostname
         # 127.0.1.1 raspberrypi   # default
@@ -670,13 +673,13 @@ class Burner(object):
         #
         """).strip()
 
-        print(f'Writingg: {mountpoint}/etc/hosts')
+        print(f'Writingg: {card.root_volume}/etc/hosts')
         print(hosts)
 
-        Sudo.writefile(f'{mountpoint}/etc/hosts', hosts)
+        SDCard.writefile(f'{card.root_volume}/etc/hosts', hosts)
 
     def add_to_hosts(self, ip):
-        hosts = Sudo.readfile('/etc/hosts', split=True, decode=True)
+        hosts = SDCard.readfile('/etc/hosts', split=True, decode=True)
 
         replaced = False
         for i in range(len(hosts)):
@@ -699,16 +702,16 @@ class Burner(object):
         for line in hosts:
             config = config + line + '\n'
 
-        Sudo.writefile('/etc/hosts', config + "\n")
+        SDCard.writefile('/etc/hosts', config + "\n")
 
     def write_cluster_hosts(self, cluster_hosts):
         card = SDCard()
-        hosts = Sudo.readfile(f'{card.root_volume}/etc/hosts', split=False, decode=True)
+        hosts = SDCard.readfile(f'{card.root_volume}/etc/hosts', split=False, decode=True)
         hosts = hosts + '\n'
         for ip, hostname in cluster_hosts:
             hosts = hosts + f"{ip}\t{hostname}\n"
         hosts = hosts + "#\n"
-        Sudo.writefile(f'{card.root_volume}/etc/hosts', hosts)
+        SDCard.writefile(f'{card.root_volume}/etc/hosts', hosts)
 
     @windows_not_supported
     def set_static_ip(self, ip, iface="eth0", mask="24",
@@ -743,7 +746,7 @@ class Burner(object):
         static_ip = f'static ip_address={ip}/{mask}'
         static_routers = f'static routers={router_ip}'
 
-        curr_config = Sudo.readfile(f'{mountpoint}/etc/dhcpcd.conf', decode=True, split=True)
+        curr_config = SDCard.readfile(f'{mountpoint}/etc/dhcpcd.conf', decode=True, split=True)
         if iface in curr_config:
             Console.warning("Found previous settings. Overwriting")
             # If setting already present, replace it and the static ip line
@@ -766,7 +769,7 @@ class Burner(object):
             curr_config.append('\n')
             # curr_config.append('nolink\n')
 
-        Sudo.writefile(f'{mountpoint}/etc/dhcpcd.conf', '\n'.join(curr_config))
+        SDCard.writefile(f'{mountpoint}/etc/dhcpcd.conf', '\n'.join(curr_config))
 
     # TODO:
     # Deprecated function as dhcpcd.conf is the recommended file for
@@ -794,7 +797,7 @@ class Burner(object):
     #     def add_to_hosts(ip):
     #         # with open('/etc/hosts', 'r') as host_file:
     #         #     hosts = host_file.readlines()
-    #         hosts = Sudo.readfile('/etc/hosts', decode=True)
+    #         hosts = SDCard.readfile('/etc/hosts', decode=True)
 
     #         replaced = False
     #         for i in range(len(hosts)):
@@ -819,7 +822,7 @@ class Burner(object):
     #         for line in hosts:
     #             config = config + line + '\n'
 
-    #         Sudo.writefile('/etc/hosts', config)
+    #         SDCard.writefile('/etc/hosts', config)
 
     #     # Add static IP and hostname to manager's hosts file and configure worker with static IP
     #     if not self.dryrun:
@@ -835,7 +838,7 @@ class Burner(object):
     #             # with open(f'{mountpoint}/etc/network/interfaces',
     #             #           'a') as config:
     #             #     config.write(interfaces_conf)
-    #             Sudo.writefile(f'{mountpoint}/etc/network/interfaces',
+    #             SDCard.writefile(f'{mountpoint}/etc/network/interfaces',
     #                            interfaces_conf, append=True)
 
     #         # Configure static wifi IP
@@ -853,7 +856,7 @@ class Burner(object):
     #                     """)
     #             # with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
     #             #     config.write(dhcp_conf)
-    #             Sudo.writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf,
+    #             SDCard.writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf,
     #                            append=True)
     #     else:
     #         print('interface eth0\n')
@@ -873,16 +876,15 @@ class Burner(object):
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
 
-        Sudo.password()
         card = SDCard()
 
         location = path_expand(key_file)
 
-        Sudo.execute(f'mkdir -p {card.root_volume}/home/pi/.ssh/')
-        Sudo.execute(f'cp {location} {card.root_volume}/home/pi/.ssh/authorized_keys')
+        SDCard.execute(f'mkdir -p {card.root_volume}/home/pi/.ssh/')
+        SDCard.execute(f'cp {location} {card.root_volume}/home/pi/.ssh/authorized_keys')
         # cleanup
         if os.path.exists(f"{card.root_volume}/home/pi/.ssh/._authorized_keys"):
-            Sudo.execute(f"rm -f {card.root_volume}/home/pi/.ssh/._authorized_keys")
+            SDCard.execute(f"rm -f {card.root_volume}/home/pi/.ssh/._authorized_keys")
 
     def write_fix(self):
         """
@@ -919,7 +921,7 @@ class Burner(object):
         card = SDCard()
         fix = "/boot/fix_permissions.py"
         fix_on_sdcard = f"{card.boot_volume}/fix_permissions.py"
-        Sudo.writefile(fix_on_sdcard, script)
+        SDCard.writefile(fix_on_sdcard, script)
 
         rc_local = f"{card.root_volume}/etc/rc.local"
         content = readfile(rc_local)
@@ -928,14 +930,14 @@ class Burner(object):
         else:
             content = content.replace("exit 0", f"sudo python {fix}")
             content = content + "\n" + "exit 0\n"
-            Sudo.writefile(rc_local, content)
+            SDCard.writefile(rc_local, content)
 
     @windows_not_supported
     def mount(self, device=None, card_os="raspberry"):
         """
         Mounts the current SD card
         """
-
+        Sudo.password()
         host = get_platform()
         card = SDCard(card_os=card_os, host=host)
 
@@ -1032,6 +1034,8 @@ class Burner(object):
         :type device: str
         """
 
+        Sudo.password()
+
         def _execute(msg, command):
             Console.ok(msg)
             try:
@@ -1089,6 +1093,7 @@ class Burner(object):
 
         card = SDCard(card_os="raspberry", host=host)
         if sudo:
+            Sudo.password()
             command = f'sudo touch {card.boot_volume}/ssh'
         else:
             command = f'touch {card.boot_volume}/ssh'
@@ -1128,7 +1133,7 @@ class Burner(object):
 
         found_params = set()
         # with open(sshd_config, 'r') as f:
-        f = Sudo.readfile(sshd_config, decode=True, split=True)
+        f = SDCard.readfile(sshd_config, decode=True, split=True)
 
         for line in f:
             found_a_param = False
@@ -1155,7 +1160,7 @@ class Burner(object):
             # self.truncate_file(sshd_config)
             # with open(sshd_config, "w") as f:
             #     f.write(new_sshd_config)
-            Sudo.writefile(sshd_config, new_sshd_config)
+            SDCard.writefile(sshd_config, new_sshd_config)
 
     @windows_not_supported
     def configure_wifi(self,
@@ -1226,6 +1231,7 @@ class Burner(object):
                 pass
 
         def prepare_sdcard():
+            Sudo.password()
             # ensures a card is detected and unmounted
             Console.ok(f'sudo eject -t {device}')
             self.system_exec(f'sudo eject -t {device}')
@@ -1340,8 +1346,8 @@ class Burner(object):
         :type device: str
         """
         if os_is_linux() or os_is_pi():
-
             banner(f"load {device}")
+            Sudo.password()
             os.system(f"sudo eject -t {device}")
 
         else:
@@ -1384,7 +1390,7 @@ class Burner(object):
         #        with open(f'{mountpoint}/etc/passwd', 'r') as f:
         #            info = [l for l in f.readlines()]
 
-        info = Sudo.readfile(f'{mountpoint}/etc/passwd', split=True, decode=True)
+        info = SDCard.readfile(f'{mountpoint}/etc/passwd', split=True, decode=True)
 
         for i in range(len(info)):
             inf = info[i].split(":")
@@ -1397,13 +1403,13 @@ class Burner(object):
         # with open(f'{mountpoint}/etc/passwd', 'w') as f:
         #     f.writelines(info)
 
-        Sudo.writefile(f'{mountpoint}/etc/passwd', content)
+        SDCard.writefile(f'{mountpoint}/etc/passwd', content)
 
         # Add it to shadow file
         # with open(f'{mountpoint}/etc/shadow', 'r') as f:
         #     data = [l for l in f.readlines()]
 
-        data = Sudo.readfile(f'{mountpoint}/etc/shadow', decode=True, split=True)
+        data = SDCard.readfile(f'{mountpoint}/etc/shadow', decode=True, split=True)
 
         content = ""
         for i in range(len(data)):
@@ -1414,7 +1420,7 @@ class Burner(object):
 
         content = '\n'.join(data)
 
-        Sudo.writefile(f'{mountpoint}/etc/shadow', content)
+        SDCard.writefile(f'{mountpoint}/etc/shadow', content)
 
     def generate_key(self, hostname=None):
         card = SDCard()
@@ -1471,8 +1477,6 @@ class Burner(object):
              or arguments.wifipassword.lower() in ['input', "none", ""]):  # noqa: W503
             print()
             arguments.wifipassword = getpass("Wifi Password: ")
-
-        Sudo.password()
 
         if workers is None:
             n = 1
@@ -1837,9 +1841,8 @@ class MultiBurner(object):
         elif os_is_mac():
             burner.unmount(device=device)
 
-        Sudo.password()
         StopWatch.start(f"write image {device} {hostname}")
-        burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize)
+        burner.burn_sdcard(tag=tag, device=device, blocksize=blocksize, name=hostname)
         StopWatch.stop(f"write image {device} {hostname}")
         StopWatch.status(f"write image {device} {hostname}", True)
 

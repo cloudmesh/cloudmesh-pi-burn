@@ -4,7 +4,11 @@ from pathlib import Path
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.console import Console
 from cloudmesh.common.systeminfo import get_platform
-
+from cloudmesh.common.sudo import Sudo
+from cloudmesh.burn.util import os_is_mac
+from cloudmesh.common.util import readfile
+from cloudmesh.common.util import writefile
+import subprocess
 
 class SDCard:
 
@@ -109,3 +113,78 @@ class SDCard:
                 }
                 details[detail["name"]] = detail
         return details
+
+
+    @staticmethod
+    def execute(command, decode="True", debug=False):
+        """
+        Executes the command
+
+        :param command: The command to run
+        :type command: list or str
+        :return:
+        :rtype:
+        """
+
+        result = Sudo.execute(command, decode=decode, debug=debug)
+        return result
+
+    @staticmethod
+    def readfile(filename, split=False, trim=False, decode=True):
+        """
+        Reads the content of the file as sudo and returns the result
+
+        :param filename: the filename
+        :type filename: str
+        :param split: uf true returns a list of lines
+        :type split: bool
+        :param trim: trim trailing whitespace. This is useful to
+                     prevent empty string entries when splitting by '\n'
+        :type trim: bool
+        :return: the content
+        :rtype: str or list
+        """
+        os.system("sync")
+
+        if os_is_mac():
+            if decode:
+                mode = "r"
+            else:
+                mode = "rb"
+            content = readfile(filename, mode=mode)
+        else:
+            Sudo.password()
+            result = Sudo.execute(f"cat {filename}", decode=decode)
+            content = result.stdout
+
+        if trim:
+            content = content.rstrip()
+
+        if split:
+            content = content.splitlines()
+
+        return content
+
+    @staticmethod
+    def writefile(filename, content, append=False):
+        """
+        Writes the content in the the given file.
+
+        :param filename: the filename
+        :type filename: str
+        :param content: the content
+        :type content: str
+        :param append: if true it append it at the end, otherwise the file will
+                       be overwritten
+        :type append: bool
+        :return: the output created by the write process
+        :rtype: int
+        """
+
+        if append:
+            content = Sudo.readfile(filename, split=False, decode=True) + content
+
+        os.system(f"echo '{content}' | sudo cp /dev/stdin {filename}")
+        os.system("sync")
+
+        return content

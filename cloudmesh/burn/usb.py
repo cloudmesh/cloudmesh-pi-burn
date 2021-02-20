@@ -9,6 +9,7 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.console import Console
+from cloudmesh.common.sudo import Sudo
 
 
 def _get_attribute(attribute, lines):
@@ -127,6 +128,7 @@ class USB(object):
         :return: the output from the fdisk command
         :rtype: str
         """
+        Sudo.password()
         return subprocess.getoutput(f"sudo fdisk -l {dev}")
 
     @staticmethod

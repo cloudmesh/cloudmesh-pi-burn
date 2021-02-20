@@ -6,6 +6,7 @@ from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.common.console import Console
+from cloudmesh.common.sudo import Sudo
 
 
 class Imager:
@@ -21,6 +22,7 @@ class Imager:
             return
         if not Imager.installed() or force:
             if os_is_linux() or os_is_pi():
+                Sudo.password()
                 os.system("sudo apt uninstall -y rpi-imager")
             else:
                 Console.warning("Installation is not supported")
@@ -49,6 +51,7 @@ class Imager:
         Imager.install()
 
         if os_is_linux() or os_is_pi():
+            Sudo.password()
             os.system(f"sudo rpi-imager {file}")
         elif os_is_mac():
             os.system(f"/Applications/Raspberry\ Pi\ Imager.app/Contents/MacOS/rpi-imager {file} "  # noqa: W605
