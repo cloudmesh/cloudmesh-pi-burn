@@ -2030,7 +2030,7 @@ class MultiBurner(object):
             print()
             Console.info('Please remove the card')
             print()
-            if not yn_choice("Do you want to continue?") and i < len(worker_configs) - 1:
+            if i < len(worker_configs) - 1 and not yn_choice("Do you want to continue?"):
                 Console.error("Terminating")
                 return ""
 
