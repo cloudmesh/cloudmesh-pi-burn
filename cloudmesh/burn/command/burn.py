@@ -148,41 +148,43 @@ class BurnCommand(PluginCommand):
 
                 cms burn firmware check
 
-                    checks if the firmware on the Pi is up to date
+                    Checks if the firmware on the Pi is up to date
 
                 cms burn firmware update
 
-                    checks and updates the firmware on the Pi
+                    Checks and updates the firmware on the Pi
 
                 cms burn install
 
-                    installs a program to shrink img files. THis is
+                    Installs a program to shrink img files. THis is
                     useful, after you created a backup to make the
                     backup smaller and allow faster burning in case of
                     recovery
 
+                    This command is not supported on MacOS
+
                 cms burn load --device=DEVICE
 
-                    loads the sdcard into the USB drive. Thi sis similar to
+                    Loads the sdcard into the USB drive. Thi sis similar to
                     loading a cdrom drive. It s the opposite to eject
 
                 cms burn format --device=DEVICE
 
-                    formats the SDCard in the specified device. Be
+                    Formats the SDCard in the specified device. Be
                     careful it is the correct device.  cms burn info
                     will help you to identifying it
 
                 cms burn mount [--device=DEVICE] [--os=OS]
 
-                    mounts the file systems available on the SDCard
+                    Mounts the file systems available on the SDCard
 
                 cms burn unmount [--device=DEVICE] [--os=OS]
 
-                    unmounts the mounted file systems from the SDCard
+                    Unmounts the mounted file systems from the SDCard
 
                 cms burn info [--device=DEVICE]
 
-                    provides useful information about the SDCard
+                    Provides useful information about the SDCard
 
                 cms burn image versions [--refresh] [--yaml]
 
@@ -200,31 +202,37 @@ class BurnCommand(PluginCommand):
 
                 cms burn image delete [--image=IMAGE]
 
-                    deletes the specified image. The name can be found
+                    Deletes the specified image. The name can be found
                     with the image ls command
 
                 cms burn image get [--url=URL] [TAG...]
 
-                    downloads a specific image or the latest
+                    Downloads a specific image or the latest
                     image. The tag are a number of words separated by
                     a space that must occur in the tag that you find
                     in the versions command
 
                 cms burn backup [--device=DEVICE] [--to=DESTINATION]
 
-                    backs up a SDCard to the given location
+                    This command requires you to install pishrink previously with
+
+                        cms burn install
+
+                    Backs up a SDCard to the given location.
 
                 cms burn copy [--device=DEVICE] [--from=DESTINATION]
 
-                    copies the file form the destination on the SDCard
+                    Copies the file form the destination on the SDCard
                     this is the same as the SDCard command. we will in
                     future remove one
 
                 cms burn shrink [--image=IMAGE]
 
-                    shrinks the size of a backup or image file that
+                    Shrinks the size of a backup or image file that
                     is on your local file system. It can only be used
                     for .img files
+
+                   This command is not supported on MacOS.
 
                 cms burn create [--image=IMAGE]
                                 [--device=DEVICE]
@@ -251,7 +259,7 @@ class BurnCommand(PluginCommand):
                              [--mount=MOUNTPOINT]
                              [--keyboard=COUNTRY]
 
-                    this sets specific values on the sdcard after it
+                    Sets specific values on the sdcard after it
                     has ben created with the create, copy or sdcard
                     command
 
@@ -259,11 +267,11 @@ class BurnCommand(PluginCommand):
 
                 cms burn enable ssh [--mount=MOUNTPOINT]
 
-                    this enables the ssh server once it is booted
+                    Enables the ssh server once it is booted
 
                 cms burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
 
-                    this sets the wifi ssid and password after the card
+                    Sets the wifi ssid and password after the card
                     is created, copied, or the sdcard is used.
 
                     The option country option expects an ISO 3166-1
@@ -274,7 +282,7 @@ class BurnCommand(PluginCommand):
 
                 cms burn check [--device=DEVICE]
 
-                    this command lists the parameters that were set
+                    Lists the parameters that were set
                     with the set or create command
 
             Examples: ( \\ is not shown)
@@ -404,6 +412,11 @@ class BurnCommand(PluginCommand):
 
         elif arguments.network and arguments["list"]:
 
+            if os_is_mac():
+                Console.error("Not yet implemented on MacOS")
+                return ""
+
+
             ip = arguments.ip or Network.address()[0]['local']
 
             details = Network.nmap(ip=ip)
@@ -422,6 +435,10 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.network:
+
+            if os_is_mac():
+                Console.error("Not yet implemented on MacOS")
+                return ""
 
             # print (Network.nmap())
             details = Network.address()
@@ -466,10 +483,20 @@ class BurnCommand(PluginCommand):
 
         elif arguments.install:
 
+            if os_is_mac():
+                Console.error("Not yet implemented on MacOS")
+                return ""
+
+
             execute("install", burner.install())
             return ""
 
         elif arguments.shrink:
+
+            if os_is_mac():
+                Console.error("Not yet implemented on MacOS")
+                return ""
+
 
             execute("shrink", burner.shrink(image=arguments.IMAGE))
             return ""

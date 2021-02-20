@@ -185,3 +185,22 @@ class SDCard:
         os.system("sync")
 
         return content
+
+    @staticmethod
+    def size(device="/dev/sdX"):
+
+        size = 64 * 1000 ** 3   # this is a bug as we need that for Linux and PI
+
+        if os_is_mac():
+            result = Shell.run(" diskutil list external").splitlines()
+            for line in result:
+                if "FDisk_partition_scheme" in line:
+                    data = line.split()
+                    size, unit = data[2].replace("*", ""), data[3]
+                    if unit == "GB":
+                        size = int(float(size) * 1000**3)
+                    else:
+                        size = 64
+                        Console.error("Unit not GB")
+                    break
+        return size

@@ -1695,17 +1695,17 @@ sudo iwlist wlan0 scan
 | image delete    |    +  |    +   |    +  |         |
 | image get       |    +  |    +   |    +  |         |
 | info            |    +  |    +   |    +  |         |
-| network         |    +  |    +   |       |         |
-| backup          |    +  |    +   |    -  |         |
-| copy            |    +  |    +   |    -  |         |
-| shrink install  |    +  |    +   |       |         |
-| shrink          |    +  |    +   |       |         |
+| network         |    +  |    +   |    -  |         |
+| backup          |    +  |    +   |    +  |         |
+| copy            |    +  |    +   |       |         |
+| shrink install  |    +  |    +   |   NA  |         |
+| shrink          |    +  |    +   |   NA  |         |
 | sdcard          |    +  |    +   |    +  |         |
 | mount           |    +  |    +   |    +  |         |
 | unmount         |    +  |    +   |    +  |         |
 | enable ssh      |    +  |    +   |    +  |         |
 | wifi            |    +  |    +   |    +  |         |
-| set             |    +  |    +   |       |         |
+| set             |    +  |    +   |    +  |         |
 | create          |  TODO |   (1)  |   (1) |         |
 | cluster         |    NA |    +   |    +  |         |
 | check           |    +  |    +   |    +  |         |

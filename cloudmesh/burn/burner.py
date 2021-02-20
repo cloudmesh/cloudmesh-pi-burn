@@ -269,34 +269,58 @@ class Burner(object):
         :rtype:
         """
 
-        if os_is_linux() or os_is_pi():
+        if os_is_mac():
+            Console.error("This command is not supported on MacOS")
+            return ""
+        else:
             banner("Installing pishrink.sh into /usr/local/bin")
             script = \
                 """
                 wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
                 chmod +x pishrink.sh
                 sudo mv pishrink.sh /usr/local/bin
-                sudo apt install parted -y > $HOME/tmp.log
                 """
 
             result = JobScript.execute(script)
             print(Printer.write(result,
                                 order=["name", "command", "status", "stdout", "returncode"]))
-        else:
-            raise NotImplementedError
+
+            if os_is_linux() or os_is_pi():
+                banner("Installing pishrink.sh into /usr/local/bin")
+                script = \
+                    """
+                    sudo apt install parted -y > $HOME/tmp.log
+                    """
+
+                result = JobScript.execute(script)
+                print(Printer.write(result,
+                                    order=["name", "command", "status", "stdout", "returncode"]))
 
     @windows_not_supported
-    def backup(self, device=None, to_file=None, blocksize="4M"):
+    def backup(self, device=None, to_file=None, blocksize="4m"):
         if device is None:
             Console.error("Device must have a value")
         if to_file is None:
             Console.error("To file must have a value")
         else:
+            Sudo.password()
+
+            to_file = path_expand(to_file)
+
+            if os_is_mac():
+                size = SDCard.size(device)
+            else:
+                size = 64 * 1000**3  # 64GB  this is a bug we need to find out ho to get the size
+
             to_file = path_expand(to_file)
             command = f"sudo dd if={device} bs={blocksize} |" \
-                      f" pv -w 80 |" \
-                      f"dd of={to_file} bs={blocksize} conv=fsync status=progress"
-            print(command)
+                      f" pv -s {size} |" \
+                      f"dd of={to_file} bs={blocksize}"
+
+            print()
+            Console.info(command)
+            print()
+
             os.system(command)
 
     @windows_not_supported
