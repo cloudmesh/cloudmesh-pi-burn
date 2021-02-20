@@ -1195,7 +1195,6 @@ class Burner(object):
 
             SDCard.writefile(sshd_config, new_sshd_config)
 
-
     @windows_not_supported
     def configure_wifi(self,
                        ssid,
