@@ -2006,12 +2006,6 @@ class MultiBurner(object):
         count = 0
         for i in range(len(worker_configs)):
 
-            banner("Burning Next Card")
-
-            if not yn_choice("Insert the next card and continue?"):
-                Console.error("Terminating")
-                return ""
-
             device = devices[i % len(devices)]
             worker_config = worker_configs[i]
 
@@ -2028,11 +2022,15 @@ class MultiBurner(object):
             count += 1
             Console.info(f'Burned card {count}')
             print()
-            Console.info('Please remove the card')
+            Console.info('Card is safe to remove')
             print()
-            if not yn_choice("Do you want to continue?") and i < len(worker_configs) - 1:
-                Console.error("Terminating")
-                return ""
+
+            if i < len(worker_configs) - 1:
+                if (i + 1) != ((i + 1) % len(devices)):
+                    if yn_choice(f"Slot {devices[(i + 1) % len(devices)]} needs to be reused. Do you wish to continue?"):
+                        input('Insert next card and press enter...')
+                    else:
+                        return ""
 
         Console.info(f"You burned {count} SD Cards")
         Console.ok("Done :)")
