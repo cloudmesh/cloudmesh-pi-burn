@@ -1111,7 +1111,7 @@ On the manager you call the follwoing commands
 
 ```
 pi@red:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
-pi@red:~ $ source ~/ENV3/bin/activate
+pi@red:~ $ sudo reboot
 (ENV3) pi@red:~ $ cms host setup red00[1-2] you@laptop.local 
 ```
 
@@ -1137,11 +1137,6 @@ Host red002
      User pi
      Port 8002
 
-```
-
-
-```
-(ENV3) pi@red:~ $ sudo reboot
 ```
 
 Let us test by running a command from the laptop to get the Pis' 
