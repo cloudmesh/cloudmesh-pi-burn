@@ -11,31 +11,38 @@ Authors:
 
 ### Introduction
 
-Over time we have seen many efforts to create Clusters using Pi's 
-as a platform. There are many reasons for this. You have full control 
-over the PIs, you use an inexpensive platform, and you use a platform 
-that is highly usable and provides an enormous benefit to get educated about 
-cluster computing in general.
+Over time we have seen many efforts to create Clusters using Pi's as a
+platform. There are many reasons for this. You have full control over the PIs,
+you use an inexpensive platform, and you use a platform that is highly usable
+and provides an enormous benefit to get educated about cluster computing in
+general.
 
-There are several different methods on how to set up a cluster. This includes
-setups are known under the terms *headless*, *network booting*, and *booting form
-SDCards* and describe them in more detail next.
-Each of the methods has its advantages and disadvantages. However, the last method is most familiar to the community. However, all tutorials we have seen are consisting many complex steps that require a significant amount of time. Despite the much improved Pi imager and the availability of Pi bakery the process is still involved. So we started asking:
+There are different methods on how to set up a cluster. This includes setups
+that are known under the terms *headless*, *network booting*, and *booting form
+SDCards*. Each of the methods has its advantages and disadvantages. However,
+the last method is most familiar to the the users in the Pi community that come
+from single Pis. While reviewing the many efforts that decribe a cluster setup
+most of them contain many complex steps that require a significant amount of
+time as they are executed individually on these Pis. Even starting is
+non-trivial as a network needs to be set up to access them. 
+
+Despite the much improved Pi imager and the availability of Pi bakery the
+process is still involved. So we started asking:
 
 > Is it possible to develop a tool that is specifically targeted to burn 
-> SDCards that creates all Cards for the cluster one at a time. We then plug 
-> the cards in, and the cluster simply works?
+> SDCards a cluster one at a time so we can just  plug 
+> the cards in, and with minimal effort start the cluster that simply works?
 
-So you are in luck, we have developed such a tool. No more spending hours 
-upon hours to replicate the steps, but get a cluster set up easily with just 
-a few commands.
+You are in luck, we have spend some time to developed such a tool. No more
+spending hours upon hours to replicate the steps, learn complex devops
+turorial, but instead get a cluster set up easily with just a few commands.
 
-For this, we developed `cloudmesh burn` which is a program that you can 
-execute either on a "manager" Pi (or in a Linux desktop) to burn cards 
-for your cluster
+For this, we developed `cms burn` which is a program that you can execute
+either on a "manager" Pi (or in a Linux of MacOS computers) to burn cards for
+your cluster. 
 
-We have set up on GitHub a comprehensive package that is easily installable 
-and we hope that it is useful to you.
+We have set up on GitHub a comprehensive package that can be installed  easily
+we hope that it is useful to you.
 
 All of this is discussed in detail at 
 <https://github.com/cloudmesh/cloudmesh-pi-burn/blob/main/README.md>
@@ -45,11 +52,24 @@ how easy it is to use it.
 
 ### Example
 
-We will be creating the following setup using 4 Raspberry Pis 
+We will be creating the following setup using 5 Raspberry Pis 
 (you need a minimum of 2, but our method works also for larger 
 numbers of PIs).
 
-TODO: image and details of the quickstart
+Figure 1 describes our network configuration. We have 5 Raspberry Pi 4s: 1
+manager and 4 workers. We use WiFi access to the manager PI to allow for you to
+set it up anywhere in your house or doorm (other configurations are discussed
+on our home page).
+
+We use a network switch, where the manager and workers can
+communicate locally, but we will configure the manager to provide
+internet access to devices on the network switch via a "network
+bridge".
+
+![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-bridge.png)
+
+Figure 1: Pi Cluster setup with bridge network
+
 
 First, install the program with
 
@@ -60,10 +80,11 @@ pi@raspberrypi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
 pi@raspberrypi:~ $ source ~/ENV3/bin/activate
 ```
 
+This will set up a python venv on your computer manager Pi
 
-Second, plugin your SDCard writer and  identify the device on which your 
-SDCard is plugged in. in the PI this will typically be `/dev/sda`. On other operating systems this will be different. You can use our  `info` command 
-to find it with
+Second, plugin your SDCard writer and  identify the device on which your SDCard
+is plugged in. in the PI this will typically be `/dev/sda`. On other operating
+systems this will be different. You can use our  `info` command to find it with
 
 ```bash
 (ENV3) pi@raspberrypi:~ $ cms pi burn info
