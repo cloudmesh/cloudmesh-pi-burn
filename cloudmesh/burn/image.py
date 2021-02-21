@@ -129,7 +129,7 @@ class Image(object):
         return result
 
     @staticmethod
-    def versions(repo):
+    def versions(repo=None):
         """
         Fetch and list available image versions and their download URLs
         """
@@ -147,7 +147,7 @@ class Image(object):
         return v, d
 
     @staticmethod
-    def find_image_zip(repo, version):
+    def find_image_zip(repo=None, version=None):
         url = f"{repo}/{version}/"
 
         result = requests.get(url, verify=False)
@@ -263,7 +263,7 @@ class Image(object):
         Path(zip_filename).unlink()
         return img_filename
 
-    def unzip_image(self, zip_filename):
+    def unzip_image(self, zip_filename=None):
         """
         Unzip image.zip to image.img
         """

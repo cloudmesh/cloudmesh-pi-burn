@@ -11,7 +11,7 @@ import hashlib
 BUF_SIZE = 65536
 
 
-def sha1sum(filename):
+def sha1sum(filename=None):
     Console.info("Verifying sha1")
     h = hashlib.sha1()
     with open(filename, 'rb') as f:
@@ -25,7 +25,7 @@ def sha1sum(filename):
     return h.hexdigest()
 
 
-def sha256sum(filename):
+def sha256sum(filename=None):
     Console.info("Verifying sha256")
     h = hashlib.sha256()
     with open(filename, 'rb') as f:

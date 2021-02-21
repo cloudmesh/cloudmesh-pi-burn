@@ -27,7 +27,7 @@ class USB(object):
     def __init__(self):
         self.vendors = None
 
-    def get_product(self, vendor, product):
+    def get_product(self, vendor=None, product=None):
         """
         internal method used to retrieve the vendor, product string
         :param vendor: the vendor name
