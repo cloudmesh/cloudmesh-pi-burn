@@ -661,7 +661,6 @@ class Burner(object):
         for i in range(0, 3):
             SDCard.writefile(f"{card.root_volume}/etc/default/locale", lang)
 
-
     @windows_not_supported
     def set_hostname(self, hostname):
         """
