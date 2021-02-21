@@ -546,8 +546,12 @@ class Burner(object):
         n, unit = size.split(" ")
         unit = unit.replace("GB", "G")
         unit = unit.replace("MB", "M")
-        n = int(round(float(n)))
-        size = f"{n}{unit}"
+        n = float(n)
+        if unit == "G":
+            n = n * 1000**3
+        elif unit == "M":
+            n = n * 1000**2
+        size = int(n)
 
         banner(f"Preparing the SDCard {name}")
         print(f"Name:       {name}")
@@ -567,7 +571,7 @@ class Burner(object):
                 return
 
             command = f"sudo dd if={image_path} |" \
-                      f" pv -w 80 |" \
+                      f" pv -s {size} |" \
                       f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
             print(command)
             os.system(command)
@@ -645,6 +649,18 @@ class Burner(object):
         print(hostnames)
         Console.error("Not yet implemented")
         return ""
+
+    @windows_not_supported
+    def set_locale(self, locale="en_US.UTF-8"):
+
+        lang = 'LANG="{locale}"'
+
+        card = SDCard()
+
+        # Write it 3 times as sometimes it does not work
+        for i in range(0, 3):
+            SDCard.writefile(f"{card.root_volume}/etc/default/locale", lang)
+
 
     @windows_not_supported
     def set_hostname(self, hostname):
@@ -1704,7 +1720,8 @@ class MultiBurner(object):
                  ssid=None,
                  psk=None,
                  formatting=True,
-                 tag='latest-lite'):
+                 tag='latest-lite',
+                 locale="en_US.UTF-8"):
         """
         TODO: provide documentation
 
@@ -1805,8 +1822,19 @@ class MultiBurner(object):
             hostname = hostnames[i]
             ip = None if not ips else ips[i]
 
-            self.burn(image, device, blocksize, progress, hostname,
-                      ip, key, password, ssid, psk, formatting, tag)
+            self.burn(image=image,
+                      device=device,
+                      blocksize=blocksize,
+                      progress=progress,
+                      hostname=hostname,
+                      ip=ip,
+                      key=key,
+                      password=password,
+                      ssid=ssid,
+                      psk=psk,
+                      formatting=formatting,
+                      tag=tag,
+                      locale=locale)
 
             count += 1
             Console.info(f'Burned card {count}')
@@ -1850,6 +1878,7 @@ class MultiBurner(object):
              write_local_hosts=True,
              cluster_hosts=None,
              keyboard="us",
+             locale="en_US.UTF-8",
              yes=False):
         """
         Burns the image on the specific device
@@ -1861,6 +1890,7 @@ class MultiBurner(object):
         :param device:
         :type device:
         :param blocksize:
+        :type blocksize:
         :type blocksize:
         :param progress:
         :type progress:
@@ -1934,6 +1964,7 @@ class MultiBurner(object):
         burner.mount(device=device)
         burner.keyboard(country=keyboard)
         burner.set_hostname(hostname)
+        burner.set_locale(locale=locale)
         if generate_key:
             burner.generate_key(hostname)
         if store_key:
@@ -1977,7 +2008,7 @@ class MultiBurner(object):
         StopWatch.stop(f"create {device} {hostname}")
         StopWatch.status(f"create {device} {hostname}", True)
 
-    def burn_inventory(self, inventory, name, device):
+    def burn_inventory(self, inventory=None, name=None, device=None, locale='en_US.UTF-8'):
         banner("Burning Inventory", figlet=True)
         i = Inventory(inventory)
         i.print()
@@ -1987,7 +2018,8 @@ class MultiBurner(object):
             manager, worker = name.split(',')
             workers = Parameter.expand(worker)
         else:
-            Console.error("We do not yet support individual burning of workers and masters. Both must be done together")
+            Console.error("We do not yet support individual burning of workers "
+                          "and masters. Both must be done together")
             return
 
         devices = Parameter.expand(device)
@@ -2103,7 +2135,8 @@ class MultiBurner(object):
                 key=worker_config["keyfile"],
                 tag=worker_config["tag"],
                 password=gen_strong_pass(),
-                router=manager_config["ip"]
+                router=manager_config["ip"],
+                locale=locale
             )
 
             count += 1
