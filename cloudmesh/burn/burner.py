@@ -666,7 +666,7 @@ class Burner(object):
         for i in range(0, 3):
             SDCard.writefile(f"{card.root_volume}/etc/default/locale", lang)
 
-        locale_gen = SDCard.readfile(f"{card.root_volume} /etc/locale.gen",
+        locale_gen = SDCard.readfile(f"{card.root_volume}/etc/locale.gen",
                                      split=True, decode=True)
         for i in range(0, len(locale_gen)):
             if not locale_gen[i].startswith("#"):
