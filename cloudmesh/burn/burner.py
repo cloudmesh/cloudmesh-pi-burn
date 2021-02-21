@@ -710,7 +710,7 @@ class Burner(object):
 
         SDCard.writefile(f'{card.root_volume}/etc/hosts', hosts)
 
-    def add_to_hosts(self, ip):
+    def add_to_hosts(self, ip=None):
         hosts = SDCard.readfile('/etc/hosts', split=True, decode=True)
 
         replaced = False
@@ -736,7 +736,7 @@ class Burner(object):
 
         SDCard.writefile('/etc/hosts', config + "\n")
 
-    def write_cluster_hosts(self, cluster_hosts):
+    def write_cluster_hosts(self, cluster_hosts=None):
         card = SDCard()
         hosts = SDCard.readfile(f'{card.root_volume}/etc/hosts', split=False, decode=True)
         hosts = hosts + '\n'
@@ -746,7 +746,7 @@ class Burner(object):
         SDCard.writefile(f'{card.root_volume}/etc/hosts', hosts)
 
     @windows_not_supported
-    def set_static_ip(self, ip, iface="eth0", mask="24",
+    def set_static_ip(self, ip=None, iface="eth0", mask="24",
                       router_ip="10.1.1.1", write_local_hosts=True):
         """
         Sets the static ip on the sd card for the specified interface
@@ -936,7 +936,7 @@ class Burner(object):
         return found
 
     @windows_not_supported
-    def set_key(self, key_file):
+    def set_key(self, key_file=None):
         """
         Copies the public key into the .ssh/authorized_keys file on the sd card
 
@@ -1249,7 +1249,7 @@ class Burner(object):
 
     @windows_not_supported
     def configure_wifi(self,
-                       ssid,
+                       ssid=None,
                        psk=None,
                        card_os='raspberry',
                        host=None,
@@ -1294,7 +1294,12 @@ class Burner(object):
         return ""
 
     @windows_not_supported
-    def format_device(self, device='dev/sdX', hostname=None, title="UNTITLED", unmount=False, yes=False):
+    def format_device(self,
+                      device='dev/sdX',
+                      hostname=None,
+                      title="UNTITLED",
+                      unmount=False,
+                      yes=False):
         """
         Formats device with one FAT32 partition
 
@@ -1449,7 +1454,7 @@ class Burner(object):
     # I can't figure out how to disable it
 
     @windows_not_supported
-    def disable_terminal_login(self, mountpoint, password):
+    def disable_terminal_login(self, mountpoint=None, password=None):
         """
         disables and replaces the password with a random string so that by
         accident the pi can not be logged into. The only way to login is via the
@@ -1703,7 +1708,7 @@ class MultiBurner(object):
 
     # System command that uses subprocess to execute terminal commands
     # Returns the stdout of the command
-    def system_exec(self, command):
+    def system_exec(self, command=None):
         """
 
         :param command:
@@ -2018,7 +2023,11 @@ class MultiBurner(object):
         StopWatch.stop(f"create {device} {hostname}")
         StopWatch.status(f"create {device} {hostname}", True)
 
-    def burn_inventory(self, inventory=None, name=None, device=None, locale='en_US.UTF-8'):
+    def burn_inventory(self,
+                       inventory=None,
+                       name=None,
+                       device=None,
+                       locale='en_US.UTF-8'):
         banner("Burning Inventory", figlet=True)
         i = Inventory(inventory)
         i.print()
