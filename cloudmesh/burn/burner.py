@@ -981,7 +981,7 @@ class Burner(object):
                     ["/etc/hosts", 0, 0, 0o644],
                     ["/etc/default/locale", 0, 0, 0o644],
                     ["/etc/environment", 0, 0, 0o644],
-                    ["/etc/locale.conf, 0, 0, 0o644],
+                    ["/etc/locale.conf", 0, 0, 0o644],
                     ["/etc/passwd", 0, 0, 0o644],
                     ["/etc/dhcpcd.conf", 0, 109, 0o664],
                     ["/etc/hostname", 0, 0, 0o644],
@@ -1627,6 +1627,8 @@ class Burner(object):
         if manager is not None:
             banner("Burn the Manager", figlet=True)
 
+            Console.info(f"Please insert the SD Card: {manager}")
+
             Console.info(f"Preparing to burn the manager: {manager}")
             if not yn_choice('\nWould you like to continue?'):
                 Console.error("Aborting ...")
@@ -1647,7 +1649,8 @@ class Burner(object):
                        generate_key=True,
                        store_key=True,
                        write_local_hosts=False,
-                       cluster_hosts=cluster_hosts)
+                       cluster_hosts=cluster_hosts,
+                       yes=yes)
 
             Console.info(f"Completed manager: {manager}")
 
