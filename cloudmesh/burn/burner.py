@@ -546,8 +546,12 @@ class Burner(object):
         n, unit = size.split(" ")
         unit = unit.replace("GB", "G")
         unit = unit.replace("MB", "M")
-        n = int(round(float(n)))
-        size = f"{n}{unit}"
+        n = float(n)
+        if unit == "G":
+            n = n * 1000**3
+        elif unit == "M":
+            n = n * 1000**2
+        size = int(n)
 
         banner(f"Preparing the SDCard {name}")
         print(f"Name:       {name}")
@@ -567,7 +571,7 @@ class Burner(object):
                 return
 
             command = f"sudo dd if={image_path} |" \
-                      f" pv -w 80 |" \
+                      f" pv -s {size} |" \
                       f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
             print(command)
             os.system(command)
@@ -647,6 +651,34 @@ class Burner(object):
         return ""
 
     @windows_not_supported
+    def set_locale(self, locale="en_US.UTF-8"):
+
+        lang = textwrap.dedent(f'''
+        LANG={locale}
+        LC_ALL={locale}
+        LANGUAGE={locale}
+        #
+        ''').strip()
+
+        card = SDCard()
+
+        # Write it 3 times as sometimes it does not work
+        for i in range(0, 3):
+            SDCard.writefile(f"{card.root_volume}/etc/default/locale", lang)
+
+        locale_gen = SDCard.readfile(f"{card.root_volume}/etc/locale.gen",
+                                     split=True, decode=True)
+        for i in range(0, len(locale_gen)):
+            if not locale_gen[i].startswith("#"):
+                locale_gen[i] = "# " + locale_gen[i]
+            if locale in locale_gen[i]:
+                locale_gen[i] = locale_gen[i].replace("# ", "")
+        locale_gen = "\n".join(locale_gen) + "\n"
+
+        for i in range(0, 3):
+            SDCard.writefile(f"{card.root_volume}/etc/locale.gen", locale_gen)
+
+    @windows_not_supported
     def set_hostname(self, hostname):
         """
         Sets the hostname on the sd card
@@ -695,7 +727,7 @@ class Burner(object):
 
         SDCard.writefile(f'{card.root_volume}/etc/hosts', hosts)
 
-    def add_to_hosts(self, ip):
+    def add_to_hosts(self, ip=None):
         hosts = SDCard.readfile('/etc/hosts', split=True, decode=True)
 
         replaced = False
@@ -721,7 +753,7 @@ class Burner(object):
 
         SDCard.writefile('/etc/hosts', config + "\n")
 
-    def write_cluster_hosts(self, cluster_hosts):
+    def write_cluster_hosts(self, cluster_hosts=None):
         card = SDCard()
         hosts = SDCard.readfile(f'{card.root_volume}/etc/hosts', split=False, decode=True)
         hosts = hosts + '\n'
@@ -731,7 +763,7 @@ class Burner(object):
         SDCard.writefile(f'{card.root_volume}/etc/hosts', hosts)
 
     @windows_not_supported
-    def set_static_ip(self, ip, iface="eth0", mask="24",
+    def set_static_ip(self, ip=None, iface="eth0", mask="24",
                       router_ip="10.1.1.1", write_local_hosts=True):
         """
         Sets the static ip on the sd card for the specified interface
@@ -921,7 +953,7 @@ class Burner(object):
         return found
 
     @windows_not_supported
-    def set_key(self, key_file):
+    def set_key(self, key_file=None):
         """
         Copies the public key into the .ssh/authorized_keys file on the sd card
 
@@ -944,39 +976,50 @@ class Burner(object):
         if os.path.exists(f"{card.root_volume}/home/pi/.ssh/._authorized_keys"):
             SDCard.execute(f"rm -f {card.root_volume}/home/pi/.ssh/._authorized_keys")
 
-    def write_fix(self):
+    def write_fix(self, locale="en_US.UTF-8"):
         """
         Not yet integrated:
             /etc/systemd/system/sshd.service
             /etc/passwd
             /etc/ssh/sshd_config
         """
-
-        script = textwrap.dedent("""
+        # GGGGGG
+        # GGGGGG
+        script = textwrap.dedent(f"""
             #! /usr/bin/env python
             # file, owner, group, permissions
             import os
-            files = [
-                ["/etc/default/keyboard", 0, 0, 0o644],
-                ["/boot/fix_permissions.py", 0, 0, 0o777],
-                ["/boot/ssh", 0, 0, 0o777],
-                ["/boot/wpa_supplicant.conf", 0, 0, 0o600],
-                ["/etc/hosts", 0, 0, 0o644],
-                ["/etc/passwd", 0, 0, 0o644],
-                ["/etc/dhcpcd.conf", 0, 109, 0o664],
-                ["/etc/hostname", 0, 0, 0o644],
-                ["/etc/ssh/sshd_config", 0, 0, 0o644],
-                ["/etc/shadow", 0, 42, 0o640],
-                ["/etc/rc.local", 0, 0, 0o751],
-                ["/home/pi/.ssh", 1000, 1000, 0o700],
-                ["/home/pi/.ssh/authorized_keys", 1000, 1000, 0o644],
-                ["/home/pi/.ssh/id_rsa", 1000, 1000, 0o600],
-                ["/home/pi/.ssh/id_rsa.pub", 1000, 1000, 0o644]
-            ]
-            for name, uid, guid, permission in files:
-                if os.path.exists(name):
-                    os.chown(name, uid, guid)
-                    os.chmod(name, permission)
+            if not os.path.exists("/boot/fixed"):
+                files = [
+                    ["/etc/default/keyboard", 0, 0, 0o644],
+                    ["/boot/fix_permissions.py", 0, 0, 0o777],
+                    ["/boot/ssh", 0, 0, 0o777],
+                    ["/boot/wpa_supplicant.conf", 0, 0, 0o600],
+                    ["/etc/hosts", 0, 0, 0o644],
+                    ["/etc/default/locale", 0, 0, 0o644],
+                    ["/etc/environment", 0, 0, 0o644],
+                    ["/etc/locale.conf", 0, 0, 0o644],
+                    ["/etc/passwd", 0, 0, 0o644],
+                    ["/etc/dhcpcd.conf", 0, 109, 0o664],
+                    ["/etc/hostname", 0, 0, 0o644],
+                    ["/etc/ssh/sshd_config", 0, 0, 0o644],
+                    ["/etc/shadow", 0, 42, 0o640],
+                    ["/etc/rc.local", 0, 0, 0o751],
+                    ["/home/pi/.ssh", 1000, 1000, 0o700],
+                    ["/home/pi/.ssh/authorized_keys", 1000, 1000, 0o644],
+                    ["/home/pi/.ssh/id_rsa", 1000, 1000, 0o600],
+                    ["/home/pi/.ssh/id_rsa.pub", 1000, 1000, 0o644]
+                ]
+                for name, uid, guid, permission in files:
+                    if os.path.exists(name):
+                        os.chown(name, uid, guid)
+                        os.chmod(name, permission)
+                os.system("locale-gen {locale}")
+                name = "/boot/fixed"
+                os.system("touch /boot/fixed")
+                os.chown("/boot/fixed", 0, 0)
+                os.chmod("/boot/fixed", 0o644)
+                #
         """)
 
         card = SDCard()
@@ -1223,7 +1266,7 @@ class Burner(object):
 
     @windows_not_supported
     def configure_wifi(self,
-                       ssid,
+                       ssid=None,
                        psk=None,
                        card_os='raspberry',
                        host=None,
@@ -1268,7 +1311,12 @@ class Burner(object):
         return ""
 
     @windows_not_supported
-    def format_device(self, device='dev/sdX', hostname=None, title="UNTITLED", unmount=False, yes=False):
+    def format_device(self,
+                      device='dev/sdX',
+                      hostname=None,
+                      title="UNTITLED",
+                      unmount=False,
+                      yes=False):
         """
         Formats device with one FAT32 partition
 
@@ -1423,7 +1471,7 @@ class Burner(object):
     # I can't figure out how to disable it
 
     @windows_not_supported
-    def disable_terminal_login(self, mountpoint, password):
+    def disable_terminal_login(self, mountpoint=None, password=None):
         """
         disables and replaces the password with a random string so that by
         accident the pi can not be logged into. The only way to login is via the
@@ -1596,6 +1644,8 @@ class Burner(object):
         if manager is not None:
             banner("Burn the Manager", figlet=True)
 
+            Console.info(f"Please insert the SD Card: {manager}")
+
             Console.info(f"Preparing to burn the manager: {manager}")
             if not yn_choice('\nWould you like to continue?'):
                 Console.error("Aborting ...")
@@ -1616,7 +1666,8 @@ class Burner(object):
                        generate_key=True,
                        store_key=True,
                        write_local_hosts=False,
-                       cluster_hosts=cluster_hosts)
+                       cluster_hosts=cluster_hosts,
+                       yes=yes)
 
             Console.info(f"Completed manager: {manager}")
 
@@ -1677,7 +1728,7 @@ class MultiBurner(object):
 
     # System command that uses subprocess to execute terminal commands
     # Returns the stdout of the command
-    def system_exec(self, command):
+    def system_exec(self, command=None):
         """
 
         :param command:
@@ -1704,7 +1755,8 @@ class MultiBurner(object):
                  ssid=None,
                  psk=None,
                  formatting=True,
-                 tag='latest-lite'):
+                 tag='latest-lite',
+                 locale="en_US.UTF-8"):
         """
         TODO: provide documentation
 
@@ -1805,8 +1857,19 @@ class MultiBurner(object):
             hostname = hostnames[i]
             ip = None if not ips else ips[i]
 
-            self.burn(image, device, blocksize, progress, hostname,
-                      ip, key, password, ssid, psk, formatting, tag)
+            self.burn(image=image,
+                      device=device,
+                      blocksize=blocksize,
+                      progress=progress,
+                      hostname=hostname,
+                      ip=ip,
+                      key=key,
+                      password=password,
+                      ssid=ssid,
+                      psk=psk,
+                      formatting=formatting,
+                      tag=tag,
+                      locale=locale)
 
             count += 1
             Console.info(f'Burned card {count}')
@@ -1850,6 +1913,7 @@ class MultiBurner(object):
              write_local_hosts=True,
              cluster_hosts=None,
              keyboard="us",
+             locale="en_US.UTF-8",
              yes=False):
         """
         Burns the image on the specific device
@@ -1861,6 +1925,7 @@ class MultiBurner(object):
         :param device:
         :type device:
         :param blocksize:
+        :type blocksize:
         :type blocksize:
         :param progress:
         :type progress:
@@ -1934,6 +1999,7 @@ class MultiBurner(object):
         burner.mount(device=device)
         burner.keyboard(country=keyboard)
         burner.set_hostname(hostname)
+        burner.set_locale(locale=locale)
         if generate_key:
             burner.generate_key(hostname)
         if store_key:
@@ -1977,7 +2043,11 @@ class MultiBurner(object):
         StopWatch.stop(f"create {device} {hostname}")
         StopWatch.status(f"create {device} {hostname}", True)
 
-    def burn_inventory(self, inventory, name, device):
+    def burn_inventory(self,
+                       inventory=None,
+                       name=None,
+                       device=None,
+                       locale='en_US.UTF-8'):
         banner("Burning Inventory", figlet=True)
         i = Inventory(inventory)
         i.print()
@@ -1987,7 +2057,8 @@ class MultiBurner(object):
             manager, worker = name.split(',')
             workers = Parameter.expand(worker)
         else:
-            Console.error("We do not yet support individual burning of workers and masters. Both must be done together")
+            Console.error("We do not yet support individual burning of workers "
+                          "and masters. Both must be done together")
             return
 
         devices = Parameter.expand(device)
@@ -2103,7 +2174,8 @@ class MultiBurner(object):
                 key=worker_config["keyfile"],
                 tag=worker_config["tag"],
                 password=gen_strong_pass(),
-                router=manager_config["ip"]
+                router=manager_config["ip"],
+                locale=locale
             )
 
             count += 1

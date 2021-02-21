@@ -114,7 +114,7 @@ class SDCard:
         return details
 
     @staticmethod
-    def execute(command, decode="True", debug=False):
+    def execute(command=None, decode="True", debug=False):
         """
         Executes the command
 
@@ -128,7 +128,7 @@ class SDCard:
         return result
 
     @staticmethod
-    def readfile(filename, split=False, trim=False, decode=True):
+    def readfile(filename=None, split=False, trim=False, decode=True):
         """
         Reads the content of the file as sudo and returns the result
 
@@ -164,7 +164,7 @@ class SDCard:
         return content
 
     @staticmethod
-    def writefile(filename, content, append=False):
+    def writefile(filename=None, content=None, append=False):
         """
         Writes the content in the the given file.
 
