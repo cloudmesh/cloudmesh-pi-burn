@@ -670,7 +670,7 @@ class Burner(object):
                                      split=True, decode=True)
         for i in range(0, len(locale_gen)):
             if not locale_gen[i].startswith("#"):
-                locale_gen[i] = "# " + locale_gen
+                locale_gen[i] = "# " + locale_gen[i]
             if locale in locale_gen[i]:
                 locale_gen[i] = locale_gen[i].replace("# ", "")
         locale_gen = "\n".join(locale_gen) + "\n"
