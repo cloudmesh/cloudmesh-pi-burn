@@ -658,13 +658,25 @@ class Burner(object):
         LC_ALL={locale}
         LANGUAGE={locale}
         #
-        ''')
+        ''').strip()
 
         card = SDCard()
 
         # Write it 3 times as sometimes it does not work
         for i in range(0, 3):
             SDCard.writefile(f"{card.root_volume}/etc/default/locale", lang)
+
+        locale_gen = SDCard.readfile(f"{card.root_volume} /etc/locale.gen",
+                                     split=True, decode=True)
+        for i in range(0, len(locale_gen)):
+            if not locale_gen[i].startswith("#"):
+                locale_gen[i] = "# " + locale_gen
+            if locale in locale_gen[i]:
+                locale_gen[i] = locale_gen[i].replace("# ", "")
+        locale_gen = "\n".join(locale_gen) + "\n"
+
+        for i in range(0, 3):
+            SDCard.writefile(f"{card.root_volume}/etc/locale.gen", locale_gen)
 
     @windows_not_supported
     def set_hostname(self, hostname):
