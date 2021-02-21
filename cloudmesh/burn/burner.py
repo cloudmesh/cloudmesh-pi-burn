@@ -653,7 +653,7 @@ class Burner(object):
     @windows_not_supported
     def set_locale(self, locale="en_US.UTF-8"):
 
-        lang = 'LANG="{locale}"'
+        lang = f'LANG="{locale}"'
 
         card = SDCard()
 
