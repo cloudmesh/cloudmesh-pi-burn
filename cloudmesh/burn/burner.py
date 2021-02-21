@@ -959,39 +959,50 @@ class Burner(object):
         if os.path.exists(f"{card.root_volume}/home/pi/.ssh/._authorized_keys"):
             SDCard.execute(f"rm -f {card.root_volume}/home/pi/.ssh/._authorized_keys")
 
-    def write_fix(self):
+    def write_fix(self, locale="en_US.UTF-8"):
         """
         Not yet integrated:
             /etc/systemd/system/sshd.service
             /etc/passwd
             /etc/ssh/sshd_config
         """
-
-        script = textwrap.dedent("""
+        # GGGGGG
+        # GGGGGG
+        script = textwrap.dedent(f"""
             #! /usr/bin/env python
             # file, owner, group, permissions
             import os
-            files = [
-                ["/etc/default/keyboard", 0, 0, 0o644],
-                ["/boot/fix_permissions.py", 0, 0, 0o777],
-                ["/boot/ssh", 0, 0, 0o777],
-                ["/boot/wpa_supplicant.conf", 0, 0, 0o600],
-                ["/etc/hosts", 0, 0, 0o644],
-                ["/etc/passwd", 0, 0, 0o644],
-                ["/etc/dhcpcd.conf", 0, 109, 0o664],
-                ["/etc/hostname", 0, 0, 0o644],
-                ["/etc/ssh/sshd_config", 0, 0, 0o644],
-                ["/etc/shadow", 0, 42, 0o640],
-                ["/etc/rc.local", 0, 0, 0o751],
-                ["/home/pi/.ssh", 1000, 1000, 0o700],
-                ["/home/pi/.ssh/authorized_keys", 1000, 1000, 0o644],
-                ["/home/pi/.ssh/id_rsa", 1000, 1000, 0o600],
-                ["/home/pi/.ssh/id_rsa.pub", 1000, 1000, 0o644]
-            ]
-            for name, uid, guid, permission in files:
-                if os.path.exists(name):
-                    os.chown(name, uid, guid)
-                    os.chmod(name, permission)
+            if not os.path.exists("/boot/fixed"):
+                files = [
+                    ["/etc/default/keyboard", 0, 0, 0o644],
+                    ["/boot/fix_permissions.py", 0, 0, 0o777],
+                    ["/boot/ssh", 0, 0, 0o777],
+                    ["/boot/wpa_supplicant.conf", 0, 0, 0o600],
+                    ["/etc/hosts", 0, 0, 0o644],
+                    ["/etc/default/locale", 0, 0, 0o644],
+                    ["/etc/environment", 0, 0, 0o644],
+                    ["/etc/locale.conf, 0, 0, 0o644],
+                    ["/etc/passwd", 0, 0, 0o644],
+                    ["/etc/dhcpcd.conf", 0, 109, 0o664],
+                    ["/etc/hostname", 0, 0, 0o644],
+                    ["/etc/ssh/sshd_config", 0, 0, 0o644],
+                    ["/etc/shadow", 0, 42, 0o640],
+                    ["/etc/rc.local", 0, 0, 0o751],
+                    ["/home/pi/.ssh", 1000, 1000, 0o700],
+                    ["/home/pi/.ssh/authorized_keys", 1000, 1000, 0o644],
+                    ["/home/pi/.ssh/id_rsa", 1000, 1000, 0o600],
+                    ["/home/pi/.ssh/id_rsa.pub", 1000, 1000, 0o644]
+                ]
+                for name, uid, guid, permission in files:
+                    if os.path.exists(name):
+                        os.chown(name, uid, guid)
+                        os.chmod(name, permission)
+                os.system("locale-gen {locale}")
+                name = "/boot/fixed"
+                os.system("touch /boot/fixed")
+                os.chown("/boot/fixed", 0, 0)
+                os.chmod("/boot/fixed", 0o644)
+                #
         """)
 
         card = SDCard()
