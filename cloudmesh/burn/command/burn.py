@@ -18,6 +18,7 @@ from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
+from cloudmesh.common.util import yn_choice
 
 
 class BurnCommand(PluginCommand):
@@ -599,8 +600,13 @@ class BurnCommand(PluginCommand):
 
         elif arguments.create and arguments.inventory:
             if not os_is_pi():
-                Console.error("This command has only been safely tested on Raspberry Pis. Terminating for caution")
-                return
+                print()
+                Console.error("This command has only been written for a  Raspberry Pis. Terminating for caution")
+                print()
+                if yn_choice("Continue anyways?"):
+                    pass
+                else:
+                    return
             if not arguments.name:
                 Console.error("Missing --name parameter. See cms help burn for usage")
                 return ""
