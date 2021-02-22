@@ -66,6 +66,7 @@ class BurnCommand(PluginCommand):
                           [--tag=TAG]
                           [--inventory=INVENTORY]
                           [--name=NAME]
+                          [-y]
               burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
@@ -614,7 +615,9 @@ class BurnCommand(PluginCommand):
             multi_burner.burn_inventory(
                 inventory=inventory,
                 name=arguments.name,
-                device=arguments.device)
+                device=arguments.device,
+                yes=arguments.yes
+            )
             StopWatch.stop("burn inventory")
             StopWatch.status("burn inventory", True)
             StopWatch.benchmark(sysinfo=False, csv=False)
@@ -676,7 +679,9 @@ class BurnCommand(PluginCommand):
                     password=passwd,
                     ssid=ssid,
                     psk=psk,
-                    tag=tag)
+                    tag=tag,
+                    yes=arguments.yes
+                )
 
                 StopWatch.stop("total")
                 StopWatch.status("total", True)

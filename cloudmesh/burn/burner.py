@@ -623,6 +623,11 @@ class Burner(object):
                 command = f"sudo dd if={image_path} bs={blocksize} |" \
                           f' pv -s {size} |' \
                           f" sudo dd of={device} bs={blocksize}"
+
+                #command = f"sudo dd if={image_path} |" \
+                #          f' pv -s {size} |' \
+                #          f" sudo dd of={device} bs={blocksize}"
+
                 print()
                 Console.info(command)
                 print()
@@ -1328,10 +1333,13 @@ class Burner(object):
         :param hostname: the hostname
         :type hostname: str
         """
-        if len(title) > 8:
-            _title = title[0:8]
-        else:
-            _title = title
+        # if len(title) > 8:
+        #    _title = title[0:8]
+        # else:
+        #    _title = title
+        # force title to be untitled
+
+        _title = "UNTITLED"
 
         def _execute(msg, command):
             banner(msg, c=".")
@@ -1756,7 +1764,8 @@ class MultiBurner(object):
                  psk=None,
                  formatting=True,
                  tag='latest-lite',
-                 locale="en_US.UTF-8"):
+                 locale="en_US.UTF-8",
+                 yes=False):
         """
         TODO: provide documentation
 
@@ -1869,7 +1878,8 @@ class MultiBurner(object):
                       psk=psk,
                       formatting=formatting,
                       tag=tag,
-                      locale=locale)
+                      locale=locale,
+                      yes=yes)
 
             count += 1
             Console.info(f'Burned card {count}')
@@ -2047,7 +2057,8 @@ class MultiBurner(object):
                        inventory=None,
                        name=None,
                        device=None,
-                       locale='en_US.UTF-8'):
+                       locale='en_US.UTF-8',
+                       yes=False):
         banner("Burning Inventory", figlet=True)
         i = Inventory(inventory)
         i.print()
