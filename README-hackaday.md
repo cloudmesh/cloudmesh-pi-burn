@@ -93,7 +93,11 @@ manager. Note this is the only time we will need to use PI Imager.
 
 You should select the recommended Raspberry Pi OS. (Raspberry PI OS Full (32-bit) with recommended software and applications).
 
+<center>
 <img src="images/imager-with-options.png" width="50%" />
+
+Figure 2. Pi Imager
+</center>
 
 Write to your SD card. Once the process is complete and verified, insert into your manager
 Pi. Connect your manager to the peripherals (keyboard, mouse, monitor).
@@ -103,23 +107,54 @@ Pi. Connect your manager to the peripherals (keyboard, mouse, monitor).
 Walk through the initial setup process of the Pi and configure the settings in accordance with your situation. 
 We have provided images that depict this process below:
 
-![](images/setup1.png)
-Welcome Page for Raspberry Pi
+<center>
+<img src="images/setup1.png" width="50%" />
 
-![](images/setup2.png)
-Set country, language, and timezone. Additionally, we recommend you enable "Use US Keyboard".
+Figure 3. Welcome Page for Raspberry Pi
+</center>
 
-![](images/setup3.png)
-Set your password to a strong password
 
-![](images/setup4.png)
-Choose your Wifi network.
 
-![](images/setup5.png)
-The setup prompt will ask you if you wish to update the software. You may do so, or you may skip, as our installation script that we will run will do this for you.
+</center>
+<img src="images/setup2.png" width="50%" />
 
-![](images/setup6.png)
-Setup is now complete.
+Figure 4. Set country, language, and timezone. Additionally, we recommend you enable "Use US Keyboard".
+</center>
+
+
+
+
+<center>
+<img src="images/setup3.png" width="50%" />
+
+Figure 5. Set your password to a strong password.
+</center>
+
+
+
+
+<center>
+<img src="images/setup4.png" width="50%" />
+
+Figure 6. Choose your Wifi network.
+</center>
+
+
+
+
+<center>
+<img src="images/setup5.png)
+
+Figure 7. The setup prompt will ask you if you wish to update the software. You may do so, or you may skip, as our installation script that we will run will do this for you.
+
+</center>
+
+<center>
+<img src="images/setup6.png)
+
+Figure 8. Setup is now complete.
+</center>
+
 
 
 ### Step 2. Installing Cloudmesh
