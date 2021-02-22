@@ -145,7 +145,7 @@ installed with cloudmesh. This will allow you to easily track and manage the con
 Let us create an inventory for our cluster as follows:
 
 ```
-(ENV3) pi@managerpi:~ $ cms inventory create --manager=managerpi --workers=worker00[1-5] --ip=10.1.1.1,10.1.1.[2-6]  --inventory=cluster.yaml latest-lite
+(ENV3) pi@managerpi:~ $ cms inventory create --hostnames="managerpi,worker00[1-5]" --ip="10.1.1.1,10.1.1.[2-6]"  --inventory=cluster.yaml latest-lite
 ```
 
 We can list the information in our inventory as follows. Confirm all is as expected:
