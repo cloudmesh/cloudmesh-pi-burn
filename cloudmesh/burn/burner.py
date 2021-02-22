@@ -480,7 +480,7 @@ class Burner(object):
 
     @windows_not_supported
     def burn_sdcard(self, image=None, tag=None, device=None, blocksize="4M",
-                    name="the inserted card", yes=False):
+                    name="the inserted card", yes=False, gui=False):
         """
         Burns the SD Card with an image
 
@@ -551,13 +551,21 @@ class Burner(object):
                 Console.error("Please specify a device")
                 return
 
-            command = f"sudo dd if={image_path} |" \
-                      f" pv -s {size} -w 80 |" \
-                      f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
+            if gui:
 
-            # command = f"sudo dd if={image_path} |" \
-            #          f" pv -s {size} -w 80 |" \
-            #          f" sudo dd of={device} bs={blocksize}"
+                command = f"sudo dd if={image_path} bs={blocksize} |" \
+                          f' tqdm --bytes --total {size} --ncols 80|' \
+                          f" sudo dd of={rdevice} bs={blocksize}"
+
+            else:
+
+                command = f"sudo dd if={image_path} |" \
+                          f" pv -s {size} -w 80 |" \
+                          f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
+
+                # command = f"sudo dd if={image_path} |" \
+                #          f" pv -s {size} -w 80 |" \
+                #          f" sudo dd of={device} bs={blocksize}"
 
             print(command)
             os.system(command)
@@ -609,9 +617,19 @@ class Burner(object):
                 if device.startswith("/dev/disk"):
                     rdevice = device.replace("/dev/disk", "/dev/rdisk")
 
-                command = f"sudo dd if={image_path} bs={blocksize} |" \
-                          f' pv -s {size} -preb -w 80 |' \
-                          f" sudo dd of={rdevice} bs={blocksize}"
+                if gui:
+
+                    command = f"sudo dd if={image_path} bs={blocksize} |" \
+                              f' tqdm --bytes --total {size} --ncols 80|' \
+                              f" sudo dd of={rdevice} bs={blocksize}"
+
+
+                else:
+
+                    command = f"sudo dd if={image_path} bs={blocksize} |" \
+                              f' pv -s {size} -preb -w 80 |' \
+                              f" sudo dd of={rdevice} bs={blocksize}"
+
 
                 print()
                 Console.info(command)
@@ -1661,7 +1679,8 @@ class Burner(object):
                        store_key=True,
                        write_local_hosts=False,
                        cluster_hosts=cluster_hosts,
-                       yes=yes)
+                       yes=yes,
+                       gui=arguments.gui)
 
             Console.info(f"Completed manager: {manager}")
 
@@ -1696,7 +1715,8 @@ class Burner(object):
                            store_key=False,
                            write_local_hosts=False,
                            cluster_hosts=cluster_hosts,
-                           yes=yes)
+                           yes=yes,
+                           gui=arguments.gui)
 
             Console.info(f"Completed workers: {workers}")
             Console.info("Cluster burn is complete.")
@@ -1865,7 +1885,8 @@ class MultiBurner(object):
                       formatting=formatting,
                       tag=tag,
                       locale=locale,
-                      yes=yes)
+                      yes=yes,
+                      gui=False)
 
             count += 1
             Console.info(f'Burned card {count}')
@@ -1910,7 +1931,8 @@ class MultiBurner(object):
              cluster_hosts=None,
              keyboard="us",
              locale="en_US.UTF-8",
-             yes=False):
+             yes=False,
+             gui=False):
         """
         Burns the image on the specific device
 
@@ -1986,7 +2008,8 @@ class MultiBurner(object):
                            device=device,
                            blocksize=blocksize,
                            name=hostname,
-                           yes=yes)
+                           yes=yes,
+                           gui=gui)
         StopWatch.stop(f"write image {device} {hostname}")
         StopWatch.status(f"write image {device} {hostname}", True)
 
@@ -2184,7 +2207,8 @@ class MultiBurner(object):
                 tag=worker_config["tag"],
                 password=gen_strong_pass(),
                 router=manager_config["ip"],
-                locale=locale
+                locale=locale,
+                gui=False
             )
 
             count += 1

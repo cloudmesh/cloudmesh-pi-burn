@@ -42,6 +42,7 @@ pyyaml
 oyaml
 requests
 pyusb
+tqdm
 """.split("\n")
 
 # dependency_links = ['http://github.com/nicolaiarocci/eve.git@develop']

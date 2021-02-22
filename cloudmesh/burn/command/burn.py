@@ -19,7 +19,7 @@ from cloudmesh.shell.command import map_parameters
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
 from cloudmesh.common.util import yn_choice
-
+from cloudmesh.common.debug import VERBOSE
 
 class BurnCommand(PluginCommand):
 
@@ -53,6 +53,7 @@ class BurnCommand(PluginCommand):
                            [--wifipassword=PSK]
                            [--bs=BLOCKSIZE]
                            [-y]
+                           [-g]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -327,12 +328,16 @@ class BurnCommand(PluginCommand):
                        "inventory",
                        "name",
                        "bs")
+
+        VERBOSE(arguments)
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
         arguments.IMAGE = arguments["--image"]
         arguments.output = "table"  # hard code for now
         arguments.bs = arguments.bs or "4M"
+        arguments.gui = arguments["-g"]
+        arguments.yes = arguments["-y"]
 
         # VERBOSE(arguments)
 
@@ -593,7 +598,6 @@ class BurnCommand(PluginCommand):
             #                  --ssid=myssid
             #                  --wifipassword=mypass
             #
-            arguments.yes = arguments["-y"]
 
             execute("cluster", burner.cluster(arguments=arguments))
             return ""

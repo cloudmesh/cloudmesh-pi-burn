@@ -1443,7 +1443,6 @@ For the full features, please use `cms burn create` instead of
 
 ```
 brew install libusb
-brew install pv
 ```
 
 **Access to ext4**: For the more advanced features of `burn` you will
