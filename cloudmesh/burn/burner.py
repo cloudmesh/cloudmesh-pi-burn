@@ -290,8 +290,12 @@ class Burner(object):
                 size = 64 * 1000**3  # 64GB  this is a bug we need to find out ho to get the size
 
             to_file = path_expand(to_file)
+
+            if device.startswith("/dev/disk"):
+                device = device.replace("/dev/disk", "/dev/rdisk")
+
             command = f"sudo dd if={device} bs={blocksize} |" \
-                      f" pv -s {size} |" \
+                      f" pv -s {size}  -w 80 |" \
                       f"dd of={to_file} bs={blocksize}"
 
             print()
@@ -548,7 +552,7 @@ class Burner(object):
                 return
 
             command = f"sudo dd if={image_path} |" \
-                      f" pv -s {size} |" \
+                      f" pv -s {size} -w 80 |" \
                       f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
             print(command)
             os.system(command)
@@ -597,9 +601,12 @@ class Burner(object):
 
                 # sudo dd if=/dev/diskX bs=1m | pv -s 64G | sudo dd of=/dev/diskX bs=1m
 
+                if device.startswith("/dev/disk"):
+                    rdevice = device.replace("/dev/disk", "/dev/rdisk")
+
                 command = f"sudo dd if={image_path} bs={blocksize} |" \
-                          f' pv -s {size} |' \
-                          f" sudo dd of={device} bs={blocksize}"
+                          f' pv -s {size} -preb -w 80 |' \
+                          f" sudo dd of={rdevice} bs={blocksize}"
 
                 print()
                 Console.info(command)
@@ -1320,6 +1327,8 @@ class Burner(object):
             except:
                 # ignore error
                 pass
+
+
 
         def prepare_sdcard():
             # ensures a card is detected and unmounted
