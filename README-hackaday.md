@@ -20,7 +20,7 @@ and provides an enormous benefit to get educated about cluster computing in
 general.
 
 There are different methods of how to set up a cluster. This includes setups
-that are known under the terms *headless*, *network booting*, and *booting form
+that are known under the terms *headless*, *network booting*, and *booting from
 SDCards*. Each of the methods has its advantages and disadvantages. However,
 the last method is most familiar to the users in the Pi community that come
 from single Pis. While reviewing the many efforts that describe a cluster set up
@@ -32,10 +32,10 @@ Despite the much improved Pi imager and the availability of Pi bakery, the
 process is still involved. So we started asking:
 
 > Is it possible to develop a tool that is specifically targeted to burn 
-> SDCards a cluster one at a time so we can just  plug 
+> SDCards in a cluster one at a time so we can just  plug 
 > the cards in, and with minimal effort start the cluster that simply works?
 
-You are in luck, we have spent some time to developed such a tool. No more
+You are in luck, we have spent some time to develop such a tool. No more
 spending hours upon hours to replicate the steps, learn complex DevOps
 tutorial, but instead get a cluster set up easily with just a few commands.
 
@@ -52,18 +52,29 @@ All of this is discussed in detail at
 To showcase to you that this tool is useful we demonstrate from our quickstart 
 how easy it is to use it.
 
-### Example
+## QuickStart
 
-We will be creating the following setup using 5 Raspberry Pis 
+### Requirements
+* 5 Raspberry Pis
+* 5 SD Cards
+* Network Switch (unmanaged or managed)
+* 5 Ethernet Cables
+* Wifi Access
+* Monitor, Mouse, Keyboard (for desktop access on Pi)
+* 1 (or more) SD Card Burner(s) (USB)
+
+We will be creating the following setup using **5 Raspberry Pis** 
 (you need a minimum of 2, but our method works also for larger 
-numbers of PIs).
+numbers of PIs). Consequentially, you will also need 5 SD cards for each of the 5 Pis.
 
-Figure 1 describes our network configuration. We have 5 Raspberry Pi 4s: 1
+You will also went a network switch (managed or unmanaged) with 5 ethernet cables (one fo reach Pi).
+
+Figure 1 below describes our network configuration. We have 5 Raspberry Pi 4s: 1
 manager and 4 workers. We use WiFi access to the manager PI to allow for you to
 set it up anywhere in your house or dorm (other configurations are discussed
 on our home page).
 
-We use a network switch, where the manager and workers can
+We use a network switch (unmanaged in our case), where the manager and workers can
 communicate locally, but we will configure the manager to provide
 internet access to devices on the network switch via a "network
 bridge".
@@ -73,39 +84,153 @@ bridge".
 Figure 1: Pi Cluster setup with bridge network
 
 
-First, install the program with
+### Step 1. Burning and Configuring the Manager
 
+Choose one SD card to be the manager (yellow card in figure 1). Using your laptop, download the [Raspberry Pi Imager]
+(https://www.raspberrypi.org/software/) for your respective operating system. We will use the Pi Imager to burn our 
+manager. Note this is the only time we will need to use PI Imager.
+
+You should select the recommended Raspberry Pi OS. (Raspberry PI OS Full (32-bit) with recommended software and applications).
+
+![](images/imager-with-options.png)
+
+Write to your SD card. Once the process is complete and verified, insert into your manager
+Pi. Connect your manager to the peripherals (keyboard, mouse, monitor).
+
+> Note you may also use a headless setup. See [here](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md) for more information on headless setups.
+
+Walk through the initial setup process of the Pi and configure the settings in accordance with your situation. 
+We have provided images that depict this process below:
+
+![](images/setup1.png)
+Welcome Page for Raspberry Pi
+
+![](images/setup2.png)
+Set country, language, and timezone. Additionally, we recommend you enable "Use US Keyboard".
+
+![](images/setup3.png)
+Set your password to a strong password
+
+![](images/setup4.png)
+Choose your Wifi network.
+
+![](images/setup5.png)
+The setup prompt will ask you if you wish to update the software. You may do so, or you may skip, as our installation script that we will run will do this for you.
+
+![](images/setup6.png)
+Setup is now complete.
+
+
+### Step 2. Installing Cloudmesh
+
+Open a new terminal window and run the following command. This will install cloudmesh and upgrade your system if needed.
 
 ```
-pi@raspberrypi:~ $ pip install pip -U
-pi@raspberrypi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh
-pi@raspberrypi:~ $ source ~/ENV3/bin/activate
+pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
 ```
 
-This will set up a python venv on your computer manager Pi
+This will set up a python venv on your computer manager Pi. This may take 5-7 minutes as it will update your Pi and install all requirements.
 
-Second, plugin your SDCard writer and identify the device on which your SDCard
-is plugged in. in the PI this will typically be `/dev/sda`. On other operating
-systems this will be different. You can use our  `info` command to find it with
+You will want to reboot your Pi after this.
+
+```
+pi@managerpi:~ $ sudo reboot
+```
+
+### Step 3. Creating our Cluster Inventory
+
+To manage information about our cluster, we will use a Cloudmesh Inventory file, which comes 
+installed with cloudmesh. This will allow you to easily track and manage the configuration of your workers.
+
+Let us create an inventory for our cluster as follows:
+
+```
+(ENV3) pi@managerpi:~ $ cms inventory create --manager=managerpi --workers=worker00[1-5] --ip=10.1.1.1,10.1.1.[2-6]  --inventory=cluster.yaml latest-lite
+```
+
+We can list the information in our inventory as follows. Confirm all is as expected:
+
+```
+(ENV3) pi@managerpi:~ $ cms inventory list --inventory=cluster.yaml
+inventory list --inventory=cluster.yaml
++-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
+| host      | name      | type | tag         | cluster | label | service | services | ip       | dns | project | owners | comment | description | keyfile           | status   |
++-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
+| managerpi | managerpi |      | latest-lite | cluster |       | manager |          | 10.1.1.1 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| worker001 | worker001 |      | latest-lite | cluster |       | worker  |          | 10.1.1.2 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| worker002 | worker002 |      | latest-lite | cluster |       | worker  |          | 10.1.1.3 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| worker003 | worker003 |      | latest-lite | cluster |       | worker  |          | 10.1.1.4 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| worker004 | worker004 |      | latest-lite | cluster |       | worker  |          | 10.1.1.5 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| worker005 | worker005 |      | latest-lite | cluster |       | worker  |          | 10.1.1.6 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
++-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
+```
+
+We can now begin burning.
+
+### Step 4. Burning SD Cards
+
+You can now plug in your SD Card writer into the `managerpi`. Ensure you have also inserted an SD card into your writer. *Warning* this SD Card will be formatted, thus all content will be deleted.
+
+Verify your device is detected with the following command:
 
 ```bash
-(ENV3) pi@raspberrypi:~ $ cms pi burn info
+(ENV3) pi@managerpi:~ $ cms burn info
+
+
+# ----------------------------------------------------------------------
+# SD Cards Found
+# ----------------------------------------------------------------------
+
++----------+------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------+
+| Path     | Info                   | Formatted   | Size             | Plugged-in   | Readable   | Empty   | Access   | Removable   | Writeable   |
+|----------+------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------|
+| /dev/sdb | Generic STORAGE DEVICE | True        | 64.1 GB/59.7 GiB | True         | True       | False   | True     | True        | True        |
++----------+------------------------+-------------+------------------+--------------+------------+---------+----------+-------------+-------------+
 ```
 
-set your device with 
+> Note we omit some information from `cms burn info` for simplicity
 
-pi@raspberrypi:~ $ export DEV=/dev/sda
+From `cms burn info`, we see our device is `/dev/sdb`. Note this may be different on your Pi. If your device is not showing up, ensure you have an SD Card inserted, and try unplugging and plugging the SD Card writer.
 
-Next, download the newest raspbianOS with
+We can now begin burning our cluster. The following command will download the necessary Raspberry Pi OS images, configure `manager` as a Wifi bridge to provide internet access to workers, and burn the SD Cards. Note you will need to cycle SD cards after each burn.
 
 ```
-(ENV3) pi@raspberrypi:~ $ cms burn image versions --refresh
-(ENV3) pi@raspberrypi:~ $ cms burn image get latest-lite
+(ENV3) pi@managerpi:~ $ cms burn create --inventory=cluster.yaml --device=/dev/sdb --name=managerpi,worker00[1-5]
+
+Manager hostname is the same as this system's hostname. Is this intended? (Y/n) Y
+Do you wish to configure this system as a WiFi bridge? A restart is required after this command terminates (Y/n) Y
+
+```
+> Some output of cms burn has been omitted for simplicity. Note that image extraction may take more than a minute.
+
+As each SD Card is burned, `cms burn` will prompt you to insert a new SD Card to be burned.
+
+
+After all curds are burned, plug them into your worker Pis and boot. Reboot the managerpi.
+
+```
+(ENV3) pi@managerpi:~ $ sudo reboot
 ```
 
-TODO: fill out the rest
+### Step 5. Verifying Workers
 
-### Acknowledgement
+Once your workers are booted, you can verify connection with the following simple command. This command will return the temperature of the Pis.
+
+```
+(ENV3) pi@managerpi:~ $ cms pi temp worker00[1-3]
+pi temp worker00[1-3]
++-----------+--------+-------+----------------------------+
+| host      |    cpu |   gpu | date                       |
+|-----------+--------+-------+----------------------------|
+| worker001 | 36.511 |  36.5 | 2021-02-22 00:06:48.873427 |
+| worker002 | 36.998 |  37   | 2021-02-22 00:06:48.813539 |
+| worker003 | 36.998 |  37   | 2021-02-22 00:06:48.843944 |
+| worker004 | 36.498 |  36   | 2021-02-22 00:06:48.843956 |
+| worker005 | 36.538 |  38   | 2021-02-22 00:06:48.843969 |
++-----------+--------+-------+----------------------------+
+```
+
+#### Acknowledgement
 
 We would like to thank the following community members for testing the recent versions:
 Venkata Sai Dhakshesh Kolli,
