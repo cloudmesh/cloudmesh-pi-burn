@@ -205,20 +205,32 @@ Do you wish to configure this system as a WiFi bridge? A restart is required aft
 
 As each SD Card is burned, `cms burn` will prompt you to insert a new SD Card to be burned.
 
-set your device with 
 
-pi@raspberrypi:~ $ export DEV=/dev/sda
-
-Next, download the newest raspbianOS with
+After all curds are burned, plug them into your worker Pis and boot. Reboot the managerpi.
 
 ```
-(ENV3) pi@raspberrypi:~ $ cms burn image versions --refresh
-(ENV3) pi@raspberrypi:~ $ cms burn image get latest-lite
+(ENV3) pi@managerpi:~ $ sudo reboot
 ```
 
-TODO: fill out the rest
+### Step 5. Verifying Workers
 
-### Acknowledgement
+Once your workers are booted, you can verify connection with the following simple command. This command will return the temperature of the Pis.
+
+```
+(ENV3) pi@managerpi:~ $ cms pi temp worker00[1-3]
+pi temp worker00[1-3]
++-----------+--------+-------+----------------------------+
+| host      |    cpu |   gpu | date                       |
+|-----------+--------+-------+----------------------------|
+| worker001 | 36.511 |  36.5 | 2021-02-22 00:06:48.873427 |
+| worker002 | 36.998 |  37   | 2021-02-22 00:06:48.813539 |
+| worker003 | 36.998 |  37   | 2021-02-22 00:06:48.843944 |
+| worker004 | 36.498 |  36   | 2021-02-22 00:06:48.843956 |
+| worker005 | 36.538 |  38   | 2021-02-22 00:06:48.843969 |
++-----------+--------+-------+----------------------------+
+```
+
+#### Acknowledgement
 
 We would like to thank the following community members for testing the recent versions:
 Venkata Sai Dhakshesh Kolli,
