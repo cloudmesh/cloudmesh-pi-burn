@@ -93,7 +93,7 @@ manager. Note this is the only time we will need to use PI Imager.
 
 You should select the recommended Raspberry Pi OS. (Raspberry PI OS Full (32-bit) with recommended software and applications).
 
-![](images/imager-with-options.png)
+<img src="images/imager-with-options.png" width="50%" />
 
 Write to your SD card. Once the process is complete and verified, insert into your manager
 Pi. Connect your manager to the peripherals (keyboard, mouse, monitor).
