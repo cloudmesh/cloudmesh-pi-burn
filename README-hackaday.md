@@ -285,7 +285,7 @@ Add More Links
 
 * Gregor von Laszewski
 * Richard Otten https://hackaday.io/devrick
-* Anthony Orlowski
+* Anthony Orlowski https://hackaday.io/antorlowski
 
 You need to create an account on hackaday.io, I need the account name.
 
