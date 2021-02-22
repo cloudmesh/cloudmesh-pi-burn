@@ -1298,8 +1298,7 @@ class Burner(object):
 
         if self.dryrun:
             print("DRY RUN - skipping:")
-            print("Writing wifi ssid:{} psk:{} to {}".format(ssid,
-                                                             psk, path))
+            print(f"Writing wifi ssid:{ssid} psk:{psk} to {path}")
             return ""
 
         if psk:
