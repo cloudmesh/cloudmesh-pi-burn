@@ -33,33 +33,10 @@ from cloudmesh.common.wifi import Wifi
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.sudo import Sudo
+from cloudmesh.common.Host import Host
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
-
-
-def get_hostnames(names):
-    """
-    Given a list of host names it identifies if they have numbers in them. If so, they are assumed workers.
-    If not, it is a manager. There can only be one manager.
-
-    @param names: list of names
-    @type names: str
-    @return: manager, worker as list
-    @rtype: tuple
-    """
-    manager = None
-    workers = []
-    for name in names:
-        if any(map(str.isdigit, name)):
-            workers.append(name)
-        else:
-            manager = name
-
-    if len(workers) == 0:
-        workers = None
-
-    return manager, workers
 
 
 def gen_strong_pass():
@@ -1577,7 +1554,7 @@ class Burner(object):
             return ""
 
         hostnames = Parameter.expand(arguments.hostname)
-        manager, workers = get_hostnames(hostnames)
+        manager, workers = Host.get_hostnames(hostnames)
 
         if not (arguments.cluster and  # noqa: W504
                 arguments.device and  # noqa: W504
@@ -2058,11 +2035,16 @@ class MultiBurner(object):
         i = Inventory(inventory)
         i.print()
 
+
+        manager, worker = Host.get_hostnames(name)
+
         # name formatted as manager,worker
-        if ',' in name:
-            manager, worker = name.split(',')
-            workers = Parameter.expand(worker)
-        else:
+        # if ',' in name:
+        #    manager, worker = name.split(',')
+        #    workers = Parameter.expand(worker)
+        # else:
+
+        if manager is None:
             Console.error("We do not yet support individual burning of workers "
                           "and masters. Both must be done together")
             return
@@ -2072,20 +2054,24 @@ class MultiBurner(object):
         # Warn user if they are burning non-empty devices
         info_statuses = Burner().info(print_stdout=False)
 
-        try:
-            empty_statuses = {}
-            for device in devices:
-                empty_statuses[device] = info_statuses[device]['empty']
-        except KeyError:
-            Console.error("Device specified not found by cms burn info. "
-                          "Did you specify the correct path? Is the card properly inserted?")
-            return
+        if os_is_mac():
+            Console.warning(" ignoring device check")
+            pass
+        else:
+            try:
+                empty_statuses = {}
+                for device in devices:
+                    empty_statuses[device] = info_statuses[device]['empty']
+            except KeyError:
+                Console.error("Device specified not found by cms burn info. "
+                              "Did you specify the correct path? Is the card properly inserted?")
+                return
 
-        for dev, empty_status in empty_statuses.items():
-            if not empty_status:
-                if not yn_choice(f"Device {dev} is not empty. Do you wish to continue?"):
-                    Console.error("Terminating")
-                    return
+            for dev, empty_status in empty_statuses.items():
+                if not empty_status:
+                    if not yn_choice(f"Device {dev} is not empty. Do you wish to continue?"):
+                        Console.error("Terminating")
+                        return
 
         manager_search_results = i.find(host=manager)
         if len(manager_search_results) == 0:
