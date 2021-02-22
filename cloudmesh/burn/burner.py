@@ -624,10 +624,6 @@ class Burner(object):
                           f' pv -s {size} |' \
                           f" sudo dd of={device} bs={blocksize}"
 
-                #command = f"sudo dd if={image_path} |" \
-                #          f' pv -s {size} |' \
-                #          f" sudo dd of={device} bs={blocksize}"
-
                 print()
                 Console.info(command)
                 print()
