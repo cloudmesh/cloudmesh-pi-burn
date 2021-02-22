@@ -143,14 +143,14 @@ Figure 6. Choose your Wifi network.
 
 
 <center>
-<img src="images/setup5.png)
+<img src="images/setup5.png" width="50%" />
 
 Figure 7. The setup prompt will ask you if you wish to update the software. You may do so, or you may skip, as our installation script that we will run will do this for you.
 
 </center>
 
 <center>
-<img src="images/setup6.png)
+<img src="images/setup6.png" width="50%" />
 
 Figure 8. Setup is now complete.
 </center>
