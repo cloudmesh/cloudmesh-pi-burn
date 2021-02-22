@@ -146,7 +146,7 @@ installed with cloudmesh. This will allow you to easily track and manage the con
 Let us create an inventory for our cluster as follows:
 
 ```
-(ENV3) pi@managerpi:~ $ cms inventory create --hostnames="managerpi,worker00[1-5]" --ip="10.1.1.1,10.1.1.[2-6]"  --inventory=cluster.yaml latest-lite
+(ENV3) pi@managerpi:~ $ cms inventory create --hostnames="managerpi,worker00[1-4]" --ip="10.1.1.[1-5]"  --inventory=cluster.yaml latest-lite
 ```
 
 We can list the information in our inventory as follows. Confirm all is as expected:
@@ -162,7 +162,6 @@ inventory list --inventory=cluster.yaml
 | worker002 | worker002 |      | latest-lite | cluster |       | worker  |          | 10.1.1.3 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
 | worker003 | worker003 |      | latest-lite | cluster |       | worker  |          | 10.1.1.4 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
 | worker004 | worker004 |      | latest-lite | cluster |       | worker  |          | 10.1.1.5 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
-| worker005 | worker005 |      | latest-lite | cluster |       | worker  |          | 10.1.1.6 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
 +-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
 ```
 
@@ -218,8 +217,8 @@ After all curds are burned, plug them into your worker Pis and boot. Reboot the 
 Once your workers are booted, you can verify connection with the following simple command. This command will return the temperature of the Pis.
 
 ```
-(ENV3) pi@managerpi:~ $ cms pi temp worker00[1-3]
-pi temp worker00[1-3]
+(ENV3) pi@managerpi:~ $ cms pi temp worker00[1-4]
+pi temp worker00[1-4]
 +-----------+--------+-------+----------------------------+
 | host      |    cpu |   gpu | date                       |
 |-----------+--------+-------+----------------------------|
@@ -227,7 +226,6 @@ pi temp worker00[1-3]
 | worker002 | 36.998 |  37   | 2021-02-22 00:06:48.813539 |
 | worker003 | 36.998 |  37   | 2021-02-22 00:06:48.843944 |
 | worker004 | 36.498 |  36   | 2021-02-22 00:06:48.843956 |
-| worker005 | 36.538 |  38   | 2021-02-22 00:06:48.843969 |
 +-----------+--------+-------+----------------------------+
 ```
 
