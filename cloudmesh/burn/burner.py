@@ -2015,7 +2015,10 @@ class MultiBurner(object):
             Console.error("Gui wizzard not found at "
                           f"{card.root_volume}/etc/xdg/autostart/piwiz.desktop")
 
-        burner.unmount(device=device)
+        if os_is_linux() or os_is_pi():
+            burner.unmount()
+        elif os_is_mac():
+            burner.unmount(device=device)
         # for some reason, need to do unmount twice for it to work properly
         # burner.unmount(device)
         StopWatch.stop(f"write host data {device} {hostname}")
@@ -2035,8 +2038,8 @@ class MultiBurner(object):
         i = Inventory(inventory)
         i.print()
 
-
-        manager, worker = Host.get_hostnames(name)
+        name = Parameter.expand(name)
+        manager, workers = Host.get_hostnames(name)
 
         # name formatted as manager,worker
         # if ',' in name:
