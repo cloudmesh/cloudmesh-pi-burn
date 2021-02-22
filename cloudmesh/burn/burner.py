@@ -554,6 +554,11 @@ class Burner(object):
             command = f"sudo dd if={image_path} |" \
                       f" pv -s {size} -w 80 |" \
                       f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
+
+            # command = f"sudo dd if={image_path} |" \
+            #          f" pv -s {size} -w 80 |" \
+            #          f" sudo dd of={device} bs={blocksize}"
+
             print(command)
             os.system(command)
 
