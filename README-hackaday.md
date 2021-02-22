@@ -55,6 +55,7 @@ how easy it is to use it.
 ## QuickStart
 
 ### Requirements
+
 * 5 Raspberry Pis
 * 5 SD Cards
 * Network Switch (unmanaged or managed)
