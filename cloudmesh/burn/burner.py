@@ -555,7 +555,7 @@ class Burner(object):
 
                 command = f"sudo dd if={image_path} bs={blocksize} |" \
                           f' tqdm --bytes --total {size} --ncols 80|' \
-                          f" sudo dd of={rdevice} bs={blocksize}"
+                          f" sudo dd of={device} bs={blocksize}"
 
             else:
 
@@ -563,16 +563,13 @@ class Burner(object):
                           f" pv -s {size} -w 80 |" \
                           f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
 
-                # command = f"sudo dd if={image_path} |" \
-                #          f" pv -s {size} -w 80 |" \
-                #          f" sudo dd of={device} bs={blocksize}"
-
             print(command)
             os.system(command)
 
             command = "sync"
             print(command)
             os.system(command)
+
         elif os_is_mac():
 
             details = USB.get_from_diskutil()
@@ -623,13 +620,11 @@ class Burner(object):
                               f' tqdm --bytes --total {size} --ncols 80|' \
                               f" sudo dd of={rdevice} bs={blocksize}"
 
-
                 else:
 
                     command = f"sudo dd if={image_path} bs={blocksize} |" \
                               f' pv -s {size} -preb -w 80 |' \
                               f" sudo dd of={rdevice} bs={blocksize}"
-
 
                 print()
                 Console.info(command)
@@ -1350,8 +1345,6 @@ class Burner(object):
             except:
                 # ignore error
                 pass
-
-
 
         def prepare_sdcard():
             # ensures a card is detected and unmounted

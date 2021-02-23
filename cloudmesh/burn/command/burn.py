@@ -21,6 +21,7 @@ from cloudmesh.burn.Imager import Imager
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.debug import VERBOSE
 
+
 class BurnCommand(PluginCommand):
 
     @command
