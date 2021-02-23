@@ -330,7 +330,7 @@ class BurnCommand(PluginCommand):
                        "name",
                        "bs")
 
-        VERBOSE(arguments)
+        # VERBOSE(arguments)
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
