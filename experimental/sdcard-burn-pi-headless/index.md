@@ -129,103 +129,108 @@ Figure 1: Pi Cluster setup with bridge network
 
 ## 4. Steps
 
-### Step 1. Burning and Configuring the Manager
+### Burning and Configuring the Manager
 
-REPLACE THESE STEPS WITH cloudmesh commands ... make sure to set up ENV3
+### Create an SSH key for yor Computer
 
-regor von Laszewski @Adam Ratzman lets use slack to work on headless update workflow.
-this can actually also be used as replacement for what @Richard Otten has done with imager
-a) create and activate ENV3
-b) install clloudmehs-installer
-c) cloudmesh-installer get pi
-d) burn master
-   cms burn cluster --hostname=masterpi --ssid=SSID -y
-e) insert mastr, boot
-f) login master, repeat process on master
-than use inventory to burn
-9:40 PM
-please provide instructions on what works for you
-
-
-Choose one SD card for the manager (yellow card in Figure 1). Using your
-laptop, download the [Raspberry Pi Imager](https://www.raspberrypi.org/software/) 
-RaspberryOS desktop version. This is the recommended version for PIs at this time.
-We use Pi Imager to burn our
-manager. Note this is the only time we will need to use PI Imager.
-
-<center>
-<img src="imager-with-options.png" width="50%" />
-
-Figure 2. Pi Imager 
-</center>
-
-Write to your SD card. Once the process is complete and verified, insert the SD Card into your manager
-Pi. Connect your manager to the peripherals (keyboard, mouse, monitor, power). Switch on the power.
-
-> Note you may also use a headless setup. See [here](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md) for more information on headless setups.
-
-Next, we walk through the initial setup process of the Pi and configure the settings in
-accordance with your situation. We have provided screenshots in Figures 3 - 8
-that depicts this process.
-
-<center>
-<img src="setup1.png" width="50%" />
-
-Figure 3. After successfully booting the Pi will display the Welcome Page.
-</center>
-
-
-
-<center>
-<img src="setup2.png" width="50%" />
-
-Figure 4. Set country, language, and timezone. Additionally, you must use the
-proper keyboard layout. For the US enable "Use US Keyboard".
-</center>
-
-
-
-
-<center>
-<img src="setup3.png" width="50%" />
-
-Figure 5. Set your password and use a strong password.
-</center>
-
-
-
-
-<center>
-<img src="setup4.png" width="50%" />
-
-Figure 6. Choose your Wifi network and configure it while adding the password.
-</center>
-
-
-
-
-<center>
-<img src="setup5.png" width="50%" />
-
-Figure 7. The setup prompt will ask you if you wish to update the software. You
-may do so, or you may skip, as the installation script that we will run will do
-this for you.
-
-</center>
-
-<center>
-<img src="setup6.png" width="50%" />
-
-Figure 8. Setup is now complete.
-</center>
-
-### Step 2. Create an SSH key
+If yo do nt yet have an ssh key on your computer, create one now. If you do
+have one, please skip this step. we assume you use an id_rsa key.
 
 As we will be using keys to authenticate with the workers, you need to create
 one  in a terminal with
 
 ```bash
 pi@managerpi:~ $ ssh-keygen
+```
+
+It will ask you for a location, choose the default. It will also ask you for a
+passphrase. Please use a strong one and do not make it the same as the password
+for your manager PI.
+
+
+#### Install Cloudmesh on your Computer
+
+Create a Python virtual environment `ENV3` in which to install cloudmesh. 
+This will keep cloudmesh and its dependencies separate from your default 
+environment. 
+
+Always make sure to `source` this environment when working with cloudmesh.
+
+```bash
+you@laptop:~ $ python -m venv ~/ENV3
+you@laptop:~ $ source ~/ENV3/bin/activate 
+(ENV3) you@laptop:~ $ mkdir cm
+(ENV3) you@laptop:~ $ cd cm
+(ENV3) you@laptop:~/cm $ pip install cloudmesh-installer
+(ENV3) you@laptop:~/cm $ cloudmesh-installer get pi 
+```
+
+####  Find the device for your USB reader/writer
+
+Plug your USB reade writer in your computer and find the device i=t uses.
+Please use the command
+
+```bash
+you@laptop:~ $ cms burn info
+```
+
+On MacOS it will be something like /dev/deviceN where N is a number, likely 2.
+On Linux it will be something like /dev/sdX where X is a letter, likely b
+
+For convenience, lets set a shell variable for it, lets assume you have a Mac. 
+If not adapt for Linux
+
+```bash
+you@laptop:~ $ export SDCARD=/dev/deviceN
+````
+
+#### Burn the Maanager
+
+We will name the manager pi `red`. SSID is the name of your WIFI ssid.
+
+```bash
+you@laptop:~ $ cms burn cluster --device=$SDCARD --hostname=red --ssid=SSID
+```
+
+#### Start the Maanager
+
+After burning, put the card into the manager and power on the manager.
+
+#### Connect to the Manager
+
+> TODO: verify this step, I know we have an ssh command, but it may not yet be
+>  installed. We may have to put this in its own new package cloudmesh-ssh
+
+From your laptop issue the command. we could look at 
+
+cms host ssh command, but that may not yet have a repeat option and does not d o
+interactive but just a command at a time. We do have however the ssh command 
+somehwere, maybe in cloudmesh-cloud
+
+```
+cms ssh pi@red.local
+```
+
+THis will connect you to your manager pi. It will probe the pi repeatedtly 
+and connect when it has booted up. If this command does not return after several 
+minutes something is wrong. Maybe check the SSID or see if you can see the manager 
+on your WIFI using other methods.
+
+
+### Plug in the SD Card Reader/writer into the manager PI
+
+Once you have logged into the manager, Plug in the SD Card Reader/writer into
+the manager PI. You are all set to continue
+
+## Setting up the Manager PI for burning workers
+
+### Step 2. Create an SSH key on the Manager Pi
+
+As we will be using keys to authenticate with the workers, you need to create
+one  in a terminal with
+
+```bash
+pi@red:~ $ ssh-keygen
 ```
 
 It will ask you for a location, choose the default. It will also ask you for a
@@ -240,7 +245,7 @@ command. To make the installation and needed updates to your PI simple, we have
 provided a one-line install script that you can run via curl:
 
 ```
-pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
+pi@red:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
 ```
 
 This will set up a python venv on your computer manager Pi. It may take 5-7
@@ -249,7 +254,7 @@ minutes as it will also update your Pi and install all other requirements.
 You will want to reboot your Pi after this.
 
 ```
-pi@managerpi:~ $ sudo reboot
+pi@red:~ $ sudo reboot
 ```
 
 ### Step 4. Creating our Cluster Inventory
@@ -259,7 +264,7 @@ This will allow you to easily track and manage the configuration of your
 cluster nodes.  Let us create an inventory for our cluster as follows:
 
 ```
-(ENV3) pi@managerpi:~ $ cms inventory create --hostnames="managerpi,worker00[1-4]" --ip="10.1.1.[1-5]"  --inventory=cluster.yaml latest-lite
+(ENV3) pi@red:~ $ cms inventory create --hostnames="red,red0[1-4]" --ip="10.1.1.[1-5]"  --inventory=cluster.yaml latest-lite
 ```
 
 You can inspect the inventory with the list command as shown next. Double-check
@@ -267,16 +272,16 @@ if it looks like:
 
 
 ```
-(ENV3) pi@managerpi:~ $ cms inventory list --inventory=cluster.yaml
+(ENV3) pi@red:~ $ cms inventory list --inventory=cluster.yaml
 
-+-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
-| host      | name      | type | tag         | cluster | label | service | services | ip       | dns | project | owners | comment | description | keyfile           | status   |
-+-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
-| managerpi | managerpi |      | latest-lite | cluster |       | manager |          | 10.1.1.1 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
-| worker001 | worker001 |      | latest-lite | cluster |       | worker  |          | 10.1.1.2 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
-| worker002 | worker002 |      | latest-lite | cluster |       | worker  |          | 10.1.1.3 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
-| worker003 | worker003 |      | latest-lite | cluster |       | worker  |          | 10.1.1.4 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
-| worker004 | worker004 |      | latest-lite | cluster |       | worker  |          | 10.1.1.5 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
++-----------+-------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
+| host      | name  | type | tag         | cluster | label | service | services | ip       | dns | project | owners | comment | description | keyfile           | status   |
++-----------+-------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
+| red       |   red |      | latest-lite | cluster |       | manager |          | 10.1.1.1 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| red01     | red01 |      | latest-lite | cluster |       | worker  |          | 10.1.1.2 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| red02     | red02 |      | latest-lite | cluster |       | worker  |          | 10.1.1.3 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| red03     | red03 |      | latest-lite | cluster |       | worker  |          | 10.1.1.4 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
+| red04     | red04 |      | latest-lite | cluster |       | worker  |          | 10.1.1.5 |     |         |        |         |             | ~/.ssh/id_rsa.pub | inactive |
 +-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
 ```
 
@@ -292,7 +297,7 @@ will be formatted, thus all content will be deleted and lost.
 Verify your device is detected with the following command:
 
 ```bash
-(ENV3) pi@managerpi:~ $ cms burn info
+(ENV3) pi@red:~ $ cms burn info
 
 # ----------------------------------------------------------------------
 # SD Cards Found
@@ -317,7 +322,7 @@ provide internet access to workers and burn the SD Cards. Note you will need
 to cycle SD cards after each burn.
 
 ```
-(ENV3) pi@managerpi:~ $ cms burn create --inventory=cluster.yaml --device=/dev/sdb --name=managerpi,worker00[1-4]
+(ENV3) pi@red:~ $ cms burn create --inventory=cluster.yaml --device=/dev/sdb --name=red,red0[1-4]
 
 Manager hostname is the same as this system's hostname. Is this intended? (Y/n) Y
 Do you wish to configure this system as a WiFi bridge? A restart is required after this command terminates (Y/n) Y
@@ -331,10 +336,10 @@ to be burned.
 
 
 After all the cards are burned, plug them into your worker Pis and boot. Reboot the
-managerpi.
+managerpi red.
 
 ```
-(ENV3) pi@managerpi:~ $ sudo reboot
+(ENV3) pi@red:~ $ sudo reboot
 ```
 
 ### Step 6. Verifying the Workers
@@ -343,15 +348,15 @@ Once your workers are booted, you can verify the connection with the following
 simple command. This command will return the temperature of the Pis.
 
 ```
-(ENV3) pi@managerpi:~ $ cms pi temp worker00[1-4]
-pi temp worker00[1-4]
+(ENV3) pi@red:~ $ cms pi temp red0[1-4]
+pi temp red0[1-4]
 +-----------+--------+-------+----------------------------+
 | host      |    cpu |   gpu | date                       |
 |-----------+--------+-------+----------------------------|
-| worker001 | 36.511 |  36.5 | 2021-02-22 00:06:48.873427 |
-| worker002 | 36.998 |  37   | 2021-02-22 00:06:48.813539 |
-| worker003 | 36.998 |  37   | 2021-02-22 00:06:48.843944 |
-| worker004 | 36.498 |  36   | 2021-02-22 00:06:48.843956 |
+| red01     | 36.511 |  36.5 | 2021-02-22 00:06:48.873427 |
+| red02     | 36.998 |  37   | 2021-02-22 00:06:48.813539 |
+| red03     | 36.998 |  37   | 2021-02-22 00:06:48.843944 |
+| red04     | 36.498 |  36   | 2021-02-22 00:06:48.843956 |
 +-----------+--------+-------+----------------------------+
 ```
 
