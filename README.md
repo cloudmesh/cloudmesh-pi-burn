@@ -1872,6 +1872,6 @@ The code uses a variety of cloudmesh components. This mainly includes
   * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-pi-cluster)
     
 Additional cloudmesh components are used. For example:
-  * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-common)
-  * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-cmd5)
-  * [GitHub cloudmesh-pi-cluster](https://github.com/cloudmesh/cloudmesh-inventory)
+  * [GitHub cloudmesh-pi-common](https://github.com/cloudmesh/cloudmesh-common)
+  * [GitHub cloudmesh-pi-cmd5](https://github.com/cloudmesh/cloudmesh-cmd5)
+  * [GitHub cloudmesh-pi-inventory](https://github.com/cloudmesh/cloudmesh-inventory)
