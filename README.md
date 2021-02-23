@@ -27,6 +27,7 @@ to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
     - [6.2 Manual Page for the `bridge` command](#62-manual-page-for-the-bridge-command)
     - [6.3 Manual Page for the `host` command](#63-manual-page-for-the-host-command)
     - [6.4 Manual Page for the `pi` command](#64-manual-page-for-the-pi-command)
+    - [6.4 Manual Page for the `ssh` command](#64-manual-page-for-the-ssh-command)
   - [7. FAQ and Hints](#7-faq-and-hints)
     - [7.1 Quickstart for a Setup of a cluster from macOS or Linux with no burning on a PI.](#71-quickstart-for-a-setup-of-a-cluster-from-macos-or-linux-with-no-burning-on-a-pi)
     - [7.2 Quickstart for Using a Pi to Burn a Cluster Using Inventory](#72-quickstart-for-using-a-pi-to-burn-a-cluster-using-inventory)
@@ -519,6 +520,7 @@ Note to execute the command on the command line you have to type in
                [--wifipassword=PSK]
                [--bs=BLOCKSIZE]
                [-y]
+               [-g]
   burn create [--image=IMAGE]
               [--device=DEVICE]
               [--hostname=HOSTNAME]
@@ -780,6 +782,8 @@ Examples: ( \ is not shown)
 
 
 
+
+
 ### 6.2 Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
@@ -812,6 +816,8 @@ Description:
       A reboot is required.
 ```
 <!--MANUAL-BRIDGE-->
+
+
 
 
 
@@ -961,6 +967,8 @@ Description:
 
 
 
+
+
 ### 6.4 Manual Page for the `pi` command
 
 Note to execute the command on the command line you have to type in
@@ -1030,7 +1038,71 @@ Description:
 <!--MANUAL-PI-->
 
 
+### 6.4 Manual Page for the `ssh` command
 
+Note to execute the command on the command line you have to type in
+`cms ssh` and not just `ssh`.
+
+THis command is used to easily add and remove entries to the `~/.ssh/config`
+file via the commandline
+
+<!--MANUAL-SSH-->
+```
+    ssh config list [--output=OUTPUT]
+    ssh config add NAME IP [USER] [KEY]
+    ssh config delete NAME
+
+Arguments:
+  NAME        Name or ip of the machine to log in
+  list        Lists the machines that are registered and
+              the commands to login to them
+  PARAMETERS  Register te resource and add the given
+              parameters to the ssh config file.  if the
+              resource exists, it will be overwritten. The
+              information will be written in /.ssh/config
+
+Options:
+   -v                verbose mode
+   --output=OUTPUT   the format in which this list is given
+                     formats includes cat, table, json, yaml,
+                     dict. If cat is used, it is just printed as
+                     is. [default: table]
+   --user=USERs      overwrites the username that is
+                     specified in ~/.ssh/config
+   --name=CMs        the names of the VMS to execute the
+                     command on
+
+Description:
+    ssh config list
+        lists the hostsnames that are present in the
+        ~/.ssh/config file
+
+    ssh config add NAME IP [USER] [KEY]
+        registers a host i ~/.ssh/config file
+        Parameters are attribute=value pairs
+        Note: Note yet implemented
+
+    ssh [--name=VMs] [--user=USERs] [COMMAND]
+        executes the command on the named hosts. If user is
+        specified and is greater than 1, it must be specified for
+        each vm. If only one username is specified it is used for
+        all vms. However, as the user is typically specified in the
+        cloudmesh database, you probably do not have to specify
+        it as it is automatically found.
+
+Examples:
+
+     ssh config add blue 192.168.1.245 blue
+
+         Adds the following to the !/.ssh/config file
+
+         Host blue
+              HostName 192.168.1.245
+              User blue
+              IdentityFile ~/.ssh/id_rsa.pub
+
+```
+<!--MANUAL-SSH-->
 
 
 

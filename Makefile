@@ -25,6 +25,7 @@ readme:
 	cms man readme -p --tag="MANUAL-BRIDGE" --command=bridge
 	cms man readme -p --tag="MANUAL-HOST" --command=host
 	cms man readme -p --tag="MANUAL-PI" --command=pi
+	cms man readme -p --tag="MANUAL-SSH" --command=ssh
 
 source:
 	cd ../cloudmesh.cmd5; make source
