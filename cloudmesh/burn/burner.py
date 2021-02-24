@@ -1889,15 +1889,14 @@ class MultiBurner(object):
             self.system_exec('tput bel')  # ring the terminal bell to notify user
             if i < len(hostnames) - 1:
                 if (i + 1) != ((i + 1) % len(keys)):
-                    choice = input(
-                        f"Slot {keys[(i + 1) % len(keys)]} "
-                        "needs to be reused. Do you wish to continue? [y/n] ")
-                    while (choice != 'y') and (choice != 'n'):
-                        choice = input("Please use [y/n] ")
-                    if choice == 'n':
-                        break
-                    elif choice == 'y':
-                        input('Insert next card and press enter...')
+                    slot = keys[(i + 1) % len(keys)]
+                    print()
+                    print(f"Please remove any card from slot {slot} and insert a new one.")
+                    if yn_choice("Is the card inserted and do you wish to continue?"):
+                        pass
+                    else:
+                        return ""
+
                 print('Burning next card...')
                 print()
 
