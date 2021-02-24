@@ -2167,20 +2167,33 @@ class MultiBurner(object):
                 Console.error("Terminating")
                 return
         else:
-            Console.error("Burning manager SD cards is not yet supported.")
+            self.burn(
+                device=device,
+                hostname=manager_config["hostname"],
+                ip=manager_config["ip"],
+                key=manager_config["keyfile"],
+                tag=manager_config["tag"],
+                password=gen_strong_pass(),
+                locale=locale,
+                gui=False
+            )
+            print("Safe to remove manager card.")
+            if not worker_configs or not yn_choice(f"Insert new card into slot {device}. Is it inserted and do you wish to continue?"):
+                Console.ok("Done.")
+            # Console.error("Burning manager SD cards is not yet supported.")
 
-            dns_line = f"$ cms inventory set {system_hostname} dns to {manager_config['dns']} --inventory={inventory.split('/')[-1]} --listvalue" if manager_config['dns'] is not None else ""  # noqa: E501
-            line1 = f'$ cms inventory add {system_hostname} --service=manager --inventory={inventory.split("/")[-1]} --ip={manager_config["ip"]} --keyfile={manager_config["keyfile"]} --tag={manager_config["tag"]}'  # noqa: E501
-            line2 = f'$ cms burn create --inventory={inventory.split("/")[-1]} --device={device} --name={system_hostname},{name.split(",")[-1]}'  # noqa: E501
-            Console.info(textwrap.dedent(f"""
-            You might want to use your current pi as the manager. You can do this with the following:
+            # dns_line = f"$ cms inventory set {system_hostname} dns to {manager_config['dns']} --inventory={inventory.split('/')[-1]} --listvalue" if manager_config['dns'] is not None else ""  # noqa: E501
+            # line1 = f'$ cms inventory add {system_hostname} --service=manager --inventory={inventory.split("/")[-1]} --ip={manager_config["ip"]} --keyfile={manager_config["keyfile"]} --tag={manager_config["tag"]}'  # noqa: E501
+            # line2 = f'$ cms burn create --inventory={inventory.split("/")[-1]} --device={device} --name={system_hostname},{name.split(",")[-1]}'  # noqa: E501
+            # Console.info(textwrap.dedent(f"""
+            # You might want to use your current pi as the manager. You can do this with the following:
 
-            {line1}
+            # {line1}
 
-            {dns_line}
+            # {dns_line}
 
-            {line2}
-            """))
+            # {line2}
+            # """))
             return
         # The code below was taken from self.multi_burn
         # It would be nice to move this functionality of cycling over
