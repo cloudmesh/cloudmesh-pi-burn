@@ -2101,7 +2101,7 @@ class MultiBurner(object):
 
             for dev, empty_status in empty_statuses.items():
                 if not empty_status:
-                    if not yn_choice(f"Device {dev} is not empty. Do you wish to continue?"):
+                    if not (yes or yn_choice(f"Device {dev} is not empty. Do you wish to continue?")):
                         Console.error("Terminating")
                         return
 
@@ -2154,9 +2154,9 @@ class MultiBurner(object):
         # Set up this pi as a bridge if the hostname is the same
         # as the manager and if the user wishes
         if system_hostname == manager_config["hostname"]:
-            if yn_choice("Manager hostname is the same as this system's "
+            if yes or yn_choice("Manager hostname is the same as this system's "
                          "hostname. Is this intended?"):
-                if yn_choice("Do you wish to configure this system as a WiFi "
+                if yes or yn_choice("Do you wish to configure this system as a WiFi "
                              "bridge? A restart is required after this "
                              "command terminates"):
                     Bridge.create(managerIP=manager_config['ip'],
