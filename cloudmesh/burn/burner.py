@@ -2125,15 +2125,16 @@ class MultiBurner(object):
             "dns": ','.join(i.get(manager, "dns"))
         }
         worker_configs = []
-        for worker in workers:
-            worker_config = {
-                "hostname": worker,
-                "tag": i.get(worker, "tag"),
-                "ip": i.get(worker, "ip"),
-                "services": i.get(worker, "services"),
-                "keyfile": i.get(worker, "keyfile")
-            }
-            worker_configs.append(worker_config)
+        if workers:
+            for worker in workers:
+                worker_config = {
+                    "hostname": worker,
+                    "tag": i.get(worker, "tag"),
+                    "ip": i.get(worker, "ip"),
+                    "services": i.get(worker, "services"),
+                    "keyfile": i.get(worker, "keyfile")
+                }
+                worker_configs.append(worker_config)
 
         _, system_hostname = subprocess.getstatusoutput("cat /etc/hostname")
 
@@ -2146,7 +2147,7 @@ class MultiBurner(object):
         image = Image()
         image.read_version_cache()
 
-        if manager is not None and system_hostname != manager_config["hostname"]:
+        if manager is not None and system_hostname != manager_config["hostname"] and manager_config["tag"] == "latest-full":
             image.fetch(tag=["latest-full"])
         if workers is not None:
             image.fetch(tag=["latest-lite"])
@@ -2178,7 +2179,7 @@ class MultiBurner(object):
                 gui=False
             )
             print("Safe to remove manager card.")
-            if not worker_configs or not yn_choice(f"Insert new card into slot {device}. Is it inserted and do you wish to continue?"):
+            if not workers or not yn_choice(f"Insert new card into slot {device}. Is it inserted and do you wish to continue?"):
                 Console.ok("Done.")
             # Console.error("Burning manager SD cards is not yet supported.")
 
