@@ -626,7 +626,8 @@ class BurnCommand(PluginCommand):
                 inventory=inventory,
                 name=arguments.name,
                 device=arguments.device,
-                yes=arguments.yes
+                yes=arguments.yes,
+                passwd=arguments.passwd
             )
             StopWatch.stop("burn inventory")
             StopWatch.status("burn inventory", True)
