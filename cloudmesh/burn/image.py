@@ -16,6 +16,74 @@ from cloudmesh.burn.util import sha256sum
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+class Ubuntu:
+
+    distribution = [
+        {
+            "version": "20.04.2&architecture=server-arm64+raspi",
+            "date": "2021-02-01",
+            "type": "ubuntu",
+            "tag": "ubuntu-20.04.2-64-bit",
+            "description": "Ubuntu Server 20.04.2 LTS 64-bit",
+            "alt": "https://ubuntu.com/download/raspberry-pi/thank-you?version=20.04.2&architecture=server-arm64+raspi",
+            "url": "https://cdimage.ubuntu.com/releases/20.04.2/release/ubuntu-20.04.2-preinstalled-server-arm64+raspi.img.xz",
+            "sha256": "31884b07837099a5e819527af66848a9f4f92c1333e3ef0693d6d77af66d6832"
+            # check
+            # echo "31884b07837099a5e819527af66848a9f4f92c1333e3ef0693d6d77af66d6832 *ubuntu-20.04.2-preinstalled-server-arm64+raspi.img.xz" | shasum -a 256 --check
+        },
+        {
+            "version": "20.04.2&architecture=server-armhf+raspi",
+            "date": "2021-02-01",
+            "type": "ubuntu",
+            "tag": "ubuntu-20.04.2-32-bit",
+            "description": "Ubuntu Server 20.04.2 LTS 32-bit",
+            "alt": "https://ubuntu.com/download/raspberry-pi/thank-you?version=20.04.2&architecture=server-armhf+raspi",
+            "url": "https://cdimage.ubuntu.com/releases/20.04.2/release/ubuntu-20.04.2-preinstalled-server-armhf+raspi.img.xz",
+            "sha256": "7b348d080648b8e36e1f29671afd973a0878503091b935b69828f2c7722dfb58"
+            # check
+            # echo "7b348d080648b8e36e1f29671afd973a0878503091b935b69828f2c7722dfb58 *ubuntu-20.04.2-preinstalled-server-armhf+raspi.img.xz" | shasum -a 256 --check
+        },
+
+        {
+            "version": "20.10&architecture=server-arm64+raspi",
+            "date": "2021-02-01",
+            "type": "ubuntu",
+            "tag": "ubuntu-20.10-64-bit",
+            "description": "Ubuntu Server 20.10 64-bit",
+            "alt": "https://ubuntu.com/download/raspberry-pi/thank-you?version=20.10&architecture=server-arm64+raspi",
+            "url": "https://cdimage.ubuntu.com/releases/20.10/release/ubuntu-20.10-preinstalled-server-arm64+raspi.img.xz",
+            "sha256": "73a98e83fbb6398f86902c7a83c826536f1afbd0be2d80cb0d7faa94ede33137"
+            # check
+            # echo "73a98e83fbb6398f86902c7a83c826536f1afbd0be2d80cb0d7faa94ede33137 *ubuntu-20.10-preinstalled-server-arm64+raspi.img.xz" | shasum -a 256 --check
+        },
+
+        {
+            "version": "20.10&architecture=server-armhf+raspi",
+            "date": "2021-02-01",
+            "type": "ubuntu",
+            "tag": "ubuntu-20.10-32-bit",
+            "description": "Ubuntu Server 20.10",
+            "alt": "https://ubuntu.com/download/raspberry-pi/thank-you?version=20.10&architecture=server-armhf+raspi",
+            "url": "https://cdimage.ubuntu.com/releases/20.10/release/ubuntu-20.10-preinstalled-server-armhf+raspi.img.xz",
+            "sha256": "941752f93313ba765069b48f38af18bbf961bebefcc9c4296a953cf1260f0fe1"
+            # check
+            # echo "941752f93313ba765069b48f38af18bbf961bebefcc9c4296a953cf1260f0fe1 *ubuntu-20.10-preinstalled-server-armhf+raspi.img.xz" | shasum -a 256 --check
+        },
+        {
+            "version": "20.10&architecture=desktop-arm64+raspi",
+            "date": "2021-02-01",
+            "type": "ubuntu",
+            "tag": "ubuntu-desktop",
+            "description": "Ubuntu Desktop 20.10 64-bit",
+            "alt": "https://ubuntu.com/download/raspberry-pi/thank-you?version=20.10&architecture=desktop-arm64+raspi",
+            "url": "https://cdimage.ubuntu.com/releases/20.10/release/ubuntu-20.10-preinstalled-desktop-arm64+raspi.img.xz",
+            "sha256": "2fa19fb53fe0144549ff722d9cd755d9c12fb508bb890926bfe7940c0b3555e8"
+            # check
+            # echo "2fa19fb53fe0144549ff722d9cd755d9c12fb508bb890926bfe7940c0b3555e8 *ubuntu-20.10-preinstalled-desktop-arm64+raspi.img.xz" | shasum -a 256 --check
+        },
+    ]
+
+
 
 # noinspection PyPep8
 class Image(object):
@@ -125,7 +193,8 @@ class Image(object):
         data = readfile(cache)
         data = yaml.safe_load(readfile(cache))
         # convert to array
-        result = data["lite"] + data["full"]
+        result = data["lite"] + data["full"] + Ubuntu.distribution
+
         return result
 
     @staticmethod
