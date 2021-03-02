@@ -10,6 +10,7 @@ import time
 from getpass import getpass
 
 import humanize
+
 from cloudmesh.bridge.Bridge import Bridge
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.sdcard import SDCard
@@ -18,12 +19,15 @@ from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.Benchmark import Benchmark
+from cloudmesh.common.Host import Host
 from cloudmesh.common.JobScript import JobScript
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
@@ -31,9 +35,7 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.wifi import Wifi
 from cloudmesh.inventory.inventory import Inventory
-from cloudmesh.common.Benchmark import Benchmark
-from cloudmesh.common.sudo import Sudo
-from cloudmesh.common.Host import Host
+
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
@@ -287,7 +289,7 @@ class Burner(object):
             if os_is_mac():
                 size = SDCard.size(device)
             else:
-                size = 64 * 1000**3  # 64GB  this is a bug we need to find out ho to get the size
+                size = 64 * 1000 ** 3  # 64GB  this is a bug we need to find out ho to get the size
 
             to_file = path_expand(to_file)
 
@@ -529,9 +531,9 @@ class Burner(object):
         unit = unit.replace("MB", "M")
         n = float(n)
         if unit == "G":
-            n = n * 1000**3
+            n = n * 1000 ** 3
         elif unit == "M":
-            n = n * 1000**2
+            n = n * 1000 ** 2
         size = int(n)
 
         banner(f"Preparing the SDCard {name}")
@@ -1991,7 +1993,7 @@ class MultiBurner(object):
             StopWatch.status(f"format {device} {hostname}", True)
 
         if os_is_linux() or os_is_pi():
-            burner.unmount()   # can not fully eject before burn on pi or linux
+            burner.unmount()  # can not fully eject before burn on pi or linux
         elif os_is_mac():
             burner.unmount(device=device)
 
@@ -2105,7 +2107,7 @@ class MultiBurner(object):
             manager_search_results = i.find(host=manager)
             if len(manager_search_results) == 0:
                 Console.error(f"Could not find {manager} in inventory {inventory}. "
-                            "Please correct before continuing.")
+                              "Please correct before continuing.")
                 return
             elif len(manager_search_results) > 1:
                 Console.error(
@@ -2159,14 +2161,14 @@ class MultiBurner(object):
         if manager is not None:
             if system_hostname == manager_config["hostname"]:
                 if yes or yn_choice("Manager hostname is the same as this system's "
-                            "hostname. Is this intended?"):
+                                    "hostname. Is this intended?"):
                     if yes or yn_choice("Do you wish to configure this system as a WiFi "
-                                "bridge? A restart is required after this "
-                                "command terminates"):
+                                        "bridge? A restart is required after this "
+                                        "command terminates"):
                         Bridge.create(managerIP=manager_config['ip'],
-                                    priv_interface='eth0',
-                                    ext_interface='wlan0',
-                                    dns=manager_config["dns"])
+                                      priv_interface='eth0',
+                                      ext_interface='wlan0',
+                                      dns=manager_config["dns"])
                 else:
                     Console.error("Terminating")
                     return
@@ -2182,7 +2184,8 @@ class MultiBurner(object):
                     gui=False
                 )
                 print("Safe to remove manager card.")
-                if not workers or not yn_choice(f"Insert new card into slot {device}. Is it inserted and do you wish to continue?"):
+                if not workers or not yn_choice(f"Insert new card into slot {device}."
+                                                " Is it inserted and do you wish to continue?"):
                     Console.ok("Done.")
 
         # The code below was taken from self.multi_burn
