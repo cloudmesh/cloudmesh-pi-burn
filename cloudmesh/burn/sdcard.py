@@ -3,7 +3,9 @@ import sys
 import textwrap
 import time
 
+import humanize
 import oyaml as yaml
+from cloudmesh.burn.image import Image
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
@@ -18,7 +20,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.burn.image import Image
+
 
 def location(host_os=None, card_os="raspberry", volume="boot"):
     """
@@ -572,10 +574,13 @@ class SDCard:
                           "and tag.")
             return ""
 
+        print ("TTT", tag)
         Console.info(f"Burning {name} ...")
         if image is not None:
             image_path = image
         else:
+            print("...")
+
             image = Image().find(tag=tag)
 
             if image is None:
@@ -590,10 +595,20 @@ class SDCard:
 
             image = image[0]
 
-            image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+            _name = os.path.basename(Image.get_name(image["url"]))
+            _name = _name.replace(".xz", "")
+            image_path = Image().directory + "/" + _name
+
+            print ("PPPP", image_path)
             if not os.path.isfile(image_path):
-                Console.error(f"Image {tag} not found")
-                raise FileNotFoundError
+                tags = ' '.join(tag)
+
+                print()
+                Console.error(f"Image with tags '{tags}' not found. To download use")
+                print()
+                Console.msg(f"cms burn image get {tags}")
+                print()
+                return ""
 
         orig_size = size = humanize.naturalsize(os.path.getsize(image_path))
 
@@ -623,68 +638,29 @@ class SDCard:
             Console.error("Please specify a device")
             return
 
-        if os_is_linux() or os_is_pi():
+        #
+        # speedup burn for MacOS
+        #
+        if device.startswith("/dev/disk"):
+            rdevice = device.replace("/dev/disk", "/dev/rdisk")
 
-            if os_is_linux():
-
-                command = f"sudo dd if={image_path} bs={blocksize} |" \
-                          f' tqdm --bytes --total {size} --ncols 80|' \
-                          f" sudo dd of={device} bs={blocksize}"
-
-            else:
-
-                command = f"sudo dd if={image_path} |" \
-                          f" pv -s {size} -w 80 |" \
-                          f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
-
-            print(command)
-            os.system(command)
-
-            command = "sync"
-            print(command)
-            os.system(command)
-
-        elif os_is_mac():
-
+        if os_is_mac():
             details = USB.get_from_diskutil()
-
             USB.print_details(details)
-            #
-            # get size
-            #
 
-            blocksize = blocksize.replace("M", "m")
 
-            if yes or yn_choice(f"\nDo you like to write {name} on {device} with the image {image_path}"):
+        if not(yes or yn_choice(f"\nDo you like to write {name} on {device} "
+                                f"with the image {image_path}")):
+            return ""
 
-                # sudo dd if=/dev/diskX bs=1m | pv -s 64G | sudo dd of=/dev/diskX bs=1m
+        # blocksize = blocksize.replace("M", "m")
 
-                if device.startswith("/dev/disk"):
-                    rdevice = device.replace("/dev/disk", "/dev/rdisk")
+        command = f"sudo dd if={image_path} bs={blocksize} |" \
+                  f' tqdm --bytes --total {size} --ncols 80 |' \
+                  f" sudo dd of={device} bs={blocksize}"
 
-                if os_is_mac() or os_is_linux():
+        print(command)
+        os.system(command)
 
-                    command = f"sudo dd if={image_path} bs={blocksize} |" \
-                              f' tqdm --bytes --total {size} --ncols 80|' \
-                              f" sudo dd of={rdevice} bs={blocksize}"
-
-                else:
-                    command = f"sudo dd if={image_path} bs={blocksize} |" \
-                              f' pv -s {size} -preb -w 80 |' \
-                              f" sudo dd of={rdevice} bs={blocksize}"
-
-                print()
-                Console.info(command)
-                print()
-                if not (yes or yn_choice("Please execute on your own risk. "
-                                         f"You are writing {name} on {device}. "
-                                         "CONTINUE?")):
-                    return ""
-                print()
-
-                os.system(command)
-
-        else:
-            raise NotImplementedError("Only implemented to be run on a PI")
-
+        os.system("sync")
 

@@ -515,9 +515,16 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.sdcard:
+
+            if arguments.device is None:
+                burner.info()
+                Console.error("Please specify a device")
+                return ""
+
             arguments.TAG = arguments.TAG or ["latest-lite"]
 
-            execute("sdcard", burner.burn_sdcard(tag=arguments.TAG, device=arguments.device))
+            sdcard = SDCard()
+            execute("sdcard", sdcard.burn_sdcard(tag=arguments.TAG, device=arguments.device))
             return ""
 
         elif arguments.mount:

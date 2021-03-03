@@ -304,7 +304,10 @@ class Image(object):
 
             print(f"Extracting {img_filename}")
             self.unzip_image(xz_filename)
-            Path(xz_filename).unlink()
+            try:
+                Path(xz_filename).unlink()
+            except:
+                pass
             return img_filename
 
         else:
