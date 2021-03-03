@@ -1,0 +1,90 @@
+    # TODO:
+    # Deprecated function as dhcpcd.conf is the recommended file for
+    # configuring static network configs. Should we keep this?
+    #
+    # def set_static_ip2(self, ip, mountpoint, iface="eth0", mask="16"):
+    #     """
+    #     Sets the static ip on the sd card for the specified interface
+    #     Also writes to manager hosts file for easy access
+
+    #     :param ip: ips address
+    #     :type ip: str
+    #     :param mountpoint: the mountpunt of the device on which the ip
+    #                        is found
+    #     :type mountpoint: str
+    #     :param iface: the network Interface
+    #     :type iface: str
+    #     :param mask: the subnet Mask
+    #     :type mask: str
+    #     :return:
+    #     :rtype:
+    #     """
+
+    #     # Adds the ip and hostname to /etc/hosts if it isn't already there.
+    #     def add_to_hosts(ip):
+    #         # with open('/etc/hosts', 'r') as host_file:
+    #         #     hosts = host_file.readlines()
+    #         hosts = SDCard.readfile('/etc/hosts', decode=True)
+
+    #         replaced = False
+    #         for i in range(len(hosts)):
+    #             ip_host = hosts[i].split()
+
+    #             if len(ip_host) > 1:
+    #                 if ip_host[0] == ip:
+    #                     ip_host[1] = self.hostname
+    #                     hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
+    #                     replaced = True
+
+    #                 elif ip_host[1] == self.hostname:
+    #                     ip_host[0] = ip
+    #                     hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
+    #                     replaced = True
+    #         if not replaced:
+    #             hosts.append(f"{ip}\t{self.hostname}\n")
+
+    #         # with open('/etc/hosts', 'w') as host_file:
+    #         #     host_file.writelines(hosts)
+    #         config = ""
+    #         for line in hosts:
+    #             config = config + line + '\n'
+
+    #         SDCard.writefile('/etc/hosts', config)
+
+    #     # Add static IP and hostname to manager's hosts file and configure worker with static IP
+    #     if not self.dryrun:
+    #         add_to_hosts(ip)
+
+    #         # Configure static LAN IP
+    #         if iface == "eth0":
+    #             interfaces_conf = textwrap.dedent(f"""
+    #             auto {iface}
+    #             iface {iface} inet static
+    #                 address {ip}/{mask}
+    #             """)
+    #             # with open(f'{mountpoint}/etc/network/interfaces',
+    #             #           'a') as config:
+    #             #     config.write(interfaces_conf)
+    #             SDCard.writefile(f'{mountpoint}/etc/network/interfaces',
+    #                            interfaces_conf, append=True)
+
+    #         # Configure static wifi IP
+    #         elif iface == "wlan0":
+    #             dnss = \
+    #                 self.system_exec_exec("cat /etc/resolv.conf | grep nameserver").split()[
+    #                     1]  # index 0 is "nameserver" so ignore
+    #             routerss = self.system_exec_exec(
+    #                 "ip route | grep default | awk '{print $3}'")  # omit the \n at the end
+    #             dhcp_conf = textwrap.dedent(f"""
+    #                     interface wlan0
+    #                     static ip_address={ip}
+    #                     static routers={routerss}
+    #                     static domain_name_servers={dnss}
+    #                     """)
+    #             # with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
+    #             #     config.write(dhcp_conf)
+    #             SDCard.writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf,
+    #                            append=True)
+    #     else:
+    #         print('interface eth0\n')
+    #         print(f'static ip_address={ip}/{mask}')

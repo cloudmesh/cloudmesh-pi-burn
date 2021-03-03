@@ -1,8 +1,6 @@
 import crypt
 import os
-import random
 import re
-import string
 import subprocess
 import sys
 import textwrap
@@ -35,53 +33,21 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.burn.wifi.provider import Wifi
 from cloudmesh.inventory.inventory import Inventory
-
+from cloudmesh.common.Shell import windows_not_supported
+from cloudmesh.common.security import generate_strong_pass
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
 
 
-def gen_strong_pass():
-    """
-    Generates a password from letters, digits and punctuation
-
-    :return: password
-    :rtype: str
-    """
-    length = random.randint(10, 15)
-    password_characters = \
-        string.ascii_letters + \
-        string.digits + \
-        string.punctuation
-    return ''.join(random.choice(password_characters) for i in range(length))
-
-
-def windows_not_supported(f):
-    def wrapper(*args, **kwargs):
-        host = get_platform()
-        if host == "windows":
-            Console.error("Not supported on windows")
-            return ""
-        else:
-            return f(*args, **kwargs)
-
-    return wrapper
-
 
 # noinspection PyPep8
 class Burner(object):
 
-    def __init__(self, dryrun=False):
+    def __init__(self):
         """
         Initializes the burner
-
-        TODO: dryrun may not be specified for all functions. Not yet enabled.
-              Hence do not use dryrun
-
-        :param dryrun: if True only the commands will be listed that would
-                       be executed
         """
-        self.dryrun = dryrun
         self.hostname = None
         self.keypath = None
 
@@ -120,7 +86,7 @@ class Burner(object):
             Console.error("Not yet implemented for this OS")
             return ""
 
-        card = SDCard(host=host)
+        card = SDCard(host_os=host)
         # ssh
 
         try:
@@ -302,8 +268,8 @@ class Burner(object):
                               f"dd of={to_file} bs={blocksize}"
                 else:
                     command = f"sudo dd if={device} bs={blocksize} |" \
-                          f" pv -s {size}  -w 80 |" \
-                          f"dd of={to_file} bs={blocksize}"
+                              f" pv -s {size}  -w 80 |" \
+                              f"dd of={to_file} bs={blocksize}"
 
             print()
             Console.info(command)
@@ -335,8 +301,6 @@ class Burner(object):
         :return: dict with details about the devices
         :rtype: dict
         """
-
-        print("dryrun:    ", self.dryrun)
 
         if print_os and print_stdout:
             if os_is_pi():
@@ -468,22 +432,6 @@ class Burner(object):
         # see also
         # https://raspberry-pi-guide.readthedocs.io/en/latest/system.html
         # this is for fedora, but should also work for raspbian
-
-    def system_exec(self, command):
-        """
-        System command that uses subprocess to execute terminal commands
-        Returns the stdout of the command
-
-        TODO: check type of return<
-
-        :param command: the command
-        :type command: str
-        :return: the stdout of the command not implemented
-        :rtype: str
-        """
-        os.system(command)
-
-        return ""
 
     @windows_not_supported
     def burn_sdcard(self, image=None, tag=None, device=None, blocksize="4M",
@@ -829,96 +777,6 @@ class Burner(object):
 
         SDCard.writefile(f'{mountpoint}/etc/dhcpcd.conf', '\n'.join(curr_config))
 
-    # TODO:
-    # Deprecated function as dhcpcd.conf is the recommended file for
-    # configuring static network configs. Should we keep this?
-    #
-    # def set_static_ip2(self, ip, mountpoint, iface="eth0", mask="16"):
-    #     """
-    #     Sets the static ip on the sd card for the specified interface
-    #     Also writes to manager hosts file for easy access
-
-    #     :param ip: ips address
-    #     :type ip: str
-    #     :param mountpoint: the mountpunt of the device on which the ip
-    #                        is found
-    #     :type mountpoint: str
-    #     :param iface: the network Interface
-    #     :type iface: str
-    #     :param mask: the subnet Mask
-    #     :type mask: str
-    #     :return:
-    #     :rtype:
-    #     """
-
-    #     # Adds the ip and hostname to /etc/hosts if it isn't already there.
-    #     def add_to_hosts(ip):
-    #         # with open('/etc/hosts', 'r') as host_file:
-    #         #     hosts = host_file.readlines()
-    #         hosts = SDCard.readfile('/etc/hosts', decode=True)
-
-    #         replaced = False
-    #         for i in range(len(hosts)):
-    #             ip_host = hosts[i].split()
-
-    #             if len(ip_host) > 1:
-    #                 if ip_host[0] == ip:
-    #                     ip_host[1] = self.hostname
-    #                     hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
-    #                     replaced = True
-
-    #                 elif ip_host[1] == self.hostname:
-    #                     ip_host[0] = ip
-    #                     hosts[i] = f"{ip_host[0]}\t{ip_host[1]}\n"
-    #                     replaced = True
-    #         if not replaced:
-    #             hosts.append(f"{ip}\t{self.hostname}\n")
-
-    #         # with open('/etc/hosts', 'w') as host_file:
-    #         #     host_file.writelines(hosts)
-    #         config = ""
-    #         for line in hosts:
-    #             config = config + line + '\n'
-
-    #         SDCard.writefile('/etc/hosts', config)
-
-    #     # Add static IP and hostname to manager's hosts file and configure worker with static IP
-    #     if not self.dryrun:
-    #         add_to_hosts(ip)
-
-    #         # Configure static LAN IP
-    #         if iface == "eth0":
-    #             interfaces_conf = textwrap.dedent(f"""
-    #             auto {iface}
-    #             iface {iface} inet static
-    #                 address {ip}/{mask}
-    #             """)
-    #             # with open(f'{mountpoint}/etc/network/interfaces',
-    #             #           'a') as config:
-    #             #     config.write(interfaces_conf)
-    #             SDCard.writefile(f'{mountpoint}/etc/network/interfaces',
-    #                            interfaces_conf, append=True)
-
-    #         # Configure static wifi IP
-    #         elif iface == "wlan0":
-    #             dnss = \
-    #                 self.system_exec_exec("cat /etc/resolv.conf | grep nameserver").split()[
-    #                     1]  # index 0 is "nameserver" so ignore
-    #             routerss = self.system_exec_exec(
-    #                 "ip route | grep default | awk '{print $3}'")  # omit the \n at the end
-    #             dhcp_conf = textwrap.dedent(f"""
-    #                     interface wlan0
-    #                     static ip_address={ip}
-    #                     static routers={routerss}
-    #                     static domain_name_servers={dnss}
-    #                     """)
-    #             # with open(f'{mountpoint}/etc/dhcpcd.conf', 'a') as config:
-    #             #     config.write(dhcp_conf)
-    #             SDCard.writefile(f'{mountpoint}/etc/dhcpcd.conf', dhcp_conf,
-    #                            append=True)
-    #     else:
-    #         print('interface eth0\n')
-    #         print(f'static ip_address={ip}/{mask}')
 
     @windows_not_supported
     def keyboard(self, country="US"):
@@ -1045,148 +903,6 @@ class Burner(object):
             content = content + "\n" + "exit 0\n"
             SDCard.writefile(rc_local, content)
 
-    @windows_not_supported
-    def mount(self, device=None, card_os="raspberry"):
-        """
-        Mounts the current SD card
-        """
-        Sudo.password()
-        host = get_platform()
-        card = SDCard(card_os=card_os, host=host)
-
-        if os_is_pi() or os_is_linux():
-            dmesg = USB.get_from_dmesg()
-
-            # TODO Need a better way to identify which sd card to use for mounting
-            # instead of iterating over all of them
-
-            if not self.dryrun:
-                self.system_exec('sudo sync')  # flush any pending/in-process writes
-
-                for usbcard in dmesg:
-
-                    dev = device or usbcard['dev']
-                    print(dev)
-                    sd1 = f"{dev}1"
-                    sd2 = f"{dev}2"
-                    try:
-                        if os.path.exists(sd1):
-                            Console.ok(f"mounting {sd1} {card.boot_volume}")
-                            self.system_exec(f"sudo mkdir -p {card.boot_volume}")
-                            self.system_exec(f"sudo mount -t vfat {sd1} {card.boot_volume}")
-                    except Exception as e:
-                        print(e)
-                    try:
-                        if os.path.exists(sd2):
-                            Console.ok(f"mounting {sd2} {card.root_volume}")
-                            self.system_exec(f"sudo mkdir -p {card.root_volume}")
-                            self.system_exec(f"sudo mount -t ext4 {sd2} {card.root_volume}")
-                    except Exception as e:
-                        print(e)
-            return ""
-
-        elif os_is_mac():
-
-            dev = USB.get_dev_from_diskutil()[0]
-            volumes = [
-                {"dev": f"{dev}s1", "mount": card.boot_volume},
-                {"dev": f"{dev}s2", "mount": card.root_volume},
-            ]
-            for volume in volumes:
-
-                dev = str(volume['dev'])
-                mount = volume['mount']
-                try:
-                    if not os.path.exists(mount):
-                        self.system_exec(f"sudo mkdir -p {mount}")
-                        self.system_exec(f"sudo mount -t vfat {dev} {mount}")
-                except Exception as e:
-                    print(e)
-            for volume in volumes:
-                dev = str(volume['dev'])
-                mount = volume['mount']
-
-                if os.path.exists(mount):
-                    Console.ok(f"Mounted {mount}")
-                else:
-                    Console.error(f"Could not mounted {mount}")
-
-            return ""
-
-        else:
-            Console.error("Not yet implemented for your OS")
-            return ""
-
-        # Keeping in case this was needed. Worked without it in testing.
-        # elif os_is_pi():
-        #    if not self.dryrun:
-        # wait for the OS to detect the filesystems
-        # in burner.info(), formatted will be true if the card has
-        #        FAT32
-        #   filesystems on it
-        #        counter = 0
-        #        max_tries = 5
-        #        b = Burner()
-        #        while counter < max_tries:
-        #            time.sleep(1)
-        #            formatted = b.info(print_stdout=False)[device]['formatted']
-        #            if formatted:
-        #                break
-        #            counter += 1
-        #            if counter == max_tries:
-        #                print("Timed out waiting for OS to detect filesystem"
-        #                      " on the burned card")
-        #                sys.exit(1)
-
-    @windows_not_supported
-    def unmount(self, device=None, card_os="raspberry"):
-        """
-        Unmounts the current SD card
-
-        :param device: device to unmount, e.g. /dev/sda
-        :type device: str
-        """
-
-        Sudo.password()
-
-        def _execute(msg, command):
-            Console.ok(msg)
-            try:
-                os.system(command)
-            except:
-                # ignore error
-                pass
-
-        host = get_platform()
-        card = SDCard(card_os=card_os, host=host)
-
-        self.system_exec('sudo sync')  # flush any pending/in-process writes
-
-        if os_is_linux() or os_is_pi():
-            if device:
-                _execute(f"eject {device}", f"sudo eject {device}")
-
-        os.system("sync")
-        if os_is_linux() or os_is_pi():
-            _execute(f"unmounting {card.boot_volume}", f"sudo umount {card.boot_volume}")
-            _execute(f"unmounting  {card.root_volume}", f"sudo umount {card.root_volume}")
-        elif os_is_mac():
-
-            _execute(f"unmounting {card.boot_volume}", f"diskutil umountDisk {device}")
-
-        else:
-            Console.error("Not yet implemented for your OS")
-            return ""
-
-        os.system("sync")
-
-        rm = [f"sudo rmdir {card.boot_volume}",
-              f"sudo rmdir {card.root_volume}"]
-
-        for command in rm:
-            _execute(command, command)
-
-        return True
 
     @windows_not_supported
     def enable_ssh(self):
@@ -1200,14 +916,14 @@ class Burner(object):
         else:
             sudo = False
 
-        card = SDCard(card_os="raspberry", host=host)
+        card = SDCard(card_os="raspberry", host_os=host)
         if sudo:
             Sudo.password()
             command = f'sudo touch {card.boot_volume}/ssh'
         else:
             command = f'touch {card.boot_volume}/ssh'
 
-        self.system_exec(command)
+        os.system(command)
 
         return ""
 
@@ -1297,13 +1013,8 @@ class Burner(object):
 
         country = country or 'US'
 
-        card = SDCard(card_os=card_os, host=host)
+        card = SDCard(card_os=card_os, host_os=host)
         path = f"{card.boot_volume}/wpa_supplicant.conf"
-
-        if self.dryrun:
-            print("DRY RUN - skipping:")
-            print(f"Writing wifi ssid:{ssid} psk:{psk} to {path}")
-            return ""
 
         os = "raspberry"  # needs to become a parameter based on tag
 
@@ -1312,178 +1023,23 @@ class Burner(object):
         if os == "raspberry":
             if psk:
                 if os_is_mac():
-                    Wifi.set(ssid=ssid, password=psk, country=country, location=path)
+                    WifiClass.set(ssid=ssid, password=psk, country=country, location=path)
                 else:
-                    Wifi.set(ssid=ssid, password=psk, country=country, location=path, sudo=True)
+                    WifiClass.set(ssid=ssid, password=psk, country=country, location=path, sudo=True)
             else:
                 if os_is_mac():
-                    Wifi.set(ssid=ssid, psk=False, country=country, location=path)
+                    WifiClass.set(ssid=ssid, psk=False, country=country, location=path)
                 else:
-                    Wifi.set(ssid=ssid, psk=False, country=country, location=path, sudo=True)
+                    WifiClass.set(ssid=ssid, psk=False, country=country, location=path, sudo=True)
         else:
             if os_is_mac():
-                Wifi.set(ssid=ssid, password=psk, country=country, location=path)
+                WifiClass.set(ssid=ssid, password=psk, country=country, location=path)
             else:
-                Wifi.set(ssid=ssid, password=psk, country=country, location=path, sudo=True)
+                WifiClass.set(ssid=ssid, password=psk, country=country, location=path, sudo=True)
 
         return ""
 
-    @windows_not_supported
-    def format_device(self,
-                      device='dev/sdX',
-                      hostname=None,
-                      title="UNTITLED",
-                      unmount=False,
-                      yes=False):
-        """
-        Formats device with one FAT32 partition
 
-        WARNING: make sure you have the right device, this command could
-                 potentially erase your OS
-
-        :param device: The device on which we format
-        :type device: str
-        :param hostname: the hostname
-        :type hostname: str
-        """
-        # if len(title) > 8:
-        #    _title = title[0:8]
-        # else:
-        #    _title = title
-        # force title to be untitled
-
-        _title = "UNTITLED"
-
-        def _execute(msg, command):
-            banner(msg, c=".")
-            try:
-                os.system(command)
-            except:
-                # ignore error
-                pass
-
-        def prepare_sdcard():
-            # ensures a card is detected and unmounted
-            Console.ok(f'sudo eject -t {device}')
-            self.system_exec(f'sudo eject -t {device}')
-            time.sleep(3)
-            device_basename = os.path.basename(device)
-            result = Shell.run('lsblk')
-            if device_basename in result.split():
-                for line in result.splitlines():
-                    line = line.split()
-                    if device_basename in line[0] and len(line) > 6:
-                        Console.ok(f'sudo umount {line[6]}')
-                        self.system_exec(f'sudo umount {line[6]}')
-                return True
-            else:
-                Console.error("SD Card not detected. Please reinsert "
-                              "card reader. ")
-                if not yn_choice("Card reader re-inserted? No to cancel "
-                                 "operation"):
-                    return False
-                else:
-                    time.sleep(3)
-                    return prepare_sdcard()
-
-        Sudo.password()
-        if os_is_linux() or os_is_pi():
-
-            banner(f"format {device}")
-
-            if not prepare_sdcard():
-                return False
-
-            script = f"""
-                ls /media/pi
-                sudo parted {device} --script -- mklabel msdos
-                sudo parted {device} --script -- mkpart primary fat32 1MiB 100%
-                sudo mkfs.vfat -n {_title} -F32 {device}1
-                sudo parted {device} --script print""".strip().splitlines()
-            for line in script:
-                _execute(line, line)
-
-            _execute("sync", "sync")
-            if unmount:
-                time.sleep(1)
-                self.unmount()  # without dev we unmount but do not eject. If
-                # we completely eject, burn will fail to detect the device.
-                time.sleep(1)
-
-            Console.ok("Formatted SD Card")
-
-        elif os_is_mac():
-
-            details = USB.get_dev_from_diskutil()
-
-            # checking if string contains list element
-            valid = any(entry in device for entry in details)
-
-            if not valid:
-                Console.error(f"this device can not be used for formatting: {device}")
-                return False
-
-            elif len(details) > 1:
-                Console.error("For security reasons, please only put one USB writer in")
-                Console.msg(f"we found {details}")
-                return False
-
-            else:
-
-                details = USB.get_from_diskutil()
-
-                output = "table"
-                print(Printer.write(details,
-                                    order=[
-                                        "dev",
-                                        "info",
-                                        "formatted",
-                                        "size",
-                                        "active",
-                                        "readable",
-                                        "empty",
-                                        "direct-access",
-                                        "removable",
-                                        "writeable"],
-                                    header=[
-                                        "Path",
-                                        "Info",
-                                        "Formatted",
-                                        "Size",
-                                        "Plugged-in",
-                                        "Readable",
-                                        "Empty",
-                                        "Access",
-                                        "Removable",
-                                        "Writeable"],
-                                    output=output)
-                      )
-
-                print()
-                if yes or yn_choice(f"\nDo you like to format {device} as {_title}"):
-                    _execute(f"Formatting {device} as {_title}",
-                             f"sudo diskutil eraseDisk FAT32 {_title} MBRFormat {device}")
-
-        else:
-            raise NotImplementedError("Not implemented for this OS")
-
-        return True
-
-    @windows_not_supported
-    def load_device(self, device='dev/sdX'):
-        """
-        Loads the USB device via trayload
-
-        :param device: The device on which we format
-        :type device: str
-        """
-        if os_is_linux() or os_is_pi():
-            banner(f"load {device}")
-            Sudo.password()
-            os.system(f"sudo eject -t {device}")
-
-        else:
-            raise Console.error("Not implemented for this OS")
 
     # This is to prevent desktop access of th pie (directly plugging monitor, keyboard, mouse into pi, etc.)
     #
@@ -1559,7 +1115,7 @@ class Burner(object):
         # TODO investigate what happens if not run as UID 1000 (e.g. first user)
 
         cmd = f'mkdir -p {card.root_volume}/home/pi/.ssh/'
-        self.system_exec(cmd)
+        os.system(cmd)
 
         cmd = f'ssh-keygen -q -N "" -C "pi@{hostname}" -f {card.root_volume}/home/pi/.ssh/id_rsa'
         os.system(cmd)
@@ -1574,6 +1130,21 @@ class Burner(object):
     def remove_public_key():
         cmd = 'rm -f ~/.cloudmesh/cmburn/id_rsa.pub'
         os.system(cmd)
+
+    @staticmethod
+    def get_tag(worker=True, os="raspberry"):
+        tag = None
+        if "raspberry" in os and worker:
+            tag = "latest-lite"
+        if "raspberry" in os and not worker:
+            tag = "latest-full"
+        elif "ubuntu" in os and worker:
+            tag = "ubuntu-20.04.2-64-bit"
+        elif "ubuntu" in os and not worker:
+            tag = "ubuntu-desktop"
+        else:
+            Console.error("For now only raspberry and ubuntu are supported")
+        return tag
 
     @staticmethod
     def cluster(arguments=None):
@@ -1636,6 +1207,7 @@ class Burner(object):
         print("Wifi Password:", arguments.wifipassword)
         print("Key:          ", key)
         print("Blocksize:    ", arguments.bs)
+        print("OS:           ", arguments.os)
 
         if not (yes or yn_choice('\nWould you like to continue?')):
             Console.error("Aborting ...")
@@ -1652,11 +1224,18 @@ class Burner(object):
         image = Image()
         image.read_version_cache()
 
-        if workers is not None:
-            image.fetch(tag=["latest-lite"])
-        if manager is not None:
-            image.fetch(tag=["latest-full"])
-
+        if "raspberry" in os:
+            if workers is not None:
+                image.fetch(tag=["latest-lite"])
+            if manager is not None:
+                image.fetch(tag=["latest-full"])
+        elif "ubuntu" in os:
+            if workers is not None:
+                image.fetch(tag=["ubuntu-20.04.2-64-bit"])
+            if manager is not None:
+                image.fetch(tag=["ubuntu-desktop"])
+        else:
+            Console.error("For now only raspberry and ubuntu are supported")
         StopWatch.stop("download image")
         StopWatch.status("download image", True)
 
@@ -1678,11 +1257,11 @@ class Burner(object):
                        hostname=manager,
                        ip=ips[0],
                        key=key,
-                       password=gen_strong_pass(),
+                       password=generate_strong_pass(),
                        ssid=arguments.ssid,
                        psk=arguments.wifipassword,
                        formatting=True,
-                       tag='latest-full',
+                       tag=Burner.get_tag(os=arguments.os, worker=False),
                        router=None,
                        generate_key=True,
                        store_key=True,
@@ -1714,11 +1293,11 @@ class Burner(object):
                            hostname=worker,
                            ip=ip,
                            key='~/.cloudmesh/cmburn/id_rsa.pub',
-                           password=gen_strong_pass(),
+                           password=generate_strong_pass(),
                            ssid=None,
                            psk=None,
                            formatting=True,
-                           tag='latest-lite',
+                           tag=Burner.get_tag(os=arguments.os, worker=True),
                            router=ips[0],
                            generate_key=False,
                            store_key=False,
@@ -1902,7 +1481,7 @@ class MultiBurner(object):
             print()
             Console.info('Please remove the card')
             print()
-            self.system_exec('tput bel')  # ring the terminal bell to notify user
+            os.system('tput bel')  # ring the terminal bell to notify user
             if i < len(hostnames) - 1:
                 if (i + 1) != ((i + 1) % len(keys)):
                     slot = keys[(i + 1) % len(keys)]
@@ -2193,7 +1772,7 @@ class MultiBurner(object):
                     ip=manager_config["ip"],
                     key=manager_config["keyfile"],
                     tag=manager_config["tag"],
-                    password=passwd or gen_strong_pass(),
+                    password=passwd or generate_strong_pass(),
                     locale=locale,
                     gui=False
                 )
@@ -2216,7 +1795,7 @@ class MultiBurner(object):
                 ip=worker_config["ip"],
                 key=worker_config["keyfile"],
                 tag=worker_config["tag"],
-                password=passwd or gen_strong_pass(),
+                password=passwd or generate_strong_pass(),
                 router=worker_config["router"] or (manager_config["ip"] if manager_config else None),
                 locale=locale,
                 gui=False

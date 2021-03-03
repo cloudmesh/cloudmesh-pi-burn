@@ -4,8 +4,10 @@ from getpass import getpass
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
 from cloudmesh.burn.burner import Burner
+from cloudmesh.burn.sdcard import SDCard
+
 from cloudmesh.burn.burner import MultiBurner
-from cloudmesh.burn.burner import gen_strong_pass
+from cloudmesh.common.security import generate_strong_pass
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
 from cloudmesh.burn.util import os_is_linux
@@ -52,6 +54,7 @@ class BurnCommand(PluginCommand):
                            [--ssid=SSID]
                            [--wifipassword=PSK]
                            [--bs=BLOCKSIZE]
+                           [--os=OS]
                            [-y]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
@@ -59,7 +62,6 @@ class BurnCommand(PluginCommand):
                           [--ip=IP]
                           [--sshkey=KEY]
                           [--blocksize=BLOCKSIZE]
-                          [--dryrun]
                           [--passwd=PASSWD]
                           [--ssid=SSID]
                           [--wifipassword=PSK]
@@ -68,7 +70,7 @@ class BurnCommand(PluginCommand):
                           [--inventory=INVENTORY]
                           [--name=NAME]
                           [-y]
-              burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
+              burn sdcard [TAG...] [--device=DEVICE]
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
                        [--key=KEY]
@@ -242,7 +244,6 @@ class BurnCommand(PluginCommand):
                                 [--ip=IP]
                                 [--sshkey=KEY]
                                 [--blocksize=BLOCKSIZE]
-                                [--dryrun]
                                 [--passwd=PASSWD]
                                 [--ssid=SSID]
                                 [--wifipassword=PSK]
@@ -251,7 +252,7 @@ class BurnCommand(PluginCommand):
                     This command  not only can format the SDCard, but
                     also initializes it with specific values
 
-                cms burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
+                cms burn sdcard [TAG...] [--device=DEVICE]
 
                     this burns the sd card, see also copy and create
 
@@ -313,8 +314,6 @@ class BurnCommand(PluginCommand):
                        "ip",
                        "sshkey",
                        "blocksize",
-                       "dryrun",
-                       # "output",
                        "ssid",
                        "url",
                        "key",
@@ -349,10 +348,9 @@ class BurnCommand(PluginCommand):
             StopWatch.status(label, True)
             return result
 
-        dryrun = arguments['--dryrun']
 
         StopWatch.start("info")
-        burner = Burner(dryrun=dryrun)
+        burner = Burner()
         StopWatch.stop("info")
         StopWatch.status("info", True)
 
@@ -403,7 +401,6 @@ class BurnCommand(PluginCommand):
             if arguments.details:
                 order = ["tag", 'date', "type", 'version', "url"]
                 header = ["Tag", 'Date', "Type", 'Version', "Url"]
-
 
             print(Printer.write(result, order=order, header=header, output=output))
 
@@ -522,13 +519,19 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.mount:
-            execute("mount", burner.mount(device=arguments.device,
-                                          card_os=arguments.os))
+
+            if arguments.device is None:
+                burner.info()
+                Console.error("Please specify a device")
+                return ""
+
+            sdcard = SDCard()
+            execute("mount", sdcard.mount(device=arguments.device, card_os=arguments.os))
             return ""
 
         elif arguments.unmount:
-            execute("unmount", burner.unmount(device=arguments.device,
-                                              card_os=arguments.os))
+            sdcard = SDCard()
+            execute("unmount", sdcard.unmount(device=arguments.device, card_os=arguments.os))
             return ""
 
         elif arguments.mac:
@@ -643,7 +646,7 @@ class BurnCommand(PluginCommand):
             elif "PASSWD" in os.environ:
                 passwd = os.environ["PASSWD"]
             else:
-                passwd = gen_strong_pass()
+                passwd = generate_strong_pass()
 
             psk = None
             if arguments["--ssid"]:
@@ -658,8 +661,6 @@ class BurnCommand(PluginCommand):
                     return
                 else:
                     ssid = None
-
-            # check_root(dryrun=dryrun)
 
             image = 'latest' or arguments.IMAGE
 
