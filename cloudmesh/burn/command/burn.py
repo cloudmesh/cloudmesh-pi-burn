@@ -1,24 +1,24 @@
 import os
 from getpass import getpass
 
+# from cloudmesh.common.debug import VERBOSE
+from cloudmesh.burn.Imager import Imager
 from cloudmesh.burn.burner import Burner
 from cloudmesh.burn.burner import MultiBurner
 from cloudmesh.burn.burner import gen_strong_pass
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
-from cloudmesh.burn.util import os_is_pi
-from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_mac
+from cloudmesh.burn.util import os_is_pi
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import Console
+from cloudmesh.common.util import yn_choice
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-# from cloudmesh.common.debug import VERBOSE
-from cloudmesh.burn.Imager import Imager
-from cloudmesh.common.util import yn_choice
 
 
 class BurnCommand(PluginCommand):
@@ -40,7 +40,7 @@ class BurnCommand(PluginCommand):
               burn network list [--ip=IP] [--used]
               burn network
               burn info [--device=DEVICE]
-              burn image versions [--refresh] [--yaml]
+              burn image versions [--details] [--refresh] [--yaml]
               burn image ls
               burn image delete [--image=IMAGE]
               burn image get [--url=URL] [TAG...]
@@ -53,7 +53,6 @@ class BurnCommand(PluginCommand):
                            [--wifipassword=PSK]
                            [--bs=BLOCKSIZE]
                            [-y]
-                           [-g]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -307,6 +306,7 @@ class BurnCommand(PluginCommand):
         """
 
         map_parameters(arguments,
+                       "details",
                        "refresh",
                        "device",
                        "hostname",
@@ -336,7 +336,8 @@ class BurnCommand(PluginCommand):
         arguments.IMAGE = arguments["--image"]
         arguments.output = "table"  # hard code for now
         arguments.bs = arguments.bs or "4M"
-        arguments.gui = arguments["-g"]
+        # arguments.gui = arguments["-g"] or False
+        arguments.gui = False
         arguments.yes = arguments["-y"]
 
         # VERBOSE(arguments)
@@ -397,13 +398,14 @@ class BurnCommand(PluginCommand):
             if arguments["--yaml"]:
                 output = "yaml"
 
-            print(Printer.write(
-                result,
-                order=["tag", 'date', "type", 'version', "url"],
-                header=["Tag", 'Date', "Type", 'Version', "Url"],
-                output=output
-            )
-            )
+            order = ["tag", 'date', "type", 'version']
+            header = ["Tag", 'Date', "Type", 'Version']
+            if arguments.details:
+                order = ["tag", 'date', "type", 'version', "url"]
+                header = ["Tag", 'Date', "Type", 'Version', "Url"]
+
+
+            print(Printer.write(result, order=order, header=header, output=output))
 
             StopWatch.stop("image versions")
             StopWatch.status("image versions", True)

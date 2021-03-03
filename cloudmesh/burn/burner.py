@@ -286,7 +286,7 @@ class Burner(object):
 
             to_file = path_expand(to_file)
 
-            if os_is_mac():
+            if os_is_mac() or os_is_linux():
                 size = SDCard.size(device)
             else:
                 size = 64 * 1000 ** 3  # 64GB  this is a bug we need to find out ho to get the size
@@ -296,9 +296,14 @@ class Burner(object):
             if device.startswith("/dev/disk"):
                 device = device.replace("/dev/disk", "/dev/rdisk")
 
-            command = f"sudo dd if={device} bs={blocksize} |" \
-                      f" pv -s {size}  -w 80 |" \
-                      f"dd of={to_file} bs={blocksize}"
+                if os_is_linux() or os_is_mac():
+                    command = f"sudo dd if={device} bs={blocksize} |" \
+                              f' tqdm --bytes --total {size} --ncols 80|' \
+                              f"dd of={to_file} bs={blocksize}"
+                else:
+                    command = f"sudo dd if={device} bs={blocksize} |" \
+                          f" pv -s {size}  -w 80 |" \
+                          f"dd of={to_file} bs={blocksize}"
 
             print()
             Console.info(command)
@@ -547,13 +552,13 @@ class Burner(object):
 
         Sudo.password()
 
+        if device is None:
+            Console.error("Please specify a device")
+            return
+
         if os_is_linux() or os_is_pi():
 
-            if device is None:
-                Console.error("Please specify a device")
-                return
-
-            if gui:
+            if os_is_linux():
 
                 command = f"sudo dd if={image_path} bs={blocksize} |" \
                           f' tqdm --bytes --total {size} --ncols 80|' \
@@ -616,14 +621,13 @@ class Burner(object):
                 if device.startswith("/dev/disk"):
                     rdevice = device.replace("/dev/disk", "/dev/rdisk")
 
-                if gui:
+                if os_is_mac() or os_is_linux():
 
                     command = f"sudo dd if={image_path} bs={blocksize} |" \
                               f' tqdm --bytes --total {size} --ncols 80|' \
                               f" sudo dd of={rdevice} bs={blocksize}"
 
                 else:
-
                     command = f"sudo dd if={image_path} bs={blocksize} |" \
                               f' pv -s {size} -preb -w 80 |' \
                               f" sudo dd of={rdevice} bs={blocksize}"
