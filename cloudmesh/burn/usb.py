@@ -10,7 +10,7 @@ from cloudmesh.common.util import writefile
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.console import Console
 from cloudmesh.common.sudo import Sudo
-
+from cloudmesh.common.Tabulate import Printer
 
 def _get_attribute(attribute, lines):
     for line in lines:
@@ -387,3 +387,32 @@ class USB(object):
             details.append(entry)
 
         return details
+
+    @staticmethod
+    def print_details(details, order=None, header=None, output="table"):
+        if order is None:
+            order = [
+                    "dev",
+                    "info",
+                    "formatted",
+                    "size",
+                    "active",
+                    "readable",
+                    "empty",
+                    "direct-access",
+                    "removable",
+                    "writeable"],
+        if header is None:
+            header = [
+                     "Path",
+                     "Info",
+                     "Formatted",
+                     "Size",
+                     "Plugged-in",
+                     "Readable",
+                     "Empty",
+                     "Access",
+                     "Removable",
+                     "Writeable"],
+
+        print(Printer.write(details, order=order, header = header, output=output))

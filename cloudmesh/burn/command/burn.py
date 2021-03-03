@@ -413,7 +413,9 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments["format"]:  # as format is a python word, we need to use an index
-            execute("format", burner.format_device(device=arguments.device, unmount=True))
+
+            sdcard = SDCard()
+            execute("format", sdcard.format_device(device=arguments.device, unmount=True))
             return ""
 
         elif arguments.network and arguments["list"]:

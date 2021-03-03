@@ -15,9 +15,10 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.util import banner
+from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import yn_choice
-
+from cloudmesh.burn.image import Image
 
 def location(host_os=None, card_os="raspberry", volume="boot"):
     """
@@ -305,12 +306,14 @@ class SDCard:
             if not prepare_sdcard():
                 return False
 
-            script = f"""
-                ls /media/pi
+            user = os.environ.get('USER')
+
+            script = textwrap.dedent(f"""
+                ls /media/{user}
                 sudo parted {device} --script -- mklabel msdos
                 sudo parted {device} --script -- mkpart primary fat32 1MiB 100%
                 sudo mkfs.vfat -n {_title} -F32 {device}1
-                sudo parted {device} --script print""".strip().splitlines()
+                sudo parted {device} --script print""").strip().splitlines()
             for line in script:
                 _execute(line, line)
 
@@ -343,33 +346,7 @@ class SDCard:
 
                 details = USB.get_from_diskutil()
 
-                output = "table"
-                print(Printer.write(details,
-                                    order=[
-                                        "dev",
-                                        "info",
-                                        "formatted",
-                                        "size",
-                                        "active",
-                                        "readable",
-                                        "empty",
-                                        "direct-access",
-                                        "removable",
-                                        "writeable"],
-                                    header=[
-                                        "Path",
-                                        "Info",
-                                        "Formatted",
-                                        "Size",
-                                        "Plugged-in",
-                                        "Readable",
-                                        "Empty",
-                                        "Access",
-                                        "Removable",
-                                        "Writeable"],
-                                    output=output)
-                      )
-
+                USB.print_details(details)
                 print()
                 if yes or yn_choice(f"\nDo you like to format {device} as {_title}"):
                     _execute(f"Formatting {device} as {_title}",
@@ -538,3 +515,176 @@ class SDCard:
 
         else:
             raise Console.error("Not implemented for this OS")
+
+    @windows_not_supported
+    def backup(self, device=None, to_file=None, blocksize="4m"):
+        if device is None:
+            Console.error("Device must have a value")
+        if to_file is None:
+            Console.error("To file must have a value")
+        else:
+            Sudo.password()
+
+            to_file = path_expand(to_file)
+
+            size = SDCard.size(device)
+
+            to_file = path_expand(to_file)
+
+            #
+            # speed up burning on MacOS
+            #
+            if device.startswith("/dev/disk"):
+                device = device.replace("/dev/disk", "/dev/rdisk")
+
+            command = f"sudo dd if={device} bs={blocksize} |" \
+                      f' tqdm --bytes --total {size} --ncols 80|' \
+                      f"dd of={to_file} bs={blocksize}"
+
+            print()
+            Console.info(command)
+            print()
+
+            os.system(command)
+
+    @windows_not_supported
+    def burn_sdcard(self,
+                    image=None,
+                    tag=None,
+                    device=None,
+                    blocksize="4M",
+                    name="the inserted card",
+                    yes=False):
+        """
+        Burns the SD Card with an image
+
+        :param image: Image object to use for burning (used by copy)
+        :type image: str
+        :param tag: tag object used for burning (used by sdcard)
+        :type tag: str
+        :param device: Device to burn to, e.g. /dev/sda
+        :type device: str
+        :param blocksize: the blocksize used when writing, default 4M
+        :type blocksize: str
+        """
+        if image and tag:
+            Console.error("Implementation error, burn_sdcard can't have image "
+                          "and tag.")
+            return ""
+
+        Console.info(f"Burning {name} ...")
+        if image is not None:
+            image_path = image
+        else:
+            image = Image().find(tag=tag)
+
+            if image is None:
+                Console.error("No matching image found.")
+                return ""
+            elif len(image) > 1:
+                Console.error("Too many images found")
+                print(Printer.write(image,
+                                    order=["tag", "version"],
+                                    header=["Tag", "Version"]))
+                return ""
+
+            image = image[0]
+
+            image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
+            if not os.path.isfile(image_path):
+                Console.error(f"Image {tag} not found")
+                raise FileNotFoundError
+
+        orig_size = size = humanize.naturalsize(os.path.getsize(image_path))
+
+        # size = details[0]['size']
+        n, unit = size.split(" ")
+        unit = unit.replace("GB", "G")
+        unit = unit.replace("MB", "M")
+        n = float(n)
+        if unit == "G":
+            n = n * 1000 ** 3
+        elif unit == "M":
+            n = n * 1000 ** 2
+        size = int(n)
+
+        banner(f"Preparing the SDCard {name}")
+        print(f"Name:       {name}")
+        print(f"Image:      {image_path}")
+        print(f"Image Size: {orig_size}")
+        print(f"Device:     {device}")
+        print(f"Blocksize:  {blocksize}")
+
+        print()
+
+        Sudo.password()
+
+        if device is None:
+            Console.error("Please specify a device")
+            return
+
+        if os_is_linux() or os_is_pi():
+
+            if os_is_linux():
+
+                command = f"sudo dd if={image_path} bs={blocksize} |" \
+                          f' tqdm --bytes --total {size} --ncols 80|' \
+                          f" sudo dd of={device} bs={blocksize}"
+
+            else:
+
+                command = f"sudo dd if={image_path} |" \
+                          f" pv -s {size} -w 80 |" \
+                          f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
+
+            print(command)
+            os.system(command)
+
+            command = "sync"
+            print(command)
+            os.system(command)
+
+        elif os_is_mac():
+
+            details = USB.get_from_diskutil()
+
+            USB.print_details(details)
+            #
+            # get size
+            #
+
+            blocksize = blocksize.replace("M", "m")
+
+            if yes or yn_choice(f"\nDo you like to write {name} on {device} with the image {image_path}"):
+
+                # sudo dd if=/dev/diskX bs=1m | pv -s 64G | sudo dd of=/dev/diskX bs=1m
+
+                if device.startswith("/dev/disk"):
+                    rdevice = device.replace("/dev/disk", "/dev/rdisk")
+
+                if os_is_mac() or os_is_linux():
+
+                    command = f"sudo dd if={image_path} bs={blocksize} |" \
+                              f' tqdm --bytes --total {size} --ncols 80|' \
+                              f" sudo dd of={rdevice} bs={blocksize}"
+
+                else:
+                    command = f"sudo dd if={image_path} bs={blocksize} |" \
+                              f' pv -s {size} -preb -w 80 |' \
+                              f" sudo dd of={rdevice} bs={blocksize}"
+
+                print()
+                Console.info(command)
+                print()
+                if not (yes or yn_choice("Please execute on your own risk. "
+                                         f"You are writing {name} on {device}. "
+                                         "CONTINUE?")):
+                    return ""
+                print()
+
+                os.system(command)
+
+        else:
+            raise NotImplementedError("Only implemented to be run on a PI")
+
+

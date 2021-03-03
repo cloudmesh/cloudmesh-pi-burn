@@ -1,13 +1,13 @@
 import crypt
 import os
+import random
 import re
+import string
 import subprocess
 import sys
 import textwrap
 import time
 from getpass import getpass
-
-import humanize
 
 from cloudmesh.bridge.Bridge import Bridge
 from cloudmesh.burn.image import Image
@@ -17,24 +17,24 @@ from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_windows
+from cloudmesh.burn.wifi.provider import Wifi
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.Host import Host
 from cloudmesh.common.JobScript import JobScript
-from cloudmesh.common.Shell import Shell
+from cloudmesh.common.Shell import windows_not_supported
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.security import generate_strong_pass
 from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.burn.wifi.provider import Wifi
 from cloudmesh.inventory.inventory import Inventory
-from cloudmesh.common.Shell import windows_not_supported
-from cloudmesh.common.security import generate_strong_pass
+
 
 # def dmesg():
 #    return subprocess.getoutput(f"dmesg")
@@ -241,41 +241,6 @@ class Burner(object):
                 print(Printer.write(result,
                                     order=["name", "command", "status", "stdout", "returncode"]))
 
-    @windows_not_supported
-    def backup(self, device=None, to_file=None, blocksize="4m"):
-        if device is None:
-            Console.error("Device must have a value")
-        if to_file is None:
-            Console.error("To file must have a value")
-        else:
-            Sudo.password()
-
-            to_file = path_expand(to_file)
-
-            if os_is_mac() or os_is_linux():
-                size = SDCard.size(device)
-            else:
-                size = 64 * 1000 ** 3  # 64GB  this is a bug we need to find out ho to get the size
-
-            to_file = path_expand(to_file)
-
-            if device.startswith("/dev/disk"):
-                device = device.replace("/dev/disk", "/dev/rdisk")
-
-                if os_is_linux() or os_is_mac():
-                    command = f"sudo dd if={device} bs={blocksize} |" \
-                              f' tqdm --bytes --total {size} --ncols 80|' \
-                              f"dd of={to_file} bs={blocksize}"
-                else:
-                    command = f"sudo dd if={device} bs={blocksize} |" \
-                              f" pv -s {size}  -w 80 |" \
-                              f"dd of={to_file} bs={blocksize}"
-
-            print()
-            Console.info(command)
-            print()
-
-            os.system(command)
 
     @windows_not_supported
     def copy(self, device=None, from_file="latest"):
@@ -287,7 +252,6 @@ class Burner(object):
     def info(self,
              print_os=True,
              print_fdisk=True,
-             print_device_probe=True,
              print_stdout=True,
              output="table"):
         """
@@ -433,166 +397,6 @@ class Burner(object):
         # https://raspberry-pi-guide.readthedocs.io/en/latest/system.html
         # this is for fedora, but should also work for raspbian
 
-    @windows_not_supported
-    def burn_sdcard(self, image=None, tag=None, device=None, blocksize="4M",
-                    name="the inserted card", yes=False, gui=False):
-        """
-        Burns the SD Card with an image
-
-        :param image: Image object to use for burning (used by copy)
-        :type image: str
-        :param tag: tag object used for burning (used by sdcard)
-        :type tag: str
-        :param device: Device to burn to, e.g. /dev/sda
-        :type device: str
-        :param blocksize: the blocksize used when writing, default 4M
-        :type blocksize: str
-        """
-        if image and tag:
-            Console.error("Implementation error, burn_sdcard can't have image "
-                          "and tag.")
-            return ""
-
-        Console.info(f"Burning {name} ...")
-        if image is not None:
-            image_path = image
-        else:
-            image = Image().find(tag=tag)
-
-            if image is None:
-                Console.error("No matching image found.")
-                return ""
-            elif len(image) > 1:
-                Console.error("Too many images found")
-                print(Printer.write(image,
-                                    order=["tag", "version"],
-                                    header=["Tag", "Version"]))
-                return ""
-
-            image = image[0]
-
-            image_path = Image().directory + "/" + Image.get_name(image["url"]) + ".img"
-            if not os.path.isfile(image_path):
-                Console.error(f"Image {tag} not found")
-                raise FileNotFoundError
-
-        orig_size = size = humanize.naturalsize(os.path.getsize(image_path))
-
-        # size = details[0]['size']
-        n, unit = size.split(" ")
-        unit = unit.replace("GB", "G")
-        unit = unit.replace("MB", "M")
-        n = float(n)
-        if unit == "G":
-            n = n * 1000 ** 3
-        elif unit == "M":
-            n = n * 1000 ** 2
-        size = int(n)
-
-        banner(f"Preparing the SDCard {name}")
-        print(f"Name:       {name}")
-        print(f"Image:      {image_path}")
-        print(f"Image Size: {orig_size}")
-        print(f"Device:     {device}")
-        print(f"Blocksize:  {blocksize}")
-
-        print()
-
-        Sudo.password()
-
-        if device is None:
-            Console.error("Please specify a device")
-            return
-
-        if os_is_linux() or os_is_pi():
-
-            if os_is_linux():
-
-                command = f"sudo dd if={image_path} bs={blocksize} |" \
-                          f' tqdm --bytes --total {size} --ncols 80|' \
-                          f" sudo dd of={device} bs={blocksize}"
-
-            else:
-
-                command = f"sudo dd if={image_path} |" \
-                          f" pv -s {size} -w 80 |" \
-                          f" sudo dd of={device} bs={blocksize} conv=fsync status=progress"
-
-            print(command)
-            os.system(command)
-
-            command = "sync"
-            print(command)
-            os.system(command)
-
-        elif os_is_mac():
-
-            details = USB.get_from_diskutil()
-
-            output = "table"
-            print(Printer.write(details,
-                                order=[
-                                    "dev",
-                                    "info",
-                                    "formatted",
-                                    "size",
-                                    "active",
-                                    "readable",
-                                    "empty",
-                                    "direct-access",
-                                    "removable",
-                                    "writeable"],
-                                header=[
-                                    "Path",
-                                    "Info",
-                                    "Formatted",
-                                    "Size",
-                                    "Plugged-in",
-                                    "Readable",
-                                    "Empty",
-                                    "Access",
-                                    "Removable",
-                                    "Writeable"],
-                                output=output)
-                  )
-
-            #
-            # get size
-            #
-
-            blocksize = blocksize.replace("M", "m")
-
-            if yes or yn_choice(f"\nDo you like to write {name} on {device} with the image {image_path}"):
-
-                # sudo dd if=/dev/diskX bs=1m | pv -s 64G | sudo dd of=/dev/diskX bs=1m
-
-                if device.startswith("/dev/disk"):
-                    rdevice = device.replace("/dev/disk", "/dev/rdisk")
-
-                if os_is_mac() or os_is_linux():
-
-                    command = f"sudo dd if={image_path} bs={blocksize} |" \
-                              f' tqdm --bytes --total {size} --ncols 80|' \
-                              f" sudo dd of={rdevice} bs={blocksize}"
-
-                else:
-                    command = f"sudo dd if={image_path} bs={blocksize} |" \
-                              f' pv -s {size} -preb -w 80 |' \
-                              f" sudo dd of={rdevice} bs={blocksize}"
-
-                print()
-                Console.info(command)
-                print()
-                if not (yes or yn_choice("Please execute on your own risk. "
-                                         f"You are writing {name} on {device}. "
-                                         "CONTINUE?")):
-                    return ""
-                print()
-
-                os.system(command)
-
-        else:
-            raise NotImplementedError("Only implemented to be run on a PI")
 
     def mac(self, hostnames=None):
         """
@@ -1595,8 +1399,7 @@ class MultiBurner(object):
                            device=device,
                            blocksize=blocksize,
                            name=hostname,
-                           yes=yes,
-                           gui=gui)
+                           yes=yes)
         StopWatch.stop(f"write image {device} {hostname}")
         StopWatch.status(f"write image {device} {hostname}", True)
 
@@ -1773,9 +1576,7 @@ class MultiBurner(object):
                     key=manager_config["keyfile"],
                     tag=manager_config["tag"],
                     password=passwd or generate_strong_pass(),
-                    locale=locale,
-                    gui=False
-                )
+                    locale=locale)
                 print("Safe to remove manager card.")
                 if not workers or not yn_choice(f"Insert new card into slot {device}."
                                                 " Is it inserted and do you wish to continue?"):
@@ -1797,9 +1598,7 @@ class MultiBurner(object):
                 tag=worker_config["tag"],
                 password=passwd or generate_strong_pass(),
                 router=worker_config["router"] or (manager_config["ip"] if manager_config else None),
-                locale=locale,
-                gui=False
-            )
+                locale=locale)
 
             count += 1
             Console.info(f'Burned card {count}')
