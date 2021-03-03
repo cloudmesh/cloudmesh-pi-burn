@@ -33,7 +33,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.common.wifi import Wifi
+from cloudmesh.burn.wifi import Wifi
 from cloudmesh.inventory.inventory import Inventory
 
 
@@ -1301,16 +1301,26 @@ class Burner(object):
             print(f"Writing wifi ssid:{ssid} psk:{psk} to {path}")
             return ""
 
-        if psk:
+        os = "raspberry"  # needs to become a parameter based on tag
+
+        WifiClass = Wifi(os=os)
+
+        if os == "raspberry":
+            if psk:
+                if os_is_mac():
+                    Wifi.set(ssid=ssid, password=psk, country=country, location=path)
+                else:
+                    Wifi.set(ssid=ssid, password=psk, country=country, location=path, sudo=True)
+            else:
+                if os_is_mac():
+                    Wifi.set(ssid=ssid, psk=False, country=country, location=path)
+                else:
+                    Wifi.set(ssid=ssid, psk=False, country=country, location=path, sudo=True)
+        else:
             if os_is_mac():
                 Wifi.set(ssid=ssid, password=psk, country=country, location=path)
             else:
                 Wifi.set(ssid=ssid, password=psk, country=country, location=path, sudo=True)
-        else:
-            if os_is_mac():
-                Wifi.set(ssid=ssid, psk=False, country=country, location=path)
-            else:
-                Wifi.set(ssid=ssid, psk=False, country=country, location=path, sudo=True)
 
         return ""
 

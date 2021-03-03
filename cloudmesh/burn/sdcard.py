@@ -192,7 +192,7 @@ class SDCard:
         size = 64 * 1000 ** 3   # this is a bug as we need that for Linux and PI
 
         if os_is_mac():
-            result = Shell.run(" diskutil list external").splitlines()
+            result = Shell.run("diskutil list external").splitlines()
             for line in result:
                 if "FDisk_partition_scheme" in line:
                     data = line.split()
