@@ -6,8 +6,10 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.systeminfo import get_platform
 from cloudmesh.common.sudo import Sudo
 from cloudmesh.burn.util import os_is_mac
+from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_pi
 from cloudmesh.common.util import readfile as common_readfile
-
+import sys
 
 class SDCard:
 
@@ -203,4 +205,11 @@ class SDCard:
                         size = 64
                         Console.error("Unit not GB")
                     break
+        elif os_is_linux():
+            try:
+                result = Shell.run(f"sudo blockdev --getsize64 {device}").strip()
+                result = int(result)
+            except Exception as e:
+                Console.error(f"Could not determine size of the device {device}")
+                sys.exit()
         return size
