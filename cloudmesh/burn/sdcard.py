@@ -308,6 +308,7 @@ class SDCard:
             if not prepare_sdcard():
                 return False
 
+            self.mount(device=device)
             user = os.environ.get('USER')
 
             script = textwrap.dedent(f"""
@@ -319,12 +320,11 @@ class SDCard:
             for line in script:
                 _execute(line, line)
 
-            _execute("sync", "sync")
+            os.system("sudo sync")
             if unmount:
-                time.sleep(1)
-                self.unmount()  # without dev we unmount but do not eject. If
+                self.unmount(device=device)  # without dev we unmount but do not eject. If
                 # we completely eject, burn will fail to detect the device.
-                time.sleep(1)
+                os.system("sudo sync")
 
             Console.ok("Formatted SD Card")
 
@@ -377,15 +377,16 @@ class SDCard:
             # TODO Need a better way to identify which sd card to use for mounting
             # instead of iterating over all of them
 
-            os.system('sudo sync')  # flush any pending/in-process writes
-
             for usbcard in dmesg:
 
                 dev = device or usbcard['dev']
-                print(f"Mounting filesystems on {dev} assuming it is {card_os} as you specified")
+                print(f"Mounting filesystems on {dev}")
                 try:
                     Console.ok(f"mounting {device}")
+                    os.system('sudo sync')  # flush any pending/in-process writes
                     os.system(f"sudo eject -t {device}")
+                    os.system('sudo sync')  # flush any pending/in-process writes
+
                 except Exception as e:
                     print(e)
 
@@ -646,7 +647,7 @@ class SDCard:
         # speedup burn for MacOS
         #
         if device.startswith("/dev/disk"):
-            rdevice = device.replace("/dev/disk", "/dev/rdisk")
+            device = device.replace("/dev/disk", "/dev/rdisk")
 
         if os_is_mac():
             details = USB.get_from_diskutil()
@@ -657,14 +658,22 @@ class SDCard:
                                 f"with the image {image_path}")):
             return ""
 
+        self.mount(device=device)
+
         # blocksize = blocksize.replace("M", "m")
 
-        command = f"sudo dd if={image_path} bs={blocksize} |" \
-                  f' tqdm --bytes --total {size} --ncols 80 |' \
-                  f" sudo dd of={device} bs={blocksize}"
-
+        if os_is_mac():
+            command = f"sudo dd if={image_path} bs={blocksize} |" \
+                      f' tqdm --bytes --total {size} --ncols 80 |' \
+                      f" sudo dd of={device} bs={blocksize} conv=fsync"
+        else:
+            command = f"sudo dd if={image_path} of={device} bs={blocksize} status=progress conv=fsync"
+            command = f"sudo dd if={image_path} bs={blocksize} |" \
+                      f' tqdm --bytes --total {size} --ncols 80 |' \
+                      f" sudo dd of={device} bs={blocksize} conv=fsync"
         print(command)
         os.system(command)
 
-        os.system("sync")
+        Sudo.execute("sync")
+        self.unmount(device=device)
 

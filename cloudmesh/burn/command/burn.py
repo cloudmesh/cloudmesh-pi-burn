@@ -70,7 +70,7 @@ class BurnCommand(PluginCommand):
                           [--inventory=INVENTORY]
                           [--name=NAME]
                           [-y]
-              burn sdcard [TAG...] [--device=DEVICE]
+              burn sdcard [TAG...] [--device=DEVICE] [-y]
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
                        [--key=KEY]
@@ -525,7 +525,9 @@ class BurnCommand(PluginCommand):
 
             sdcard = SDCard()
             execute("format", sdcard.format_device(device=arguments.device, unmount=True))
-            execute("sdcard", sdcard.burn_sdcard(tag=arguments.TAG, device=arguments.device))
+            execute("unmount", sdcard.unmount(device=arguments.device))
+
+            execute("sdcard", sdcard.burn_sdcard(tag=arguments.TAG, device=arguments.device, yes=arguments.yes))
             return ""
 
         elif arguments.mount:
