@@ -22,6 +22,14 @@ from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import yn_choice
 
 
+def _execute(msg, command):
+    Console.ok(msg)
+    try:
+        os.system(command.strip())
+    except:
+        Console.error("{command} failed")
+        # but ignore error
+
 def location(host_os=None, card_os="raspberry", volume="boot"):
     """
     Returns the location of the specific volume after mounting
@@ -250,7 +258,8 @@ class SDCard:
     def format_device(self,
                       device='dev/sdX',
                       unmount=False,
-                      yes=False):
+                      yes=False,
+                      verbose=True):
         """
         Formats device with one FAT32 partition
 
@@ -262,14 +271,6 @@ class SDCard:
         """
 
         _title = "UNTITLED"
-
-        def _execute(msg, command):
-            banner(msg, c=".")
-            try:
-                os.system(command.strip())
-            except:
-                # ignore error
-                pass
 
         def prepare_sdcard():
             """
@@ -303,7 +304,10 @@ class SDCard:
         Sudo.password()
         if os_is_linux() or os_is_pi():
 
-            banner(f"format {device}")
+            if verbose:
+                banner(f"format {device}")
+            else:
+                print(f"format {device}")
 
             if not prepare_sdcard():
                 return False
@@ -467,14 +471,6 @@ class SDCard:
 
         Sudo.password()
 
-        def _execute(msg, command):
-            Console.ok(msg)
-            try:
-                os.system(command)
-            except:
-                # ignore error
-                pass
-
         host = get_platform()
         self.card_os = card_os
 
@@ -557,8 +553,7 @@ class SDCard:
                     device=None,
                     blocksize="4M",
                     name="the inserted card",
-                    yes=False,
-                    format=True):
+                    yes=False):
         """
         Burns the SD Card with an image
 
@@ -580,8 +575,6 @@ class SDCard:
         if image is not None:
             image_path = image
         else:
-            print("...")
-
             image = Image().find(tag=tag)
 
             if image is None:
@@ -596,7 +589,7 @@ class SDCard:
 
             image = image[0]
 
-            if "ubuntu" in image:
+            if "ubuntu" in image["url"]:
                 _name = os.path.basename(Image.get_name(image["url"]))
                 _name = _name.replace(".xz", "")
             else:
@@ -604,6 +597,7 @@ class SDCard:
 
             image_path = Image().directory + "/" + _name
 
+            print (image_path)
 
             if not os.path.isfile(image_path):
                 tags = ' '.join(tag)
@@ -667,10 +661,10 @@ class SDCard:
                       f' tqdm --bytes --total {size} --ncols 80 |' \
                       f" sudo dd of={device} bs={blocksize} conv=fsync"
         else:
-            command = f"sudo dd if={image_path} of={device} bs={blocksize} status=progress conv=fsync"
-            command = f"sudo dd if={image_path} bs={blocksize} |" \
+            # command = f"sudo dd if={image_path} of={device} bs={blocksize} status=progress conv=fsync"
+            command = f"sudo dd if={image_path} bs={blocksize} oflag=direct |" \
                       f' tqdm --bytes --total {size} --ncols 80 |' \
-                      f" sudo dd of={device} bs={blocksize} conv=fsync"
+                      f" sudo dd of={device} bs={blocksize} oflag=direct conv=fsync"
         print(command)
         os.system(command)
 
