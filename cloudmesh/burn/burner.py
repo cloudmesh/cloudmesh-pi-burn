@@ -33,7 +33,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.burn.wifi import Wifi
+from cloudmesh.burn.wifi.provider import Wifi
 from cloudmesh.inventory.inventory import Inventory
 
 
