@@ -6,7 +6,6 @@ from pathlib import Path
 import oyaml as yaml
 import requests
 import urllib3
-
 from cloudmesh.burn.util import sha1sum
 from cloudmesh.burn.util import sha256sum
 from cloudmesh.common.Tabulate import Printer
@@ -126,7 +125,7 @@ class Image(object):
         return data
 
     @staticmethod
-    def find(tag=['latest-lite']):
+    def find(tag=None):
         """
         finds image names in the image list with the given tags
 
@@ -135,6 +134,7 @@ class Image(object):
         :return: tag matiching images
         :rtype: dict
         """
+        tag = tag or ['latest-lite']
         found = []
         data = Image.create_version_cache(refresh=False)
         for entry in data:
@@ -248,6 +248,7 @@ class Image(object):
     def get_name(url):
         return os.path.basename(url).replace('.zip', '')
 
+    # noinspection PyBroadException
     def fetch(self, url=None, tag=None, verify=True):
         """
         Download the image from the URL in self.image_name
@@ -306,7 +307,7 @@ class Image(object):
             self.unzip_image(xz_filename)
             try:
                 Path(xz_filename).unlink()
-            except:
+            except:  # noqa: E722
                 pass
             return img_filename
 
@@ -391,6 +392,7 @@ class Image(object):
         """
         raise NotImplementedError
 
+    # noinspection PyBroadException
     def rm(self, image="lite"):
         """
         Delete a downloaded image

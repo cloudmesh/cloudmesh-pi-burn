@@ -4,18 +4,17 @@ from getpass import getpass
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
 from cloudmesh.burn.burner import Burner
-from cloudmesh.burn.sdcard import SDCard
-
 from cloudmesh.burn.burner import MultiBurner
-from cloudmesh.common.security import generate_strong_pass
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
+from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
+from cloudmesh.common.security import generate_strong_pass
 from cloudmesh.common.util import Console
 from cloudmesh.common.util import yn_choice
 from cloudmesh.shell.command import PluginCommand
@@ -25,6 +24,7 @@ from cloudmesh.shell.command import map_parameters
 
 class BurnCommand(PluginCommand):
 
+    # noinspection PyBroadException
     @command
     def do_burn(self, args, arguments):
         """
@@ -348,11 +348,8 @@ class BurnCommand(PluginCommand):
             StopWatch.status(label, True)
             return result
 
-
-        StopWatch.start("info")
         burner = Burner()
-        StopWatch.stop("info")
-        StopWatch.status("info", True)
+        sdcard = SDCard()
 
         if arguments.imager:
 
@@ -361,7 +358,7 @@ class BurnCommand(PluginCommand):
             Console.msg(f"Tags: {arguments.TAG}")
             try:
                 file = Imager.fetch(tag=arguments.TAG)
-            except:
+            except:  # noqa: E722
                 pass
 
             try:
@@ -409,12 +406,11 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.load:
-            execute("load", burner.load_device(device=arguments.device))
+            execute("load", sdcard.load_device(device=arguments.device))
             return ""
 
         elif arguments["format"]:  # as format is a python word, we need to use an index
 
-            sdcard = SDCard()
             execute("format", sdcard.format_device(device=arguments.device, unmount=True))
             return ""
 
@@ -507,11 +503,11 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.backup:
-            execute("backup", burner.backup(device=arguments.device, to_file=arguments.to))
+            execute("backup", sdcard.backup(device=arguments.device, to_file=arguments.to))
             return ""
 
         elif arguments["copy"]:  # as copy is a reserved word we need to use the index
-            execute("copy", burner.copy(device=arguments.device, from_file=arguments.FROM))
+            execute("copy", sdcard.copy(device=arguments.device, from_file=arguments.FROM))
             return ""
 
         elif arguments.sdcard:
@@ -523,7 +519,6 @@ class BurnCommand(PluginCommand):
 
             arguments.TAG = arguments.TAG or ["latest-lite"]
 
-            sdcard = SDCard()
             execute("format", sdcard.format_device(device=arguments.device, unmount=True))
             execute("unmount", sdcard.unmount(device=arguments.device))
 
@@ -537,12 +532,11 @@ class BurnCommand(PluginCommand):
                 Console.error("Please specify a device")
                 return ""
 
-            sdcard = SDCard()
             execute("mount", sdcard.mount(device=arguments.device, card_os=arguments.os))
             return ""
 
         elif arguments.unmount:
-            sdcard = SDCard()
+
             execute("unmount", sdcard.unmount(device=arguments.device, card_os=arguments.os))
             return ""
 
@@ -565,7 +559,7 @@ class BurnCommand(PluginCommand):
                 execute("set key", burner.set_key(arguments.key))
 
             if arguments.keyboard:
-                execute("set keyboard", burner.set_keyboard(country=arguments.keyboard))
+                execute("set keyboard", burner.keyboard(country=arguments.keyboard))
 
             return ""
 

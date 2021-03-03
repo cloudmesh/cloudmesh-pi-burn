@@ -28,7 +28,8 @@ class Imager:
                 Console.warning("Installation is not supported")
 
     @staticmethod
-    def fetch(tag=["latest-lite"]):
+    def fetch(tag=None):
+        tag = tag or ['latest-lite']
         Image.create_version_cache()
         file = Image().fetch(tag=tag)
 

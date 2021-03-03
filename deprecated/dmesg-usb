@@ -1,0 +1,29 @@
+       '''
+        # print (devices)
+        details = []
+        for device in devices:
+            name = os.path.basename(device)
+            dmesg = result = subprocess.getoutput(command)
+            _fdisk = USB.fdisk(name)
+            result = result.replace("Write Protect is", "write_protection:")
+            result = result.replace("Attached SCSI removable disk",
+                                    "removable_disk: True")
+            result = result.replace("(", "")
+            result = result.replace(")", "")
+            result = result.splitlines()
+            _dmesg = [x.split(f"[{name}]", 1)[1].strip() for x in result]
+            size = _get_attribute("logical blocks:", _dmesg)
+            if size is not None:
+                details.append({
+                    'dmesg': dmesg,
+                    'fdisk': _fdisk,
+                    'name': name,
+                    'dev': device,
+                    'removable_disk': _get_attribute("removable_disk:", _dmesg),
+                    'write_protection': \
+                        _get_attribute("write_protection:",
+                                       _dmesg) is not "off",
+                    'size': size,
+                })
+        return details
+        '''

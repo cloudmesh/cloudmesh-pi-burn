@@ -7,8 +7,9 @@ from cloudmesh.burn.wifi.raspberryos import Wifi as WifiRaspberryOs
 from cloudmesh.burn.wifi.ubuntu import Wifi as WifiUbuntu
 
 
-def Wifi(os="raspberry"):
-    if os == "raspberry":
-        WifiRaspberryOs
+# noinspection PyPep8Naming
+def Wifi(card_os="raspberry"):
+    if card_os == "raspberry":
+        return WifiRaspberryOs
     else:
-        WifiUbuntu
+        return WifiUbuntu

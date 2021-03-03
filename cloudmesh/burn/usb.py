@@ -5,12 +5,13 @@ import subprocess
 import humanize
 import requests
 import usb
-from cloudmesh.common.util import readfile
-from cloudmesh.common.util import writefile
-from cloudmesh.common.util import path_expand
+from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.sudo import Sudo
-from cloudmesh.common.Tabulate import Printer
+from cloudmesh.common.util import path_expand
+from cloudmesh.common.util import readfile
+from cloudmesh.common.util import writefile
+
 
 def _get_attribute(attribute, lines):
     for line in lines:
@@ -27,6 +28,7 @@ class USB(object):
     def __init__(self):
         self.vendors = None
 
+    # noinspection PyBroadException
     def get_product(self, vendor=None, product=None):
         """
         internal method used to retrieve the vendor, product string
@@ -42,6 +44,7 @@ class USB(object):
         except Exception as e:  # noqa: F841
             return "unkown"
 
+    # noinspection PyBroadException
     def load_vendor_description(self):
         """
         Creates a dict from the usb devices that are detected.
@@ -86,7 +89,7 @@ class USB(object):
                         'product': product
                     }
 
-            except:
+            except:  # noqa: E722
                 pass
         self.vendors = data
         return data
@@ -131,6 +134,7 @@ class USB(object):
         Sudo.password()
         return subprocess.getoutput(f"sudo fdisk -l {dev}")
 
+    # noinspection PyBroadException,PyBroadException
     @staticmethod
     def get_from_usb():
         """
@@ -150,7 +154,7 @@ class USB(object):
         try:
             v = USB()
             v.load_vendor_description()
-        except:
+        except:  # noqa: E722
             pass
 
         def h(d, a):
@@ -175,13 +179,14 @@ class USB(object):
                     device_str = v.vendors[vendor][product]['product']
                     data["hVendor"] = vendor_str
                     data["hProduct"] = device_str
-                except:
+                except:  # noqa: E722
                     data["hVendor"] = h(data, "idVendor")
                     data["hProduct"] = h(data, "idProduct")
                 data["search"] = "tbd"
                 details.append(data)
         return details
 
+    # noinspection PyBroadException
     @staticmethod
     def get_from_lsusb():
         """
@@ -228,6 +233,7 @@ class USB(object):
 
         return found
 
+    # noinspection PyBroadException
     @staticmethod
     def get_from_dmesg(pluggedin=True):
         """
@@ -270,7 +276,7 @@ class USB(object):
                 if "Attached SCSI removable disk" in comment:
                     try:
                         details[key]["removable"] = True
-                    except:
+                    except:  # noqa: E722
                         details[key]["removable"] = False
                 if "logical blocks:" in comment:
                     size = comment.split("blocks:")[1]
@@ -300,36 +306,6 @@ class USB(object):
                 found.append(entry)
 
         return found
-
-        '''
-        # print (devices)
-        details = []
-        for device in devices:
-            name = os.path.basename(device)
-            dmesg = result = subprocess.getoutput(command)
-            _fdisk = USB.fdisk(name)
-            result = result.replace("Write Protect is", "write_protection:")
-            result = result.replace("Attached SCSI removable disk",
-                                    "removable_disk: True")
-            result = result.replace("(", "")
-            result = result.replace(")", "")
-            result = result.splitlines()
-            _dmesg = [x.split(f"[{name}]", 1)[1].strip() for x in result]
-            size = _get_attribute("logical blocks:", _dmesg)
-            if size is not None:
-                details.append({
-                    'dmesg': dmesg,
-                    'fdisk': _fdisk,
-                    'name': name,
-                    'dev': device,
-                    'removable_disk': _get_attribute("removable_disk:", _dmesg),
-                    'write_protection': \
-                        _get_attribute("write_protection:",
-                                       _dmesg) is not "off",
-                    'size': size,
-                })
-        return details
-        '''
 
     @staticmethod
     def get_dev_from_diskutil():
@@ -391,28 +367,28 @@ class USB(object):
     @staticmethod
     def print_details(details, order=None, header=None, output="table"):
         if order is None:
-            order = [
-                    "dev",
-                    "info",
-                    "formatted",
-                    "size",
-                    "active",
-                    "readable",
-                    "empty",
-                    "direct-access",
-                    "removable",
-                    "writeable"],
+            order = ["dev",
+                     "info",
+                     "formatted",
+                     "size",
+                     "active",
+                     "readable",
+                     "empty",
+                     "direct-access",
+                     "removable",
+                     "writeable"
+                     ],
         if header is None:
-            header = [
-                     "Path",
-                     "Info",
-                     "Formatted",
-                     "Size",
-                     "Plugged-in",
-                     "Readable",
-                     "Empty",
-                     "Access",
-                     "Removable",
-                     "Writeable"],
+            header = ["Path",
+                      "Info",
+                      "Formatted",
+                      "Size",
+                      "Plugged-in",
+                      "Readable",
+                      "Empty",
+                      "Access",
+                      "Removable",
+                      "Writeable"
+                      ],
 
-        print(Printer.write(details, order=order, header = header, output=output))
+        print(Printer.write(details, order=order, header=header, output=output))

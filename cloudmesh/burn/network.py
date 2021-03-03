@@ -12,6 +12,7 @@ import subprocess
 
 class Network:
 
+    # noinspection PyBroadException,PyBroadException
     @staticmethod
     def address():
         hostname = socket.gethostname()

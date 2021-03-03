@@ -22,13 +22,15 @@ from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import yn_choice
 
 
+# noinspection PyBroadException
 def _execute(msg, command):
     Console.ok(msg)
     try:
         os.system(command.strip())
-    except:
+    except:  # noqa: E722
         Console.error("{command} failed")
         # but ignore error
+
 
 def location(host_os=None, card_os="raspberry", volume="boot"):
     """
@@ -53,49 +55,34 @@ def location(host_os=None, card_os="raspberry", volume="boot"):
     user = os.environ.get('USER')
 
     # where [host_os][burn_os][volume]
-    where = yaml.safe_load(
-        textwrap.dedent(f"""
-        raspberry: 
-          raspberry:
-            root: /media/{user}/rootfs
-            boot: /media/{user}/boot
-          ubuntu: 
-            root: /media/{user}/writable
-            boot: /media/{user}/system-boot
-        mac:
-          raspberry:
-            root: /Volumes/rootfs
-            boot: /Volumes/boot
-          ubuntu: 
-            root: /Volumes/writable
-            boot: /Volume/system-boot
-        ubuntu: 
-          raspberry:
-            root: /media/{user}/rootfs
-            boot: /media/{user}/boot
-          ubuntu: 
-            root: /media/{user}/writable
-            boot: /media/{user}/system-boot
-        """)
-    )
+    where = yaml.safe_load(textwrap.dedent(f"""
+            raspberry:
+              raspberry:
+                root: /media/{user}/rootfs
+                boot: /media/{user}/boot
+              ubuntu:
+                root: /media/{user}/writable
+                boot: /media/{user}/system-boot
+            mac:
+              raspberry:
+                root: /Volumes/rootfs
+                boot: /Volumes/boot
+              ubuntu:
+                root: /Volumes/writable
+                boot: /Volume/system-boot
+            ubuntu:
+              raspberry:
+                root: /media/{user}/rootfs
+                boot: /media/{user}/boot
+              ubuntu:
+                root: /media/{user}/writable
+                boot: /media/{user}/system-boot
+            """))
     try:
         return where[host_os][card_os][volume]
     except Exception as e:
         print(e)
         return "undefined"
-
-
-def execute(command=None, decode="True", debug=False):
-    """
-    Executes the command
-
-    :param command: The command to run
-    :type command: list or str
-    :return:
-    :rtype:
-    """
-    result = Sudo.execute(command, decode=decode, debug=debug)
-    return result
 
 
 class SDCard:
@@ -111,6 +98,23 @@ class SDCard:
         """
         self.card_os = card_os or "raspberry"
         self.host_os = host_os or get_platform()
+
+    @staticmethod
+    def execute(command=None, decode="True", debug=False):
+        """
+        Executes the command
+
+        :param command: The command to run
+        :type command: list or str
+        :param decode:
+        :type decode:
+        :param debug:
+        :type debug:
+        :return:
+        :rtype:
+        """
+        result = Sudo.execute(command, decode=decode, debug=debug)
+        return result
 
     @property
     def root_volume(self):
@@ -176,11 +180,13 @@ class SDCard:
 
         :param filename: the filename
         :type filename: str
-        :param split: uf true returns a list of lines
+        :param split: if true returns a list of lines
         :type split: bool
         :param trim: trim trailing whitespace. This is useful to
                      prevent empty string entries when splitting by '\n'
         :type trim: bool
+        :param decode:
+        :type decode: bool
         :return: the content
         :rtype: str or list
         """
@@ -228,10 +234,11 @@ class SDCard:
 
         return content
 
+    # noinspection PyBroadException
     @staticmethod
     def size(device="/dev/sdX"):
 
-        size = 64 * 1000 ** 3   # this is a bug as we need that for Linux and PI
+        size = 64 * 1000 ** 3  # this is a bug as we need that for Linux and PI
 
         if os_is_mac():
             result = Shell.run("diskutil list external").splitlines()
@@ -240,7 +247,7 @@ class SDCard:
                     data = line.split()
                     size, unit = data[2].replace("*", ""), data[3]
                     if unit == "GB":
-                        size = int(float(size) * 1000**3)
+                        size = int(float(size) * 1000 ** 3)
                     else:
                         size = 64
                         Console.error("Unit not GB")
@@ -268,6 +275,14 @@ class SDCard:
 
         :param device: The device on which we format
         :type device: str
+        :param unmount:
+        :type unmount:
+        :param yes:
+        :type yes:
+        :param verbose:
+        :type verbose:
+        :return:
+        :rtype:
         """
 
         _title = "UNTITLED"
@@ -364,8 +379,8 @@ class SDCard:
         return True
 
     def _info(self):
-        print ("root", self.root_volume)
-        print ("boot", self.boot_volume)
+        print("root", self.root_volume)
+        print("boot", self.boot_volume)
 
     # @windows_not_supported
     def mount(self, device=None, card_os=None):
@@ -373,7 +388,6 @@ class SDCard:
         Mounts the current SD card
         """
         Sudo.password()
-        host = get_platform()
 
         if os_is_linux():
             dmesg = USB.get_from_dmesg()
@@ -394,14 +408,14 @@ class SDCard:
                 except Exception as e:
                     print(e)
 
-        elif os_is_pi() :
+        elif os_is_pi():
 
             if card_os is None:
                 Console.error("Please specify the OS you have on the SD Card")
                 return ""
             self.card_os = card_os
             dmesg = USB.get_from_dmesg()
-            print (dmesg)
+            print(dmesg)
 
             # TODO Need a better way to identify which sd card to use for mounting
             # instead of iterating over all of them
@@ -459,7 +473,6 @@ class SDCard:
             Console.error("Not yet implemented for your OS")
         return ""
 
-
     @windows_not_supported
     def unmount(self, device=None, card_os="raspberry"):
         """
@@ -467,16 +480,17 @@ class SDCard:
 
         :param device: device to unmount, e.g. /dev/sda
         :type device: str
+        :param card_os:
+        :type card_os:
+        :return:
+        :rtype:
         """
 
         Sudo.password()
 
-        host = get_platform()
         self.card_os = card_os
 
         os.system('sudo sync')  # flush any pending/in-process writes
-
-
 
         os.system("sync")
         if os_is_linux() or os_is_pi():
@@ -491,10 +505,10 @@ class SDCard:
             Console.error("Not yet implemented for your OS")
             return ""
         os.system("sync")
-        #rm = [f"sudo rmdir {self.boot_volume}",
+        # rm = [f"sudo rmdir {self.boot_volume}",
         #      f"sudo rmdir {self.root_volume}"]
 
-        #for command in rm:
+        # for command in rm:
         #    _execute(command, command)
 
         return True
@@ -559,12 +573,17 @@ class SDCard:
 
         :param image: Image object to use for burning (used by copy)
         :type image: str
+        :param name:
+        :type name: str
         :param tag: tag object used for burning (used by sdcard)
         :type tag: str
         :param device: Device to burn to, e.g. /dev/sda
         :type device: str
         :param blocksize: the blocksize used when writing, default 4M
         :type blocksize: str
+        :param yes:
+        :type yes: str
+
         """
         if image and tag:
             Console.error("Implementation error, burn_sdcard can't have image "
@@ -597,7 +616,7 @@ class SDCard:
 
             image_path = Image().directory + "/" + _name
 
-            print (image_path)
+            print(image_path)
 
             if not os.path.isfile(image_path):
                 tags = ' '.join(tag)
@@ -647,9 +666,8 @@ class SDCard:
             details = USB.get_from_diskutil()
             USB.print_details(details)
 
-
-        if not(yes or yn_choice(f"\nDo you like to write {name} on {device} "
-                                f"with the image {image_path}")):
+        if not (yes or yn_choice(f"\nDo you like to write {name} on {device} "
+                                 f"with the image {image_path}")):
             return ""
 
         self.mount(device=device)
@@ -671,3 +689,7 @@ class SDCard:
         Sudo.execute("sync")
         self.unmount(device=device)
 
+    def copy(self, device=None, from_file="latest"):
+        if device is None:
+            Console.error("Device must have a value")
+        self.burn_sdcard(image=from_file, device=device)

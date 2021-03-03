@@ -36,11 +36,6 @@ from cloudmesh.common.util import yn_choice
 from cloudmesh.inventory.inventory import Inventory
 
 
-# def dmesg():
-#    return subprocess.getoutput(f"dmesg")
-
-
-
 # noinspection PyPep8
 class Burner(object):
 
@@ -59,6 +54,7 @@ class Burner(object):
             details = USB.get_from_dmesg()
         return details
 
+    # noinspection PyBroadException
     @windows_not_supported
     def check(self, device="/dev/sdX"):
         """
@@ -241,13 +237,6 @@ class Burner(object):
                 print(Printer.write(result,
                                     order=["name", "command", "status", "stdout", "returncode"]))
 
-
-    @windows_not_supported
-    def copy(self, device=None, from_file="latest"):
-        if device is None:
-            Console.error("Device must have a value")
-        self.burn_sdcard(image=from_file, device=device)
-
     @windows_not_supported
     def info(self,
              print_os=True,
@@ -260,8 +249,14 @@ class Burner(object):
         TODO: should we rename print_stdout to debug? seems more in
               line with cloudmesh
 
+        :param print_os:
+        :type print_os:
+        :param print_fdisk:
+        :type print_fdisk:
         :param print_stdout: if set to True prints debug information
         :type print_stdout: bool
+        :param output:
+        :type output:
         :return: dict with details about the devices
         :rtype: dict
         """
@@ -397,7 +392,6 @@ class Burner(object):
         # https://raspberry-pi-guide.readthedocs.io/en/latest/system.html
         # this is for fedora, but should also work for raspbian
 
-
     def mac(self, hostnames=None):
         """
         Sets the hostname for which we probe the MAC addresses
@@ -446,9 +440,6 @@ class Burner(object):
 
         :param hostname: the hostname
         :type hostname: str
-        :param mountpoint: the mountpunt of the device on which the hostname
-                           is found
-        :type mountpoint: str
         """
 
         # On macOS we have
@@ -524,21 +515,26 @@ class Burner(object):
         SDCard.writefile(f'{card.root_volume}/etc/hosts', hosts)
 
     @windows_not_supported
-    def set_static_ip(self, ip=None, iface="eth0", mask="24",
-                      router_ip="10.1.1.1", write_local_hosts=True):
+    def set_static_ip(self,
+                      ip=None,
+                      iface="eth0",
+                      mask="24",
+                      router_ip="10.1.1.1",
+                      write_local_hosts=True):
         """
         Sets the static ip on the sd card for the specified interface
         Also writes to manager hosts file for easy access
 
         :param ip: ips address
         :type ip: str
-        :param mountpoint: the mountpunt of the device on which the ip
-                           is found
-        :type mountpoint: str
         :param iface: the network Interface
         :type iface: str
         :param mask: the subnet Mask
         :type mask: str
+        :param router_ip:
+        :type router_ip: str
+        :param write_local_hosts:
+        :type write_local_hosts: bool
         :return:
         :rtype:
         """
@@ -580,7 +576,6 @@ class Burner(object):
             # curr_config.append('nolink\n')
 
         SDCard.writefile(f'{mountpoint}/etc/dhcpcd.conf', '\n'.join(curr_config))
-
 
     @windows_not_supported
     def keyboard(self, country="US"):
@@ -630,9 +625,6 @@ class Burner(object):
 
         :param key_file: key_file of public key, e.g. 'id_rsa' for ~/.ssh/id_rsa.pub
         :type key_file: str
-        :param mountpoint: the mountpunt of the device on which the key
-                           is found
-        :type mountpoint: str
         """
         # copy file on burner computer ~/.ssh/id_rsa.pub into
         #   mountpoint/home/pi/.ssh/authorized_keys
@@ -706,7 +698,6 @@ class Burner(object):
             content = content.replace("exit 0", f"sudo python {fix}")
             content = content + "\n" + "exit 0\n"
             SDCard.writefile(rc_local, content)
-
 
     @windows_not_supported
     def enable_ssh(self):
@@ -820,11 +811,12 @@ class Burner(object):
         card = SDCard(card_os=card_os, host_os=host)
         path = f"{card.boot_volume}/wpa_supplicant.conf"
 
-        os = "raspberry"  # needs to become a parameter based on tag
+        card_os = "raspberry"  # needs to become a parameter based on tag
 
-        WifiClass = Wifi(os=os)
+        # noinspection PyPep8Naming
+        WifiClass = Wifi(card_os=card_os)
 
-        if os == "raspberry":
+        if card_os == "raspberry":
             if psk:
                 if os_is_mac():
                     WifiClass.set(ssid=ssid, password=psk, country=country, location=path)
@@ -842,8 +834,6 @@ class Burner(object):
                 WifiClass.set(ssid=ssid, password=psk, country=country, location=path, sudo=True)
 
         return ""
-
-
 
     # This is to prevent desktop access of th pie (directly plugging monitor, keyboard, mouse into pi, etc.)
     #
@@ -936,15 +926,15 @@ class Burner(object):
         os.system(cmd)
 
     @staticmethod
-    def get_tag(worker=True, os="raspberry"):
+    def get_tag(worker=True, card_os="raspberry"):
         tag = None
-        if "raspberry" in os and worker:
+        if "raspberry" in card_os and worker:
             tag = "latest-lite"
-        if "raspberry" in os and not worker:
+        if "raspberry" in card_os and not worker:
             tag = "latest-full"
-        elif "ubuntu" in os and worker:
+        elif "ubuntu" in card_os and worker:
             tag = "ubuntu-20.04.2-64-bit"
-        elif "ubuntu" in os and not worker:
+        elif "ubuntu" in card_os and not worker:
             tag = "ubuntu-desktop"
         else:
             Console.error("For now only raspberry and ubuntu are supported")
@@ -963,6 +953,7 @@ class Burner(object):
         #
 
         yes = arguments.yes
+        arguments.os = arguments.os or "raspberry"
 
         if os_is_windows():
             Console.error("Only supported on Pi and Linux. On Mac you will "
@@ -1028,12 +1019,12 @@ class Burner(object):
         image = Image()
         image.read_version_cache()
 
-        if "raspberry" in os:
+        if "raspberry" in arguments.os:
             if workers is not None:
                 image.fetch(tag=["latest-lite"])
             if manager is not None:
                 image.fetch(tag=["latest-full"])
-        elif "ubuntu" in os:
+        elif "ubuntu" in arguments.os:
             if workers is not None:
                 image.fetch(tag=["ubuntu-20.04.2-64-bit"])
             if manager is not None:
@@ -1065,14 +1056,13 @@ class Burner(object):
                        ssid=arguments.ssid,
                        psk=arguments.wifipassword,
                        formatting=True,
-                       tag=Burner.get_tag(os=arguments.os, worker=False),
+                       tag=Burner.get_tag(card_os=arguments.os, worker=False),
                        router=None,
                        generate_key=True,
                        store_key=True,
                        write_local_hosts=False,
                        cluster_hosts=cluster_hosts,
-                       yes=yes,
-                       gui=arguments.gui)
+                       yes=yes)
 
             Console.info(f"Completed manager: {manager}")
 
@@ -1101,14 +1091,13 @@ class Burner(object):
                            ssid=None,
                            psk=None,
                            formatting=True,
-                           tag=Burner.get_tag(os=arguments.os, worker=True),
+                           tag=Burner.get_tag(card_os=arguments.os, worker=True),
                            router=ips[0],
                            generate_key=False,
                            store_key=False,
                            write_local_hosts=False,
                            cluster_hosts=cluster_hosts,
-                           yes=yes,
-                           gui=arguments.gui)
+                           yes=yes)
 
             Console.info(f"Completed workers: {workers}")
             Console.info("Cluster burn is complete.")
@@ -1187,8 +1176,14 @@ class MultiBurner(object):
         :type ssid:
         :param psk:
         :type psk:
+        :param tag:
+        :type tag:
+        :param locale:
+        :type locale:
         :param formatting:
         :type formatting:
+        :param yes:
+        :type yes:
         :return:
         :rtype:
         """
@@ -1277,8 +1272,7 @@ class MultiBurner(object):
                       formatting=formatting,
                       tag=tag,
                       locale=locale,
-                      yes=yes,
-                      gui=False)
+                      yes=yes)
 
             count += 1
             Console.info(f'Burned card {count}')
@@ -1302,6 +1296,7 @@ class MultiBurner(object):
         Console.info(f"You burned {count} SD Cards")
         Console.ok("Done :)")
 
+    # noinspection PyBroadException
     def burn(self,
              image="latest",
              device=None,
@@ -1322,8 +1317,7 @@ class MultiBurner(object):
              cluster_hosts=None,
              keyboard="us",
              locale="en_US.UTF-8",
-             yes=False,
-             gui=False):
+             yes=False):
         """
         Burns the image on the specific device
 
@@ -1352,6 +1346,24 @@ class MultiBurner(object):
         :type psk:
         :param formatting:
         :type formatting:
+        :param yes:
+        :type yes:
+        :param tag:
+        :type tag:
+        :param locale:
+        :type locale:
+        :param keyboard:
+        :type keyboard:
+        :param router:
+        :type router:
+        :param cluster_hosts:
+        :type cluster_hosts:
+        :param generate_key:
+        :type generate_key:
+        :param store_key:
+        :type store_key:
+        :param write_local_hosts:
+        :type write_local_hosts:
         :return:
         :rtype:
         """
@@ -1374,13 +1386,14 @@ class MultiBurner(object):
         print("counter", counter)
         StopWatch.start(f"create {device} {hostname}")
 
+        card = SDCard()
         if formatting:
             StopWatch.start(f"format {device} {hostname}")
-            success = burner.format_device(device=device,
-                                           hostname=hostname,
-                                           unmount=True,
-                                           title=hostname.upper(),
-                                           yes=yes)
+            success = card.format_device(device=device,
+                                         hostname=hostname,
+                                         unmount=True,
+                                         title=hostname.upper(),
+                                         yes=yes)
             StopWatch.stop(f"format {device} {hostname}")
 
             if not success:
@@ -1390,22 +1403,22 @@ class MultiBurner(object):
             StopWatch.status(f"format {device} {hostname}", True)
 
         if os_is_linux() or os_is_pi():
-            burner.unmount()  # can not fully eject before burn on pi or linux
+            card.unmount()  # can not fully eject before burn on pi or linux
         elif os_is_mac():
-            burner.unmount(device=device)
+            card.unmount(device=device)
 
         StopWatch.start(f"write image {device} {hostname}")
-        burner.burn_sdcard(tag=tag,
-                           device=device,
-                           blocksize=blocksize,
-                           name=hostname,
-                           yes=yes)
+        card.burn_sdcard(tag=tag,
+                         device=device,
+                         blocksize=blocksize,
+                         name=hostname,
+                         yes=yes)
         StopWatch.stop(f"write image {device} {hostname}")
         StopWatch.status(f"write image {device} {hostname}", True)
 
         Sudo.password()
         StopWatch.start(f"write host data {device} {hostname}")
-        burner.mount(device=device)
+        card.mount(device=device)
         burner.keyboard(country=keyboard)
         burner.set_hostname(hostname)
         burner.set_locale(locale=locale)
@@ -1438,16 +1451,11 @@ class MultiBurner(object):
         burner.write_fix()
         try:
             os.system(f"sudo rm -f {card.root_volume}/etc/xdg/autostart/piwiz.desktop")
-        except:
+        except:  # noqa: E722
             Console.error("Gui wizzard not found at "
                           f"{card.root_volume}/etc/xdg/autostart/piwiz.desktop")
 
-        if os_is_linux() or os_is_pi():
-            burner.unmount()
-        elif os_is_mac():
-            burner.unmount(device=device)
-        # for some reason, need to do unmount twice for it to work properly
-        # burner.unmount(device)
+        card.unmount(device=device)
         StopWatch.stop(f"write host data {device} {hostname}")
         StopWatch.status(f"write host data {device} {hostname}", True)
 
@@ -1547,7 +1555,8 @@ class MultiBurner(object):
         image = Image()
         image.read_version_cache()
 
-        if manager is not None and system_hostname != manager_config["hostname"] and manager_config["tag"] == "latest-full":
+        if manager is not None and system_hostname != manager_config["hostname"] \
+            and manager_config["tag"] == "latest-full":  # noqa: E125
             image.fetch(tag=["latest-full"])
         if workers is not None:
             image.fetch(tag=["latest-lite"])

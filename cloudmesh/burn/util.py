@@ -1,11 +1,11 @@
+import hashlib
 import os
 import platform
 import sys
 
-from cloudmesh.common.util import readfile
 from cloudmesh.common.console import Console
+from cloudmesh.common.util import readfile
 
-import hashlib
 # import mmap
 
 BUF_SIZE = 65536
@@ -49,6 +49,7 @@ def os_is_windows():
     return platform.system() == "Windows"
 
 
+# noinspection PyBroadException
 def os_is_linux():
     """
     Checks if the os is linux
@@ -59,7 +60,7 @@ def os_is_linux():
     try:
         content = readfile('/etc/os-release')
         return platform.system() == "Linux" and "raspbian" not in content
-    except:
+    except:  # noqa: E722
         return False
 
 
@@ -73,6 +74,7 @@ def os_is_mac():
     return platform.system() == "Darwin"
 
 
+# noinspection PyBroadException
 def os_is_pi():
     """
     Checks if the os is Raspberry OS
@@ -83,7 +85,7 @@ def os_is_pi():
     try:
         content = readfile('/etc/os-release')
         return platform.system() == "Linux" and "raspbian" in content
-    except:
+    except:  # noqa: E722
         return False
 
 
