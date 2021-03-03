@@ -556,7 +556,8 @@ class SDCard:
                     device=None,
                     blocksize="4M",
                     name="the inserted card",
-                    yes=False):
+                    yes=False,
+                    format=True):
         """
         Burns the SD Card with an image
 
@@ -574,7 +575,6 @@ class SDCard:
                           "and tag.")
             return ""
 
-        print ("TTT", tag)
         Console.info(f"Burning {name} ...")
         if image is not None:
             image_path = image
@@ -595,11 +595,15 @@ class SDCard:
 
             image = image[0]
 
-            _name = os.path.basename(Image.get_name(image["url"]))
-            _name = _name.replace(".xz", "")
+            if "ubuntu" in image:
+                _name = os.path.basename(Image.get_name(image["url"]))
+                _name = _name.replace(".xz", "")
+            else:
+                _name = os.path.basename(Image.get_name(image["url"])) + ".img"
+
             image_path = Image().directory + "/" + _name
 
-            print ("PPPP", image_path)
+
             if not os.path.isfile(image_path):
                 tags = ' '.join(tag)
 

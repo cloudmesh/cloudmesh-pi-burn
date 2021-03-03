@@ -524,6 +524,7 @@ class BurnCommand(PluginCommand):
             arguments.TAG = arguments.TAG or ["latest-lite"]
 
             sdcard = SDCard()
+            execute("format", sdcard.format_device(device=arguments.device, unmount=True))
             execute("sdcard", sdcard.burn_sdcard(tag=arguments.TAG, device=arguments.device))
             return ""
 
