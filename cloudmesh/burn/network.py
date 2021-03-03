@@ -80,8 +80,3 @@ class Network:
             })
 
         return details
-
-    @staticmethod
-    def get():
-
-        return
