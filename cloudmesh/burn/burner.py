@@ -1390,9 +1390,7 @@ class MultiBurner(object):
         if formatting:
             StopWatch.start(f"format {device} {hostname}")
             success = card.format_device(device=device,
-                                         hostname=hostname,
                                          unmount=True,
-                                         title=hostname.upper(),
                                          yes=yes)
             StopWatch.stop(f"format {device} {hostname}")
 
