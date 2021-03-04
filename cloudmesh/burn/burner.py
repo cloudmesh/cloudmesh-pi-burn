@@ -33,6 +33,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
+from cloudmesh.common.Shell import Shell
 from cloudmesh.inventory.inventory import Inventory
 
 
@@ -646,8 +647,7 @@ class Burner(object):
             /etc/passwd
             /etc/ssh/sshd_config
         """
-        # GGGGGG
-        # GGGGGG
+        timezone = Shell.timezone()
         script = textwrap.dedent(f"""
             #! /usr/bin/env python
             # file, owner, group, permissions
@@ -682,6 +682,9 @@ class Burner(object):
                 os.system("touch /boot/fixed")
                 os.chown("/boot/fixed", 0, 0)
                 os.chmod("/boot/fixed", 0o644)
+                os.system("sudo timedatectl set-timezone {timezone}")
+                os.system("sudo setxkbmap us")
+                os.system("sudo reboot")
                 #
         """)
 
