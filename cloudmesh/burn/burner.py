@@ -686,8 +686,8 @@ class Burner(object):
                 os.chmod("/boot/fixed", 0o644)
                 os.system("sudo timedatectl set-timezone {timezone}")
                 os.system("sudo sync")
-                os.system("sleep 5")
-                os.system("sudo reboot")
+                # os.system("sleep 90")
+                # os.system("sudo reboot")
                 #
         """)
 

@@ -231,7 +231,7 @@ class SDCard:
         """
 
         found = False
-        for i in range(0,10):
+        for i in range(0, 10):
             try:
                 time.sleep(0.5)
                 content = SDCard._readfile(filename=filename, trim=trim, decode=decode, split=split)

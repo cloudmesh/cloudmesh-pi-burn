@@ -45,13 +45,8 @@ class Ubuntu:
     def disable_password(self):
         raise NotImplementedError
 
-
     #
     # POST INSTALATION
     #
     def firmware(self):
         raise NotImplementedError
-
-
-
-
