@@ -1567,9 +1567,8 @@ class MultiBurner(object):
         image = Image()
         image.read_version_cache()
 
-        if manager is not None and system_hostname != manager_config["hostname"] \
-            and manager_config["tag"] == "latest-full":  # noqa: E125
-            image.fetch(tag=["latest-full"])
+        if manager is not None and system_hostname != manager_config["hostname"]:
+            image.fetch(tag=manager_config["tag"])
         if workers is not None:
             image.fetch(tag=["latest-lite"])
 
