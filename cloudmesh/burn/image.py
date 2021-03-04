@@ -25,6 +25,7 @@ class Ubuntu:
             "version": "20.04.2&architecture=server-arm64+raspi",
             "date": "2021-02-01",
             "type": "ubuntu",
+            "os": "ubuntu",
             "tag": "ubuntu-20.04.2-64-bit",
             "description": "Ubuntu Server 20.04.2 LTS 64-bit",
             "alt": f"{download}?version=20.04.2&architecture=server-arm64+raspi",
@@ -38,6 +39,7 @@ class Ubuntu:
             "version": "20.04.2&architecture=server-armhf+raspi",
             "date": "2021-02-01",
             "type": "ubuntu",
+            "os": "ubuntu",
             "tag": "ubuntu-20.04.2-32-bit",
             "description": "Ubuntu Server 20.04.2 LTS 32-bit",
             "alt": f"{download}?version=20.04.2&architecture=server-armhf+raspi",
@@ -52,6 +54,7 @@ class Ubuntu:
             "version": "20.10&architecture=server-arm64+raspi",
             "date": "2021-02-01",
             "type": "ubuntu",
+            "os": "ubuntu",
             "tag": "ubuntu-20.10-64-bit",
             "description": "Ubuntu Server 20.10 64-bit",
             "alt": f"{download}?version=20.10&architecture=server-arm64+raspi",
@@ -66,6 +69,7 @@ class Ubuntu:
             "version": "20.10&architecture=server-armhf+raspi",
             "date": "2021-02-01",
             "type": "ubuntu",
+            "os": "ubuntu",
             "tag": "ubuntu-20.10-32-bit",
             "description": "Ubuntu Server 20.10",
             "alt": f"{download}?version=20.10&architecture=server-armhf+raspi",
@@ -79,6 +83,7 @@ class Ubuntu:
             "version": "20.10&architecture=desktop-arm64+raspi",
             "date": "2021-02-01",
             "type": "ubuntu",
+            "os": "ubuntu",
             "tag": "ubuntu-desktop",
             "description": "Ubuntu Desktop 20.10 64-bit",
             "alt": f"{download}?version=20.10&architecture=desktop-arm64+raspi",
@@ -182,7 +187,8 @@ class Image(object):
                         "tag": version.replace("raspios_", "").replace("_armhf", ""),
                         "url": download,
                         "date": version.split("-", 1)[1],
-                        "type": kind
+                        "type": kind,
+                        "os": "raspberryos",
                     }
                     data[kind].append(entry)
                     if entry["date"] >= latest['date']:

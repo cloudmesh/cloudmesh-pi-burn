@@ -395,11 +395,11 @@ class BurnCommand(PluginCommand):
             if arguments["--yaml"]:
                 output = "yaml"
 
-            order = ["tag", 'date', "type", 'version']
-            header = ["Tag", 'Date', "Type", 'Version']
+            order = ["tag", 'date', "os", "type", 'version']
+            header = ["Tag", 'Date', "OS", "Type", 'Version']
             if arguments.details:
-                order = ["tag", 'date', "type", 'version', "url"]
-                header = ["Tag", 'Date', "Type", 'Version', "Url"]
+                order = ["tag", 'date', "os", "type", 'version', "url"]
+                header = ["Tag", 'Date', "OS", "Type", 'Version', "Url"]
 
             print(Printer.write(result, order=order, header=header, output=output))
 
