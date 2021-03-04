@@ -45,8 +45,17 @@ class Ubuntu:
     def disable_password(self):
         raise NotImplementedError
 
+    def configure_manager(self):
+        raise NotImplementedError
+        # use the calls above for a single easy to use method
+
+    def configure_worker(self):
+        raise NotImplementedError
+        # use the calls above for a single easy to use method
+
     #
     # POST INSTALATION
     #
     def firmware(self):
         raise NotImplementedError
+
