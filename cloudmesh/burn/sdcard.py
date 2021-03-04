@@ -174,7 +174,7 @@ class SDCard:
         return details
 
     @staticmethod
-    def readfile(filename=None, split=False, trim=False, decode=True):
+    def _readfile(filename=None, split=False, trim=False, decode=True):
         """
         Reads the content of the file as sudo and returns the result
 
@@ -190,7 +190,7 @@ class SDCard:
         :return: the content
         :rtype: str or list
         """
-        os.system("sync")
+        Sudo.execute("sync")
 
         if os_is_mac():
             if decode:
@@ -208,6 +208,39 @@ class SDCard:
 
         if split:
             content = content.splitlines()
+        Sudo.execute("sync")
+
+        return content
+
+    @staticmethod
+    def readfile(filename=None, split=False, trim=False, decode=True):
+        """
+        Reads the content of the file as sudo and returns the result
+
+        :param filename: the filename
+        :type filename: str
+        :param split: if true returns a list of lines
+        :type split: bool
+        :param trim: trim trailing whitespace. This is useful to
+                     prevent empty string entries when splitting by '\n'
+        :type trim: bool
+        :param decode:
+        :type decode: bool
+        :return: the content
+        :rtype: str or list
+        """
+
+        found = False
+        for i in range(0,10):
+            try:
+                time.sleep(0.5)
+                content = SDCard._readfile(filename=filename, trim=trim, decode=decode, split=split)
+                found = content != []
+                if found:
+                    break
+            except:
+                pass
+            print(f"read {filename} attempt {i}")
 
         return content
 
@@ -471,6 +504,7 @@ class SDCard:
 
         else:
             Console.error("Not yet implemented for your OS")
+        Sudo.execute("sync")
         return ""
 
     @windows_not_supported

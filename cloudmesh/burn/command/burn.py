@@ -56,6 +56,7 @@ class BurnCommand(PluginCommand):
                            [--bs=BLOCKSIZE]
                            [--os=OS]
                            [-y]
+                           [--imaged]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -316,6 +317,7 @@ class BurnCommand(PluginCommand):
                        "blocksize",
                        "ssid",
                        "url",
+                       "imaged",
                        "key",
                        "keyboard",
                        "passwd",

@@ -606,6 +606,7 @@ class Burner(object):
         layout = f"{card.root_volume}/etc/default/keyboard"
 
         content = SDCard.readfile(layout, decode=True, split=True)
+
         country = country.lower()
         found = False
         for i in range(0, len(content)):
@@ -615,8 +616,9 @@ class Burner(object):
                 break
 
         content = "\n".join(content)
+        print(content)
         SDCard.writefile(layout, content)
-
+        Sudo.execute("sync")
         return found
 
     @windows_not_supported
@@ -683,7 +685,8 @@ class Burner(object):
                 os.chown("/boot/fixed", 0, 0)
                 os.chmod("/boot/fixed", 0o644)
                 os.system("sudo timedatectl set-timezone {timezone}")
-                os.system("sudo setxkbmap us")
+                os.system("sudo sync")
+                os.system("sleep 5")
                 os.system("sudo reboot")
                 #
         """)
@@ -933,7 +936,7 @@ class Burner(object):
         tag = None
         if "raspberry" in card_os and worker:
             tag = "latest-lite"
-        if "raspberry" in card_os and not worker:
+        elif "raspberry" in card_os and not worker:
             tag = "latest-full"
         elif "ubuntu" in card_os and worker:
             tag = "ubuntu-20.04.2-64-bit"
@@ -955,6 +958,7 @@ class Burner(object):
         #                  --wifipassword=mypass
         #
 
+        Sudo.password()
         yes = arguments.yes
         arguments.os = arguments.os or "raspberry"
 
@@ -1006,6 +1010,7 @@ class Burner(object):
         print("Key:          ", key)
         print("Blocksize:    ", arguments.bs)
         print("OS:           ", arguments.os)
+        print("Imaged:       ", arguments.imaged)
 
         if not (yes or yn_choice('\nWould you like to continue?')):
             Console.error("Aborting ...")
@@ -1058,7 +1063,8 @@ class Burner(object):
                        password=generate_strong_pass(),
                        ssid=arguments.ssid,
                        psk=arguments.wifipassword,
-                       formatting=True,
+                       formatting=not arguments.imaged,
+                       imaging=not arguments.imaged,
                        tag=Burner.get_tag(card_os=arguments.os, worker=False),
                        router=None,
                        generate_key=True,
@@ -1093,7 +1099,8 @@ class Burner(object):
                            password=generate_strong_pass(),
                            ssid=None,
                            psk=None,
-                           formatting=True,
+                           formatting=not arguments.imaged,
+                           imaging=not arguments.imaged,
                            tag=Burner.get_tag(card_os=arguments.os, worker=True),
                            router=ips[0],
                            generate_key=False,
@@ -1153,6 +1160,7 @@ class MultiBurner(object):
                  ssid=None,
                  psk=None,
                  formatting=True,
+                 imaging=True,
                  tag='latest-lite',
                  locale="en_US.UTF-8",
                  yes=False):
@@ -1273,6 +1281,7 @@ class MultiBurner(object):
                       ssid=ssid,
                       psk=psk,
                       formatting=formatting,
+                      imaging=imaging,
                       tag=tag,
                       locale=locale,
                       yes=yes)
@@ -1312,6 +1321,7 @@ class MultiBurner(object):
              ssid=None,
              psk=None,
              formatting=True,
+             imaging=True,
              tag='latest-lite',
              router="10.1.1.1",
              generate_key=False,
@@ -1408,14 +1418,15 @@ class MultiBurner(object):
         elif os_is_mac():
             card.unmount(device=device)
 
-        StopWatch.start(f"write image {device} {hostname}")
-        card.burn_sdcard(tag=tag,
-                         device=device,
-                         blocksize=blocksize,
-                         name=hostname,
-                         yes=yes)
-        StopWatch.stop(f"write image {device} {hostname}")
-        StopWatch.status(f"write image {device} {hostname}", True)
+        if imaging:
+            StopWatch.start(f"write image {device} {hostname}")
+            card.burn_sdcard(tag=tag,
+                             device=device,
+                             blocksize=blocksize,
+                             name=hostname,
+                             yes=yes)
+            StopWatch.stop(f"write image {device} {hostname}")
+            StopWatch.status(f"write image {device} {hostname}", True)
 
         Sudo.password()
         StopWatch.start(f"write host data {device} {hostname}")
