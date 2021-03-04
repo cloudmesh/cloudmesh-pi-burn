@@ -360,7 +360,8 @@ class SDCard:
             if not prepare_sdcard():
                 return False
 
-            self.mount(device=device)
+            # TODO Gregor verify this still works after commenting out the line below.
+            # self.mount(device=device)
             user = os.environ.get('USER')
 
             script = textwrap.dedent(f"""
