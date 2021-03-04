@@ -57,6 +57,7 @@ class BurnCommand(PluginCommand):
                            [--os=OS]
                            [-y]
                            [--imaged]
+                           [--set_passwd]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
                           [--hostname=HOSTNAME]
@@ -328,7 +329,8 @@ class BurnCommand(PluginCommand):
                        "country",
                        "inventory",
                        "name",
-                       "bs")
+                       "bs",
+                       "set_passwd")
 
         # VERBOSE(arguments)
         # arguments.MOUNTPOINT = arguments["--mount"]
