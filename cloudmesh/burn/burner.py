@@ -1578,7 +1578,7 @@ class MultiBurner(object):
         if manager is not None and system_hostname != manager_config["hostname"]:
             image.fetch(tag=manager_config["tag"])
         if workers is not None:
-            image.fetch(tag=["latest-lite"])
+            image.fetch(tag=worker_configs[0]["tag"])
 
         # Set up this pi as a bridge if the hostname is the same
         # as the manager and if the user wishes
