@@ -297,7 +297,7 @@ class SDCard:
     @windows_not_supported
     def format_device(self,
                       device='dev/sdX',
-                      unmount=False,
+                      unmount=True,
                       yes=False,
                       verbose=True):
         """
@@ -360,7 +360,7 @@ class SDCard:
             if not prepare_sdcard():
                 return False
 
-            # TODO Gregor verify this still works after commenting out the line below.
+            # TODO Gregor verify commenting out the below is ok
             # self.mount(device=device)
             user = os.environ.get('USER')
 
@@ -417,7 +417,8 @@ class SDCard:
         print("boot", self.boot_volume)
 
     # @windows_not_supported
-    def mount(self, device=None, card_os=None):
+    # TODO Gregor verify the default arg for card_os is ok
+    def mount(self, device=None, card_os="raspberry"):
         """
         Mounts the current SD card
         """
@@ -529,7 +530,7 @@ class SDCard:
 
         os.system("sync")
         if os_is_linux() or os_is_pi():
-            _execute(f"eject {device}", f"sudo eject {device}")
+            _execute(f"eject {device}", f"sudo eject -t {device}")
             # _execute(f"unmounting {self.boot_volume}", f"sudo umount {self.boot_volume}")
             # _execute(f"unmounting  {self.root_volume}", f"sudo umount {self.root_volume}")
         elif os_is_mac():
@@ -705,7 +706,8 @@ class SDCard:
                                  f"with the image {image_path}")):
             return ""
 
-        self.mount(device=device)
+        # TODO Gregor verify this is ok commenting out this line
+        # self.mount(device=device)
 
         # blocksize = blocksize.replace("M", "m")
 
