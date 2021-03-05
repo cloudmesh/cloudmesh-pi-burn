@@ -1014,7 +1014,7 @@ class Burner(object):
         print("IPS:          ", ips)
         print("Device:       ", arguments.device)
         print("SSID:         ", arguments.ssid)
-        print("Wifi Password:", arguments.wifipassword)
+        print("Wifi Password:", "********")
         print("Key:          ", key)
         print("Blocksize:    ", arguments.bs)
         print("OS:           ", arguments.os)
