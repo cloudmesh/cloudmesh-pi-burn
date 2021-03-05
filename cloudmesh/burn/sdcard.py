@@ -63,7 +63,7 @@ def location(host_os=None, card_os="raspberry", volume="boot"):
               ubuntu:
                 root: /media/{user}/writable
                 boot: /media/{user}/system-boot
-            mac:
+            macos:
               raspberry:
                 root: /Volumes/rootfs
                 boot: /Volumes/boot
@@ -82,7 +82,7 @@ def location(host_os=None, card_os="raspberry", volume="boot"):
         return where[host_os][card_os][volume]
     except Exception as e:
         print(e)
-        return "undefined"
+        return "os_undefined_in_location"
 
 
 class SDCard:
@@ -262,7 +262,10 @@ class SDCard:
         os.system("sync")
         if append:
             content = Sudo.readfile(filename, split=False, decode=True) + content
-        os.system(f"echo '{content}' | sudo cp /dev/stdin {filename}")
+        command = f"echo '{content}' | sudo cp /dev/stdin {filename}"
+        if os_is_mac() and "\0" in command:
+            command = command.replace("\0", "")
+        os.system(command)
         os.system("sync")
 
         return content
@@ -481,6 +484,12 @@ class SDCard:
 
         elif os_is_mac():
 
+            print ("DDDD", device)
+            command = f"diskutil mountDisk {device}"
+            print(command)
+            os.system(command)
+
+            """
             dev = USB.get_dev_from_diskutil()[0]
             volumes = [
                 {"dev": f"{dev}s1", "mount": self.boot_volume},
@@ -504,7 +513,7 @@ class SDCard:
                     Console.ok(f"Mounted {mount}")
                 else:
                     Console.error(f"Could not mounted {mount}")
-
+            """
         else:
             Console.error("Not yet implemented for your OS")
         Sudo.execute("sync")
@@ -715,8 +724,6 @@ class SDCard:
 
         # TODO Gregor verify this is ok commenting out this line
         # self.mount(device=device)
-
-        # blocksize = blocksize.replace("M", "m")
 
         if os_is_mac():
             command = f"sudo dd if={image_path} bs={blocksize} |" \

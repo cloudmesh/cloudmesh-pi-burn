@@ -1437,9 +1437,13 @@ class MultiBurner(object):
             StopWatch.stop(f"write image {device} {hostname}")
             StopWatch.status(f"write image {device} {hostname}", True)
 
+
         Sudo.password()
         StopWatch.start(f"write host data {device} {hostname}")
         card.mount(device=device)
+        Sudo.execute("sync")
+
+
         burner.keyboard(country=keyboard)
         burner.set_hostname(hostname)
         burner.set_locale(locale=locale)
