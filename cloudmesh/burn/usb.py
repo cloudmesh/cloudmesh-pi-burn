@@ -246,8 +246,10 @@ class USB(object):
         :return: list of dicts
         :rtype: list of dicts
         """
-
-        lines = subprocess.getoutput("dmesg -t").splitlines()
+        try:
+            lines = subprocess.getoutput("dmesg -t").splitlines()
+        except:
+            return None
 
         details = {}
         for line in lines:
@@ -390,5 +392,5 @@ class USB(object):
                       "Removable",
                       "Writeable"
                       ],
-
-        print(Printer.write(details, order=order, header=header, output=output))
+        #print(Printer.write(details, order=order, header=header, output=output))
+        print(Printer.write(details, order=order[0], header=header[0]))

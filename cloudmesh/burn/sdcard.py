@@ -402,6 +402,7 @@ class SDCard:
                 details = USB.get_from_diskutil()
 
                 USB.print_details(details)
+
                 print()
                 if yes or yn_choice(f"\nDo you like to format {device} as {_title}"):
                     _execute(f"Formatting {device} as {_title}",
@@ -687,6 +688,9 @@ class SDCard:
         print(f"Device:     {device}")
         print(f"Blocksize:  {blocksize}")
 
+        if os_is_mac():
+            blocksize = blocksize.lower()
+
         print()
 
         Sudo.password()
@@ -717,7 +721,7 @@ class SDCard:
         if os_is_mac():
             command = f"sudo dd if={image_path} bs={blocksize} |" \
                       f' tqdm --bytes --total {size} --ncols 80 |' \
-                      f" sudo dd of={device} bs={blocksize} conv=fsync"
+                      f" sudo dd of={device} bs={blocksize}"
         else:
             # command = f"sudo dd if={image_path} of={device} bs={blocksize} status=progress conv=fsync"
             command = f"sudo dd if={image_path} bs={blocksize} oflag=direct |" \
