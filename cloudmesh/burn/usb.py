@@ -392,5 +392,5 @@ class USB(object):
                       "Removable",
                       "Writeable"
                       ],
-        #print(Printer.write(details, order=order, header=header, output=output))
+        # print(Printer.write(details, order=order, header=header, output=output))
         print(Printer.write(details, order=order[0], header=header[0]))

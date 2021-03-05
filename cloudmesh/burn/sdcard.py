@@ -482,12 +482,13 @@ class SDCard:
 
         elif os_is_mac():
 
-            print ("DDDD", device)
             command = f"diskutil mountDisk {device}"
             print(command)
             os.system(command)
+
         else:
             Console.error("Not yet implemented for your OS")
+
         Sudo.execute("sync")
         return ""
 

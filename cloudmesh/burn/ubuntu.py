@@ -58,4 +58,3 @@ class Ubuntu:
     #
     def firmware(self):
         raise NotImplementedError
-
