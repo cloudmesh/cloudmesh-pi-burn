@@ -976,6 +976,7 @@ class Burner(object):
             Console.error("Parameters not complete")
             return ""
 
+        passwd = None
         if arguments.set_passwd:
             passwd = getpass("Host Password: ")
         elif "PASSWD" in os.environ:
@@ -1018,7 +1019,7 @@ class Burner(object):
         print("Blocksize:    ", arguments.bs)
         print("OS:           ", arguments.os)
         print("Imaged:       ", arguments.imaged)
-        print("Host Password:", passwd)
+        print("Host Password:", "********")
 
         if not (yes or yn_choice('\nWould you like to continue?')):
             Console.error("Aborting ...")
@@ -1068,7 +1069,7 @@ class Burner(object):
                        hostname=manager,
                        ip=ips[0],
                        key=key,
-                       password=password,
+                       password=passwd,
                        ssid=arguments.ssid,
                        psk=arguments.wifipassword,
                        formatting=not arguments.imaged,
@@ -1104,7 +1105,7 @@ class Burner(object):
                            hostname=worker,
                            ip=ip,
                            key='~/.cloudmesh/cmburn/id_rsa.pub',
-                           password=password,
+                           password=passwd,
                            ssid=None,
                            psk=None,
                            formatting=not arguments.imaged,
