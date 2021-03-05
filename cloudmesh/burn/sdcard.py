@@ -363,8 +363,6 @@ class SDCard:
             if not prepare_sdcard():
                 return False
 
-            # TODO Gregor verify commenting out the below is ok
-            # self.mount(device=device)
             user = os.environ.get('USER')
 
             script = textwrap.dedent(f"""
@@ -488,32 +486,6 @@ class SDCard:
             command = f"diskutil mountDisk {device}"
             print(command)
             os.system(command)
-
-            """
-            dev = USB.get_dev_from_diskutil()[0]
-            volumes = [
-                {"dev": f"{dev}s1", "mount": self.boot_volume},
-                {"dev": f"{dev}s2", "mount": self.root_volume},
-            ]
-            for volume in volumes:
-
-                dev = str(volume['dev'])
-                mount = volume['mount']
-                try:
-                    if not os.path.exists(mount):
-                        os.system(f"sudo mkdir -p {mount}")
-                        os.system(f"sudo mount -t vfat {dev} {mount}")
-                except Exception as e:
-                    print(e)
-            for volume in volumes:
-                dev = str(volume['dev'])
-                mount = volume['mount']
-
-                if os.path.exists(mount):
-                    Console.ok(f"Mounted {mount}")
-                else:
-                    Console.error(f"Could not mounted {mount}")
-            """
         else:
             Console.error("Not yet implemented for your OS")
         Sudo.execute("sync")
