@@ -1475,7 +1475,7 @@ class MultiBurner(object):
             Console.error("Gui wizzard not found at "
                           f"{card.root_volume}/etc/xdg/autostart/piwiz.desktop")
 
-        card.unmount(device=device)
+        card.unmount(device=device, full=True)
         StopWatch.stop(f"write host data {device} {hostname}")
         StopWatch.status(f"write host data {device} {hostname}", True)
 

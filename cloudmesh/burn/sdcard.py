@@ -510,9 +510,9 @@ class SDCard:
         return ""
 
     @windows_not_supported
-    def unmount(self, device=None, card_os="raspberry"):
+    def unmount(self, device=None, card_os="raspberry", full=False):
         """
-        Unmounts the current SD card
+        Unmounts the current SD card. param full indicates whether to use -t flag
 
         :param device: device to unmount, e.g. /dev/sda
         :type device: str
@@ -530,7 +530,10 @@ class SDCard:
 
         os.system("sync")
         if os_is_linux() or os_is_pi():
-            _execute(f"eject {device}", f"sudo eject -t {device}")
+            if full:
+                _execute(f"eject {device}", f"sudo eject {device}")
+            else:
+                _execute(f"eject {device}", f"sudo eject -t {device}")
             # _execute(f"unmounting {self.boot_volume}", f"sudo umount {self.boot_volume}")
             # _execute(f"unmounting  {self.root_volume}", f"sudo umount {self.root_volume}")
         elif os_is_mac():
