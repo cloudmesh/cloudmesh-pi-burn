@@ -1,4 +1,4 @@
-class Ubuntu:
+class Cloudinit:
 
     def wifi(self):
         raise NotImplementedError

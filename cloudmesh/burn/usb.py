@@ -11,6 +11,9 @@ from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
+from cloudmesh.burn.util import os_is_mac
+from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_pi
 
 
 def _get_attribute(attribute, lines):
@@ -119,7 +122,10 @@ class USB(object):
         :return: list
         :rtype: list of devices
         """
-        return glob.glob("/dev/sd?")
+        if os_is_mac():
+            return glob.glob("/dev/disk?")
+        else:
+            return glob.glob("/dev/sd?")
 
     @staticmethod
     def fdisk(dev):
@@ -131,8 +137,11 @@ class USB(object):
         :return: the output from the fdisk command
         :rtype: str
         """
-        Sudo.password()
-        return subprocess.getoutput(f"sudo fdisk -l {dev}")
+        if os_is_mac():
+            raise NotImplementedError("fdisk -l not supported on MacOS")
+        else:
+            Sudo.password()
+            return subprocess.getoutput(f"sudo fdisk -l {dev}")
 
     # noinspection PyBroadException,PyBroadException
     @staticmethod
