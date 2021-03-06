@@ -1,24 +1,34 @@
 import textwrap
+from cloudmesh.common.Host import Host
+from cloudmesh.common.parameter import Parameter
+
 class Cloudinit:
 
     def __init__(self):
-        self.content = ""
+        self.content = []
         self.runcmd = []
         self.user = []
 
         # runcmd must be at end and only run once
 
     def get(self):
-        runcmd = """
-        runcmd:
-        """ + "  - ".joun(self.runcmd)
+        users = ""
+        runcmd = ""
+        content = ""
+        if len(self.runcmd) > 0:
+            runcmd = textwrap.dedent("""
+            runcmd:
+              - """ + "  - ".join(self.runcmd))
 
-        users = """
-        users:
-        """ + "  - ".join(self.user)
+        if len(self.user) > 0:
+            users = textwrap.dedent("""
+            users:
+            """ + "  - ".join(self.user))
 
-        content = self.content + self.runcmd
-        return content
+        if len(self.content) > 0:
+            content = "\n".join(self.content)
+
+        return content + users + runcmd
 
     def __str__(self):
         return self.get()
@@ -26,8 +36,9 @@ class Cloudinit:
     def __repr__(self):
         return self.get()
 
-    def add(self, content):
-        self.content = self.content + "\n" + textwrap.dedent(content).strip()
+    def add(self, what, content):
+        comment = f"#\n# Set {what}\n#\n"
+        self.content.append(comment + textwrap.dedent(content).strip())
 
     def wifi(self):
         content = """
@@ -51,13 +62,10 @@ class Cloudinit:
                             password: "YOUR-NETWORK-PASSWORD"
                     dhcp4: true
                 """
-        raise NotImplementedError
+        self.add("wifi", content)
 
     def static_network(self, *, hostnames, ips):
         content = """
-        #
-        # Set static network addresses
-        #
         network-interfaces: |
           auto eth0
           iface eth0 inet static
@@ -67,13 +75,10 @@ class Cloudinit:
           broadcast 192.168.1.255
           gateway 192.168.1.1
         """
-        raise NotImplementedError
+        self.add("static network addresses", content)
 
     def nameserver(self):
         content = """
-        #
-        # Set name server
-        #
         manage_resolv_conf: true
         resolv_conf:
           nameservers: ['8.8.4.4', '8.8.8.8']
@@ -85,13 +90,10 @@ class Cloudinit:
             rotate: true
             timeout: 1
         """
-        raise NotImplementedError
+        self.add("name server", content)
 
-  def ntp(self):
-        script = """
-        #
-        # Set ntp
-        #
+    def ntp(self):
+        content = """
         ntp:
           servers:
             - ntp1.example.com
@@ -100,7 +102,7 @@ class Cloudinit:
         runcmd:
           - /usr/bin/systemctl enable --now ntpd
           """
-        raise NotImplementedError
+        self.add("ntp", content)
 
     def dhcp(self):
         # not sure how to dod this
@@ -111,7 +113,6 @@ class Cloudinit:
         self.runcmd.append(
             "/usr/bin/localectl set-keymap de-latin1-nodeadkeys"
         )
-        raise NotImplementedError
 
     def locale(self):
         # see keyboaad and timezone
@@ -121,20 +122,14 @@ class Cloudinit:
         raise NotImplementedError
 
     def hostname(self, name):
-        content = """
-        #
-        # Set hostname
-        #
+        content = f"""
         preserve_hostname: false
         hostname: {name}
         """
-        self.add(name)
+        self.add("hostname", content)
 
     def etc_hosts(self):
         content = """
-        #
-        # Set /etc/hosts
-        #
         write_files:
           - path: /etc/hosts
             permissions: '0644'
@@ -146,7 +141,7 @@ class Cloudinit:
               10.252.0.2 vm1-ib0
               10.252.0.3 vm2-ib1
         """
-        raise NotImplementedError
+        self.add("/etc/hosts", content)
 
     def startup(self):
         # nt sure we need this
@@ -169,7 +164,7 @@ class Cloudinit:
         ssh_authorized_keys:
           - ssh-rsa XXXKEY mail@example.com
         """
-        raise NotImplementedError
+        self.add("keys", content)
 
     def add_user(self, *, name, gecos, group, groups, expire, passwd):
         """
@@ -202,7 +197,7 @@ class Cloudinit:
         lock_passwd: false
         passwd: {passwd}
         """
-        raise NotImplementedError
+        self.user.append(user)
 
     def enable_ssh(self):
         # ??? use runcmd add ???
@@ -226,3 +221,20 @@ class Cloudinit:
     #
     def firmware(self):
         raise NotImplementedError
+
+if __name__ == "__main__":
+
+    hostnames = Parameter.expand("red,red[01-02]")
+    ips = Parameter.expand("10.0.0.[1-3]")
+    manager, workers = Host.get_hostnames(hostnames)
+
+    cloudinit = Cloudinit()
+    cloudinit.hostname(manager)
+    cloudinit.etc_hosts() # manager, workers, IPS
+    cloudinit.keyboard() # locale as parameter
+
+    print("cloudinit")
+    #
+    # ADD WHAT IS NEEDED
+    print(cloudinit)
+
