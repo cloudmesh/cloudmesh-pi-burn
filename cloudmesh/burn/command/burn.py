@@ -82,6 +82,12 @@ class BurnCommand(PluginCommand):
               burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
               burn check [--device=DEVICE]
               burn mac --hostname=HOSTNAME
+              burn gui [--hostname=HOSTNAME]
+                       [--ip=IP]
+                       [--ssid=SSID]
+                       [--wifipassword=PSK]
+                       [--bs=BLOCKSIZE]
+
 
             Options:
               -h --help              Show this screen.
