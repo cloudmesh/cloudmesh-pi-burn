@@ -1,9 +1,9 @@
 import inspect
 import os.path
+import subprocess
 
 import PySimpleGUI as sg
 import oyaml as yaml
-
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.common.Host import Host
@@ -13,14 +13,15 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
+from cloudmesh.common.sudo import Sudo
 
 
 class Gui:
 
     def __init__(self, hostnames=None, ips=None):
 
-        hostnames = hostnames or "red,red[01-04]"
-        ips = ips or "10.0.0.[1-5]"
+        hostnames = hostnames or "red,red[01-02]"
+        ips = ips or "10.0.0.[1-3]"
 
         hostnames = Parameter.expand(hostnames)
         manager, workers = Host.get_hostnames(hostnames)
@@ -43,6 +44,7 @@ class Gui:
         print("Manager:      ", manager)
         print("Workers:      ", workers)
         print("IPS:          ", ips)
+        print("Key:          ", self.key)
 
         self.manager = manager
         self.workers = workers
@@ -50,6 +52,13 @@ class Gui:
 
         self.load_data()
         self.layout()
+
+    def red_burn(self):
+        subprocess.run("cms burn cluster --device=/dev/disk4s1 --hostname=red,red00[1-2] --ssid=Router23165")
+        return
+
+    def worker_burn(self):
+        return
 
     def load_data(self):
 
@@ -96,7 +105,7 @@ class Gui:
         logo = f'{location}/images/cm-logo.png'
 
         burn_layout = [
-            [sg.T('This is inside tab 1')]
+            [sg.T('Network layout')]
         ]
 
         rack_layout = [
@@ -129,46 +138,44 @@ class Gui:
                                 ])
 
         if self.key is not None:
-            burn_layout.append([
-                sg.Frame('Security',
-                         [[
-                             sg.Text("Key"),
-                             sg.Input(default_text=self.key),
-                         ]])
-            ])
+            burn_layout.append(
+                [sg.Frame(
+                    'Security', [[sg.Text("Key"), sg.Input(default_text=self.key)]]
+                )]
+            )
 
-        burn_layout.append([sg.Text(160 * '-', )])
+        burn_layout.append([sg.Text(160 * '-',)])
 
         if self.manager is not None:
             manager = self.manager
             i = 0
             burn_layout.append([
                 sg.Text(' todo ', size=(5, 1)),
-                sg.Button('Burn'),
+                sg.Button('Burn', key=str(f'button-manager-{manager}')),
                 sg.Text(manager, size=(width, 1)),
                 sg.Text("manager", size=(8, 1)),
-                sg.Input(default_text=manager, size=(width, 1)),
-                sg.Input(default_text=self.ips[i], size=(width, 1)),
+                sg.Input(default_text=manager, size=(width, 1), key=str(f'name-manager-{manager}')),
+                sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-manager-{manager}')),
                 sg.Text('Image'),
-                sg.Input(default_text="latest-full", size=(width, 1)),
+                sg.Input(default_text="latest-full", size=(width, 1), key=str(f'image-manager-{manager}')),
                 sg.FileBrowse()
 
             ])
 
-        burn_layout.append([sg.Text(160 * '-', )])
+        burn_layout.append([sg.Text(160 * '-',)])
 
         if self.workers is not None:
             i = 1
             for worker in self.workers:
                 burn_layout.append([
                     sg.Text(' todo ', size=(5, 1)),
-                    sg.Button('Burn'),
+                    sg.Button('Burn', key=str(f'button-worker-{worker}')),
                     sg.Text(worker, size=(width, 1)),
                     sg.Text("worker", size=(8, 1)),
-                    sg.Input(default_text=worker, size=(width, 1)),
-                    sg.Input(default_text=self.ips[i], size=(width, 1)),
+                    sg.Input(default_text=worker, size=(width, 1), key=str(f'name-worker-{worker}')),
+                    sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-worker-{worker}')),
                     sg.Text('Image'),
-                    sg.Input(default_text="latest-lite", size=(width, 1)),
+                    sg.Input(default_text="latest-lite", size=(width, 1), key=str(f'image-worker-{worker}')),
                     sg.FileBrowse()
 
                 ])
@@ -191,12 +198,38 @@ class Gui:
             [sg.Button('Cancel')]
         ]
 
+    def burn(self, kind=None, name=None):
+        print(kind, name)
+        print("password")
+        Sudo.password()
+        print('OK')
+        os.system(f"cms banner {kind} {name} >> text.log")
+        # cms burn cluster --device=/dev/disk2 --hostname={name} --ssid=SSID --ip={ip}
+
     def run(self):
 
+        Sudo.password()
+
         window = sg.Window('Cloudmesh Pi Burn', self.layout)
+        #print(self.devices)
+        #print(self.details)
+        while True:
 
-        event, values = window.read()
+            event, values = window.read()
+            print("==>", event, values)
 
-        Console.ok(f"You entered: {values[0]}")
 
+            if event.startswith('button-manager'):
+                name = event.split('button-manager-')[1]
+                self.burn(kind="manager", name=name)
+            for worker in self.workers:
+                if event == f'button-{worker}':
+                    self.burn(kind="worker", name=worker)
+
+
+            if event in ('Cancel', None):
+                break
+
+
+        print('exit')
         window.close()
