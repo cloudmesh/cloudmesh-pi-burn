@@ -317,12 +317,23 @@ class Burner(object):
         # print ('\n'.join(sorted(devices)))
 
         if os_is_mac():
+
+            names = USB.get_dev_from_diskutil()
+
             details = USB.get_from_diskutil()
         else:
             details = USB.get_from_dmesg()
 
         if print_stdout:
             banner("SD Cards Found")
+
+            if os_is_mac():
+                print("We found the follwing cards:")
+                print("  - /dev/" + "\n  - /dev/".join(names))
+                print()
+                print("We found the follong file systems on these disks:")
+                print()
+
             print(Printer.write(details,
                                 order=[
                                     "dev",

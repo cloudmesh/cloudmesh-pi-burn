@@ -20,6 +20,7 @@ from cloudmesh.common.util import yn_choice
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
+from cloudmesh.burn.usb import USB
 
 
 class BurnCommand(PluginCommand):
@@ -486,6 +487,14 @@ class BurnCommand(PluginCommand):
 
             output = arguments.output or "table"
             execute("info", burner.info(output=output))
+            try:
+                USB.check_for_readers()
+            except Exception as e:
+                print()
+                Console.error(e)
+                print()
+                return ""
+
             return ""
 
         elif arguments.install:
@@ -507,14 +516,30 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.backup:
+            try:
+                USB.check_for_readers()
+            except Exception as e:
+                print()
+                Console.error(e)
+                print()
+                return ""
             execute("backup", sdcard.backup(device=arguments.device, to_file=arguments.to))
             return ""
 
         elif arguments["copy"]:  # as copy is a reserved word we need to use the index
+            USB.check_for_readers()
             execute("copy", sdcard.copy(device=arguments.device, from_file=arguments.FROM))
             return ""
 
         elif arguments.sdcard:
+
+            try:
+                USB.check_for_readers()
+            except Exception as e:
+                print()
+                Console.error(e)
+                print()
+                return ""
 
             if arguments.device is None:
                 burner.info()
@@ -553,6 +578,14 @@ class BurnCommand(PluginCommand):
 
         elif arguments.set:
 
+            try:
+                USB.check_for_readers()
+            except Exception as e:
+                print()
+                Console.error(e)
+                print()
+                return ""
+
             if arguments.hostname:
                 execute("set hostname", burner.set_hostname(arguments.hostname))
 
@@ -568,6 +601,13 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.enable and arguments.ssh:
+            try:
+                USB.check_for_readers()
+            except Exception as e:
+                print()
+                Console.error(e)
+                print()
+                return ""
 
             execute("enable ssh", burner.enable_ssh())
             return ""
@@ -614,10 +654,25 @@ class BurnCommand(PluginCommand):
             #                  --wifipassword=mypass
             #
 
+            try:
+                USB.check_for_readers()
+            except Exception as e:
+                print()
+                Console.error(e)
+                print()
+                return ""
             execute("cluster", burner.cluster(arguments=arguments))
             return ""
 
         elif arguments.create and arguments.inventory:
+            try:
+                USB.check_for_readers()
+            except Exception as e:
+                print()
+                Console.error(e)
+                print()
+                return ""
+
             if not os_is_pi():
                 print()
                 Console.error("This command has only been written for a  Raspberry Pis. Terminating for caution")
@@ -650,6 +705,14 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.create:
+
+            try:
+                USB.check_for_readers()
+            except Exception as e:
+                print()
+                Console.error(e)
+                print()
+                return ""
 
             if arguments["--passwd"]:
                 passwd = arguments["--passwd"]
