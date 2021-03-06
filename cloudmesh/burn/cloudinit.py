@@ -7,6 +7,7 @@ from cloudmesh.common.parameter import Parameter
 # carefull apt get requires network is working via master
 #
 
+
 class Cloudinit:
 
     def __init__(self):
