@@ -363,6 +363,10 @@ class SDCard:
             if not prepare_sdcard():
                 return False
 
+            # TODO Gregor verify commenting out the below is ok
+            # if os_is_mac():
+            #    self.mount(device=device)
+
             user = os.environ.get('USER')
 
             script = textwrap.dedent(f"""
