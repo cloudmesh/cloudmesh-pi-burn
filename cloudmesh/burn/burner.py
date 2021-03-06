@@ -324,14 +324,12 @@ class Burner(object):
         else:
             details = USB.get_from_dmesg()
 
-
-
         if print_stdout:
             banner("SD Cards Found")
 
             if os_is_mac():
                 print("We found the follwing cards:")
-                print ("  - /dev/" + "\n  - /dev/".join(names))
+                print("  - /dev/" + "\n  - /dev/".join(names))
                 print()
                 print("We found the follong file systems on these disks:")
                 print()

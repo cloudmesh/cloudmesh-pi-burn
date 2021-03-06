@@ -132,12 +132,12 @@ class Gui:
             burn_layout.append([
                 sg.Frame('Security',
                          [[
-                            sg.Text("Key"),
-                            sg.Input(default_text=self.key),
-                        ]])
+                             sg.Text("Key"),
+                             sg.Input(default_text=self.key),
+                         ]])
             ])
 
-        burn_layout.append([sg.Text(160 * '-',)])
+        burn_layout.append([sg.Text(160 * '-', )])
 
         if self.manager is not None:
             manager = self.manager
@@ -155,20 +155,20 @@ class Gui:
 
             ])
 
-        burn_layout.append([sg.Text(160 * '-',)])
+        burn_layout.append([sg.Text(160 * '-', )])
 
         if self.workers is not None:
             i = 1
             for worker in self.workers:
                 burn_layout.append([
-                    sg.Text(' todo ', size=(5,1)),
+                    sg.Text(' todo ', size=(5, 1)),
                     sg.Button('Burn'),
-                    sg.Text(worker, size=(width,1)),
-                    sg.Text("worker", size=(8,1)),
-                    sg.Input(default_text=worker, size=(width,1)),
-                    sg.Input(default_text=self.ips[i], size=(width,1)),
+                    sg.Text(worker, size=(width, 1)),
+                    sg.Text("worker", size=(8, 1)),
+                    sg.Input(default_text=worker, size=(width, 1)),
+                    sg.Input(default_text=self.ips[i], size=(width, 1)),
                     sg.Text('Image'),
-                    sg.Input(default_text="latest-lite", size=(width,1)),
+                    sg.Input(default_text="latest-lite", size=(width, 1)),
                     sg.FileBrowse()
 
                 ])

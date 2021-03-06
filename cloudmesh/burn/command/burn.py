@@ -22,6 +22,7 @@ from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.burn.usb import USB
 
+
 class BurnCommand(PluginCommand):
 
     # noinspection PyBroadException
@@ -607,7 +608,6 @@ class BurnCommand(PluginCommand):
                 Console.error(e)
                 print()
                 return ""
-
 
             execute("enable ssh", burner.enable_ssh())
             return ""

@@ -333,7 +333,6 @@ class USB(object):
                               "reader/writer for MacOS")
                 raise ValueError("Too many cards found")
 
-
     @staticmethod
     def get_dev_from_diskutil():
         import plistlib
