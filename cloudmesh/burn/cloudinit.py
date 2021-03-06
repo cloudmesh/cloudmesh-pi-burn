@@ -1,6 +1,8 @@
 import textwrap
+
 from cloudmesh.common.Host import Host
 from cloudmesh.common.parameter import Parameter
+
 
 class Cloudinit:
 
@@ -136,7 +138,7 @@ class Cloudinit:
             content: |
               #Host file
               127.0.0.1   localhost localhost.localdomain
-        
+
               10.252.0.1 vm0-ib0
               10.252.0.2 vm1-ib0
               10.252.0.3 vm2-ib1
@@ -168,23 +170,23 @@ class Cloudinit:
 
     def add_user(self, *, name, gecos, group, groups, expire, passwd):
         """
-        
-        :param self: 
-        :type self: 
-        :param name: 
-        :type name: 
+
+        :param self:
+        :type self:
+        :param name:
+        :type name:
         :param gecos: Firstname Lastname
         :type gecos: str
-        :param group: 
-        :type group: 
-        :param groups: 
-        :type groups: 
-        :param expire: 
-        :type expire: 
-        :param passwd: 
-        :type passwd: 
-        :return: 
-        :rtype: 
+        :param group:
+        :type group:
+        :param groups:
+        :type groups:
+        :param expire:
+        :type expire:
+        :param passwd:
+        :type passwd:
+        :return:
+        :rtype:
         """
         user = f"""
         name: {name}
@@ -222,19 +224,18 @@ class Cloudinit:
     def firmware(self):
         raise NotImplementedError
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     hostnames = Parameter.expand("red,red[01-02]")
     ips = Parameter.expand("10.0.0.[1-3]")
     manager, workers = Host.get_hostnames(hostnames)
 
     cloudinit = Cloudinit()
     cloudinit.hostname(manager)
-    cloudinit.etc_hosts() # manager, workers, IPS
-    cloudinit.keyboard() # locale as parameter
+    cloudinit.etc_hosts()  # manager, workers, IPS
+    cloudinit.keyboard()  # locale as parameter
 
     print("cloudinit")
     #
     # ADD WHAT IS NEEDED
     print(cloudinit)
-

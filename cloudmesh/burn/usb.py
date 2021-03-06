@@ -12,8 +12,8 @@ from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 from cloudmesh.burn.util import os_is_mac
-from cloudmesh.burn.util import os_is_linux
-from cloudmesh.burn.util import os_is_pi
+# from cloudmesh.burn.util import os_is_linux
+# from cloudmesh.burn.util import os_is_pi
 
 
 def _get_attribute(attribute, lines):
