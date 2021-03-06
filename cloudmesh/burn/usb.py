@@ -319,6 +319,22 @@ class USB(object):
         return found
 
     @staticmethod
+    def check_for_readers():
+        if os_is_mac():
+            readers = USB.get_dev_from_diskutil()
+            if len(readers) == 0:
+                print()
+                Console.error("Please make sure the reader and the SDCard "
+                              "are properly inserted")
+                raise ValueError("No card found")
+            elif len(readers) > 1:
+                print()
+                Console.error("At this time we only support one SDCard "
+                              "reader/writer for MacOS")
+                raise ValueError("Too many cards found")
+
+
+    @staticmethod
     def get_dev_from_diskutil():
         import plistlib
         external = subprocess.check_output("diskutil list -plist external".split(" "))
@@ -337,7 +353,7 @@ class USB(object):
             return details
 
     @staticmethod
-    def get_from_diskutil():
+    def get_from_diskutil(device=None):
         import plistlib
         external = subprocess.check_output("diskutil list -plist external".split(" "))
 
@@ -349,29 +365,34 @@ class USB(object):
             Console.error("No partition found")
             return ""
 
-        for partition in r['AllDisksAndPartitions'][0]['Partitions']:
+        no = 0
+        for cards in r['AllDisksAndPartitions']:
 
-            if 'MountPoint' not in partition:
-                partition['MountPoint'] = None
-            if partition['Content'] == 'Linux':
-                partition['Content'] = 'ext4'
-            elif partition['Content'] == 'Windows_FAT_32':
-                partition['Content'] = 'FAT32'
+            for partition in r['AllDisksAndPartitions'][no]['Partitions']:
 
-            info = partition['MountPoint']
-            entry = {
-                "dev": f"/dev/{partition['DeviceIdentifier']}",
-                "active": info is not None,
-                "info": info,
-                "readable": info is not None,
-                "formatted": partition['Content'],
-                "empty": partition['Size'] == 0,
-                "size": humanize.naturalsize(partition['Size']),
-                "direct-access": True,
-                "removable": True,
-                "writeable": 'VolumeName' in partition
-            }
-            details.append(entry)
+                if 'MountPoint' not in partition:
+                    partition['MountPoint'] = None
+                if partition['Content'] == 'Linux':
+                    partition['Content'] = 'ext4'
+                elif partition['Content'] == 'Windows_FAT_32':
+                    partition['Content'] = 'FAT32'
+
+                info = partition['MountPoint']
+                entry = {
+                    "dev": f"/dev/{partition['DeviceIdentifier']}",
+                    "active": info is not None,
+                    "info": info,
+                    "readable": info is not None,
+                    "formatted": partition['Content'],
+                    "empty": partition['Size'] == 0,
+                    "size": humanize.naturalsize(partition['Size']),
+                    "direct-access": True,
+                    "removable": True,
+                    "writeable": 'VolumeName' in partition
+                }
+                if device is None or device in entry["dev"]:
+                    details.append(entry)
+            no = no + 1
 
         return details
 
