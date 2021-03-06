@@ -10,6 +10,7 @@ class Cloudinit:
         self.content = []
         self.runcmd = []
         self.user = []
+        self.apt = []  # not yet sure how to do that
 
         # runcmd must be at end and only run once
 
@@ -146,9 +147,7 @@ class Cloudinit:
         self.add("/etc/hosts", content)
 
     def startup(self):
-        # nt sure we need this
-        # we could possibly if we set upi the inventory as rest
-        # service rgister the upcomming nodes
+        # not sure if we need that
         raise NotImplementedError
 
     def set_key(self):
@@ -202,10 +201,16 @@ class Cloudinit:
         self.user.append(user)
 
     def enable_ssh(self):
-        # ??? use runcmd add ???
-        # systemctl enable sshd.service
-        #
-        raise NotImplementedError
+        # apt install need to be done differently
+        # ther is a special section for that
+        ssh = textwrap.dedent("""
+        sudo apt install openssh-server
+        sudo systemctl enable --now ssh
+        sudo ufw allow ssh
+        sudo ufw enable
+        """).strip()
+        for line in ssh:
+            self.runcmd.append(line)
 
     def disable_password(self):
         raise NotImplementedError
