@@ -3,6 +3,9 @@ import textwrap
 from cloudmesh.common.Host import Host
 from cloudmesh.common.parameter import Parameter
 
+#
+# carefull apt get requires network is working via master
+#
 
 class Cloudinit:
 
@@ -19,9 +22,7 @@ class Cloudinit:
         runcmd = ""
         content = ""
         if len(self.runcmd) > 0:
-            runcmd = textwrap.dedent("""
-            runcmd:
-              - """ + "  - ".join(self.runcmd))
+            runcmd = "\nruncmd:\n" + "  - " + "\n  - ".join(self.runcmd)
 
         if len(self.user) > 0:
             users = textwrap.dedent("""
@@ -209,7 +210,7 @@ class Cloudinit:
         sudo ufw allow ssh
         sudo ufw enable
         """).strip()
-        for line in ssh:
+        for line in ssh.splitlines():
             self.runcmd.append(line)
 
     def disable_password(self):
@@ -239,7 +240,7 @@ if __name__ == "__main__":
     cloudinit.hostname(manager)
     cloudinit.etc_hosts()  # manager, workers, IPS
     cloudinit.keyboard()  # locale as parameter
-
+    cloudinit.enable_ssh()
     print("cloudinit")
     #
     # ADD WHAT IS NEEDED
