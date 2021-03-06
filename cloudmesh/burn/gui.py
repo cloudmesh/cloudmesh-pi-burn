@@ -130,17 +130,27 @@ class Gui:
 
         # layout.append([sg.Image(filename=logo, size=(30,30))])
 
-        for device in self.devices:
-            burn_layout.append([sg.Radio(device['dev'], group_id="DEVICE"),
-                                sg.Text(device["size"]),
-                                sg.Text(device["info"]),
-                                sg.Text(device["formatted"]),
-                                ])
+        devices = USB.get_dev_from_diskutil()
+
+        count = 0
+        for device in devices:
+            default = count == 0
+            burn_layout.append(
+                [sg.Radio(device, group_id="DEVICE", default=default)]
+            )
+
+        # for device in self.devices:
+        #    burn_layout.append([sg.Radio(device['dev'], group_id="DEVICE"),
+        #                        sg.Text(d),
+        #                        sg.Text(device["size"]),
+        #                        sg.Text(device["info"]),
+        #                        sg.Text(device["formatted"]),
+        #                        ])
 
         if self.key is not None:
             burn_layout.append(
                 [sg.Frame(
-                    'Security', [[sg.Text("Key"), sg.Input(default_text=self.key)]]
+                    'Security', [[sg.Text("Key"), sg.Input(key="key", default_text=self.key)]]
                 )]
             )
 
@@ -151,13 +161,13 @@ class Gui:
             i = 0
             burn_layout.append([
                 sg.Text(' todo ', size=(5, 1)),
-                sg.Button('Burn', key=str(f'button-manager-{manager}')),
+                sg.Button('Burn', key=str(f'button-manager')),
                 sg.Text(manager, size=(width, 1)),
                 sg.Text("manager", size=(8, 1)),
-                sg.Input(default_text=manager, size=(width, 1), key=str(f'name-manager-{manager}')),
-                sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-manager-{manager}')),
+                sg.Input(default_text=manager, size=(width, 1), key=str(f'name-manager')),
+                sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-manager')),
                 sg.Text('Image'),
-                sg.Input(default_text="latest-full", size=(width, 1), key=str(f'image-manager-{manager}')),
+                sg.Input(default_text="latest-full", size=(width, 1), key=str(f'image-manager')),
                 sg.FileBrowse()
 
             ])
@@ -186,7 +196,6 @@ class Gui:
                 sg.TabGroup(
                     [
                         [
-
                             sg.Tab('Burn', burn_layout),
                             sg.Tab('Log', log_layout),
                             sg.Tab('Network', net_layout),
@@ -205,6 +214,26 @@ class Gui:
         print('OK')
         os.system(f"cms banner {kind} {name} >> text.log")
         # cms burn cluster --device=/dev/disk2 --hostname={name} --ssid=SSID --ip={ip}
+
+    def value_mapper(self, values, arguments):
+        arguments["key"] = values["key"]
+        arguments["manager"] = values["name-manager"]
+
+
+        #'key': '/Users/grey/.ssh/id_rsa.pub',
+        #'name-manager-red':
+        #'red', 'ip-manager-red': '10.0.0.1',
+        # 'image-manager-red': 'latest-full',
+        # 'Browse': '',
+        # 'name-worker-red01': 'red01',
+        # 'ip-worker-red01': '10.0.0.2',
+        # 'image-worker-red01': 'latest-lite',
+        # 'Browse0': '',
+        # 'name-worker-red02': 'red02',
+        # 'ip-worker-red02': '10.0.0.3',
+        # 'image-worker-red02': 'latest-lite',
+        # 'Browse1': '',
+        # 1: 'Burn'}
 
     def run(self):
 
