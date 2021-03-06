@@ -3,7 +3,8 @@ class Cloudinit:
 
     def __init__(self):
         self.content = ""
-        self.runcmd = ""
+        self.runcmd = []
+        self.user = []
 
         # runcmd must be at end and only run once
 
@@ -11,6 +12,10 @@ class Cloudinit:
         runcmd = """
         runcmd:
         """ + "  - ".joun(self.runcmd)
+
+        users = """
+        users:
+        """ + "  - ".join(self.user)
 
         content = self.content + self.runcmd
         return content
@@ -98,6 +103,8 @@ class Cloudinit:
         raise NotImplementedError
 
     def dhcp(self):
+        # not sure how to dod this
+        # we may not need immediatly as we do static
         raise NotImplementedError
 
     def keyboard(self):
@@ -107,6 +114,10 @@ class Cloudinit:
         raise NotImplementedError
 
     def locale(self):
+        # see keyboaad and timezone
+        # may need consideration for wifi country
+        # not yet sure if we eneed this as it may just be done as
+        # part of the other methods
         raise NotImplementedError
 
     def hostname(self, name):
@@ -138,12 +149,13 @@ class Cloudinit:
         raise NotImplementedError
 
     def startup(self):
-        raise NotImplementedError
-
-    def cloud_config(self):
+        # nt sure we need this
+        # we could possibly if we set upi the inventory as rest
+        # service rgister the upcomming nodes
         raise NotImplementedError
 
     def set_key(self):
+        # set key wudl be the host key?
         raise NotImplementedError
 
     def add_key(self):
@@ -159,10 +171,37 @@ class Cloudinit:
         """
         raise NotImplementedError
 
-    def permissions(self):
-        raise NotImplementedError
-
-    def add_user(self):
+    def add_user(self, *, name, gecos, group, groups, expire, passwd):
+        """
+        
+        :param self: 
+        :type self: 
+        :param name: 
+        :type name: 
+        :param gecos: Firstname Lastname
+        :type gecos: str
+        :param group: 
+        :type group: 
+        :param groups: 
+        :type groups: 
+        :param expire: 
+        :type expire: 
+        :param passwd: 
+        :type passwd: 
+        :return: 
+        :rtype: 
+        """"""
+        user = f"""
+        name: {name}
+        gecos: {gecos}
+        primary_group: {group}
+        groups: {groups}
+        # selinux_user: staff_u
+        # expiredate: '2012-09-01'
+        # ssh_import_id: foobar
+        lock_passwd: false
+        passwd: {passwd}
+        """
         raise NotImplementedError
 
     def enable_ssh(self):
