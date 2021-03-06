@@ -4,7 +4,7 @@ import subprocess
 
 import humanize
 import requests
-import usb
+import usb as usb_device
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.sudo import Sudo
@@ -171,7 +171,12 @@ class USB(object):
             return v.replace("0x", "0")
 
         lsusb = USB.get_from_lsusb()
-        busses = usb.busses()
+        if len(lsusb) == 0:
+            Console.error("We could not find your USB reader in the list of known readers")
+            return None
+        busses = usb_device.busses()
+
+
 
         details = []
         for bus in busses:
