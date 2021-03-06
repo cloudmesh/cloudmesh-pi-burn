@@ -190,7 +190,7 @@ class Cloudinit:
         :type passwd: 
         :return: 
         :rtype: 
-        """"""
+        """
         user = f"""
         name: {name}
         gecos: {gecos}
@@ -205,6 +205,9 @@ class Cloudinit:
         raise NotImplementedError
 
     def enable_ssh(self):
+        # ??? use runcmd add ???
+        # systemctl enable sshd.service
+        #
         raise NotImplementedError
 
     def disable_password(self):
