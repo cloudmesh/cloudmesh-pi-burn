@@ -35,6 +35,7 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Shell import Shell
 from cloudmesh.inventory.inventory import Inventory
+from cloudmesh.burn.gui import Gui
 
 
 # noinspection PyPep8
@@ -46,6 +47,19 @@ class Burner(object):
         """
         self.hostname = None
         self.keypath = None
+
+
+    @staticmethod
+    def gui(arguments=None):
+
+        if os_is_windows():
+            Console.error("Only supported on Pi and Linux. On Mac you will "
+                          "need to have ext4 write access.")
+            return ""
+
+        g = Gui(hostnames=arguments.hostnames, ips=arguments.ips)
+
+        g.run()
 
     @staticmethod
     def detect():
@@ -1660,17 +1674,4 @@ class MultiBurner(object):
 
         Console.info(f"You burned {count} SD Cards")
         Console.ok("Done :)")
-
-    @staticmethod
-    def gui(arguments=None):
-
-        if os_is_windows():
-            Console.error("Only supported on Pi and Linux. On Mac you will "
-                          "need to have ext4 write access.")
-            return ""
-
-        g = Gui(hostnames=arguments.hostnames,
-                ips=arguments.ips)
-
-        g.run()
 

@@ -32,6 +32,11 @@ class BurnCommand(PluginCommand):
         ::
 
             Usage:
+              burn gui [--hostname=HOSTNAME]
+                       [--ip=IP]
+                       [--ssid=SSID]
+                       [--wifipassword=PSK]
+                       [--bs=BLOCKSIZE]
               burn firmware check
               burn firmware update
               burn install
@@ -82,11 +87,7 @@ class BurnCommand(PluginCommand):
               burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
               burn check [--device=DEVICE]
               burn mac --hostname=HOSTNAME
-              burn gui [--hostname=HOSTNAME]
-                       [--ip=IP]
-                       [--ssid=SSID]
-                       [--wifipassword=PSK]
-                       [--bs=BLOCKSIZE]
+
 
 
             Options:
@@ -314,8 +315,6 @@ class BurnCommand(PluginCommand):
                > cms burn image delete 2019-09-26-raspbian-buster-lite
 
         """
-        arguments.burngui = arguments.gui
-
         map_parameters(arguments,
                        "details",
                        "refresh",
@@ -347,8 +346,6 @@ class BurnCommand(PluginCommand):
         arguments.IMAGE = arguments["--image"]
         arguments.output = "table"  # hard code for now
         arguments.bs = arguments.bs or "4M"
-        # arguments.gui = arguments["-g"] or False
-        arguments.gui = False
         arguments.yes = arguments["-y"]
 
         # VERBOSE(arguments)
@@ -380,7 +377,7 @@ class BurnCommand(PluginCommand):
 
             return ""
 
-        elif arguments.burngui:
+        elif arguments.gui:
 
             execute("cluster", burner.gui(arguments=arguments))
             return ""
