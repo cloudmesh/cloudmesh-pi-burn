@@ -314,6 +314,7 @@ class BurnCommand(PluginCommand):
                > cms burn image delete 2019-09-26-raspbian-buster-lite
 
         """
+        arguments.burngui = arguments.gui
 
         map_parameters(arguments,
                        "details",
