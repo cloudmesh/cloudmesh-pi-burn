@@ -516,7 +516,15 @@ class SDCard:
             if full:
                 _execute(f"eject {device}", f"sudo eject {device}")
             else:
-                _execute(f"eject {device}", f"sudo eject -t {device}")
+                #_execute(f"eject {device}", f"sudo eject -t {device}")
+                device_basename = os.path.basename(device)
+                result = Shell.run('lsblk')
+                if device_basename in result.split():
+                    for line in result.splitlines():
+                        line = line.split()
+                        if device_basename in line[0] and len(line) > 6:
+                            Console.ok(f'sudo umount {line[6]}')
+                            os.system(f'sudo umount {line[6]}')
             # _execute(f"unmounting {self.boot_volume}", f"sudo umount {self.boot_volume}")
             # _execute(f"unmounting  {self.root_volume}", f"sudo umount {self.root_volume}")
         elif os_is_mac():
@@ -706,12 +714,16 @@ class SDCard:
             # command = f"sudo dd if={image_path} of={device} bs={blocksize} status=progress conv=fsync"
             command = f"sudo dd if={image_path} bs={blocksize} oflag=direct |" \
                       f' tqdm --bytes --total {size} --ncols 80 |' \
-                      f" sudo dd of={device} bs={blocksize} oflag=direct conv=fsync"
+                      f" sudo dd of={device} bs={blocksize} iflag=fullblock " \
+                      f"oflag=direct conv=fsync"
         print(command)
         os.system(command)
 
         Sudo.execute("sync")
-        self.unmount(device=device)
+        if os_is_linux():
+            self.unmount(device=device,full=True)
+        else:
+            self.unmount(device=device)
 
     def copy(self, device=None, from_file="latest"):
         if device is None:
