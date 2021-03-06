@@ -14,14 +14,23 @@ class Cloudinit:
         self.content = []
         self.runcmd = []
         self.user = []
-        self.apt = []  # not yet sure how to do that
+        self.packages = []  # not yet sure how to do that
 
         # runcmd must be at end and only run once
+
+    def update(self):
+        self.content.append("apt_update: true")
+        self.content.append("apt_upgrade: true")
 
     def get(self):
         users = ""
         runcmd = ""
         content = ""
+        packages = ""
+
+        if len(self.runcmd) > 0:
+            packages = "\npackages:\n" + "  - " + "\n  - ".join(self.packages)
+
         if len(self.runcmd) > 0:
             runcmd = "\nruncmd:\n" + "  - " + "\n  - ".join(self.runcmd)
 
@@ -33,7 +42,7 @@ class Cloudinit:
         if len(self.content) > 0:
             content = "\n".join(self.content)
 
-        return content + users + runcmd
+        return content + users + packages + runcmd
 
     def __str__(self):
         return self.get()
@@ -205,8 +214,8 @@ class Cloudinit:
     def enable_ssh(self):
         # apt install need to be done differently
         # ther is a special section for that
+        self.packages.append("openssh-server")  # may already be installed, s we ma not need this
         ssh = textwrap.dedent("""
-        sudo apt install openssh-server
         sudo systemctl enable --now ssh
         sudo ufw allow ssh
         sudo ufw enable
@@ -240,6 +249,7 @@ if __name__ == "__main__":
     cloudinit = Cloudinit()
     cloudinit.hostname(manager)
     cloudinit.etc_hosts()  # manager, workers, IPS
+    cloudinit.update()
     cloudinit.keyboard()  # locale as parameter
     cloudinit.enable_ssh()
     print("cloudinit")
