@@ -380,6 +380,11 @@ class BurnCommand(PluginCommand):
 
             return ""
 
+        elif arguments.burngui:
+
+            execute("cluster", burner.gui(arguments=arguments))
+            return ""
+
         elif arguments.firmware and arguments.check:
 
             execute("firmware check", burner.firmware(action="check"))
