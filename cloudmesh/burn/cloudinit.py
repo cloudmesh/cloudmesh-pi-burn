@@ -7,6 +7,8 @@ from cloudmesh.common.parameter import Parameter
 # carefull apt get requires network is working via master
 #
 
+# see also https://github.com/number5/cloud-init/tree/master/doc/examples
+
 
 class Cloudinit:
 
@@ -18,15 +20,46 @@ class Cloudinit:
 
         # runcmd must be at end and only run once
 
-    def update(self):
-        self.content.append("apt_update: true")
-        self.content.append("apt_upgrade: true")
+    def update(self, reboot=False):
+        commands = f"""
+        apt_update: true
+        apt_upgrade: true
+        package_reboot_if_required: {reboot.lower()}
+        """
+        self.add("update and upgrade", commands)
+
+    def reboot(self, delay):
+        commands = f"""
+        power_state:
+          delay: '+{delay}'
+          mode: reboot
+          message: Reboot
+        """
+        self.add("reboot", commands)
+
+    def upstart(self):
+        upstart = """
+        #upstart-job
+        description "My test job"
+
+        start on cloud-config
+        console output
+        task
+
+        script
+        echo "====BEGIN======="
+        echo "HELLO WORLD: $UPSTART_JOB"
+        echo "=====END========"
+        end script
+        """
+        self.add("upstart", upstart)
 
     def get(self):
         users = ""
         runcmd = ""
         content = ""
         packages = ""
+        final_message = "final_message: Cloudmesh configured your system, after $UPTIME seconds"
 
         if len(self.runcmd) > 0:
             packages = "\npackages:\n" + "  - " + "\n  - ".join(self.packages)
@@ -42,7 +75,7 @@ class Cloudinit:
         if len(self.content) > 0:
             content = "\n".join(self.content)
 
-        return content + users + packages + runcmd
+        return content + users + packages + runcmd + final_message
 
     def __str__(self):
         return self.get()
@@ -53,6 +86,19 @@ class Cloudinit:
     def add(self, what, content):
         comment = f"#\n# Set {what}\n#\n"
         self.content.append(comment + textwrap.dedent(content).strip())
+
+    def register(self):
+        """
+        not yet implemented
+        :return:
+        :rtype:
+        """
+        phone = textwrap.dedent("""
+        phone_home:
+            url: http://my.example.com/$INSTANCE_ID/
+            post: [ pub_key_dsa, pub_key_rsa, pub_key_ecdsa, instance_id ]
+        """)
+        self.add("register to inventory", phone)
 
     def wifi(self):
         content = """
@@ -128,12 +174,13 @@ class Cloudinit:
             "/usr/bin/localectl set-keymap de-latin1-nodeadkeys"
         )
 
-    def locale(self):
+    def locale(self, region="en_US.UTF-8"):
         # see keyboaad and timezone
         # may need consideration for wifi country
         # not yet sure if we eneed this as it may just be done as
-        # part of the other methods
-        raise NotImplementedError
+        # part of the
+        self.content.append("locale: en_US.UTF-8")
+        self.content.append("locale_configfile: /etc/default/locale")
 
     def hostname(self, name):
         content = f"""
@@ -252,6 +299,7 @@ if __name__ == "__main__":
     cloudinit.update()
     cloudinit.keyboard()  # locale as parameter
     cloudinit.enable_ssh()
+    # cloudinit.register()
     print("cloudinit")
     #
     # ADD WHAT IS NEEDED
