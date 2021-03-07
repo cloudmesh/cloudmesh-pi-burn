@@ -293,7 +293,7 @@ class Gui:
 
         Sudo.password()
 
-        window = sg.Window('Cloudmesh Pi Burn', self.layout, size=(650, 800))
+        window = sg.Window('Cloudmesh Pi Burn', self.layout, size=(650, 600))
         # print(self.devices)
         # print(self.details)
 
