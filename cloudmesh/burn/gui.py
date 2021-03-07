@@ -71,18 +71,29 @@ class Gui:
         self.layout()
 
     def burn(self, kind, hostname):
+
+        if hostname == 'red':
+            ip = self.ips[0]
+            print("in red")
+            print(ip)
+        else:
+            ip_location = int(hostname.replace('red', ""))
+            print("in red00x")
+            print(ip_location)
+            ip = self.ips[ip_location]
+            print("in red")
+            print(ip)
+
         command = "cms burn cluster --device=/dev/disk2" \
-                  f" --hostname={self.hostnames_str}" \
+                  f" --hostname={hostname}" \
                   f" --ssid={self.ssid}" \
-                  f" --ip={self.ips_str}" \
+                  f" --ip={ip}" \
                   f" --burning={hostname}" \
                   " -y" \
                   f" {self.imaged}"
         print(command)
-        if hostname == 'red':
-            pass
-        else:
-            pass
+        # os.system(command)
+
 
         return
 
@@ -326,9 +337,6 @@ class Gui:
         Sudo.password()
 
         window = sg.Window('Cloudmesh Pi Burn', self.layout, size=(650, 600))
-        # print(self.devices)
-        # print(self.details)
-
 
         host = None
         ips = None
@@ -361,21 +369,17 @@ class Gui:
                     device = "/dev/" + entry.replace("device-", "")
 
             key = values['key']
+            self.hostnames_str = ','.join(hostnames)
+            self.ips_str = ','.join(ips)
+            self.ssid = values['ssid']
+            imaged = values['imaged']
 
-            if event == 'button-manager':
-                host = values['name-manager']
-                kind = "manager"
-                tags = values['tags-manager']
-                # Burn manager
-                window['status-manager'].update('Burning')
-                self.burn(kind, host)
-            elif event.startswith('button-worker'):
-                host = event.replace("button-worker-", "")
-                kind = "worker"
-                # Burn worker
-                window[f'status-worker-{host}'].update('Burning')
-                self.burn(kind, host)
+            if not imaged:
+                self.imaged = "--imaged"
+            else:
+                self.imaged = ""
 
+            # Display image tags based on OS selection
             raspberry = values['os-Raspberry']
             ubuntu_64_04 = values['os-Ubuntu 20.04']
             ubuntu_64_10 = values['os-Ubuntu 20.10']
@@ -391,14 +395,26 @@ class Gui:
                 os_entry_full = "Ubuntu-64-10"
                 os_entry_lite = "Ubuntu-64-10"
                 print("ubuntu 10")
-
             window['tags-manager'].update(os_entry_full)
-
             for worker in self.workers:
                 window[f'tags-worker-{worker}'].update(os_entry_lite)
 
-            self.ssid = values['ssid']
-            imaged = values['imaged']
+            # Call burn function for manager and workers
+            if event == 'button-manager':
+                host = values['name-manager']
+                kind = "manager"
+                tags = values['tags-manager']
+                # Burn manager
+                window['status-manager'].update('Burning')
+                self.burn(kind, host)
+            elif event.startswith('button-worker'):
+                host = event.replace("button-worker-", "")
+                kind = "worker"
+                # Burn worker
+                window[f'status-worker-{host}'].update('Burning')
+                self.burn(kind, host)
+
+
             print()
             print("Host:    ", host)
             print("IPs:     ", ips)
@@ -409,19 +425,10 @@ class Gui:
             print("Tags:    ", tags)
             print("Kind:    ", kind)
             print("Device:  ", device)
-            print("Format   ", not imaged)
+            print("Format   ", imaged)
             print()
-            if imaged:
-                self.imaged = "--imaged"
-            else:
-                self.imaged = ""
 
 
-
-            self.hostnames_str = ','.join(hostnames)
-            self.ips_str = ','.join(ips)
-
-            #os.system(command)
 
 
         print('exit')
