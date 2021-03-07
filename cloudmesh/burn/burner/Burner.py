@@ -15,9 +15,10 @@ from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
+from cloudmesh.burn.burner.BurnerABC import AbstractBurner
 
-
-class Burner:
+# class Burner(AbstractBurner):
+class Burner():
 
     def __init__(self, card_os="raspberryos"):
         if "raspberry" in card_os:
