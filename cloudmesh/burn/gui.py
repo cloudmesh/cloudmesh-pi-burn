@@ -199,37 +199,30 @@ class Gui:
 
         # this has wrong layout it must be vertical
         # BUG: THIS IS A BUG AS IT SHOULD RENDER ANYWAYS WE NEED THE KEY
+        line("Security")
         if self.key is not None:
-            burn_layout.append(
-                [sg.Frame(
-                    'Security', [
-                        [
-                            sg.Text("Key"), sg.Input(key="key", default_text=self.key),
-                            sg.Text("SSID"), sg.Input(key="ssid", default_text=""),
-                            sg.Text("Wifi Password"), sg.Input(key="wifi", default_text="", password_char='*')
-                        ]
-                    ], size=(500, 100)
-                )]
-            )
+            burn_layout.append([sg.Text("Key", size=(5,1)), sg.Input(key="key", default_text=self.key)])
 
-        #line("Manager")
+        burn_layout.append([sg.Text("SSID", size=(5,1)), sg.Input(key="ssid", default_text="")])
+        burn_layout.append([sg.Text("Wifi Password", size=(5,1)), sg.Input(key="wifi", default_text="", password_char='*')])
+
+
+        line("Manager")
 
         if self.manager is not None:
             manager = self.manager
             i = 0
             burn_layout.append(
-                [sg.Frame(
-                    'Manager', [
-                        [sg.Text(' todo ', size=(5, 1), key=str('status-manager')),
+                    [
+                        sg.Text(' todo ', size=(5, 1), key=str('status-manager')),
                         sg.Button('Burn', key=str('button-manager')),
                         sg.Text(manager, size=(width, 1)),
                         sg.Text("manager", size=(8, 1)),
                         sg.Input(default_text=manager, size=(width, 1), key=str('name-manager')),
                         sg.Input(default_text=self.ips[i], size=(width, 1), key=str('ip-manager')),
                         sg.Text('Image'),
-                        sg.Input(default_text="latest-full", size=(width, 1), key=str('tags-manager'))]
-                    ], size=(400, 100)
-                )]
+                        sg.Input(default_text="latest-full", size=(width, 1), key=str('tags-manager'))
+                    ]
             )
 
         line("Workers")
@@ -297,7 +290,7 @@ class Gui:
 
         Sudo.password()
 
-        window = sg.Window('Cloudmesh Pi Burn', self.layout, size=(650, 500))
+        window = sg.Window('Cloudmesh Pi Burn', self.layout, size=(650, 800))
         # print(self.devices)
         # print(self.details)
 
