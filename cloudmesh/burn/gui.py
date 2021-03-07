@@ -12,7 +12,8 @@ from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import banner
-
+from pprint import pprint
+from cloudmesh.common.debug import VERBOSE
 
 class Gui:
 
@@ -92,7 +93,14 @@ class Gui:
                                                         "Writeable"],
                                                     output="yaml"))
 
+
     def layout(self):
+
+        def line(msg):
+            title = f'__ {msg} '
+            title = title.ljust(120, '_')
+
+            burn_layout.append([sg.Text(title)])
 
         width = 10
         location = os.path.dirname(os.path.abspath(inspect.getsourcefile(Gui)))
@@ -103,7 +111,7 @@ class Gui:
         logo = f'{location}/images/cm-logo.png'
 
         burn_layout = [
-            [sg.T('Network layout')]
+            [sg.T('')]
         ]
 
         rack_layout = [
@@ -128,6 +136,8 @@ class Gui:
 
         # layout.append([sg.Image(filename=logo, size=(30,30))])
 
+        line("Devices")
+
         devices = USB.get_dev_from_diskutil()
 
         count = 0
@@ -137,6 +147,18 @@ class Gui:
                 [sg.Radio(device, group_id="DEVICE", default=default, key=f"device-{device}")]
             )
             count = count + 1
+
+        line("Operating System")
+
+        count = 0
+        for entry in ["raspberry", "ubuntu"]:
+            default = count == 0
+            burn_layout.append(
+                [sg.Radio(entry, group_id="OS", default=default, key=f"os-{entry}")]
+            )
+            count = count + 1
+
+
 
         # for device in self.devices:
         #    burn_layout.append([sg.Radio(device['dev'], group_id="DEVICE"),
@@ -157,13 +179,13 @@ class Gui:
                 )]
             )
 
-        burn_layout.append([sg.Text(160 * '-', )])
+        line("Manager")
 
         if self.manager is not None:
             manager = self.manager
             i = 0
             burn_layout.append([
-                sg.Text(' todo ', size=(5, 1)),
+                sg.Text(' todo ', size=(5, 1), key=str('status-manager')),
                 sg.Button('Burn', key=str('button-manager')),
                 sg.Text(manager, size=(width, 1)),
                 sg.Text("manager", size=(8, 1)),
@@ -173,13 +195,13 @@ class Gui:
                 sg.Input(default_text="latest-full", size=(width, 1), key=str('tags-manager')),
             ])
 
-        burn_layout.append([sg.Text(160 * '-', )])
+        line("Workers")
 
         if self.workers is not None:
             i = 1
             for worker in self.workers:
                 burn_layout.append([
-                    sg.Text(' todo ', size=(5, 1)),
+                    sg.Text(' todo ', size=(5, 1), key=str(f'status-worker-{worker}')),
                     sg.Button('Burn', key=str(f'button-worker-{worker}')),
                     sg.Text(worker, size=(width, 1)),
                     sg.Text("worker", size=(8, 1)),
@@ -195,10 +217,10 @@ class Gui:
                 sg.TabGroup(
                     [
                         [
-                            sg.Tab('Burn', burn_layout),
-                            sg.Tab('Log', log_layout),
-                            sg.Tab('Network', net_layout),
-                            sg.Tab('Rack', rack_layout)
+                            sg.Tab('Burn', burn_layout, key="panel-burn"),
+                            sg.Tab('Log', log_layout, key="panel-lg"),
+                            sg.Tab('Network', net_layout, key="panel-net"),
+                            sg.Tab('Rack', rack_layout, key="panel-rack")
                         ]
                     ],
                     tooltip='Rack')
@@ -235,7 +257,9 @@ class Gui:
         while True:
 
             event, values = window.read()
-            print("==>", event, values)
+
+            VERBOSE(event)
+            VERBOSE(values)
 
             ips = []
             hostnames = []
