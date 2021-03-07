@@ -13,6 +13,9 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import banner
 from cloudmesh.common.debug import VERBOSE
+<<<<<<< HEAD
+from cloudmesh.common.sudo import Sudo
+=======
 from cloudmesh.common.Shell import Shell
 
 
@@ -23,6 +26,7 @@ def _execute(command):
 def image(name):
     with open(path_expand(name), 'rb') as file:
         return file.read()
+>>>>>>> 674767dd92d181cca711de58e3b6d59ea050ebd6
 
 class Gui:
 
@@ -63,11 +67,16 @@ class Gui:
         self.load_data()
         self.layout()
 
-    def red_burn(self):
-        subprocess.run("cms burn cluster --device=/dev/disk4s1 --hostname=red,red00[1-2] --ssid=Router23165")
-        return
+    def burn(self, kind, hostname):
+        #subprocess.run("cms burn cluster --device=/dev/disk4s1 --hostname=red,red00[1-2] --ssid=Router23165")
 
-    def worker_burn(self):
+        if hostname == 'red':
+            # Burn manager
+            pass
+        else:
+            # Burn worker
+            pass
+
         return
 
     def load_data(self):
@@ -202,26 +211,33 @@ class Gui:
                             sg.Text("Wifi Password"), sg.Input(key="wifi", default_text="", password_char='*')
 
                         ]
-
-                    ]
+                        #[sg.Text("Key"), sg.Input(key="key", default_text=self.key),
+                        # sg.Text("Wi-Fi Name"), sg.Input(key="ssid", default_text="", size=(8, 1)),
+                        # sg.Text("Wi-Fi Password"), sg.Input(key="wifi", default_text="", password_char='*',
+                                                             size=(8, 1))]
+                    ], size=(400, 100)
                 )]
             )
 
-        line("Manager")
+        #line("Manager")
 
         if self.manager is not None:
             manager = self.manager
             i = 0
-            burn_layout.append([
-                sg.Text(' todo ', size=(5, 1), key=str('status-manager')),
-                sg.Button('Burn', key=str('button-manager')),
-                sg.Text(manager, size=(width, 1)),
-                sg.Text("manager", size=(8, 1)),
-                sg.Input(default_text=manager, size=(width, 1), key=str('name-manager')),
-                sg.Input(default_text=self.ips[i], size=(width, 1), key=str('ip-manager')),
-                sg.Text('Image'),
-                sg.Input(default_text="latest-full", size=(width, 1), key=str('tags-manager')),
-            ])
+            burn_layout.append(
+                [sg.Frame(
+                    'Manager', [
+                        [sg.Text(' todo ', size=(5, 1), key=str('status-manager')),
+                        sg.Button('Burn', key=str('button-manager')),
+                        sg.Text(manager, size=(width, 1)),
+                        sg.Text("manager", size=(8, 1)),
+                        sg.Input(default_text=manager, size=(width, 1), key=str('name-manager')),
+                        sg.Input(default_text=self.ips[i], size=(width, 1), key=str('ip-manager')),
+                        sg.Text('Image'),
+                        sg.Input(default_text="latest-full", size=(width, 1), key=str('tags-manager'))]
+                    ], size=(400, 100)
+                )]
+            )
 
         line("Workers")
 
@@ -286,10 +302,9 @@ class Gui:
 
     def run(self):
 
-        # Sudo.password()
+        Sudo.password()
 
-
-        window = sg.Window('Cloudmesh Pi Burn', self.layout)
+        window = sg.Window('Cloudmesh Pi Burn', self.layout, size=(650, 500))
         # print(self.devices)
         # print(self.details)
 
@@ -307,6 +322,7 @@ class Gui:
         while True:
 
             event, values = window.read()
+            print(event, values)
 
             if event in ("Cancel", 'cancel', None):
                 break
@@ -330,9 +346,11 @@ class Gui:
                 host = values['name-manager']
                 kind = "manager"
                 tags = values['tags-manager']
+                self.burn(kind, host)
             elif event.startswith('button-worker'):
                 host = event.replace("button-worker-", "")
                 kind = "worker"
+                self.burn(kind, host)
 
             ssid = values['ssid']
             print()
