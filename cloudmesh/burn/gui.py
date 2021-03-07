@@ -12,18 +12,30 @@ from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import banner
-from pprint import pprint
 from cloudmesh.common.debug import VERBOSE
+<<<<<<< HEAD
 from cloudmesh.common.sudo import Sudo
+=======
+from cloudmesh.common.Shell import Shell
+
+
+def _execute(command):
+    print(".", end="", flush=True)
+    os.system(f"{command} >> burn-gui.log")
+
+def image(name):
+    with open(path_expand(name), 'rb') as file:
+        return file.read()
+>>>>>>> 674767dd92d181cca711de58e3b6d59ea050ebd6
 
 class Gui:
 
     def __init__(self, hostnames=None, ips=None):
 
-        hostnames = hostnames or "red,red[01-02]"
-        ips = ips or "10.0.0.[1-3]"
+        self.hostnames = hostnames = hostnames or "red,red[01-02]"
+        self.ips = ips = ips or "10.0.0.[1-3]"
 
-        hostnames = Parameter.expand(hostnames)
+        hostnames= Parameter.expand(hostnames)
         manager, workers = Host.get_hostnames(hostnames)
 
         if workers is None:
@@ -114,31 +126,43 @@ class Gui:
         print(location)
         print("======")
 
-        logo = f'{location}/images/cm-logo.png'
+        cm_logo = f'{location}/images/cm-logo-100.png'
+        pi_logo = f'{location}/images/raspberry-logo-white-100.png'
 
         burn_layout = [
             [sg.T('')]
         ]
 
-        rack_layout = [
-            [sg.T('Here comes the rack Diagram')],
-        ]
+        rack_file = f"~/.cloudmesh/gui/{self.manager}-rack.png"
+        net_file = f"~/.cloudmesh/gui/{self.manager}-net.png"
 
         net_layout = [
-            [sg.T('Here comes the Network Diagram')],
+            [sg.Image(data=image(net_file), key='net-image', background_color='white')]
+
+        ]
+        rack_layout = [
+            [sg.Image(data=image(rack_file), key='rack-image', background_color='white')]
+
         ]
 
         log_layout = [
-            [sg.T('Here comes the Network Diagram')],
+            [sg.T('Here comes the Log Data')],
         ]
 
-        burn_layout.append([sg.Button('',
-                                      button_color=(self.background, self.background),
-                                      image_filename=logo,
-                                      image_size=(30, 30),
-                                      image_subsample=2,
-                                      border_width=0,
-                                      key='LOGO')])
+        burn_layout.append(
+            [sg.Image(data=image(cm_logo), key='cm-logo'),
+            sg.Image(data=image(pi_logo), key='pi-logo')]
+
+        )
+
+
+        # burn_layout.append([sg.Button('',
+        #                               button_color=(self.background, self.background),
+        #                               image_filename=cm_logo,
+        #                               image_size=(30, 30),
+        #                               image_subsample=2,
+        #                               border_width=0,
+        #                               key='LOGO')])
 
         # layout.append([sg.Image(filename=logo, size=(30,30))])
 
@@ -230,12 +254,12 @@ class Gui:
                     [
                         [
                             sg.Tab('Burn', burn_layout, key="panel-burn"),
-                            sg.Tab('Log', log_layout, key="panel-lg"),
-                            sg.Tab('Network', net_layout, key="panel-net"),
-                            sg.Tab('Rack', rack_layout, key="panel-rack")
+                            sg.Tab('Log', log_layout, key="panel-lg", background_color='white'),
+                            sg.Tab('Network', net_layout, key="panel-net", background_color='white'),
+                            sg.Tab('Rack', rack_layout, key="panel-rack", background_color='white')
                         ]
                     ],
-                    tooltip='Rack')
+                    tooltip='Rack', key="mytabs")
             ],
             [sg.Button('Cancel', key="cancel"), sg.Button('Next Card', key="next"),]
         ]
@@ -259,13 +283,29 @@ class Gui:
         # 'Browse1': '',
         # 1: 'Burn'}
 
+
+    def create_diag(self, name):
+        print("Creating Diagrams .", end="", flush=True)
+        Shell.mkdir("~/.cloudmesh/gui")
+        _execute(f'cd ~/.cloudmesh/gui; cms diagram set {name} --hostname="{self.hostnames}"')
+        _execute(f'cd ~/.cloudmesh/gui; cms diagram net {name} -n --output=png')
+        _execute(f'cd ~/.cloudmesh/gui; cms diagram rack {name} -n --output=png')
+        print(" ok", flush=True)
+
     def run(self):
 
         Sudo.password()
 
+<<<<<<< HEAD
         window = sg.Window('Cloudmesh Pi Burn', self.layout, size=(650, 500))
+=======
+
+        window = sg.Window('Cloudmesh Pi Burn', self.layout)
+>>>>>>> 674767dd92d181cca711de58e3b6d59ea050ebd6
         # print(self.devices)
         # print(self.details)
+
+        self.create_diag(self.manager)
 
         host = None
         ips = None
@@ -319,7 +359,6 @@ class Gui:
             print("Kind:    ", kind)
             print("Device:  ", device)
             print()
-
 
             # Sudo.password()
             # os.system(f"cms banner {kind} {name} >> text.log")
