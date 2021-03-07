@@ -201,10 +201,10 @@ class Gui:
         # BUG: THIS IS A BUG AS IT SHOULD RENDER ANYWAYS WE NEED THE KEY
         line("Security")
         if self.key is not None:
-            burn_layout.append([sg.Text("Key", size=(5,1)), sg.Input(key="key", default_text=self.key)])
+            burn_layout.append([sg.Text("Key", size=(15,1)), sg.Input(key="key", default_text=self.key)])
 
-        burn_layout.append([sg.Text("SSID", size=(5,1)), sg.Input(key="ssid", default_text="")])
-        burn_layout.append([sg.Text("Wifi Password", size=(5,1)), sg.Input(key="wifi", default_text="", password_char='*')])
+        burn_layout.append([sg.Text("SSID", size=(15,1)), sg.Input(key="ssid", default_text="")])
+        burn_layout.append([sg.Text("Wifi Password", size=(15,1)), sg.Input(key="wifi", default_text="", password_char='*')])
 
 
         line("Manager")
@@ -355,14 +355,16 @@ class Gui:
             self.hostnames_str = ','.join(hostnames)
             self.ips_str = ','.join(ips)
 
+
             command = "cms burn cluster --device=/dev/disk2"\
                       f" --hostname={self.hostnames_str}"\
                       f" --ssid={ssid}"\
                       f" --ip={self.ips_str}"\
-                      f" --burning={host}"
+                      f" --burning={host}"\
+                      " -y"
 
             print (command)
-            Sudo.password()
+            # os.system(command)
 
         print('exit')
         window.close()
