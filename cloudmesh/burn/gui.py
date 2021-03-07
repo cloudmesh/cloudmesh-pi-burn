@@ -28,6 +28,8 @@ class Gui:
 
     def __init__(self, hostnames=None, ips=None):
 
+        self.hostnames_str = hostnames
+        self.ips_str = ips
         self.hostnames = hostnames = hostnames or "red,red[01-02]"
         self.ips = ips = ips or "10.0.0.[1-3]"
 
@@ -189,12 +191,17 @@ class Gui:
         #                        sg.Text(device["formatted"]),
         #                        ])
 
+        # this has wrong layout
         if self.key is not None:
             burn_layout.append(
                 [sg.Frame(
                     'Security', [
-                        [sg.Text("Key"), sg.Input(key="key", default_text=self.key),
-                        sg.Text("Wifi Password"), sg.Input(key="wifi", default_text="", password_char='*')]
+                        [
+                            sg.Text("Key"), sg.Input(key="key", default_text=self.key),
+                            sg.Text("SSID"), sg.Input(key="ssid", default_text=""),
+                            sg.Text("Wifi Password"), sg.Input(key="wifi", default_text="", password_char='*')
+
+                        ]
 
                     ]
                 )]
@@ -327,10 +334,12 @@ class Gui:
                 host = event.replace("button-worker-", "")
                 kind = "worker"
 
+            ssid = values['ssid']
             print()
             print("Host:    ", host)
             print("IPs:     ", ips)
             print("Hostnames", hostnames)
+            print("Ssid:    ", ssid)
             print("Key:     ", key)
             print("Event:   ", event)
             print("Tags:    ", tags)
@@ -338,9 +347,20 @@ class Gui:
             print("Device:  ", device)
             print()
 
+
+            self.hostnames_str = ','.join(hostnames)
+            self.ips_str = ','.join(ips)
+
+            command = "cms burn cluster --device=/dev/disk2"\
+                      f" --hostname={self.hostnames_str}"\
+                      f" --ssid={ssid}"\
+                      f" --ip={self.ips_str}"\
+                      f" --burning={host}"
+
+            print (command)
+
             # Sudo.password()
             # os.system(f"cms banner {kind} {name} >> text.log")
-            # os.system (f"cms burn cluster --device=/dev/disk2 --hostname={host} --ssid=SSID --ip={ip}")
-
+            # os.system (
         print('exit')
         window.close()
