@@ -27,8 +27,9 @@ def image(name):
 
 class Gui:
 
-    def __init__(self, hostnames=None, ips=None):
+    def __init__(self, hostnames=None, ips=None, dryrun=False):
 
+        self.dryrun = dryrun
         self.hostnames_str = hostnames
         self.ips_str = ips
         self.hostnames = hostnames = hostnames or "red,red[01-02]"
@@ -179,6 +180,12 @@ class Gui:
                 [sg.Radio(device, group_id="DEVICE", default=default, key=f"device-{device}")]
             )
             count = count + 1
+
+        line("SD Card")
+
+        burn_layout.append(
+            [sg.Checkbox("format", default=True, key="imaged")]
+        )
 
         line("Operating System")
 
@@ -339,6 +346,7 @@ class Gui:
                 self.burn(kind, host)
 
             ssid = values['ssid']
+            imaged = values['imaged']
             print()
             print("Host:    ", host)
             print("IPs:     ", ips)
@@ -349,7 +357,13 @@ class Gui:
             print("Tags:    ", tags)
             print("Kind:    ", kind)
             print("Device:  ", device)
+            print("Format   ", not imaged)
             print()
+            if imaged:
+                imaged_string = "--imaged"
+            else:
+                imaged_string = ""
+
 
 
             self.hostnames_str = ','.join(hostnames)
@@ -361,11 +375,13 @@ class Gui:
                       f" --ssid={ssid}"\
                       f" --ip={self.ips_str}"\
                       f" --burning={host}"\
-                      " -y"
+                      " -y"\
+                      f" {imaged_string}"
 
-            print (command)
-            banner(f"Burn {host}")
-            os.system(command)
+            print(command)
+            if not self.dryrun:
+                banner(f"Burn {host}")
+                os.system(command)
 
 
         print('exit')

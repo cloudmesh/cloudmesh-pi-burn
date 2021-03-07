@@ -37,6 +37,7 @@ class BurnCommand(PluginCommand):
                        [--ssid=SSID]
                        [--wifipassword=PSK]
                        [--bs=BLOCKSIZE]
+                       [--dryrun]
               burn firmware check
               burn firmware update
               burn install
@@ -322,6 +323,7 @@ class BurnCommand(PluginCommand):
                        "details",
                        "refresh",
                        "device",
+                       "dryrun"
                        "burning",
                        "hostname",
                        "ip",
