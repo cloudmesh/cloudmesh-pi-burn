@@ -310,8 +310,6 @@ class Gui:
         while True:
 
             event, values = window.read()
-            print(event, values)
-
             if event in ("Cancel", 'cancel', None):
                 break
 
