@@ -12,17 +12,26 @@ from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import banner
-from pprint import pprint
 from cloudmesh.common.debug import VERBOSE
+from cloudmesh.common.Shell import Shell
+
+
+def _execute(command):
+    print(command)
+    os.system(command)
+
+def image(name):
+    with open(path_expand(name), 'rb') as file:
+        return file.read()
 
 class Gui:
 
     def __init__(self, hostnames=None, ips=None):
 
-        hostnames = hostnames or "red,red[01-02]"
-        ips = ips or "10.0.0.[1-3]"
+        self.hostnames = hostnames = hostnames or "red,red[01-02]"
+        self.ips = ips = ips or "10.0.0.[1-3]"
 
-        hostnames = Parameter.expand(hostnames)
+        hostnames= Parameter.expand(hostnames)
         manager, workers = Host.get_hostnames(hostnames)
 
         if workers is None:
@@ -114,16 +123,23 @@ class Gui:
             [sg.T('')]
         ]
 
-        rack_layout = [
-            [sg.T('Here comes the rack Diagram')],
-        ]
+        rack_file = f"~/.cloudmesh/gui/{self.manager}-rack.png"
+        net_file = f"~/.cloudmesh/gui/{self.manager}-net.png"
 
+        print ("PPPP", rack_file)
         net_layout = [
             [sg.T('Here comes the Network Diagram')],
+            [sg.Image(data=image(net_file), key='net-image')]
+
+        ]
+        rack_layout = [
+            [sg.T('Here comes the Rack Diagram')],
+            [sg.Image(data=image(rack_file), key='rack-image')]
+
         ]
 
         log_layout = [
-            [sg.T('Here comes the Network Diagram')],
+            [sg.T('Here comes the Log Data')],
         ]
 
         burn_layout.append([sg.Button('',
@@ -223,7 +239,7 @@ class Gui:
                             sg.Tab('Rack', rack_layout, key="panel-rack")
                         ]
                     ],
-                    tooltip='Rack')
+                    tooltip='Rack', key="mytabs")
             ],
             [sg.Button('Cancel', key="cancel"), sg.Button('Next Card', key="next"),]
         ]
@@ -247,13 +263,24 @@ class Gui:
         # 'Browse1': '',
         # 1: 'Burn'}
 
+
+    def create_diag(self, name):
+        Shell.mkdir("~/.cloudmesh/gui")
+        _execute(f'cd ~/.cloudmesh/gui; cms diagram set {name} --hostname="{self.hostnames}"')
+        _execute(f'cd ~/.cloudmesh/gui; cms diagram net {name} -n --output=png')
+        _execute(f'cd ~/.cloudmesh/gui; cms diagram rack {name} -n --output=png')
+
+
     def run(self):
 
         # Sudo.password()
 
+
         window = sg.Window('Cloudmesh Pi Burn', self.layout)
         # print(self.devices)
         # print(self.details)
+
+        self.create_diag(self.manager)
 
         host = None
         ips = None
@@ -304,7 +331,6 @@ class Gui:
             print("Kind:    ", kind)
             print("Device:  ", device)
             print()
-
 
             # Sudo.password()
             # os.system(f"cms banner {kind} {name} >> text.log")
