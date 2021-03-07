@@ -34,6 +34,8 @@ class Gui:
         self.ips_str = ip
         self.hostnames = hostnames = hostname or "red,red[01-02]"
         self.ips = ips = ip or "10.0.0.[1-3]"
+        self.ssid = ""
+        self.imaged = ""
 
         hostnames = Parameter.expand(hostnames)
         manager, workers = Host.get_hostnames(hostnames)
@@ -69,8 +71,14 @@ class Gui:
         self.layout()
 
     def burn(self, kind, hostname):
-        #subprocess.run("cms burn cluster --device=/dev/disk4s1 --hostname=red,red00[1-2] --ssid=Router23165")
-
+        command = "cms burn cluster --device=/dev/disk2" \
+                  f" --hostname={self.hostnames_str}" \
+                  f" --ssid={self.ssid}" \
+                  f" --ip={self.ips_str}" \
+                  f" --burning={hostname}" \
+                  " -y" \
+                  f" {self.imaged}"
+        print(command)
         if hostname == 'red':
             pass
         else:
@@ -368,7 +376,6 @@ class Gui:
                 window[f'status-worker-{host}'].update('Burning')
                 self.burn(kind, host)
 
-
             raspberry = values['os-Raspberry']
             ubuntu_64_04 = values['os-Ubuntu 20.04']
             ubuntu_64_10 = values['os-Ubuntu 20.10']
@@ -390,13 +397,13 @@ class Gui:
             for worker in self.workers:
                 window[f'tags-worker-{worker}'].update(os_entry_lite)
 
-            ssid = values['ssid']
+            self.ssid = values['ssid']
             imaged = values['imaged']
             print()
             print("Host:    ", host)
             print("IPs:     ", ips)
             print("Hostnames", hostnames)
-            print("Ssid:    ", ssid)
+            print("Ssid:    ", self.ssid)
             print("Key:     ", key)
             print("Event:   ", event)
             print("Tags:    ", tags)
@@ -405,29 +412,16 @@ class Gui:
             print("Format   ", not imaged)
             print()
             if imaged:
-                imaged_string = "--imaged"
+                self.imaged = "--imaged"
             else:
-                imaged_string = ""
+                self.imaged = ""
 
 
 
             self.hostnames_str = ','.join(hostnames)
             self.ips_str = ','.join(ips)
 
-
-            command = "cms burn cluster --device=/dev/disk2"\
-                      f" --hostname={self.hostnames_str}"\
-                      f" --ssid={ssid}"\
-                      f" --ip={self.ips_str}"\
-                      f" --burning={host}"\
-                      " -y"\
-                      f" {imaged_string}"
-
-            print(command)
-            print(self.dryrun)
-            if not self.dryrun:
-                banner(f"Burn {host}")
-                os.system(command)
+            #os.system(command)
 
 
         print('exit')
