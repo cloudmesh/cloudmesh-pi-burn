@@ -364,7 +364,9 @@ class Gui:
                       " -y"
 
             print (command)
-            # os.system(command)
+            banner(f"Burn {host}")
+            os.system(command)
+
 
         print('exit')
         window.close()
