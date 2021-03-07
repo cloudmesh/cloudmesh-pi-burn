@@ -1,29 +1,30 @@
 import inspect
 import os.path
-import subprocess
 
 import PySimpleGUI as sg
 import oyaml as yaml
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.common.Host import Host
+from cloudmesh.common.Shell import Shell
 from cloudmesh.common.Tabulate import Printer
+from cloudmesh.common.debug import VERBOSE
 # import PySimpleGUIWx as sg
 from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.util import path_expand
-from cloudmesh.common.util import banner
-from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.sudo import Sudo
-from cloudmesh.common.Shell import Shell
+from cloudmesh.common.util import banner
+from cloudmesh.common.util import path_expand
 
 
 def _execute(command):
     print(".", end="", flush=True)
     os.system(f"{command} >> burn-gui.log")
 
+
 def image(name):
     with open(path_expand(name), 'rb') as file:
         return file.read()
+
 
 class Gui:
 
@@ -66,7 +67,6 @@ class Gui:
 
         self.create_diag(self.manager)
 
-
         self.load_data()
         self.layout()
 
@@ -93,7 +93,6 @@ class Gui:
                   f" {self.imaged}"
         print(command)
         # os.system(command)
-
 
         return
 
@@ -130,7 +129,6 @@ class Gui:
                                                         "Removable",
                                                         "Writeable"],
                                                     output="yaml"))
-
 
     def layout(self):
 
@@ -171,10 +169,9 @@ class Gui:
 
         burn_layout.append(
             [sg.Image(data=image(cm_logo), key='cm-logo'),
-            sg.Image(data=image(pi_logo), key='pi-logo')]
+             sg.Image(data=image(pi_logo), key='pi-logo')]
 
         )
-
 
         # burn_layout.append([sg.Button('',
         #                               button_color=(self.background, self.background),
@@ -210,11 +207,9 @@ class Gui:
         for entry in ["Raspberry", "Ubuntu 20.10", "Ubuntu 20.04"]:
             default = count == 0
             burn_layout.append(
-                [sg.Radio(entry, group_id="OS",enable_events=True, default=default, key=f"os-{entry}")]
+                [sg.Radio(entry, group_id="OS", enable_events=True, default=default, key=f"os-{entry}")]
             )
             count = count + 1
-
-
 
         # for device in self.devices:
         #    burn_layout.append([sg.Radio(device['dev'], group_id="DEVICE"),
@@ -228,11 +223,11 @@ class Gui:
         # BUG: THIS IS A BUG AS IT SHOULD RENDER ANYWAYS WE NEED THE KEY
         line("Security")
         if self.key is not None:
-            burn_layout.append([sg.Text("Key", size=(15,1)), sg.Input(key="key", default_text=self.key)])
+            burn_layout.append([sg.Text("Key", size=(15, 1)), sg.Input(key="key", default_text=self.key)])
 
-        burn_layout.append([sg.Text("SSID", size=(15,1)), sg.Input(key="ssid", default_text="")])
-        burn_layout.append([sg.Text("Wifi Password", size=(15,1)), sg.Input(key="wifi", default_text="", password_char='*')])
-
+        burn_layout.append([sg.Text("SSID", size=(15, 1)), sg.Input(key="ssid", default_text="")])
+        burn_layout.append(
+            [sg.Text("Wifi Password", size=(15, 1)), sg.Input(key="wifi", default_text="", password_char='*')])
 
         line("Manager")
 
@@ -240,16 +235,16 @@ class Gui:
             manager = self.manager
             i = 0
             burn_layout.append(
-                    [
-                        sg.Text(' Status ', size=(9, 1), key=str('status-manager')),
-                        sg.Button('Burn', key=str('button-manager')),
-                        sg.Text(manager, size=(width, 1)),
-                        sg.Text("manager", size=(8, 1)),
-                        sg.Input(default_text=manager, size=(width, 1), key=str('name-manager')),
-                        sg.Input(default_text=self.ips[i], size=(width, 1), key=str('ip-manager')),
-                        sg.Text('Image'),
-                        sg.Input(default_text="latest-full", size=(15, 1), key=str('tags-manager'))
-                    ]
+                [
+                    sg.Text(' Status ', size=(9, 1), key=str('status-manager')),
+                    sg.Button('Burn', key=str('button-manager')),
+                    sg.Text(manager, size=(width, 1)),
+                    sg.Text("manager", size=(8, 1)),
+                    sg.Input(default_text=manager, size=(width, 1), key=str('name-manager')),
+                    sg.Input(default_text=self.ips[i], size=(width, 1), key=str('ip-manager')),
+                    sg.Text('Image'),
+                    sg.Input(default_text="latest-full", size=(15, 1), key=str('tags-manager'))
+                ]
             )
 
         line("Workers")
@@ -268,7 +263,6 @@ class Gui:
                     sg.Input(default_text="latest-lite", size=(15, 1), key=str(f'tags-worker-{worker}')),
                 ])
                 i = i + 1
-
 
         '''
         Scrollable column for workers in progress
@@ -301,7 +295,7 @@ class Gui:
                     ],
                     tooltip='Rack', key="mytabs")
             ],
-            [sg.Button('Cancel', key="cancel"), sg.Button('Next Card', key="next"),]
+            [sg.Button('Cancel', key="cancel"), sg.Button('Next Card', key="next"), ]
         ]
 
     def value_mapper(self, values, arguments):
@@ -322,7 +316,6 @@ class Gui:
         # 'tags-worker-red02': 'latest-lite',
         # 'Browse1': '',
         # 1: 'Burn'}
-
 
     def create_diag(self, name):
         print("Creating Diagrams .", end="", flush=True)
@@ -414,7 +407,6 @@ class Gui:
                 window[f'status-worker-{host}'].update('Burning')
                 self.burn(kind, host)
 
-
             print()
             print("Host:    ", host)
             print("IPs:     ", ips)
@@ -428,8 +420,15 @@ class Gui:
             print("Format   ", imaged)
             print()
 
+            if imaged:
+                self.imaged = "--imaged"
+            else:
+                self.imaged = ""
 
+            self.hostnames_str = ','.join(hostnames)
+            self.ips_str = ','.join(ips)
 
+            # os.system(command)
 
         print('exit')
         window.close()
