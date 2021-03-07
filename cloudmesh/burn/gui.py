@@ -151,7 +151,7 @@ class Gui:
         line("Operating System")
 
         count = 0
-        for entry in ["raspberry", "ubuntu"]:
+        for entry in ["Raspberry", "Ubuntu 20.10", "Ubuntu 20.04"]:
             default = count == 0
             burn_layout.append(
                 [sg.Radio(entry, group_id="OS", default=default, key=f"os-{entry}")]
@@ -225,7 +225,7 @@ class Gui:
                     ],
                     tooltip='Rack')
             ],
-            [sg.Button('Cancel')]
+            [sg.Button('Cancel', key="cancel"), sg.Button('Next Card', key="next"),]
         ]
 
     def value_mapper(self, values, arguments):
@@ -254,9 +254,22 @@ class Gui:
         window = sg.Window('Cloudmesh Pi Burn', self.layout)
         # print(self.devices)
         # print(self.details)
+
+        host = None
+        ips = None
+        hostnames = None
+        key = None
+        event = None
+        tags = None
+        kind = None
+        device = None
+
         while True:
 
             event, values = window.read()
+
+            if event in ("Cancel", 'cancel', None):
+                break
 
             VERBOSE(event)
             VERBOSE(values)
@@ -292,8 +305,6 @@ class Gui:
             print("Device:  ", device)
             print()
 
-            if event in ('Cancel', None):
-                break
 
             # Sudo.password()
             # os.system(f"cms banner {kind} {name} >> text.log")
