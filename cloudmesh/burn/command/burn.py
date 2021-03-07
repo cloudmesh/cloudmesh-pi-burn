@@ -21,7 +21,7 @@ from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.burn.usb import USB
-
+from cloudmesh.common.debug import VERBOSE
 
 class BurnCommand(PluginCommand):
 
@@ -105,8 +105,8 @@ class BurnCommand(PluginCommand):
               --burning=BURNING      The hosts to be burned
 
             Arguments:
-                TAG                  Keyword tags to identify an image
-                                     [default: latest]
+               TAG                   Keyword tags to identify an image
+
             Files:
               This is not fully thought through and needs to be documented
               ~/.cloudmesh/images
@@ -343,7 +343,6 @@ class BurnCommand(PluginCommand):
                        "bs",
                        "set_passwd")
 
-        # VERBOSE(arguments)
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
@@ -351,6 +350,8 @@ class BurnCommand(PluginCommand):
         arguments.output = "table"  # hard code for now
         arguments.bs = arguments.bs or "4M"
         arguments.yes = arguments["-y"]
+        if len(arguments.TAG) ==0:
+            arguments.TAG = "latest"
 
         # VERBOSE(arguments)
 
@@ -758,10 +759,13 @@ class BurnCommand(PluginCommand):
                 devices = Parameter.expand_string(devices)
 
             hostnames = Parameter.expand(arguments.hostname)
+
             if arguments.burnimg is None:
                 burning = hostnames
             else:
                 burning = arguments.burning
+
+            VERBOSE(arguments)
 
             ips = None if not arguments.ip else Parameter.expand(arguments.ip)
             key = arguments.sshkey
