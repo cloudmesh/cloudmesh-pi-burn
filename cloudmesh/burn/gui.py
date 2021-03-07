@@ -72,10 +72,8 @@ class Gui:
         #subprocess.run("cms burn cluster --device=/dev/disk4s1 --hostname=red,red00[1-2] --ssid=Router23165")
 
         if hostname == 'red':
-            # Burn manager
             pass
         else:
-            # Burn worker
             pass
 
         return
@@ -224,14 +222,14 @@ class Gui:
             i = 0
             burn_layout.append(
                     [
-                        sg.Text(' todo ', size=(5, 1), key=str('status-manager')),
+                        sg.Text(' Status ', size=(9, 1), key=str('status-manager')),
                         sg.Button('Burn', key=str('button-manager')),
                         sg.Text(manager, size=(width, 1)),
                         sg.Text("manager", size=(8, 1)),
                         sg.Input(default_text=manager, size=(width, 1), key=str('name-manager')),
                         sg.Input(default_text=self.ips[i], size=(width, 1), key=str('ip-manager')),
                         sg.Text('Image'),
-                        sg.Input(default_text="latest-full", size=(width, 1), key=str('tags-manager'))
+                        sg.Input(default_text="latest-full", size=(15, 1), key=str('tags-manager'))
                     ]
             )
 
@@ -241,14 +239,14 @@ class Gui:
             i = 1
             for worker in self.workers:
                 burn_layout.append([
-                    sg.Text(' todo ', size=(5, 1), key=str(f'status-worker-{worker}')),
+                    sg.Text(' Status ', size=(9, 1), key=str(f'status-worker-{worker}')),
                     sg.Button('Burn', key=str(f'button-worker-{worker}')),
                     sg.Text(worker, size=(width, 1)),
                     sg.Text("worker", size=(8, 1)),
                     sg.Input(default_text=worker, size=(width, 1), key=str(f'name-worker-{worker}')),
                     sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-worker-{worker}')),
                     sg.Text('Image'),
-                    sg.Input(default_text="latest-lite", size=(width, 1), key=str(f'tags-worker-{worker}')),
+                    sg.Input(default_text="latest-lite", size=(15, 1), key=str(f'tags-worker-{worker}')),
                 ])
                 i = i + 1
 
@@ -360,10 +358,14 @@ class Gui:
                 host = values['name-manager']
                 kind = "manager"
                 tags = values['tags-manager']
+                # Burn manager
+                window['status-manager'].update('Burning')
                 self.burn(kind, host)
             elif event.startswith('button-worker'):
                 host = event.replace("button-worker-", "")
                 kind = "worker"
+                # Burn worker
+                window[f'status-worker-{host}'].update('Burning')
                 self.burn(kind, host)
 
 
@@ -422,7 +424,8 @@ class Gui:
                       f" {imaged_string}"
 
             print(command)
-            if False:
+            print(self.dryrun)
+            if not self.dryrun:
                 banner(f"Burn {host}")
                 os.system(command)
 
