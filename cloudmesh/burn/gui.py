@@ -197,7 +197,8 @@ class Gui:
         #                        sg.Text(device["formatted"]),
         #                        ])
 
-        # this has wrong layout
+        # this has wrong layout it must be vertical
+        # BUG: THIS IS A BUG AS IT SHOULD RENDER ANYWAYS WE NEED THE KEY
         if self.key is not None:
             burn_layout.append(
                 [sg.Frame(
