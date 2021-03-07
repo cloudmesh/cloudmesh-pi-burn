@@ -61,6 +61,9 @@ class Gui:
         self.workers = workers
         self.ips = ips
 
+        self.create_diag(self.manager)
+
+
         self.load_data()
         self.layout()
 
@@ -294,7 +297,6 @@ class Gui:
         # print(self.devices)
         # print(self.details)
 
-        self.create_diag(self.manager)
 
         host = None
         ips = None
