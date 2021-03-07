@@ -193,7 +193,7 @@ class Gui:
         for entry in ["Raspberry", "Ubuntu 20.10", "Ubuntu 20.04"]:
             default = count == 0
             burn_layout.append(
-                [sg.Radio(entry, group_id="OS", default=default, key=f"os-{entry}")]
+                [sg.Radio(entry, group_id="OS",enable_events=True, default=default, key=f"os-{entry}")]
             )
             count = count + 1
 
@@ -252,6 +252,25 @@ class Gui:
                 ])
                 i = i + 1
 
+
+        '''
+        Scrollable column for workers in progress
+        if self.workers is not None:
+            i = 1
+            for worker in self.workers:
+                column_worker[i] = [
+                    sg.Text(' todo ', size=(5, 1), key=str(f'status-worker-{worker}')),
+                    sg.Button('Burn', key=str(f'button-worker-{worker}')),
+                    sg.Text(worker, size=(width, 1)),
+                    sg.Text("worker", size=(8, 1)),
+                    sg.Input(default_text=worker, size=(width, 1), key=str(f'name-worker-{worker}')),
+                    sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-worker-{worker}')),
+                    sg.Text('Image'),
+                    sg.Input(default_text="latest-lite", size=(width, 1), key=str(f'tags-worker-{worker}')),
+                ]
+                i = i + 1
+            burn_layout.append([sg.Column(column_worker, size=(650, 20), scrollable=True)])
+        '''
         self.layout = [
             [
                 sg.TabGroup(
@@ -325,6 +344,8 @@ class Gui:
 
             ips = []
             hostnames = []
+            os_entry_full = ""
+            os_entry_lite = ""
             for entry in values:
                 if str(entry).startswith("name"):
                     hostnames.append(values[entry])
@@ -344,6 +365,23 @@ class Gui:
                 host = event.replace("button-worker-", "")
                 kind = "worker"
                 self.burn(kind, host)
+
+
+            raspberry = values['os-Raspberry']
+            ubuntu_64_04 = values['os-Ubuntu 20.04']
+            ubuntu_64_10 = values['os-Ubuntu 20.10']
+            if raspberry:
+                os_entry_full = "latest-full"
+                os_entry_lite = "latest-lite"
+                print("rasp")
+            elif ubuntu_64_04:
+                os_entry_full = "Ubuntu-64-04"
+                os_entry_lite = "Ubuntu-64-04"
+                print("ubuntu 04")
+            elif ubuntu_64_10:
+                os_entry_full = "Ubuntu-64-10"
+                os_entry_lite = "Ubuntu-64-10"
+                print("ubuntu 10")
 
             ssid = values['ssid']
             imaged = values['imaged']
