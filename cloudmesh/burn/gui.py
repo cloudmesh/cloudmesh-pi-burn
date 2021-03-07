@@ -13,9 +13,7 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import banner
 from cloudmesh.common.debug import VERBOSE
-<<<<<<< HEAD
 from cloudmesh.common.sudo import Sudo
-=======
 from cloudmesh.common.Shell import Shell
 
 
@@ -26,7 +24,6 @@ def _execute(command):
 def image(name):
     with open(path_expand(name), 'rb') as file:
         return file.read()
->>>>>>> 674767dd92d181cca711de58e3b6d59ea050ebd6
 
 class Gui:
 
@@ -209,13 +206,8 @@ class Gui:
                             sg.Text("Key"), sg.Input(key="key", default_text=self.key),
                             sg.Text("SSID"), sg.Input(key="ssid", default_text=""),
                             sg.Text("Wifi Password"), sg.Input(key="wifi", default_text="", password_char='*')
-
                         ]
-                        #[sg.Text("Key"), sg.Input(key="key", default_text=self.key),
-                        # sg.Text("Wi-Fi Name"), sg.Input(key="ssid", default_text="", size=(8, 1)),
-                        # sg.Text("Wi-Fi Password"), sg.Input(key="wifi", default_text="", password_char='*',
-                                                             size=(8, 1))]
-                    ], size=(400, 100)
+                    ], size=(500, 100)
                 )]
             )
 
