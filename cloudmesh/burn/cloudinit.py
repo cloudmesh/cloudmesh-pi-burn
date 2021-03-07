@@ -24,8 +24,9 @@ class Cloudinit:
         commands = f"""
         apt_update: true
         apt_upgrade: true
-        package_reboot_if_required: {reboot.lower()}
+        package_reboot_if_required: {reboot}
         """
+        # reboot must be lower
         self.add("update and upgrade", commands)
 
     def reboot(self, delay):
@@ -295,7 +296,7 @@ if __name__ == "__main__":
 
     cloudinit = Cloudinit()
     cloudinit.hostname(manager)
-    cloudinit.etc_hosts()  # manager, workers, IPS
+    cloudinit.etc_hosts()  # manager, workers, IPS, worker
     cloudinit.update()
     cloudinit.keyboard()  # locale as parameter
     cloudinit.enable_ssh()

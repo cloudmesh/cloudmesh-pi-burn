@@ -33,7 +33,6 @@ from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.inventory.inventory import Inventory
-from cloudmesh.burn.burner.Info import Info
 
 # noinspection PyPep8
 class Burner(object):
@@ -1016,9 +1015,8 @@ class MultiBurner(object):
         #
         # probe the dev
         #
-        # pprint(Burner().info())
-        b = Info()
-        info_statuses = b.info()
+        card = SDCard()
+        info_statuses = card.info()
 
         # If the user specifies a particular device, we only care about that
         # device
@@ -1315,8 +1313,8 @@ class MultiBurner(object):
         devices = Parameter.expand(device)
 
         # Warn user if they are burning non-empty devices
-        b = Info()
-        info_statuses = b.info(print_stdout=False)
+        card = SDCard()
+        info_statuses = card.info(print_stdout=False)
 
         if os_is_mac():
             Console.warning(" ignoring device check")

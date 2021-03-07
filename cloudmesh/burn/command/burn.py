@@ -22,7 +22,6 @@ from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.burn.usb import USB
 from cloudmesh.common.debug import VERBOSE
-from cloudmesh.burn.burner.Info import Info
 
 
 class BurnCommand(PluginCommand):
@@ -504,8 +503,8 @@ class BurnCommand(PluginCommand):
         elif arguments.info:
 
             output = arguments.output or "table"
-            b = Info()
-            execute("info", b.info(output=output))
+            card = SDCard()
+            execute("info", card.info(output=output))
             try:
                 USB.check_for_readers()
             except Exception as e:
@@ -561,7 +560,8 @@ class BurnCommand(PluginCommand):
                 return ""
 
             if arguments.device is None:
-                burner.info()
+                card = SDCard()
+                card.info()
                 Console.error("Please specify a device")
                 return ""
 
@@ -576,7 +576,8 @@ class BurnCommand(PluginCommand):
         elif arguments.mount:
 
             if arguments.device is None:
-                burner.info()
+                card = SDCard
+                card.info()
                 Console.error("Please specify a device")
                 return ""
 
