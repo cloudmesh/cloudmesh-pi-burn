@@ -12,7 +12,6 @@ from getpass import getpass
 from cloudmesh.bridge.Bridge import Bridge
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.sdcard import SDCard
-from cloudmesh.burn.usb import USB
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
@@ -20,6 +19,7 @@ from cloudmesh.burn.util import os_is_windows
 from cloudmesh.burn.wifi.provider import Wifi
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.Host import Host
+from cloudmesh.common.Shell import Shell
 from cloudmesh.common.Shell import windows_not_supported
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
@@ -32,9 +32,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.common.Shell import Shell
 from cloudmesh.inventory.inventory import Inventory
-
 
 
 # noinspection PyPep8
@@ -802,7 +800,6 @@ class Burner(object):
 
         key = path_expand("~/.ssh/id_rsa.pub")
 
-
         banner("Parameters", figlet=True)
 
         print("Burning:      ", burning)
@@ -1452,4 +1449,3 @@ class MultiBurner(object):
 
         Console.info(f"You burned {count} SD Cards")
         Console.ok("Done :)")
-

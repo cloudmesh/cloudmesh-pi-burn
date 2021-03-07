@@ -176,8 +176,6 @@ class USB(object):
             return None
         busses = usb_device.busses()
 
-
-
         details = []
         for bus in busses:
             devices = bus.devices

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 from cloudmesh.common.parameter import Parameter
 
 
@@ -23,6 +24,17 @@ class AbstractBurner(ABC):
     def burn(self, arguments=None):
         """
         burns a single card from the inventory
+
+        :param arguments:
+        :type arguments:
+        :return:
+        :rtype:
+        """
+        raise NotImplementedError
+
+    def inventory(self, arguments=None):
+        """
+        Creates the inventory for a cluster
 
         :param arguments:
         :type arguments:

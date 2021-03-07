@@ -429,7 +429,6 @@ class SDCard:
         print("root", self.root_volume)
         print("boot", self.boot_volume)
 
-
     def probe_os(self):
         if os_is_mac():
             where_raspberry = location(host_os="macos", card_os="raspberry", volume="boot")
@@ -449,7 +448,6 @@ class SDCard:
             return "ubuntu"
         else:
             return "unkown"
-
 
     # @windows_not_supported
     # TODO Gregor verify the default arg for card_os is ok
@@ -549,7 +547,7 @@ class SDCard:
             if full:
                 _execute(f"eject {device}", f"sudo eject {device}")
             else:
-                #_execute(f"eject {device}", f"sudo eject -t {device}")
+                # _execute(f"eject {device}", f"sudo eject -t {device}")
                 device_basename = os.path.basename(device)
                 result = Shell.run('lsblk')
                 if device_basename in result.split():
@@ -754,7 +752,7 @@ class SDCard:
 
         Sudo.execute("sync")
         if os_is_linux():
-            self.unmount(device=device,full=True)
+            self.unmount(device=device, full=True)
         else:
             self.unmount(device=device)
 

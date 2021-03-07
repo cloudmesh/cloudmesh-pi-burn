@@ -160,13 +160,13 @@ class Gui:
             i = 0
             burn_layout.append([
                 sg.Text(' todo ', size=(5, 1)),
-                sg.Button('Burn', key=str(f'button-manager')),
+                sg.Button('Burn', key=str('button-manager')),
                 sg.Text(manager, size=(width, 1)),
                 sg.Text("manager", size=(8, 1)),
-                sg.Input(default_text=manager, size=(width, 1), key=str(f'name-manager')),
-                sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-manager')),
+                sg.Input(default_text=manager, size=(width, 1), key=str('name-manager')),
+                sg.Input(default_text=self.ips[i], size=(width, 1), key=str('ip-manager')),
                 sg.Text('Image'),
-                sg.Input(default_text="latest-full", size=(width, 1), key=str(f'tags-manager')),
+                sg.Input(default_text="latest-full", size=(width, 1), key=str('tags-manager')),
             ])
 
         burn_layout.append([sg.Text(160 * '-', )])

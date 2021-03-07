@@ -15,7 +15,7 @@ from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
-from cloudmesh.burn.burner.BurnerABC import AbstractBurner
+
 
 # class Burner(AbstractBurner):
 class Burner():
@@ -92,13 +92,13 @@ class Burner():
                 print(Printer.write(result,
                                     order=["name", "command", "status", "stdout", "returncode"]))
 
-    def firmware(self,action="check"):
+    def firmware(self, action="check"):
         self.burner.firmware(action=action)
 
-    def check(self,device=None):
+    def check(self, device=None):
         self.burner.check(device=device)
 
-    def configure_wifi(self,ssid, psk=None, country=None, host=None):
+    def configure_wifi(self, ssid, psk=None, country=None, host=None):
         self.burner.configure_wifi(ssid, psk=psk, country=country, host=host)
 
     def mac(self, hostnames=None):
@@ -279,6 +279,5 @@ class Burner():
         details = {detail['dev']: detail for detail in details}
 
         return details
-
 
 # multi_self.burner.burn_inventory
