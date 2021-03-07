@@ -9,11 +9,9 @@ from cloudmesh.burn.util import os_is_mac
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Tabulate import Printer
 # import PySimpleGUIWx as sg
-from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
-from cloudmesh.common.sudo import Sudo
+from cloudmesh.common.util import banner
 
 
 class Gui:
@@ -136,8 +134,9 @@ class Gui:
         for device in devices:
             default = count == 0
             burn_layout.append(
-                [sg.Radio(device, group_id="DEVICE", default=default)]
+                [sg.Radio(device, group_id="DEVICE", default=default, key=f"device-{device}")]
             )
+            count = count + 1
 
         # for device in self.devices:
         #    burn_layout.append([sg.Radio(device['dev'], group_id="DEVICE"),
@@ -154,7 +153,7 @@ class Gui:
                 )]
             )
 
-        burn_layout.append([sg.Text(160 * '-',)])
+        burn_layout.append([sg.Text(160 * '-', )])
 
         if self.manager is not None:
             manager = self.manager
@@ -167,12 +166,10 @@ class Gui:
                 sg.Input(default_text=manager, size=(width, 1), key=str(f'name-manager')),
                 sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-manager')),
                 sg.Text('Image'),
-                sg.Input(default_text="latest-full", size=(width, 1), key=str(f'image-manager')),
-                sg.FileBrowse()
-
+                sg.Input(default_text="latest-full", size=(width, 1), key=str(f'tags-manager')),
             ])
 
-        burn_layout.append([sg.Text(160 * '-',)])
+        burn_layout.append([sg.Text(160 * '-', )])
 
         if self.workers is not None:
             i = 1
@@ -185,9 +182,7 @@ class Gui:
                     sg.Input(default_text=worker, size=(width, 1), key=str(f'name-worker-{worker}')),
                     sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-worker-{worker}')),
                     sg.Text('Image'),
-                    sg.Input(default_text="latest-lite", size=(width, 1), key=str(f'image-worker-{worker}')),
-                    sg.FileBrowse()
-
+                    sg.Input(default_text="latest-lite", size=(width, 1), key=str(f'tags-worker-{worker}')),
                 ])
                 i = i + 1
 
@@ -207,58 +202,74 @@ class Gui:
             [sg.Button('Cancel')]
         ]
 
-    def burn(self, kind=None, name=None):
-        print(kind, name)
-        print("password")
-        Sudo.password()
-        print('OK')
-        os.system(f"cms banner {kind} {name} >> text.log")
-        # cms burn cluster --device=/dev/disk2 --hostname={name} --ssid=SSID --ip={ip}
-
     def value_mapper(self, values, arguments):
         arguments["key"] = values["key"]
         arguments["manager"] = values["name-manager"]
 
-
-        #'key': '/Users/grey/.ssh/id_rsa.pub',
-        #'name-manager-red':
-        #'red', 'ip-manager-red': '10.0.0.1',
-        # 'image-manager-red': 'latest-full',
+        # 'key': '/Users/grey/.ssh/id_rsa.pub',
+        # 'name-manager-red':
+        # 'red', 'ip-manager-red': '10.0.0.1',
+        # 'tags-manager-red': 'latest-full',
         # 'Browse': '',
         # 'name-worker-red01': 'red01',
         # 'ip-worker-red01': '10.0.0.2',
-        # 'image-worker-red01': 'latest-lite',
+        # 'tags-worker-red01': 'latest-lite',
         # 'Browse0': '',
         # 'name-worker-red02': 'red02',
         # 'ip-worker-red02': '10.0.0.3',
-        # 'image-worker-red02': 'latest-lite',
+        # 'tags-worker-red02': 'latest-lite',
         # 'Browse1': '',
         # 1: 'Burn'}
 
     def run(self):
 
-        Sudo.password()
+        # Sudo.password()
 
         window = sg.Window('Cloudmesh Pi Burn', self.layout)
-        #print(self.devices)
-        #print(self.details)
+        # print(self.devices)
+        # print(self.details)
         while True:
 
             event, values = window.read()
             print("==>", event, values)
 
+            ips = []
+            hostnames = []
+            for entry in values:
+                if str(entry).startswith("name"):
+                    hostnames.append(values[entry])
+                if str(entry).startswith("ip"):
+                    ips.append(values[entry])
+                if str(entry).startswith("device-") and values[entry]:
+                    device = "/dev/" + entry.replace("device-", "")
 
-            if event.startswith('button-manager'):
-                name = event.split('button-manager-')[1]
-                self.burn(kind="manager", name=name)
-            for worker in self.workers:
-                if event == f'button-{worker}':
-                    self.burn(kind="worker", name=worker)
+            key = values['key']
 
+            if event == 'button-manager':
+                host = values['name-manager']
+                kind = "manager"
+                tags = values['tags-manager']
+            elif event.startswith('button-worker'):
+                host = event.replace("button-worker-", "")
+                kind = "worker"
+
+            print()
+            print("Host:    ", host)
+            print("IPs:     ", ips)
+            print("Hostnames", hostnames)
+            print("Key:     ", key)
+            print("Event:   ", event)
+            print("Tags:    ", tags)
+            print("Kind:    ", kind)
+            print("Device:  ", device)
+            print()
 
             if event in ('Cancel', None):
                 break
 
+            # Sudo.password()
+            # os.system(f"cms banner {kind} {name} >> text.log")
+            # os.system (f"cms burn cluster --device=/dev/disk2 --hostname={host} --ssid=SSID --ip={ip}")
 
         print('exit')
         window.close()
