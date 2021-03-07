@@ -362,9 +362,7 @@ class Gui:
                       f" --burning={host}"
 
             print (command)
+            Sudo.password()
 
-            # Sudo.password()
-            # os.system(f"cms banner {kind} {name} >> text.log")
-            # os.system (
         print('exit')
         window.close()
