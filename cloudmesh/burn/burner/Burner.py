@@ -166,7 +166,7 @@ class Burner():
                 print(result)
 
         details = USB.get_from_usb()
-        print("Print details....", details)
+
         if print_stdout and details is not None:
             banner("USB Device Probe")
             print(Printer.write(
