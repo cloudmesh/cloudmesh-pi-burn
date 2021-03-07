@@ -117,7 +117,8 @@ class Gui:
         print(location)
         print("======")
 
-        logo = f'{location}/images/cm-logo.png'
+        cm_logo = f'{location}/images/cm-logo-100.png'
+        pi_logo = f'{location}/images/raspberry-logo-white-100.png'
 
         burn_layout = [
             [sg.T('')]
@@ -139,13 +140,20 @@ class Gui:
             [sg.T('Here comes the Log Data')],
         ]
 
-        burn_layout.append([sg.Button('',
-                                      button_color=(self.background, self.background),
-                                      image_filename=logo,
-                                      image_size=(30, 30),
-                                      image_subsample=2,
-                                      border_width=0,
-                                      key='LOGO')])
+        burn_layout.append(
+            [sg.Image(data=image(cm_logo), key='cm-logo'),
+            sg.Image(data=image(pi_logo), key='pi-logo')]
+
+        )
+
+
+        # burn_layout.append([sg.Button('',
+        #                               button_color=(self.background, self.background),
+        #                               image_filename=cm_logo,
+        #                               image_size=(30, 30),
+        #                               image_subsample=2,
+        #                               border_width=0,
+        #                               key='LOGO')])
 
         # layout.append([sg.Image(filename=logo, size=(30,30))])
 
@@ -265,7 +273,6 @@ class Gui:
         print("Creating Diagrams .", end="", flush=True)
         Shell.mkdir("~/.cloudmesh/gui")
         _execute(f'cd ~/.cloudmesh/gui; cms diagram set {name} --hostname="{self.hostnames}"')
-
         _execute(f'cd ~/.cloudmesh/gui; cms diagram net {name} -n --output=png')
         _execute(f'cd ~/.cloudmesh/gui; cms diagram rack {name} -n --output=png')
         print(" ok", flush=True)
