@@ -761,7 +761,7 @@ class Burner(object):
         if arguments.burning is None:
             burning = hostnames
         else:
-            burning = arguments.burning
+            burning = Parameter.expand(arguments.burning)
 
         if not (arguments.cluster and  # noqa: W504
                 arguments.device and  # noqa: W504
@@ -1236,6 +1236,10 @@ class MultiBurner(object):
                              yes=yes)
             StopWatch.stop(f"write image {device} {hostname}")
             StopWatch.status(f"write image {device} {hostname}", True)
+
+        if os_is_linux(): # full unmount is needed before mount on linux
+            # added here for --imaged option to work
+            card.unmount(device=device,full=True)
 
         Sudo.password()
         StopWatch.start(f"write host data {device} {hostname}")
