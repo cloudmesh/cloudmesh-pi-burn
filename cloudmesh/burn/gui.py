@@ -27,15 +27,15 @@ def image(name):
 
 class Gui:
 
-    def __init__(self, hostnames=None, ips=None, dryrun=False):
+    def __init__(self, hostname=None, ip=None, dryrun=False):
 
         self.dryrun = dryrun
-        self.hostnames_str = hostnames
-        self.ips_str = ips
-        self.hostnames = hostnames = hostnames or "red,red[01-02]"
-        self.ips = ips = ips or "10.0.0.[1-3]"
+        self.hostnames_str = hostname
+        self.ips_str = ip
+        self.hostnames = hostnames = hostname or "red,red[01-02]"
+        self.ips = ips = ip or "10.0.0.[1-3]"
 
-        hostnames= Parameter.expand(hostnames)
+        hostnames = Parameter.expand(hostnames)
         manager, workers = Host.get_hostnames(hostnames)
 
         if workers is None:

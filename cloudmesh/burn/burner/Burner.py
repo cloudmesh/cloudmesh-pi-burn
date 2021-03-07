@@ -45,7 +45,7 @@ class Burner():
                           "need to have ext4 write access.")
             return ""
 
-        g = Gui(hostnames=arguments.hostnames, ips=arguments.ips, dryrun=arguments.dryrun)
+        g = Gui(hostname=arguments.hostname, ip=arguments.ip, dryrun=arguments.dryrun)
 
         g.run()
 
