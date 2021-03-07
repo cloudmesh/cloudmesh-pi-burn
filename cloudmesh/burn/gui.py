@@ -383,6 +383,11 @@ class Gui:
                 os_entry_lite = "Ubuntu-64-10"
                 print("ubuntu 10")
 
+            window['tags-manager'].update(os_entry_full)
+
+            for worker in self.workers:
+                window[f'tags-worker-{worker}'].update(os_entry_lite)
+
             ssid = values['ssid']
             imaged = values['imaged']
             print()
@@ -417,7 +422,7 @@ class Gui:
                       f" {imaged_string}"
 
             print(command)
-            if not self.dryrun:
+            if False:
                 banner(f"Burn {host}")
                 os.system(command)
 
