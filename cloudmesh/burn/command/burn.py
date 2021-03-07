@@ -23,6 +23,7 @@ from cloudmesh.shell.command import map_parameters
 from cloudmesh.burn.usb import USB
 from cloudmesh.common.debug import VERBOSE
 
+
 class BurnCommand(PluginCommand):
 
     # noinspection PyBroadException
@@ -352,7 +353,7 @@ class BurnCommand(PluginCommand):
         arguments.output = "table"  # hard code for now
         arguments.bs = arguments.bs or "4M"
         arguments.yes = arguments["-y"]
-        if len(arguments.TAG) ==0:
+        if len(arguments.TAG) == 0:
             arguments.TAG = "latest"
 
         # VERBOSE(arguments)
