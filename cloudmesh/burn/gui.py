@@ -149,7 +149,11 @@ class Gui:
         if self.key is not None:
             burn_layout.append(
                 [sg.Frame(
-                    'Security', [[sg.Text("Key"), sg.Input(key="key", default_text=self.key)]]
+                    'Security', [
+                        [sg.Text("Key"), sg.Input(key="key", default_text=self.key),
+                        sg.Text("Wifi Password"), sg.Input(key="wifi", default_text="", password_char='*')]
+
+                    ]
                 )]
             )
 
