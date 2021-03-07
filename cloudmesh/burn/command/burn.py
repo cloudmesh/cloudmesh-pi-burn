@@ -22,6 +22,7 @@ from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.burn.usb import USB
 from cloudmesh.common.debug import VERBOSE
+from cloudmesh.burn.burner.Info import Info
 
 
 class BurnCommand(PluginCommand):
@@ -503,7 +504,8 @@ class BurnCommand(PluginCommand):
         elif arguments.info:
 
             output = arguments.output or "table"
-            execute("info", burner.info(output=output))
+            b = Info()
+            execute("info", b.info(output=output))
             try:
                 USB.check_for_readers()
             except Exception as e:
