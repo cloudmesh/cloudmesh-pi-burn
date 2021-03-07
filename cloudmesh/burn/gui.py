@@ -17,8 +17,8 @@ from cloudmesh.common.Shell import Shell
 
 
 def _execute(command):
-    print(command)
-    os.system(command)
+    print(".", end="", flush=True)
+    os.system(f"{command} >> burn-gui.log")
 
 def image(name):
     with open(path_expand(name), 'rb') as file:
@@ -126,15 +126,12 @@ class Gui:
         rack_file = f"~/.cloudmesh/gui/{self.manager}-rack.png"
         net_file = f"~/.cloudmesh/gui/{self.manager}-net.png"
 
-        print ("PPPP", rack_file)
         net_layout = [
-            [sg.T('Here comes the Network Diagram')],
-            [sg.Image(data=image(net_file), key='net-image')]
+            [sg.Image(data=image(net_file), key='net-image', background_color='white')]
 
         ]
         rack_layout = [
-            [sg.T('Here comes the Rack Diagram')],
-            [sg.Image(data=image(rack_file), key='rack-image')]
+            [sg.Image(data=image(rack_file), key='rack-image', background_color='white')]
 
         ]
 
@@ -234,9 +231,9 @@ class Gui:
                     [
                         [
                             sg.Tab('Burn', burn_layout, key="panel-burn"),
-                            sg.Tab('Log', log_layout, key="panel-lg"),
-                            sg.Tab('Network', net_layout, key="panel-net"),
-                            sg.Tab('Rack', rack_layout, key="panel-rack")
+                            sg.Tab('Log', log_layout, key="panel-lg", background_color='white'),
+                            sg.Tab('Network', net_layout, key="panel-net", background_color='white'),
+                            sg.Tab('Rack', rack_layout, key="panel-rack", background_color='white')
                         ]
                     ],
                     tooltip='Rack', key="mytabs")
@@ -265,11 +262,13 @@ class Gui:
 
 
     def create_diag(self, name):
+        print("Creating Diagrams .", end="", flush=True)
         Shell.mkdir("~/.cloudmesh/gui")
         _execute(f'cd ~/.cloudmesh/gui; cms diagram set {name} --hostname="{self.hostnames}"')
+
         _execute(f'cd ~/.cloudmesh/gui; cms diagram net {name} -n --output=png')
         _execute(f'cd ~/.cloudmesh/gui; cms diagram rack {name} -n --output=png')
-
+        print(" ok", flush=True)
 
     def run(self):
 
