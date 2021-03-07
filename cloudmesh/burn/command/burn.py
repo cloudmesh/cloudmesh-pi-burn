@@ -3,8 +3,8 @@ from getpass import getpass
 
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
-from cloudmesh.burn.burner import Burner
-from cloudmesh.burn.burner import MultiBurner
+from cloudmesh.burn.burner.Burner import Burner
+from cloudmesh.burn.burner.raspberryos import MultiBurner
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
 from cloudmesh.burn.sdcard import SDCard
@@ -56,6 +56,7 @@ class BurnCommand(PluginCommand):
               burn copy [--device=DEVICE] [--from=DESTINATION]
               burn shrink [--image=IMAGE]
               burn cluster --device=DEVICE --hostname=HOSTNAME
+                           [--burning=BURNING]
                            [--ip=IP]
                            [--ssid=SSID]
                            [--wifipassword=PSK]
@@ -66,6 +67,7 @@ class BurnCommand(PluginCommand):
                            [--set_passwd]
               burn create [--image=IMAGE]
                           [--device=DEVICE]
+                          [--burning=BURNING]
                           [--hostname=HOSTNAME]
                           [--ip=IP]
                           [--sshkey=KEY]
@@ -96,10 +98,11 @@ class BurnCommand(PluginCommand):
               --image=IMAGE          The image filename,
                                      e.g. 2019-09-26-raspbian-buster.img
               --device=DEVICE        The device, e.g. /dev/sdX
-              --hostname=HOSTNAME    The hostname
-              --ip=IP                The IP address
+              --hostname=HOSTNAME    The hostnames of the cluster
+              --ip=IP                The IP addresses of the cluster
               --key=KEY              The name of the SSH key file
               --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
+              --burning=BURNING      The hosts to be burned
 
             Arguments:
                 TAG                  Keyword tags to identify an image
@@ -319,6 +322,7 @@ class BurnCommand(PluginCommand):
                        "details",
                        "refresh",
                        "device",
+                       "burning",
                        "hostname",
                        "ip",
                        "sshkey",
@@ -379,7 +383,7 @@ class BurnCommand(PluginCommand):
 
         elif arguments.gui:
 
-            execute("cluster", burner.gui(arguments=arguments))
+            execute("GUI", burner.gui(arguments=arguments))
             return ""
 
         elif arguments.firmware and arguments.check:
@@ -684,7 +688,8 @@ class BurnCommand(PluginCommand):
 
             if not os_is_pi():
                 print()
-                Console.error("This command has only been written for a  Raspberry Pis. Terminating for caution")
+                Console.error("This command has only been written for a  Raspberry Pis. "
+                              "Terminating for caution")
                 print()
                 if yn_choice("Continue anyways?"):
                     pass
@@ -753,6 +758,10 @@ class BurnCommand(PluginCommand):
                 devices = Parameter.expand_string(devices)
 
             hostnames = Parameter.expand(arguments.hostname)
+            if arguments.burnimg is None:
+                burning = hostnames
+            else:
+                burning = arguments.burning
 
             ips = None if not arguments.ip else Parameter.expand(arguments.ip)
             key = arguments.sshkey
@@ -764,6 +773,7 @@ class BurnCommand(PluginCommand):
 
                 multi = MultiBurner()
                 multi.burn_all(
+                    burning=burning,
                     image=image,
                     device=devices,
                     blocksize=blocksize,

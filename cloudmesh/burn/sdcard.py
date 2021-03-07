@@ -77,6 +77,13 @@ def location(host_os=None, card_os="raspberry", volume="boot"):
               ubuntu:
                 root: /media/{user}/writable
                 boot: /media/{user}/system-boot
+            linux:
+              raspberry:
+                root: /media/{user}/rootfs
+                boot: /media/{user}/boot
+              ubuntu:
+                root: /media/{user}/writable
+                boot: /media/{user}/system-boot
             """))
     try:
         return where[host_os][card_os][volume]
@@ -421,6 +428,28 @@ class SDCard:
     def _info(self):
         print("root", self.root_volume)
         print("boot", self.boot_volume)
+
+
+    def probe_os(self):
+        if os_is_mac():
+            where_raspberry = location(host_os="macos", card_os="raspberry", volume="boot")
+            where_ubuntu = location(host_os="macos", card_os="ubuntu", volume="boot")
+        elif os_is_pi():
+            where_raspberry = location(host_os="raspberry", card_os="raspberry", volume="boot")
+            where_ubuntu = location(host_os="raspberry", card_os="ubuntu", volume="boot")
+        elif os_is_linux():
+            where_raspberry = location(host_os="ubuntu", card_os="raspberry", volume="boot")
+            where_ubuntu = location(host_os="ubuntu", card_os="ubuntu", volume="boot")
+        else:
+            return "unkwn"
+
+        if os.path.exists(where_raspberry):
+            return "raspberryos"
+        elif os.path.exists(where_ubuntu):
+            return "ubuntu"
+        else:
+            return "unkown"
+
 
     # @windows_not_supported
     # TODO Gregor verify the default arg for card_os is ok

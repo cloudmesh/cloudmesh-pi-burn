@@ -20,7 +20,6 @@ from cloudmesh.burn.util import os_is_windows
 from cloudmesh.burn.wifi.provider import Wifi
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.Host import Host
-from cloudmesh.common.JobScript import JobScript
 from cloudmesh.common.Shell import windows_not_supported
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
@@ -35,7 +34,7 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Shell import Shell
 from cloudmesh.inventory.inventory import Inventory
-from cloudmesh.burn.gui import Gui
+
 
 
 # noinspection PyPep8
@@ -47,27 +46,6 @@ class Burner(object):
         """
         self.hostname = None
         self.keypath = None
-
-
-    @staticmethod
-    def gui(arguments=None):
-
-        if os_is_windows():
-            Console.error("Only supported on Pi and Linux. On Mac you will "
-                          "need to have ext4 write access.")
-            return ""
-
-        g = Gui(hostnames=arguments.hostnames, ips=arguments.ips)
-
-        g.run()
-
-    @staticmethod
-    def detect():
-        if os_is_mac():
-            details = USB.get_from_diskutil()
-        else:
-            details = USB.get_from_dmesg()
-        return details
 
     # noinspection PyBroadException
     @windows_not_supported
@@ -206,217 +184,6 @@ class Burner(object):
                 _execute('sudo apt install rpi-eeprom')
                 _execute("sudo rpi-eeprom-update -a")
                 os.system("sudo reboot")
-
-    @windows_not_supported
-    def shrink(self, image=None):
-        if image is None:
-            Console.error("Image must have a value")
-        image = path_expand(image)
-        command = f"sudo /usr/local/bin/pishrink.sh {image}"
-        print(command)
-        os.system(command)
-
-    @windows_not_supported
-    def install(self):
-        """
-        Installs /usr/local/bin/pishrink.sh
-        Installs parted
-        :return:
-        :rtype:
-        """
-
-        if os_is_mac():
-            Console.error("This command is not supported on MacOS")
-            return ""
-        else:
-            banner("Installing pishrink.sh into /usr/local/bin")
-            script = \
-                """
-                wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
-                chmod +x pishrink.sh
-                sudo mv pishrink.sh /usr/local/bin
-                """
-
-            result = JobScript.execute(script)
-            print(Printer.write(result,
-                                order=["name", "command", "status", "stdout", "returncode"]))
-
-            if os_is_linux() or os_is_pi():
-                banner("Installing pishrink.sh into /usr/local/bin")
-                script = \
-                    """
-                    sudo apt install parted -y > $HOME/tmp.log
-                    """
-
-                result = JobScript.execute(script)
-                print(Printer.write(result,
-                                    order=["name", "command", "status", "stdout", "returncode"]))
-
-    @windows_not_supported
-    def info(self,
-             print_os=True,
-             print_fdisk=True,
-             print_stdout=True,
-             output="table"):
-        """
-        Finds out information about USB devices
-
-        TODO: should we rename print_stdout to debug? seems more in
-              line with cloudmesh
-
-        :param print_os:
-        :type print_os:
-        :param print_fdisk:
-        :type print_fdisk:
-        :param print_stdout: if set to True prints debug information
-        :type print_stdout: bool
-        :param output:
-        :type output:
-        :return: dict with details about the devices
-        :rtype: dict
-        """
-
-        if print_os and print_stdout:
-            if os_is_pi():
-                banner("This is  Raspberry PI")
-            elif os_is_mac():
-                banner("This is Mac")
-            elif os_is_windows():
-                banner("This is a Windows Computer")
-            elif os_is_linux():
-                banner("This is a Linux Computer")
-            else:
-                Console.error("unkown OS")
-                sys.exit(1)
-
-        if os_is_pi() and print_fdisk and print_stdout:
-            result = USB.fdisk("/dev/mmcblk0")
-            if print_stdout:
-                banner("Operating System SD Card")
-                print(result)
-
-        details = USB.get_from_usb()
-
-        if print_stdout:
-            banner("USB Device Probe")
-            print(Printer.write(
-                details,
-                order=["address",
-                       "bus",
-                       "idVendor",
-                       "idProduct",
-                       "hVendor",
-                       "hProduct",
-                       "iManufacturer",
-                       "iSerialNumber",
-                       "usbVersion",
-                       "comment"],
-                header=["Adr.",
-                        "bus",
-                        "Vendor",
-                        "Prod.",
-                        "H Vendor",
-                        "H Prod.",
-                        "Man.",
-                        "Ser.Num.",
-                        "USB Ver.",
-                        "Comment"],
-                output=output)
-            )
-
-        # devices = USB.get_devices()
-
-        # banner("Devices found")
-
-        # print ('\n'.join(sorted(devices)))
-
-        if os_is_mac():
-
-            names = USB.get_dev_from_diskutil()
-
-            details = USB.get_from_diskutil()
-        else:
-            details = USB.get_from_dmesg()
-
-        if print_stdout:
-            banner("SD Cards Found")
-
-            if os_is_mac():
-                print("We found the follwing cards:")
-                print("  - /dev/" + "\n  - /dev/".join(names))
-                print()
-                print("We found the follong file systems on these disks:")
-                print()
-
-            print(Printer.write(details,
-                                order=[
-                                    "dev",
-                                    "info",
-                                    "formatted",
-                                    "size",
-                                    "active",
-                                    "readable",
-                                    "empty",
-                                    "direct-access",
-                                    "removable",
-                                    "writeable"],
-                                header=[
-                                    "Path",
-                                    "Info",
-                                    "Formatted",
-                                    "Size",
-                                    "Plugged-in",
-                                    "Readable",
-                                    "Empty",
-                                    "Access",
-                                    "Removable",
-                                    "Writeable"],
-                                output=output)
-                  )
-
-            # lsusb = USB.get_from_lsusb()
-            # from pprint import pprint
-            # pprint (lsusb)
-
-            # endors = USB.get_vendor()
-            # print(vendors)
-
-            # udev = subprocess.getoutput("udevadm info -a -p  $(udevadm info -q path -n /dev/sda)")
-            #
-            # attributes = ["vendor","model", "model", "version", "manufacturer",
-            #     "idProduct", "idVendor"]
-            # for line in udev.splitlines():
-            #    if any(word in line for word in attributes):
-            #        print(line)
-
-        if print_stdout:
-
-            if os_is_linux():
-                card = SDCard(card_os="raspberry")
-                m = card.ls()
-
-                banner("Mount points")
-                if len(m) != 0:
-                    print(Printer.write(m,
-                                        order=["name", "path", "type", "device", "parameters"],
-                                        header=["Name", "Path", "Type", "Device", "Parameters"],
-                                        output=output))
-                else:
-                    Console.warning("No mount points found. Use cms burn mount")
-                    print()
-
-        # Convert details into a dict where the key for each entry is the device
-        details = {detail['dev']: detail for detail in details}
-
-        return details
-
-        #
-        # use also lsub -v
-        #
-
-        # see also
-        # https://raspberry-pi-guide.readthedocs.io/en/latest/system.html
-        # this is for fedora, but should also work for raspbian
 
     def mac(self, hostnames=None):
         """
@@ -971,8 +738,7 @@ class Burner(object):
             Console.error("For now only raspberry and ubuntu are supported")
         return tag
 
-    @staticmethod
-    def cluster(arguments=None):
+    def cluster(self, arguments=None):
 
         # is true when
         #
@@ -994,6 +760,10 @@ class Burner(object):
 
         hostnames = Parameter.expand(arguments.hostname)
         manager, workers = Host.get_hostnames(hostnames)
+        if arguments.burning is None:
+            burning = hostnames
+        else:
+            burning = arguments.burning
 
         if not (arguments.cluster and  # noqa: W504
                 arguments.device and  # noqa: W504
@@ -1032,8 +802,10 @@ class Burner(object):
 
         key = path_expand("~/.ssh/id_rsa.pub")
 
+
         banner("Parameters", figlet=True)
 
+        print("Burning:      ", burning)
         print("Manager:      ", manager)
         print("Workers:      ", workers)
         print("IPS:          ", ips)
@@ -1078,7 +850,7 @@ class Burner(object):
 
         multi = MultiBurner()
 
-        if manager is not None:
+        if manager is not None and manager in burning:
             banner("Burn the Manager", figlet=True)
 
             Console.info(f"Please insert the SD Card: {manager}")
@@ -1114,6 +886,8 @@ class Burner(object):
 
             Console.info(f"Preparing to burn the workers: {workers}")
             for worker, ip in tuple(zip(workers, ips[1:])):
+                if worker not in burning:
+                    continue
 
                 banner(f"Worker {worker}", figlet=True)
 
@@ -1183,6 +957,7 @@ class MultiBurner(object):
 
     # noinspection PyUnboundLocalVariable
     def burn_all(self,
+                 burning=None,
                  image="latest",
                  device=None,
                  blocksize="4M",
@@ -1293,6 +1068,9 @@ class MultiBurner(object):
 
         print("Burning these devices:")
         print(' '.join(devices.keys()))
+
+        if burning is None:
+            burning = hostnames
 
         keys = list(devices.keys())
         count = 0
