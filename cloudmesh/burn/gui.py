@@ -71,7 +71,7 @@ class Gui:
         self.layout()
 
     def burn(self, kind, hostname):
-
+        '''
         if hostname == 'red':
             ip = self.ips[0]
             print("in red")
@@ -83,16 +83,7 @@ class Gui:
             ip = self.ips[ip_location]
             print("in red")
             print(ip)
-
-        command = "cms burn cluster --device=/dev/disk2" \
-                  f" --hostname={hostname}" \
-                  f" --ssid={self.ssid}" \
-                  f" --ip={ip}" \
-                  f" --burning={hostname}" \
-                  " -y" \
-                  f" {self.imaged}"
-        print(command)
-        # os.system(command)
+        '''
 
         return
 
@@ -317,10 +308,11 @@ class Gui:
         # 'Browse1': '',
         # 1: 'Burn'}
 
-    def create_diag(self, name):
+    def create_diag(self, name, _new=True):
         print("Creating Diagrams .", end="", flush=True)
         Shell.mkdir("~/.cloudmesh/gui")
-        _execute(f'cd ~/.cloudmesh/gui; cms diagram set {name} --hostname="{self.hostnames}"')
+        if _new:
+            _execute(f'cd ~/.cloudmesh/gui; cms diagram set {name} --hostname="{self.hostnames}"')
         _execute(f'cd ~/.cloudmesh/gui; cms diagram net {name} -n --output=png')
         _execute(f'cd ~/.cloudmesh/gui; cms diagram rack {name} -n --output=png')
         print(" ok", flush=True)
@@ -341,6 +333,7 @@ class Gui:
         device = None
 
         while True:
+
 
             event, values = window.read()
             if event in ("Cancel", 'cancel', None):
@@ -391,7 +384,8 @@ class Gui:
             window['tags-manager'].update(os_entry_full)
             for worker in self.workers:
                 window[f'tags-worker-{worker}'].update(os_entry_lite)
-
+            VERBOSE(event)
+            VERBOSE(values)
             # Call burn function for manager and workers
             if event == 'button-manager':
                 host = values['name-manager']
@@ -399,13 +393,22 @@ class Gui:
                 tags = values['tags-manager']
                 # Burn manager
                 window['status-manager'].update('Burning')
-                self.burn(kind, host)
+
             elif event.startswith('button-worker'):
                 host = event.replace("button-worker-", "")
                 kind = "worker"
                 # Burn worker
-                window[f'status-worker-{host}'].update('Burning')
-                self.burn(kind, host)
+                window[f'status-worker-{host}'].update(' Burning ')
+            VERBOSE(event)
+            VERBOSE(values)
+            window['status-manager'].update(' Burning ')
+            os.system(f"cd ~/.cloudmesh/gui; cms diagram set {self.manager} {host} rack.color blue")
+            os.system(f"cd ~/.cloudmesh/gui; cms diagram set {self.manager} {host} net.color blue")
+            self.create_diag(self.manager)
+
+
+            window.Refresh()
+
 
             print()
             print("Host:    ", host)
@@ -427,8 +430,29 @@ class Gui:
 
             self.hostnames_str = ','.join(hostnames)
             self.ips_str = ','.join(ips)
+            command = "cms burn cluster --device=/dev/disk2" \
+                      f" --hostname={self.hostnames_str}" \
+                      f" --ssid={self.ssid}" \
+                      f" --ip={self.ips_str}" \
+                      f" --burning={host}" \
+                      " -y" \
+                      f" {self.imaged}"
+            print(command)
+            #if not self.dryrun:
+                #os.system(command)
+            import time; time.sleep(1)
+            window['status-manager'].update(' Completed ')
+            os.system(f"cd ~/.cloudmesh/gui; cms diagram set {self.manager} {host} rack.color green")
+            os.system(f"cd ~/.cloudmesh/gui; cms diagram set {self.manager} {host} net.color green")
+            self.create_diag(self.manager, _new=False)
 
-            # os.system(command)
+            rack_file = f"~/.cloudmesh/gui/{self.manager}-rack.png"
+            net_file = f"~/.cloudmesh/gui/{self.manager}-net.png"
 
+            window['net-image'].update(data=image(net_file))
+            window['rack-image'].update(data=image(rack_file))
+
+
+            window.Refresh()
         print('exit')
         window.close()
