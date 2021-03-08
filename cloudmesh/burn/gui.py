@@ -332,21 +332,21 @@ class Gui:
 
             """
             
-            diag = f"{name}-rack"
+            rack_name = f"{name}-rack"
             
             diagram = Diagram()
             diagram.load(name)
             
             rack.render(kind="rack")
-            rack.save_diagram(diag)
-            rack.saveas(diag, kind="rack", output=arguments.output)
+            rack.save_diagram(rack-name)
+            rack.saveas(rack-name, kind="rack", output=arguments.output)
 
-            diag = f"{arguments.CLUSTER}-net"
+            net_name = f"{name}-net"
             net = Diagram()
-            net.load(arguments.CLUSTER)
+            net.load(name)
             net.render(kind="bridge")
-            net.save_diagram(diag)
-            net.saveas(diag, kind="net", output=arguments.output)
+            net.save_diagram(diag_name)
+            net.saveas(net_name, kind="net", output=arguments.output)
             """
             os.chdir(cwd)
 
