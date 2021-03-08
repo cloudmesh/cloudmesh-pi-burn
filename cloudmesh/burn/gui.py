@@ -101,8 +101,8 @@ class Gui:
 
         self.create_diag(self.manager)
         self.create_layout()
+        # sg.change_look_and_feel('SystemDefault')
         self.window = sg.Window('Cloudmesh Pi Burn', self.layout, resizable=True, size=window_size)
-
 
     def burn(self, kind, hostname):
         '''
