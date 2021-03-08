@@ -324,7 +324,7 @@ class BurnCommand(PluginCommand):
                        "details",
                        "refresh",
                        "device",
-                       "dryrun"
+                       "dryrun",
                        "burning",
                        "hostname",
                        "ip",
@@ -387,7 +387,12 @@ class BurnCommand(PluginCommand):
 
         elif arguments.gui:
 
-            execute("GUI", burner.gui(arguments=arguments))
+            from cloudmesh.burn.gui import Gui
+            VERBOSE(arguments)
+            g = Gui(hostname=arguments.hostname, ip=arguments.ip, dryrun=arguments.dryrun)
+
+            g.run()
+
             return ""
 
         elif arguments.firmware and arguments.check:

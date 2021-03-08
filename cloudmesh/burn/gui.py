@@ -5,6 +5,7 @@ import PySimpleGUI as sg
 import oyaml as yaml
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.util import os_is_mac
+from cloudmesh.burn.util import os_is_linux
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.Tabulate import Printer
@@ -15,9 +16,11 @@ from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.diagram.diagram import Diagram
+import time
+import textwrap
 
 def _execute(command):
-    print(".", end="", flush=True)
+    # print(".", end="", flush=True)
     os.system(f"{command} >> burn-gui.log")
 
 
@@ -25,12 +28,38 @@ def image(name):
     with open(path_expand(name), 'rb') as file:
         return file.read()
 
+window_size = (700, 700)
+log_size = (600,600)
+status_width = (10, 1)
+name_width = (10, 1)
+tag_width = (15, 1)
+entry_width = (10, 1)
+
+image_tags = {
+    "os_raspberryos": {
+        "name": "Raspberry OS",
+        "manager": "latest-full",
+        "worker": "latest-lite",
+    },
+    "os_ubuntu_64bit_20_04": {
+        "name": "Ubuntu 64-bit 20.04",
+        "manager": "Ubuntu 64 04",
+        "worker": "Ubuntu 64 04"
+    },
+    "os_ubuntu_64bit_20_10": {
+        "name": "Ubuntu 64-bit 20.10",
+        "manager": "Ubuntu 64 10",
+        "worker": "Ubuntu 64 10"
+    }
+}
 
 class Gui:
 
+
+
     def __init__(self, hostname=None, ip=None, dryrun=False):
 
-        self.dryrun = dryrun
+        self.dryrun = dryrun or False
         self.hostnames_str = hostname
         self.ips_str = ip
         self.hostnames = hostnames = hostname or "red,red[01-02]"
@@ -60,13 +89,13 @@ class Gui:
         print("Workers:      ", workers)
         print("IPS:          ", ips)
         print("Key:          ", self.key)
+        print("Dryrun:       ", self.dryrun)
 
         self.manager = manager
         self.workers = workers
         self.ips = ips
 
         self.create_diag(self.manager)
-
         self.load_data()
         self.layout()
 
@@ -129,21 +158,16 @@ class Gui:
 
             burn_layout.append([sg.Text(title)])
 
-        width = 10
         location = os.path.dirname(os.path.abspath(inspect.getsourcefile(Gui)))
-
-        print(location)
-        print("======")
 
         cm_logo = f'{location}/images/cm-logo-100.png'
         pi_logo = f'{location}/images/raspberry-logo-white-100.png'
+        rack_file = f"~/.cloudmesh/gui/{self.manager}-rack.png"
+        net_file = f"~/.cloudmesh/gui/{self.manager}-net.png"
 
         burn_layout = [
             [sg.T('')]
         ]
-
-        rack_file = f"~/.cloudmesh/gui/{self.manager}-rack.png"
-        net_file = f"~/.cloudmesh/gui/{self.manager}-net.png"
 
         net_layout = [
             [sg.Image(data=image(net_file), key='net-image', background_color='white')]
@@ -151,32 +175,29 @@ class Gui:
         ]
         rack_layout = [
             [sg.Image(data=image(rack_file), key='rack-image', background_color='white')]
-
         ]
 
-        log_layout = [
-            [sg.T('Here comes the Log Data')],
+        size = log_size
+        log_layout = [[sg.T('', key="log", size=size)]]
+        log_scroll_layout = [
+            [sg.Column(layout=log_layout, scrollable=True)]
         ]
 
         burn_layout.append(
             [sg.Image(data=image(cm_logo), key='cm-logo'),
              sg.Image(data=image(pi_logo), key='pi-logo')]
-
         )
 
-        # burn_layout.append([sg.Button('',
-        #                               button_color=(self.background, self.background),
-        #                               image_filename=cm_logo,
-        #                               image_size=(30, 30),
-        #                               image_subsample=2,
-        #                               border_width=0,
-        #                               key='LOGO')])
-
-        # layout.append([sg.Image(filename=logo, size=(30,30))])
-
+        #
+        # DEVICES
+        #
         line("Devices")
-
-        devices = USB.get_dev_from_diskutil()
+        if os_is_mac():
+            devices = USB.get_dev_from_diskutil()
+        elif os_is_linux():
+            devices = USB.get_from_dmesg()
+        else:
+            devices = {}
 
         count = 0
         for device in devices:
@@ -186,40 +207,49 @@ class Gui:
             )
             count = count + 1
 
+        #
+        # SDCARD
+        #
         line("SD Card")
 
         burn_layout.append(
             [sg.Checkbox("format", default=True, key="imaged")]
         )
 
+        #
+        # OPERATING SYSTEM
+        #
         line("Operating System")
 
         count = 0
-        for entry in ["Raspberry", "Ubuntu 20.10", "Ubuntu 20.04"]:
+        for entry in image_tags:
+            data = image_tags[entry]
+            print ("DDD", entry, data)
+            name = data["name"]
             default = count == 0
             burn_layout.append(
-                [sg.Radio(entry, group_id="OS", enable_events=True, default=default, key=f"os-{entry}")]
+                [sg.Radio(name,
+                          group_id="OS",
+                          enable_events=True,
+                          default=default,
+                          key=entry)]
             )
             count = count + 1
 
-        # for device in self.devices:
-        #    burn_layout.append([sg.Radio(device['dev'], group_id="DEVICE"),
-        #                        sg.Text(d),
-        #                        sg.Text(device["size"]),
-        #                        sg.Text(device["info"]),
-        #                        sg.Text(device["formatted"]),
-        #                        ])
-
-        # this has wrong layout it must be vertical
-        # BUG: THIS IS A BUG AS IT SHOULD RENDER ANYWAYS WE NEED THE KEY
+        #
+        # SECURITY
+        #
         line("Security")
         if self.key is not None:
-            burn_layout.append([sg.Text("Key", size=(15, 1)), sg.Input(key="key", default_text=self.key)])
+            burn_layout.append([sg.Text("Key", size=entry_width), sg.Input(key="key", default_text=self.key)])
 
-        burn_layout.append([sg.Text("SSID", size=(15, 1)), sg.Input(key="ssid", default_text="")])
+        burn_layout.append([sg.Text("SSID", size=entry_width), sg.Input(key="ssid", default_text="")])
         burn_layout.append(
-            [sg.Text("Wifi Password", size=(15, 1)), sg.Input(key="wifi", default_text="", password_char='*')])
+            [sg.Text("Wifi Password", size=entry_width), sg.Input(key="wifi", default_text="", password_char='*')])
 
+        #
+        # MANAGER
+        #
         line("Manager")
 
         if self.manager is not None:
@@ -227,31 +257,34 @@ class Gui:
             i = 0
             burn_layout.append(
                 [
-                    sg.Text(' Status ', size=(9, 1), key=str('status-manager')),
-                    sg.Button('Burn', key=str('button-manager')),
-                    sg.Text(manager, size=(width, 1)),
-                    sg.Text("manager", size=(8, 1)),
-                    sg.Input(default_text=manager, size=(width, 1), key=str('name-manager')),
-                    sg.Input(default_text=self.ips[i], size=(width, 1), key=str('ip-manager')),
+                    sg.Text(' Status ', size=status_width, key=str(f'status-{manager}')),
+                    sg.Button('Burn', key=str(f'button-{manager}')),
+                    sg.Text(manager, size=name_width),
+                    sg.Text("manager", size=name_width),
+                    sg.Input(default_text=manager, size=name_width, key=str(f'name-{manager}')),
+                    sg.Input(default_text=self.ips[i], size=name_width, key=str(f'ip-{manager}')),
                     sg.Text('Image'),
-                    sg.Input(default_text="latest-full", size=(15, 1), key=str('tags-manager'))
+                    sg.Input(default_text="latest-full", size=tag_width, key=str(f'tags-{manager}'))
                 ]
             )
 
+        #
+        # WORKERS
+        #
         line("Workers")
 
         if self.workers is not None:
             i = 1
             for worker in self.workers:
                 burn_layout.append([
-                    sg.Text(' Status ', size=(9, 1), key=str(f'status-worker-{worker}')),
-                    sg.Button('Burn', key=str(f'button-worker-{worker}')),
-                    sg.Text(worker, size=(width, 1)),
-                    sg.Text("worker", size=(8, 1)),
-                    sg.Input(default_text=worker, size=(width, 1), key=str(f'name-worker-{worker}')),
-                    sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-worker-{worker}')),
+                    sg.Text(' Status ', size=status_width, key=str(f'status-{worker}')),
+                    sg.Button('Burn', key=str(f'button-{worker}')),
+                    sg.Text(worker, size=name_width),
+                    sg.Text("worker", size=name_width),
+                    sg.Input(default_text=worker, size=name_width, key=str(f'name-{worker}')),
+                    sg.Input(default_text=self.ips[i], size=name_width, key=str(f'ip-{worker}')),
                     sg.Text('Image'),
-                    sg.Input(default_text="latest-lite", size=(15, 1), key=str(f'tags-worker-{worker}')),
+                    sg.Input(default_text="latest-lite", size=tag_width, key=str(f'tags-{worker}')),
                 ])
                 i = i + 1
 
@@ -273,13 +306,16 @@ class Gui:
                 i = i + 1
             burn_layout.append([sg.Column(column_worker, size=(650, 20), scrollable=True)])
         '''
+        #
+        # TABS
+        #
         self.layout = [
             [
                 sg.TabGroup(
                     [
                         [
                             sg.Tab('Burn', burn_layout, key="panel-burn"),
-                            sg.Tab('Log', log_layout, key="panel-lg", background_color='white'),
+                            sg.Tab('Log', log_scroll_layout, key="panel-lg", background_color='white'),
                             sg.Tab('Network', net_layout, key="panel-net", background_color='white'),
                             sg.Tab('Rack', rack_layout, key="panel-rack", background_color='white')
                         ]
@@ -289,73 +325,63 @@ class Gui:
             [sg.Button('Cancel', key="cancel"), sg.Button(' Next Card -> ', key="next"), ]
         ]
 
-    def value_mapper(self, values, arguments):
-        arguments["key"] = values["key"]
-        arguments["manager"] = values["name-manager"]
-
-        # 'key': '/Users/grey/.ssh/id_rsa.pub',
-        # 'name-manager-red':
-        # 'red', 'ip-manager-red': '10.0.0.1',
-        # 'tags-manager-red': 'latest-full',
-        # 'Browse': '',
-        # 'name-worker-red01': 'red01',
-        # 'ip-worker-red01': '10.0.0.2',
-        # 'tags-worker-red01': 'latest-lite',
-        # 'Browse0': '',
-        # 'name-worker-red02': 'red02',
-        # 'ip-worker-red02': '10.0.0.3',
-        # 'tags-worker-red02': 'latest-lite',
-        # 'Browse1': '',
-        # 1: 'Burn'}
-
     def create_diag(self, name, _new=True, shell=True):
 
         print("Creating Diagrams .", end="", flush=True)
 
-        Shell.mkdir("~/.cloudmesh/gui")
+        directory = path_expand("~/.cloudmesh/gui")
+        Shell.mkdir(directory)
+        location = f"{directory}/{name}"
 
-        if shell:
-            if _new:
-                _execute(f'cd ~/.cloudmesh/gui; cms diagram set {name} --hostname="{self.hostnames}"')
-            _execute(f'cd ~/.cloudmesh/gui; cms diagram net {name} -n --output=png')
-            _execute(f'cd ~/.cloudmesh/gui; cms diagram rack {name} -n --output=png')
-            print(" ok", flush=True)
-        else:
+        hostnames = Parameter.expand(self.hostnames)
+        if _new:
+            rack = Diagram(names=hostnames, name=hostnames[0])
+            rack.save(location)
 
-            cwd = os.getcwd()
-            os.chdir(path_expand("/.cloudmesh/gui"))
+        # os.system(f"cat {location}")
 
+        diagram = Diagram()
+        diagram.load(location)
 
-            if _new:
-                rack = Diagram(self.hostnames)
-                rack.save(name)
+        diagram.render_rack()
+        diagram.saveas(f"{location}-rack", kind="rack", output="png")
 
-            """
-            
-            rack_name = f"{name}-rack"
-            
-            diagram = Diagram()
-            diagram.load(name)
-            
-            rack.render(kind="rack")
-            rack.save_diagram(rack-name)
-            rack.saveas(rack-name, kind="rack", output=arguments.output)
+        diagram.render_bridge_net()
+        diagram.saveas(f"{location}-net", kind="net", output="png")
 
-            net_name = f"{name}-net"
-            net = Diagram()
-            net.load(name)
-            net.render(kind="bridge")
-            net.save_diagram(diag_name)
-            net.saveas(net_name, kind="net", output=arguments.output)
-            """
-            os.chdir(cwd)
+    def set_diagram_value(self, name, entry, attribute, value):
+        directory = path_expand("~/.cloudmesh/gui")
+        Shell.mkdir(directory)
+        location = f"{directory}/{name}"
+        diagram = Diagram()
+        diagram.load(location)
+        data = {
+            attribute: name
+        }
+        diagram.set(entry, **data)
+        diagram.save(location)
 
+    @staticmethod
+    def logger(window, msg, end="\n"):
+        text = window['log']
+        text.update(text.get() + msg + end)
+        window.Refresh()
+
+    def update_diagram_colors(self, window, cluster, host, color):
+        self.set_diagram_value(cluster, host, "rack.color", color)
+        self.set_diagram_value(cluster, host, "net.color", color)
+
+        rack_file = f"~/.cloudmesh/gui/{cluster}-rack.png"
+        net_file = f"~/.cloudmesh/gui/{cluster}-net.png"
+
+        window['net-image'].update(data=image(net_file))
+        window['rack-image'].update(data=image(rack_file))
+
+        window.Refresh()
 
     def run(self):
 
         Sudo.password()
-
-        window = sg.Window('Cloudmesh Pi Burn', self.layout, size=(650, 600))
 
         host = None
         ips = None
@@ -366,127 +392,118 @@ class Gui:
         kind = None
         device = None
 
+        window = sg.Window('Cloudmesh Pi Burn', self.layout, resizable=True, size=window_size)
+
         while True:
 
-
             event, values = window.read()
+
             if event in ("Cancel", 'cancel', None):
                 break
 
             VERBOSE(event)
             VERBOSE(values)
 
-            ips = []
-            hostnames = []
-            os_entry_full = ""
-            os_entry_lite = ""
-            for entry in values:
-                if str(entry).startswith("name"):
-                    hostnames.append(values[entry])
-                if str(entry).startswith("ip"):
-                    ips.append(values[entry])
-                if str(entry).startswith("device-") and values[entry]:
-                    device = "/dev/" + entry.replace("device-", "")
+            #
+            # UPDATE OS SELECTION
+            #
+            if event.startswith("os"):
+                for image in values:
+                    if image.startswith("os") and values[image]:
+                        break
 
-            key = values['key']
-            self.hostnames_str = ','.join(hostnames)
-            self.ips_str = ','.join(ips)
-            self.ssid = values['ssid']
-            imaged = values['imaged']
+                self.logger(window, f"Switch OS to: {image}")
 
-            if not imaged:
-                self.imaged = "--imaged"
-            else:
-                self.imaged = ""
-
-            # Display image tags based on OS selection
-            raspberry = values['os-Raspberry']
-            ubuntu_64_04 = values['os-Ubuntu 20.04']
-            ubuntu_64_10 = values['os-Ubuntu 20.10']
-            if raspberry:
-                os_entry_full = "latest-full"
-                os_entry_lite = "latest-lite"
-                print("rasp")
-            elif ubuntu_64_04:
-                os_entry_full = "Ubuntu-64-04"
-                os_entry_lite = "Ubuntu-64-04"
-                print("ubuntu 04")
-            elif ubuntu_64_10:
-                os_entry_full = "Ubuntu-64-10"
-                os_entry_lite = "Ubuntu-64-10"
-                print("ubuntu 10")
-            window['tags-manager'].update(os_entry_full)
-            for worker in self.workers:
-                window[f'tags-worker-{worker}'].update(os_entry_lite)
-            VERBOSE(event)
-            VERBOSE(values)
-            # Call burn function for manager and workers
-            if event == 'button-manager':
-                host = values['name-manager']
-                kind = "manager"
-                tags = values['tags-manager']
-                # Burn manager
-                window['status-manager'].update('Burning')
-
-            elif event.startswith('button-worker'):
-                host = event.replace("button-worker-", "")
-                kind = "worker"
-                # Burn worker
-                window[f'status-worker-{host}'].update(' Burning ')
-            VERBOSE(event)
-            VERBOSE(values)
-            window['status-manager'].update(' Burning ')
-            os.system(f"cd ~/.cloudmesh/gui; cms diagram set {self.manager} {host} rack.color blue")
-            os.system(f"cd ~/.cloudmesh/gui; cms diagram set {self.manager} {host} net.color blue")
-            self.create_diag(self.manager)
+                image_manager = image_tags[image]["manager"]
+                image_worker = image_tags[image]["worker"]
 
 
-            window.Refresh()
+                window[f'tags-{self.manager}'].update(image_manager)
+                for worker in self.workers:
+                    window[f'tags-{worker}'].update(image_worker)
+                window.Refresh()
+
+            if event.startswith("button"):
+                #
+                # set imaged string
+                #
+                imaged = values['imaged']
+                if not imaged:
+                    self.imaged_str = "--imaged"
+                else:
+                    self.imaged_str = ""
+                #
+                # handle device, hostnames and ips
+                #
+                ips = []
+                hostnames = []
+                for entry in values:
+                    if str(entry).startswith("name"):
+                        hostnames.append(values[entry])
+                    if str(entry).startswith("ip"):
+                        ips.append(values[entry])
+                    if str(entry).startswith("device-") and values[entry]:
+                        device = "/dev/" + entry.replace("device-", "")
+                key = values['key']
+                self.hostnames_str = ','.join(hostnames)
+                self.ips_str = ','.join(ips)
+                #
+                # get the ssid
+                #
+                self.ssid = values['ssid']
+
+                host = event.replace("button-", "")
+                if host == self.manager:
+                    kind = "manager"
+                else:
+                    kind = "worker"
+
+                print()
+                print("Host:    ", host)
+                print("IPs:     ", ips)
+                print("Hostnames", hostnames)
+                print("Ssid:    ", self.ssid)
+                print("Key:     ", key)
+                print("Event:   ", event)
+                print("Tags:    ", tags)
+                print("Kind:    ", kind)
+                print("Device:  ", device)
+                print("Format   ", imaged)
+                print()
+
+                # Call burn function for manager and workers
+                self.logger(window, f"Burning {kind} {host}")
+                tags = values[f'tags-{host}']
+                window[f'status-{host}'].update(' Burning ')
+
+                self.update_diagram_colors(window, self.manager, host, "blue")
+
+                self.hostnames_str = ','.join(hostnames)
+                self.ips_str = ','.join(ips)
+                command = "cms burn cluster --device=/dev/disk2" \
+                          f" --hostname={self.hostnames_str}" \
+                          f" --ssid={self.ssid}" \
+                          f" --ip={self.ips_str}" \
+                          f" --burning={host}" \
+                          " -y" \
+                          f" {self.imaged_str}"
+                print(command)
+
+                try:
+                    self.logger(window, f"Executing: {command}")
+                    if self.dryrun:
+                        time.sleep(0.5)
+                    else:
+                        os.system(command)
+                    window[f'status-{host}'].update(' Completed ')
+
+                    self.update_diagram_colors(window, self.manager, host, "green")
+                except:
+                    self.logger(window, "Command failed")
+                    self.update_diagram_colors(window, self.manager, host, "red")
 
 
-            print()
-            print("Host:    ", host)
-            print("IPs:     ", ips)
-            print("Hostnames", hostnames)
-            print("Ssid:    ", self.ssid)
-            print("Key:     ", key)
-            print("Event:   ", event)
-            print("Tags:    ", tags)
-            print("Kind:    ", kind)
-            print("Device:  ", device)
-            print("Format   ", imaged)
-            print()
+                window.Refresh()
 
-            if imaged:
-                self.imaged = "--imaged"
-            else:
-                self.imaged = ""
-
-            self.hostnames_str = ','.join(hostnames)
-            self.ips_str = ','.join(ips)
-            command = "cms burn cluster --device=/dev/disk2" \
-                      f" --hostname={self.hostnames_str}" \
-                      f" --ssid={self.ssid}" \
-                      f" --ip={self.ips_str}" \
-                      f" --burning={host}" \
-                      " -y" \
-                      f" {self.imaged}"
-            print(command)
-            #if not self.dryrun:
-                #os.system(command)
-            import time; time.sleep(1)
-            window['status-manager'].update(' Completed ')
-            os.system(f"cd ~/.cloudmesh/gui; cms diagram set {self.manager} {host} rack.color green")
-            os.system(f"cd ~/.cloudmesh/gui; cms diagram set {self.manager} {host} net.color green")
-            self.create_diag(self.manager, _new=False)
-
-            rack_file = f"~/.cloudmesh/gui/{self.manager}-rack.png"
-            net_file = f"~/.cloudmesh/gui/{self.manager}-net.png"
-
-            window['net-image'].update(data=image(net_file))
-            window['rack-image'].update(data=image(rack_file))
-
-
-            window.Refresh()
         print('exit')
         window.close()

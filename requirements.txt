@@ -12,3 +12,5 @@ oyaml
 requests
 pyusb
 tqdm
+PySimpleGUI
+

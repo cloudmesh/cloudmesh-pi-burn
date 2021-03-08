@@ -338,22 +338,24 @@ class USB(object):
 
     @staticmethod
     def get_dev_from_diskutil():
-        import plistlib
-        external = subprocess.check_output("diskutil list -plist external".split(" "))
+        if os_is_mac():
+            import plistlib
+            external = subprocess.check_output("diskutil list -plist external".split(" "))
 
-        r = dict(plistlib.loads(external))
+            r = dict(plistlib.loads(external))
 
-        details = []
+            details = []
 
-        if len(r['AllDisksAndPartitions']) == 0:
-            Console.error("No partition found")
-            return ""
+            if len(r['AllDisksAndPartitions']) == 0:
+                Console.error("No partition found")
+                return ""
 
+            else:
+                for dev in r['AllDisksAndPartitions']:
+                    details.append(dev['DeviceIdentifier'])
+                return details
         else:
-            for dev in r['AllDisksAndPartitions']:
-                details.append(dev['DeviceIdentifier'])
-            return details
-
+            return None
     @staticmethod
     def get_from_diskutil(device=None):
         import plistlib

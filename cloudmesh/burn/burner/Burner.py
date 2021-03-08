@@ -34,18 +34,6 @@ class Burner():
             details = USB.get_from_dmesg()
         return details
 
-    @staticmethod
-    def gui(arguments=None):
-
-        if os_is_windows():
-            Console.error("Only supported on Pi and Linux. On Mac you will "
-                          "need to have ext4 write access.")
-            return ""
-
-        g = Gui(hostname=arguments.hostname, ip=arguments.ip, dryrun=arguments.dryrun)
-
-        g.run()
-
     def shrink(self, image=None):
         if image is None:
             Console.error("Image must have a value")
