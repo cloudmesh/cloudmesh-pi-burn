@@ -28,7 +28,7 @@ def image(name):
     with open(path_expand(name), 'rb') as file:
         return file.read()
 
-window_size = (700, 800)
+window_size = (800, 800)
 log_size = (600,600)
 status_width = (10, 1)
 name_width = (10, 1)
@@ -188,9 +188,11 @@ class Gui:
             [sg.Column(layout=log_layout, scrollable=True)]
         ]
 
+
         burn_layout.append(
-            [sg.Image(data=image(cm_logo), key='cm-logo'),
-             sg.Image(data=image(pi_logo), key='pi-logo')]
+            [   sg.Text(40 * " "),
+                sg.Image(data=image(cm_logo), key='cm-logo'),
+                sg.Image(data=image(pi_logo), key='pi-logo')]
         )
 
         #
@@ -277,10 +279,12 @@ class Gui:
         #
         line("Workers")
 
+        worker_layout = []
         if self.workers is not None:
             i = 1
             for worker in self.workers:
-                burn_layout.append([
+                worker_layout.append(
+                    [
                     sg.Text('', size=status_width, key=str(f'status-{worker}')),
                     sg.Button('Burn', key=str(f'button-{worker}')),
                     sg.Text(worker, size=name_width),
@@ -289,31 +293,18 @@ class Gui:
                     sg.Input(default_text=self.ips[i], size=name_width, key=str(f'ip-{worker}')),
                     sg.Text('Image'),
                     sg.Input(default_text="latest-lite", size=tag_width, key=str(f'tags-{worker}')),
-                ])
+                    ])
                 i = i + 1
+        burn_layout.append([sg.Column(worker_layout, scrollable=True, size=(800,400))])
 
-        '''
-        Scrollable column for workers in progress
-        if self.workers is not None:
-            i = 1
-            for worker in self.workers:
-                column_worker[i] = [
-                    sg.Text(' todo ', size=(5, 1), key=str(f'status-worker-{worker}')),
-                    sg.Button('Burn', key=str(f'button-worker-{worker}')),
-                    sg.Text(worker, size=(width, 1)),
-                    sg.Text("worker", size=(8, 1)),
-                    sg.Input(default_text=worker, size=(width, 1), key=str(f'name-worker-{worker}')),
-                    sg.Input(default_text=self.ips[i], size=(width, 1), key=str(f'ip-worker-{worker}')),
-                    sg.Text('Image'),
-                    sg.Input(default_text="latest-lite", size=(width, 1), key=str(f'tags-worker-{worker}')),
-                ]
-                i = i + 1
-            burn_layout.append([sg.Column(column_worker, size=(650, 20), scrollable=True)])
-        '''
         #
         # TABS
         #
+
+        self.cancel_layout = [sg.Button('Cancel', key="cancel")]
+
         self.layout = [
+            self.cancel_layout,  # , sg.Button(' Next Card -> ', key="next")],
             [
                 sg.TabGroup(
                     [
@@ -325,8 +316,7 @@ class Gui:
                         ]
                     ],
                     tooltip='Rack', key="mytabs")
-            ],
-            [sg.Button('Cancel', key="cancel"), sg.Button(' Next Card -> ', key="next")]
+            ]
         ]
         return self.layout
 
@@ -353,7 +343,7 @@ class Gui:
         diagram.saveas(f"{location}-net", kind="net", output="png")
 
 
-    def logger(self, msg, end="\n"):
+    def logger(self, msg, end="\n\n"):
         try:
             text = self.window['log']
             text.update(text.get() + msg + end)
@@ -415,9 +405,6 @@ class Gui:
 
             if event in ("Cancel", 'cancel', None):
                 break
-
-            VERBOSE(event)
-            VERBOSE(values)
 
             #
             # UPDATE OS SELECTION
