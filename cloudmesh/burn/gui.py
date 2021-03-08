@@ -229,7 +229,6 @@ class Gui:
         count = 0
         for entry in image_tags:
             data = image_tags[entry]
-            print ("DDD", entry, data)
             name = data["name"]
             default = count == 0
             burn_layout.append(
