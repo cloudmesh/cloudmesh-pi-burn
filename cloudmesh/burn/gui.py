@@ -28,12 +28,13 @@ def image(name):
     with open(path_expand(name), 'rb') as file:
         return file.read()
 
-window_size = (700, 700)
+window_size = (700, 800)
 log_size = (600,600)
 status_width = (10, 1)
 name_width = (10, 1)
 tag_width = (15, 1)
 entry_width = (10, 1)
+security_width = (20, 1)
 
 image_tags = {
     "os_raspberryos": {
@@ -58,6 +59,7 @@ class Gui:
 
 
     def __init__(self, hostname=None, ip=None, dryrun=False):
+
 
         self.dryrun = dryrun or False
         self.hostnames_str = hostname
@@ -95,9 +97,12 @@ class Gui:
         self.workers = workers
         self.ips = ips
 
-        self.create_diag(self.manager)
         self.load_data()
-        self.layout()
+
+        self.create_diag(self.manager)
+        self.create_layout()
+        self.window = sg.Window('Cloudmesh Pi Burn', self.layout, resizable=True, size=window_size)
+
 
     def burn(self, kind, hostname):
         '''
@@ -150,7 +155,7 @@ class Gui:
                                                         "Writeable"],
                                                     output="yaml"))
 
-    def layout(self):
+    def create_layout(self):
 
         def line(msg):
             title = f'__ {msg} '
@@ -241,11 +246,11 @@ class Gui:
         #
         line("Security")
         if self.key is not None:
-            burn_layout.append([sg.Text("Key", size=entry_width), sg.Input(key="key", default_text=self.key)])
+            burn_layout.append([sg.Text("Key", size=security_width), sg.Input(key="key", default_text=self.key)])
 
-        burn_layout.append([sg.Text("SSID", size=entry_width), sg.Input(key="ssid", default_text="")])
+        burn_layout.append([sg.Text("SSID", size=security_width), sg.Input(key="ssid", default_text="")])
         burn_layout.append(
-            [sg.Text("Wifi Password", size=entry_width), sg.Input(key="wifi", default_text="", password_char='*')])
+            [sg.Text("Wifi Password", size=security_width), sg.Input(key="wifi", default_text="", password_char='*')])
 
         #
         # MANAGER
@@ -322,12 +327,13 @@ class Gui:
                     ],
                     tooltip='Rack', key="mytabs")
             ],
-            [sg.Button('Cancel', key="cancel"), sg.Button(' Next Card -> ', key="next"), ]
+            [sg.Button('Cancel', key="cancel"), sg.Button(' Next Card -> ', key="next")]
         ]
+        return self.layout
 
-    def create_diag(self, name, _new=True, shell=True):
+    def create_diag(self, name, _new=True):
 
-        print("Creating Diagrams .", end="", flush=True)
+        self.logger("Creating Diagrams")
 
         directory = path_expand("~/.cloudmesh/gui")
         Shell.mkdir(directory)
@@ -338,8 +344,6 @@ class Gui:
             rack = Diagram(names=hostnames, name=hostnames[0])
             rack.save(location)
 
-        # os.system(f"cat {location}")
-
         diagram = Diagram()
         diagram.load(location)
 
@@ -349,6 +353,15 @@ class Gui:
         diagram.render_bridge_net()
         diagram.saveas(f"{location}-net", kind="net", output="png")
 
+
+    def logger(self, msg, end="\n"):
+        try:
+            text = self.window['log']
+            text.update(text.get() + msg + end)
+            self.window.Refresh()
+        except:
+            print(msg)
+
     def set_diagram_value(self, name, entry, attribute, value):
         directory = path_expand("~/.cloudmesh/gui")
         Shell.mkdir(directory)
@@ -356,28 +369,32 @@ class Gui:
         diagram = Diagram()
         diagram.load(location)
         data = {
-            attribute: name
+            attribute: value
         }
         diagram.set(entry, **data)
         diagram.save(location)
 
-    @staticmethod
-    def logger(window, msg, end="\n"):
-        text = window['log']
-        text.update(text.get() + msg + end)
-        window.Refresh()
+    def update_diagram_colors(self, cluster, host, color):
 
-    def update_diagram_colors(self, window, cluster, host, color):
         self.set_diagram_value(cluster, host, "rack.color", color)
         self.set_diagram_value(cluster, host, "net.color", color)
+        self.create_diag(cluster, _new=False)
 
         rack_file = f"~/.cloudmesh/gui/{cluster}-rack.png"
         net_file = f"~/.cloudmesh/gui/{cluster}-net.png"
 
-        window['net-image'].update(data=image(net_file))
-        window['rack-image'].update(data=image(rack_file))
+        self.window['net-image'].update(data=image(net_file))
+        self.window['rack-image'].update(data=image(rack_file))
+        self.window.Refresh()
 
-        window.Refresh()
+
+    def set_button_color(self, host, color):
+        host = str(host)
+        try:
+            self.window.FindElement(f'button-{host}').Update(button_color=('white', color))
+            self.window.Refresh()
+        except:
+            pass
 
     def run(self):
 
@@ -392,11 +409,10 @@ class Gui:
         kind = None
         device = None
 
-        window = sg.Window('Cloudmesh Pi Burn', self.layout, resizable=True, size=window_size)
 
         while True:
 
-            event, values = window.read()
+            event, values = self.window.read()
 
             if event in ("Cancel", 'cancel', None):
                 break
@@ -412,18 +428,19 @@ class Gui:
                     if image.startswith("os") and values[image]:
                         break
 
-                self.logger(window, f"Switch OS to: {image}")
+                self.logger(f"Switch OS to: {image}")
 
                 image_manager = image_tags[image]["manager"]
                 image_worker = image_tags[image]["worker"]
 
 
-                window[f'tags-{self.manager}'].update(image_manager)
+                self.window[f'tags-{self.manager}'].update(image_manager)
                 for worker in self.workers:
-                    window[f'tags-{worker}'].update(image_worker)
-                window.Refresh()
+                    self.window[f'tags-{worker}'].update(image_worker)
+                self.window.Refresh()
 
             if event.startswith("button"):
+
                 #
                 # set imaged string
                 #
@@ -453,6 +470,8 @@ class Gui:
                 self.ssid = values['ssid']
 
                 host = event.replace("button-", "")
+                self.set_button_color(host, 'grey')
+
                 if host == self.manager:
                     kind = "manager"
                 else:
@@ -472,11 +491,11 @@ class Gui:
                 print()
 
                 # Call burn function for manager and workers
-                self.logger(window, f"Burning {kind} {host}")
+                self.logger(f"Burning {kind} {host}")
                 tags = values[f'tags-{host}']
-                window[f'status-{host}'].update(' Burning ')
+                self.window[f'status-{host}'].update(' Burning ')
 
-                self.update_diagram_colors(window, self.manager, host, "blue")
+                self.update_diagram_colors(self.manager, host, "blue")
 
                 self.hostnames_str = ','.join(hostnames)
                 self.ips_str = ','.join(ips)
@@ -490,20 +509,26 @@ class Gui:
                 print(command)
 
                 try:
-                    self.logger(window, f"Executing: {command}")
+                    self.logger(f"Executing: {command}")
                     if self.dryrun:
                         time.sleep(0.5)
                     else:
                         os.system(command)
-                    window[f'status-{host}'].update(' Completed ')
+                    self.window[f'status-{host}'].update(' Completed ')
 
-                    self.update_diagram_colors(window, self.manager, host, "green")
-                except:
-                    self.logger(window, "Command failed")
-                    self.update_diagram_colors(window, self.manager, host, "red")
+                    self.update_diagram_colors(self.manager, host, "green")
+                    self.set_button_color(host, 'green')
+
+                except Exception as e:
+                    print (e)
+                    self.logger("Command failed")
+                    self.update_diagram_colors(self.manager, host, "orange")
+                    self.set_button_color(host, 'red')
+
+                self.window.FindElement(f'button-{host}').Update(button_color=('white', 'green'))
 
 
-                window.Refresh()
+                self.window.Refresh()
 
         print('exit')
-        window.close()
+        self.window.close()
