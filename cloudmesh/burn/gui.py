@@ -14,7 +14,7 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
-
+from cloudmesh.diagram.diagram import Diagram
 
 def _execute(command):
     print(".", end="", flush=True)
@@ -286,7 +286,7 @@ class Gui:
                     ],
                     tooltip='Rack', key="mytabs")
             ],
-            [sg.Button('Cancel', key="cancel"), sg.Button('Next Card', key="next"), ]
+            [sg.Button('Cancel', key="cancel"), sg.Button(' Next Card -> ', key="next"), ]
         ]
 
     def value_mapper(self, values, arguments):
@@ -308,14 +308,48 @@ class Gui:
         # 'Browse1': '',
         # 1: 'Burn'}
 
-    def create_diag(self, name, _new=True):
+    def create_diag(self, name, _new=True, shell=True):
+
         print("Creating Diagrams .", end="", flush=True)
+
         Shell.mkdir("~/.cloudmesh/gui")
-        if _new:
-            _execute(f'cd ~/.cloudmesh/gui; cms diagram set {name} --hostname="{self.hostnames}"')
-        _execute(f'cd ~/.cloudmesh/gui; cms diagram net {name} -n --output=png')
-        _execute(f'cd ~/.cloudmesh/gui; cms diagram rack {name} -n --output=png')
-        print(" ok", flush=True)
+
+        if shell:
+            if _new:
+                _execute(f'cd ~/.cloudmesh/gui; cms diagram set {name} --hostname="{self.hostnames}"')
+            _execute(f'cd ~/.cloudmesh/gui; cms diagram net {name} -n --output=png')
+            _execute(f'cd ~/.cloudmesh/gui; cms diagram rack {name} -n --output=png')
+            print(" ok", flush=True)
+        else:
+
+            cwd = os.getcwd()
+            os.chdir(path_expand("/.cloudmesh/gui"))
+
+
+            if _new:
+                rack = Diagram(self.hostnames)
+                rack.save(name)
+
+            """
+            
+            diag = f"{name}-rack"
+            
+            diagram = Diagram()
+            diagram.load(name)
+            
+            rack.render(kind="rack")
+            rack.save_diagram(diag)
+            rack.saveas(diag, kind="rack", output=arguments.output)
+
+            diag = f"{arguments.CLUSTER}-net"
+            net = Diagram()
+            net.load(arguments.CLUSTER)
+            net.render(kind="bridge")
+            net.save_diagram(diag)
+            net.saveas(diag, kind="net", output=arguments.output)
+            """
+            os.chdir(cwd)
+
 
     def run(self):
 
