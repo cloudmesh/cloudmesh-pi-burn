@@ -262,7 +262,7 @@ class Gui:
             i = 0
             burn_layout.append(
                 [
-                    sg.Text(' Status ', size=status_width, key=str(f'status-{manager}')),
+                    sg.Text('', size=status_width, key=str(f'status-{manager}')),
                     sg.Button('Burn', key=str(f'button-{manager}')),
                     sg.Text(manager, size=name_width),
                     sg.Text("manager", size=name_width),
@@ -282,7 +282,7 @@ class Gui:
             i = 1
             for worker in self.workers:
                 burn_layout.append([
-                    sg.Text(' Status ', size=status_width, key=str(f'status-{worker}')),
+                    sg.Text('', size=status_width, key=str(f'status-{worker}')),
                     sg.Button('Burn', key=str(f'button-{worker}')),
                     sg.Text(worker, size=name_width),
                     sg.Text("worker", size=name_width),
@@ -471,7 +471,6 @@ class Gui:
 
                 host = event.replace("button-", "")
                 self.set_button_color(host, 'grey')
-
                 if host == self.manager:
                     kind = "manager"
                 else:
