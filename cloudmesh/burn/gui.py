@@ -1,23 +1,22 @@
 import inspect
 import os.path
+import time
 
 import PySimpleGUI as sg
 import oyaml as yaml
 from cloudmesh.burn.usb import USB
-from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_linux
+from cloudmesh.burn.util import os_is_mac
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.Tabulate import Printer
-from cloudmesh.common.debug import VERBOSE
 # import PySimpleGUIWx as sg
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.diagram.diagram import Diagram
-import time
-import textwrap
+
 
 def _execute(command):
     # print(".", end="", flush=True)
@@ -28,8 +27,9 @@ def image(name):
     with open(path_expand(name), 'rb') as file:
         return file.read()
 
+
 window_size = (800, 800)
-log_size = (600,600)
+log_size = (600, 600)
 status_width = (10, 1)
 name_width = (10, 1)
 tag_width = (15, 1)
@@ -54,12 +54,10 @@ image_tags = {
     }
 }
 
+
 class Gui:
 
-
-
     def __init__(self, hostname=None, ip=None, dryrun=False):
-
 
         self.dryrun = dryrun or False
         self.hostnames_str = hostname
@@ -188,11 +186,12 @@ class Gui:
             [sg.Column(layout=log_layout, scrollable=True)]
         ]
 
-
         burn_layout.append(
-            [   sg.Text(40 * " "),
+            [
+                sg.Text(40 * " "),
                 sg.Image(data=image(cm_logo), key='cm-logo'),
-                sg.Image(data=image(pi_logo), key='pi-logo')]
+                sg.Image(data=image(pi_logo), key='pi-logo')
+            ]
         )
 
         #
@@ -285,17 +284,17 @@ class Gui:
             for worker in self.workers:
                 worker_layout.append(
                     [
-                    sg.Text('', size=status_width, key=str(f'status-{worker}')),
-                    sg.Button('Burn', key=str(f'button-{worker}')),
-                    sg.Text(worker, size=name_width),
-                    sg.Text("worker", size=name_width),
-                    sg.Input(default_text=worker, size=name_width, key=str(f'name-{worker}')),
-                    sg.Input(default_text=self.ips[i], size=name_width, key=str(f'ip-{worker}')),
-                    sg.Text('Image'),
-                    sg.Input(default_text="latest-lite", size=tag_width, key=str(f'tags-{worker}')),
+                        sg.Text('', size=status_width, key=str(f'status-{worker}')),
+                        sg.Button('Burn', key=str(f'button-{worker}')),
+                        sg.Text(worker, size=name_width),
+                        sg.Text("worker", size=name_width),
+                        sg.Input(default_text=worker, size=name_width, key=str(f'name-{worker}')),
+                        sg.Input(default_text=self.ips[i], size=name_width, key=str(f'ip-{worker}')),
+                        sg.Text('Image'),
+                        sg.Input(default_text="latest-lite", size=tag_width, key=str(f'tags-{worker}')),
                     ])
                 i = i + 1
-        burn_layout.append([sg.Column(worker_layout, scrollable=True, size=(800,400))])
+        burn_layout.append([sg.Column(worker_layout, scrollable=True, size=(800, 400))])
 
         #
         # TABS
@@ -342,7 +341,6 @@ class Gui:
         diagram.render_bridge_net()
         diagram.saveas(f"{location}-net", kind="net", output="png")
 
-
     def logger(self, msg, end="\n\n"):
         try:
             text = self.window['log']
@@ -376,7 +374,6 @@ class Gui:
         self.window['rack-image'].update(data=image(rack_file))
         self.window.Refresh()
 
-
     def set_button_color(self, host, color):
         host = str(host)
         try:
@@ -398,7 +395,6 @@ class Gui:
         kind = None
         device = None
 
-
         while True:
 
             event, values = self.window.read()
@@ -418,7 +414,6 @@ class Gui:
 
                 image_manager = image_tags[image]["manager"]
                 image_worker = image_tags[image]["worker"]
-
 
                 self.window[f'tags-{self.manager}'].update(image_manager)
                 for worker in self.workers:
@@ -505,13 +500,12 @@ class Gui:
                     self.set_button_color(host, 'green')
 
                 except Exception as e:
-                    print (e)
+                    print(e)
                     self.logger("Command failed")
                     self.update_diagram_colors(self.manager, host, "orange")
                     self.set_button_color(host, 'red')
 
                 self.window.FindElement(f'button-{host}').Update(button_color=('white', 'green'))
-
 
                 self.window.Refresh()
 

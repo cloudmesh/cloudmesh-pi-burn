@@ -34,6 +34,7 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.inventory.inventory import Inventory
 
+
 # noinspection PyPep8
 class Burner(object):
 

@@ -356,6 +356,7 @@ class USB(object):
                 return details
         else:
             return None
+
     @staticmethod
     def get_from_diskutil(device=None):
         import plistlib

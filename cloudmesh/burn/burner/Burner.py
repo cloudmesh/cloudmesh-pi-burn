@@ -1,12 +1,10 @@
 import os
 
 from cloudmesh.burn.burner.raspberryos import Burner as RaspberryOsBurner
-from cloudmesh.burn.gui import Gui
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
-from cloudmesh.burn.util import os_is_windows
 from cloudmesh.common.JobScript import JobScript
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
