@@ -20,6 +20,12 @@ class Cloudinit:
 
         # runcmd must be at end and only run once
 
+    def write(self, filename=None):
+        raise NotImplementedError
+        #
+        # writes to mounted boot, gets it from SDCard()
+        #
+
     def update(self, reboot=False):
         commands = f"""
         apt_update: true
