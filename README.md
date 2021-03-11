@@ -46,6 +46,7 @@ to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
     - [7.15 What is the status of the implementation?](#715-what-is-the-status-of-the-implementation)
     - [7.16 I run into a Kernal Panic on my burned Pi. What do I do?](#716-i-run-into-a-kernal-panic-on-my-burned-pi-what-do-i-do)
     - [7.17 How do I enable password login?](#717-how-do-i-enable-password-login)
+    - [7.18 Becuase I am using and sd card extender, I need to set a cmdline argument to force 3.3V SD card operation.](#718-becuase-i-am-using-and-sd-card-extender-i-need-to-set-a-cmdline-argument-to-force-33v-sd-card-operation)
   - [8. How can I contribute Contributing](#8-how-can-i-contribute-contributing)
 
 <!--TOC-->
@@ -507,6 +508,12 @@ Note to execute the command on the command line you have to type in
 
 <!--MANUAL-BURN-->
 ```
+  burn gui [--hostname=HOSTNAME]
+           [--ip=IP]
+           [--ssid=SSID]
+           [--wifipassword=PSK]
+           [--bs=BLOCKSIZE]
+           [--dryrun]
   burn firmware check
   burn firmware update
   burn install
@@ -518,7 +525,7 @@ Note to execute the command on the command line you have to type in
   burn network list [--ip=IP] [--used]
   burn network
   burn info [--device=DEVICE]
-  burn image versions [--refresh] [--yaml]
+  burn image versions [--details] [--refresh] [--yaml]
   burn image ls
   burn image delete [--image=IMAGE]
   burn image get [--url=URL] [TAG...]
@@ -526,19 +533,22 @@ Note to execute the command on the command line you have to type in
   burn copy [--device=DEVICE] [--from=DESTINATION]
   burn shrink [--image=IMAGE]
   burn cluster --device=DEVICE --hostname=HOSTNAME
+               [--burning=BURNING]
                [--ip=IP]
                [--ssid=SSID]
                [--wifipassword=PSK]
                [--bs=BLOCKSIZE]
+               [--os=OS]
                [-y]
-               [-g]
+               [--imaged]
+               [--set_passwd]
   burn create [--image=IMAGE]
               [--device=DEVICE]
+              [--burning=BURNING]
               [--hostname=HOSTNAME]
               [--ip=IP]
               [--sshkey=KEY]
               [--blocksize=BLOCKSIZE]
-              [--dryrun]
               [--passwd=PASSWD]
               [--ssid=SSID]
               [--wifipassword=PSK]
@@ -547,15 +557,18 @@ Note to execute the command on the command line you have to type in
               [--inventory=INVENTORY]
               [--name=NAME]
               [-y]
-  burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
+  burn sdcard [TAG...] [--device=DEVICE] [-y]
   burn set [--hostname=HOSTNAME]
            [--ip=IP]
            [--key=KEY]
            [--keyboard=COUNTRY]
+           [--cmdline=CMDLINE]
   burn enable ssh
   burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
   burn check [--device=DEVICE]
   burn mac --hostname=HOSTNAME
+
+
 
 Options:
   -h --help              Show this screen.
@@ -563,14 +576,15 @@ Options:
   --image=IMAGE          The image filename,
                          e.g. 2019-09-26-raspbian-buster.img
   --device=DEVICE        The device, e.g. /dev/sdX
-  --hostname=HOSTNAME    The hostname
-  --ip=IP                The IP address
+  --hostname=HOSTNAME    The hostnames of the cluster
+  --ip=IP                The IP addresses of the cluster
   --key=KEY              The name of the SSH key file
   --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
+  --burning=BURNING      The hosts to be burned
 
 Arguments:
-    TAG                  Keyword tags to identify an image
-                         [default: latest]
+   TAG                   Keyword tags to identify an image
+
 Files:
   This is not fully thought through and needs to be documented
   ~/.cloudmesh/images
@@ -721,7 +735,6 @@ Description:
                     [--ip=IP]
                     [--sshkey=KEY]
                     [--blocksize=BLOCKSIZE]
-                    [--dryrun]
                     [--passwd=PASSWD]
                     [--ssid=SSID]
                     [--wifipassword=PSK]
@@ -730,7 +743,7 @@ Description:
         This command  not only can format the SDCard, but
         also initializes it with specific values
 
-    cms burn sdcard [TAG...] [--device=DEVICE] [--dryrun]
+    cms burn sdcard [TAG...] [--device=DEVICE]
 
         this burns the sd card, see also copy and create
 
@@ -739,6 +752,7 @@ Description:
                  [--key=KEY]
                  [--mount=MOUNTPOINT]
                  [--keyboard=COUNTRY]
+                 [--cmdline=CMDLINE]
 
         Sets specific values on the sdcard after it
         has ben created with the create, copy or sdcard
@@ -782,8 +796,10 @@ Examples: ( \ is not shown)
 
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
+
 ```
 <!--MANUAL-BURN-->
+
 
 
 
@@ -826,8 +842,10 @@ Description:
   bridge create [--interface=INTERFACE] [--ip=IP] [--dns=NAMESERVER]
       creates the bridge on the current device.
       A reboot is required.
+
 ```
 <!--MANUAL-BRIDGE-->
+
 
 
 
@@ -855,9 +873,13 @@ Note to execute the command on the commandline you have to type in
     host key list NAMES [--output=FORMAT]
     host key gather NAMES [--authorized_keys] [FILE]
     host key scatter NAMES FILE
+    host key add NAMES FILE
+    host key delete NAMES FILE
     host tunnel create NAMES [--port=PORT]
     host mac NAMES [--eth] [--wlan] [--output=FORMAT]
     host setup WORKERS [LAPTOP]
+    host shutdown NAMES
+    host reboot NAMES
 
 This command does some useful things.
 
@@ -909,6 +931,20 @@ Description:
 
       Example:
           ssh key scatter "red[01-10]"
+
+    host key add NAMES FILE
+
+      Adds all keys in FILE into the authorized_keys of NAMES.
+
+      Example:
+          cms host key add worker001 ~/.ssh/id_rsa.pub
+
+    host key delete NAMES FILE
+
+      Deletes all keys in fILE from authorized_keys of NAMES if they exist.
+
+      Example
+          cms host key delete worker001 ~/.ssh/id_rsa.pub
 
     host key scp NAMES FILE
 
@@ -969,8 +1005,20 @@ Description:
           cms host key scatter red00[1-3],localhost keys.txt
           rm keys.txt
           cms host tunnel create red00[1-3]
+
+    host shutdown NAMES
+
+      Shutsdown NAMES with `sudo shutdown -h now`. If localhost in
+      names, it is shutdown last.
+
+    host reboot NAMES
+
+      Reboots NAMES with `sudo reboot`. If localhost in names,
+      it is rebooted last.
+
 ```
 <!--MANUAL-HOST-->
+
 
 
 
@@ -1022,8 +1070,7 @@ Arguments:
                       formats includes cat, table, json, yaml,
                       dict. If cat is used, it is just print
      --user=USER      the user name
-     --user=SECONDS   repeats the quere given by the rate in seconds
-
+     --rate=SECONDS   repeats the quere given by the rate in seconds
 
 Description:
 
@@ -1092,8 +1139,10 @@ Description:
           pi script list SERVICE NAMES
           pi script list
 
+
 ```
 <!--MANUAL-PI-->
+
 
 
 
@@ -1107,9 +1156,13 @@ file via the commandline
 
 <!--MANUAL-SSH-->
 ```
+    ssh
     ssh config list [--output=OUTPUT]
     ssh config add NAME IP [USER] [KEY]
     ssh config delete NAME
+    ssh host delete NAME
+    ssh host add NAME
+    ssh [--name=VMs] [--user=USERs] [COMMAND]
 
 Arguments:
   NAME        Name or ip of the machine to log in
@@ -1151,6 +1204,7 @@ Description:
 
 Examples:
 
+
      ssh config add blue 192.168.1.245 blue
 
          Adds the following to the !/.ssh/config file
@@ -1160,8 +1214,12 @@ Examples:
               User blue
               IdentityFile ~/.ssh/id_rsa.pub
 
+
+
+
 ```
 <!--MANUAL-SSH-->
+
 
 
 
@@ -1879,6 +1937,20 @@ This error has been reported in the past. A simple reburn using `cms burn` tends
 The option `--set_passwd` in `cms burn cluster` enables you to securely enter a password to prevent the password disable. 
 
 The option `[--passwd=PASSWD]` is used with `cms burn create` todo the same thing. Note entering the passwd in the command is optional.If empty you will be prompted.
+
+### 7.18 Becuase I am using and sd card extender, I need to set a cmdline argument to force 3.3V SD card operation.
+
+You can set an arbitray command line argument with
+
+```
+cms burn set --cmdline=CMDLINE
+```
+
+To force 3.3V operation to enable the use of an SD card extender use
+
+```
+cms burn set--cmdline=sdhci.quirks2=4
+```
 
 ## 8. How can I contribute Contributing
 
