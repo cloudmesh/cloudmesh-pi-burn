@@ -66,6 +66,7 @@ class Gui:
         self.ips = ips = ip or "10.0.0.[1-3]"
         self.ssid = ""
         self.imaged = ""
+        self.wifipassword = ""
 
         hostnames = Parameter.expand(hostnames)
         manager, workers = Host.get_hostnames(hostnames)
@@ -208,9 +209,16 @@ class Gui:
         count = 0
         for device in devices:
             default = count == 0
-            burn_layout.append(
-                [sg.Radio(device, group_id="DEVICE", default=default, key=f"device-{device}")]
-            )
+            if os_is_linux():
+                burn_layout.append(
+                    [sg.Radio(device, group_id="DEVICE",
+                              default=default,
+                              key=f"device-{device['name']}")]
+                )
+            else:
+                burn_layout.append(
+                    [sg.Radio(device, group_id="DEVICE", default=default, key=f"device-{device}")]
+                )
             count = count + 1
 
         #
@@ -449,6 +457,7 @@ class Gui:
                 # get the ssid
                 #
                 self.ssid = values['ssid']
+                self.wifipassword = values['wifi']
 
                 host = event.replace("button-", "")
                 self.set_button_color(host, 'grey')
@@ -479,9 +488,10 @@ class Gui:
 
                 self.hostnames_str = ','.join(hostnames)
                 self.ips_str = ','.join(ips)
-                command = "cms burn cluster --device=/dev/disk2" \
+                command = f"cms burn cluster --device={device}" \
                           f" --hostname={self.hostnames_str}" \
                           f" --ssid={self.ssid}" \
+                          f" --wifipassword={self.wifipassword}" \
                           f" --ip={self.ips_str}" \
                           f" --burning={host}" \
                           " -y" \
