@@ -487,6 +487,16 @@ Host red003
 you@yourlaptop:~ $ ssh red001
 ```
 
+**Step 9.** Shutdown or reboot your entire cluster using the commands below.
+
+```
+you@yourlaptop:~ $ cms host shutdown red,red00[1-3]
+```
+
+```
+you@yourlaptop:~ $ cms host reboot red,red00[1-3]
+```
+
 ## 6. Manual Pages
 
 ### 6.1 Manual Page for the `burn` command
