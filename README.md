@@ -1878,6 +1878,8 @@ This error has been reported in the past. A simple reburn using `cms burn` tends
 
 The option `--set_passwd` in `cms burn cluster` enables you to securely enter a password to prevent the password disable. 
 
+The option `[--passwd=PASSWD]` is used with `cms burn create` todo the same thing. Note entering the passwd in the command is optional.If empty you will be prompted.
+
 ## 8. How can I contribute Contributing
 
 The code uses a variety of cloudmesh components. This mainly includes
