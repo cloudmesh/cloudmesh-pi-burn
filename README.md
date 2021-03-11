@@ -45,6 +45,7 @@ to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
     - [7.14 How do I scann for WIFI networks?](#714-how-do-i-scann-for-wifi-networks)
     - [7.15 What is the status of the implementation?](#715-what-is-the-status-of-the-implementation)
     - [7.16 I run into a Kernal Panic on my burned Pi. What do I do?](#716-i-run-into-a-kernal-panic-on-my-burned-pi-what-do-i-do)
+    - [7.17 How do I enable password login?](#717-how-do-i-enable-password-login)
   - [8. How can I contribute Contributing](#8-how-can-i-contribute-contributing)
 
 <!--TOC-->
@@ -1873,7 +1874,7 @@ See [here](https://raspberrypi.stackexchange.com/questions/40854/kernel-panic-no
 
 This error has been reported in the past. A simple reburn using `cms burn` tends to resolve the issue.
 
-### 7.16 How do I enable password login?
+### 7.17 How do I enable password login?
 
 The option `--set_passwd` in `cms burn cluster` enables you to securely enter a password to prevent the password disable. 
 
