@@ -540,7 +540,7 @@ class SDCard:
 
         Sudo.password()
 
-        self.card_os = card_os
+        # self.card_os = card_os
 
         os.system('sudo sync')  # flush any pending/in-process writes
 
