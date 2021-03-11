@@ -74,7 +74,7 @@ class Gui:
             n = 1
         else:
             n = len(workers) + 1
-        if ips is None:
+        if ip is None:
             ips = Parameter.expand(f"10.1.1.[1-{n}]")
         else:
             ips = Parameter.expand(ips)
