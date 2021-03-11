@@ -571,6 +571,8 @@ class BurnCommand(PluginCommand):
                 return ""
 
             arguments.TAG = arguments.TAG or ["latest-lite"]
+            if any("ubuntu" in tag for tag in arguments.TAG):
+                sdcard = SDCard(card_os="ubuntu")
 
             execute("format", sdcard.format_device(device=arguments.device, unmount=True))
             execute("unmount", sdcard.unmount(device=arguments.device))
