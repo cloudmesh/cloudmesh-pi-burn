@@ -916,7 +916,8 @@ class Burner(object):
 
             Console.info(f"Completed workers: {workers}")
             Console.info("Cluster burn is complete.")
-            Burner.remove_public_key()
+            # Burner.remove_public_key()
+            # TODO remove public key on GUI close or single cluster cmd complete
 
         banner("Benchmark", figlet=True)
 
