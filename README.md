@@ -1873,6 +1873,9 @@ See [here](https://raspberrypi.stackexchange.com/questions/40854/kernel-panic-no
 
 This error has been reported in the past. A simple reburn using `cms burn` tends to resolve the issue.
 
+### 7.16 How do I enable password login?
+
+The option `--set_passwd` in `cms burn cluster` enables you to securely enter a password to prevent the password disable. 
 
 ## 8. How can I contribute Contributing
 
