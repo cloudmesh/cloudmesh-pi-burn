@@ -1,6 +1,8 @@
 import yaml
 
-from cloudmesh.common.console import Console
+from cloudmesh.burn.sdcard import SDCard
+from cloudmesh.common.Shell import Shell
+from cloudmesh.common.util import path_expand, writefile
 
 class Networkdata:
     """
@@ -13,11 +15,16 @@ class Networkdata:
         # Dict will be dumped into YAML string
         self.content = {"version": 2, "ethernets": {}, "wifis": {}}
 
-    def build(self):
+    def __str__(self):
         return yaml.dump(self.content)
 
     def write(self, filename=None):
-        raise NotImplementedError
+        """
+        Writes a file to a location. Safe write for files on mounted partitions
+        """
+        tmp_location = path_expand('~/.cloudmesh/network-data.tmp')
+        writefile(tmp_location, str(self))
+        Shell.execute('mv', [tmp_location, filename])
 
     def with_ip(self, interfaces='ethernets', interface='eth0', ip=None):
         if ip is None:
@@ -73,9 +80,16 @@ d = Networkdata()\
     .with_ip(ip="10.1.1.10")\
     .with_gateway(gateway="10.1.1.1")\
     .with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
-    .with_defaults().build()
+    .with_defaults()
 
 print(d)
+
+To write to file:
+d = Networkdata()\
+    .with_ip(ip='10.1.1.10')\
+    .with_gateway(gateway='10.1.1.1')\
+    .with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
+    .with_defaults().write(filename='test.tmp')
 
 Verification of config syntax:
 

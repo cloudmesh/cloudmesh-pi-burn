@@ -4,10 +4,11 @@ from cloudmesh.burn.ubuntu.cloudinit import Cloudinit
 
 class Configure:
 
-    def __init__(self):
-        raise NotImplementedError
+    def __init__(self, inventory=None):
+        self.network_conf = None # Some call to Networkdata.build()
+        self.user_data_conf = None # Some call to Userdata.build()
 
-    def write(self, filename=None):
+    def write(self):
         cloudinit = Cloudinit()
         userdata = Userdata()
         networkdata = Networkdata()

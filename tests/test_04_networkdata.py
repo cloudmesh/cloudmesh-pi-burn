@@ -17,7 +17,7 @@ class Test_Networkdata:
 				.with_ip(ip="10.1.1.10")\
 				.with_gateway(gateway="10.1.1.1")\
 				.with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
-				.with_defaults().build()
+				.with_defaults()
 		
 		correct = {'version': 2, 
 						'ethernets': {
@@ -35,4 +35,4 @@ class Test_Networkdata:
 						'wifis': {}
 					}
 
-		assert(d == yaml.dump(correct))
+		assert(str(d) == yaml.dump(correct))
