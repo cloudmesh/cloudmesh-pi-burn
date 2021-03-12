@@ -87,6 +87,7 @@ class BurnCommand(PluginCommand):
                        [--ip=IP]
                        [--key=KEY]
                        [--keyboard=COUNTRY]
+                       [--cmdline=CMDLINE]
               burn enable ssh
               burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
               burn check [--device=DEVICE]
@@ -276,6 +277,7 @@ class BurnCommand(PluginCommand):
                              [--key=KEY]
                              [--mount=MOUNTPOINT]
                              [--keyboard=COUNTRY]
+                             [--cmdline=CMDLINE]
 
                     Sets specific values on the sdcard after it
                     has ben created with the create, copy or sdcard
@@ -344,7 +346,8 @@ class BurnCommand(PluginCommand):
                        "inventory",
                        "name",
                        "bs",
-                       "set_passwd")
+                       "set_passwd",
+                       "cmdline")
 
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
@@ -571,6 +574,8 @@ class BurnCommand(PluginCommand):
                 return ""
 
             arguments.TAG = arguments.TAG or ["latest-lite"]
+            if any("ubuntu" in tag for tag in arguments.TAG):
+                sdcard = SDCard(card_os="ubuntu")
 
             execute("format", sdcard.format_device(device=arguments.device, unmount=True))
             execute("unmount", sdcard.unmount(device=arguments.device))
@@ -622,6 +627,9 @@ class BurnCommand(PluginCommand):
 
             if arguments.keyboard:
                 execute("set keyboard", burner.keyboard(country=arguments.keyboard))
+
+            if arguments.cmdline:
+                execute("set cmdline", burner.set_cmdline(arguments.cmdline))
 
             return ""
 

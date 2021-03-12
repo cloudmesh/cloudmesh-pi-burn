@@ -413,9 +413,9 @@ class SDCard:
 
             else:
 
-                details = USB.get_from_diskutil()
+                # details = USB.get_from_diskutil()
 
-                USB.print_details(details)
+                # USB.print_details(details)
 
                 print()
                 if yes or yn_choice(f"\nDo you like to format {device} as {_title}"):
@@ -540,7 +540,7 @@ class SDCard:
 
         Sudo.password()
 
-        self.card_os = card_os
+        # self.card_os = card_os
 
         os.system('sudo sync')  # flush any pending/in-process writes
 
