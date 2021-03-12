@@ -373,31 +373,47 @@ class USB(object):
         no = 0
         for cards in r['AllDisksAndPartitions']:
 
-            for partition in r['AllDisksAndPartitions'][no]['Partitions']:
+            try:
+                for partition in r['AllDisksAndPartitions'][no]['Partitions']:
+                    if 'MountPoint' not in partition:
+                        partition['MountPoint'] = None
+                    if partition['Content'] == 'Linux':
+                        partition['Content'] = 'ext4'
+                    elif partition['Content'] == 'Windows_FAT_32':
+                        partition['Content'] = 'FAT32'
 
-                if 'MountPoint' not in partition:
-                    partition['MountPoint'] = None
-                if partition['Content'] == 'Linux':
-                    partition['Content'] = 'ext4'
-                elif partition['Content'] == 'Windows_FAT_32':
-                    partition['Content'] = 'FAT32'
-
-                info = partition['MountPoint']
+                    info = partition['MountPoint']
+                    entry = {
+                        "dev": f"/dev/{partition['DeviceIdentifier']}",
+                        "active": info is not None,
+                        "info": info,
+                        "readable": info is not None,
+                        "formatted": partition['Content'],
+                        "empty": partition['Size'] == 0,
+                        "size": humanize.naturalsize(partition['Size']),
+                        "direct-access": True,
+                        "removable": True,
+                        "writeable": 'VolumeName' in partition
+                    }
+                    if device is None or device in entry["dev"]:
+                        details.append(entry)
+                no = no + 1
+            except KeyError as e:
+                Console.warning("No partitions found for device")
+                partition = r['AllDisksAndPartitions'][no]
                 entry = {
-                    "dev": f"/dev/{partition['DeviceIdentifier']}",
-                    "active": info is not None,
-                    "info": info,
-                    "readable": info is not None,
-                    "formatted": partition['Content'],
-                    "empty": partition['Size'] == 0,
-                    "size": humanize.naturalsize(partition['Size']),
-                    "direct-access": True,
-                    "removable": True,
-                    "writeable": 'VolumeName' in partition
-                }
-                if device is None or device in entry["dev"]:
-                    details.append(entry)
-            no = no + 1
+                        "dev": f"/dev/{partition['DeviceIdentifier']}",
+                        "active": False,
+                        "info": "Not Formatted",
+                        "readable": False,
+                        "formatted": False,
+                        "empty": partition['Size'] == 0,
+                        "size": partition['Size'],
+                        "direct-access": True,
+                        "removable": True,
+                        "writeable": 'VolumeName' in partition
+                    }
+                details.append(entry)
 
         return details
 
