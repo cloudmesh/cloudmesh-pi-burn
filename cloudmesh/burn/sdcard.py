@@ -71,7 +71,7 @@ def location(host_os=None, card_os="raspberry", volume="boot"):
                 boot: /Volumes/boot
               ubuntu:
                 root: /Volumes/writable
-                boot: /Volume/system-boot
+                boot: /Volumes/system-boot
             ubuntu:
               raspberry:
                 root: /media/{user}/rootfs
