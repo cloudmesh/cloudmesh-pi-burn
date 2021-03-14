@@ -1,6 +1,5 @@
 import yaml
 
-from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import path_expand, writefile
 
@@ -11,9 +10,11 @@ class Networkdata:
     https://cloudinit.readthedocs.io/en/latest/topics/network-config.html
     """
 
-    def __init__(self, version=2):
+    def __init__(self, version=2, default=False):
         # Dict will be dumped into YAML string
         self.content = {"version": 2, "ethernets": {}, "wifis": {}}
+        if default:
+            self.__default__()
 
     def __str__(self):
         return yaml.dump(self.content)
@@ -79,6 +80,25 @@ class Networkdata:
         self.content[interfaces][interface]['match'] = {"driver": "bcmgenet smsc95xx lan78xx"}
         self.content[interfaces][interface]['set-name'] = interface
         return self
+    
+    def __default__(self):
+        """
+        Set the default configuration the one that comes burnt with the ubuntu server OS
+
+        Captured with
+        $ grep - Fv \  # /{mountpoint}/network-config
+        (Removes comments)
+        """
+        self.content['ethernets'] = {
+            "eth0": {
+                "match": {
+                    "driver": "bcmgenet smsc95xx lan78xx"
+                },
+                "set-name": "eth0",
+                "dhcp4": True,
+                "optional": True
+            }
+        }
 
 """
 Example:
