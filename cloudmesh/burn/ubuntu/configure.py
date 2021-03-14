@@ -37,8 +37,7 @@ class Configure:
         if cluster is not None:
             self.nodes = self.inventory.find(cluster=cluster)
         else:
-            self.managers = self.inventory.find(service='manager')
-            self.workers = self.inventory.find(service='worker')
+            self.nodes = self.inventory.find(service='manager') + self.inventory.find(service='worker')
 
     def build_user_data(self, name=None, with_defaults=True):
         """
