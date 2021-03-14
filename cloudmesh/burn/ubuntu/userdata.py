@@ -19,7 +19,12 @@ class Userdata:
     .with_ssh_password_login()\
     .with_locale()\
     .with_hostname(hostname='testserver')\
-    .with_default_user()
+    .with_default_user()\
+    .with_ssh_authorized_keys(key='ssh-rsa AAAA.....user@laptop')\
+    .with_set_wifi_country(country='US')\
+    .with_write_files(path='/home/ubuntu/.ssh/id_rsa', content='this is a ssh key', permissions='0600')\
+    .with_write_files(path='/home/ubuntu/.ssh/id_rsa.pub', content='this is a pub key', permissions='0644')\
+    .with_fix_user_dir_owner(user='ubuntu')
 
     print(d)
 
@@ -32,6 +37,28 @@ class Userdata:
     expire: true
     list:
     - ubuntu: ubuntu
+    ssh_authorized_keys:
+    - ssh-rsa AAAA.....user@laptop
+    bootcmd:
+    - - sudo
+      - iw
+      - reg
+      - set
+      - US
+    runcmd:
+    - - sh
+      - -xc
+      - sudo echo REGDOMAIN=US | sudo tee /etc/default/crda > /dev/null
+    - - sh
+      - -xc
+      - sudo chown -R ubuntu:ubuntu /home/ubuntu
+    write_files:
+    - content: this is a ssh key
+      path: /home/ubuntu/.ssh/id_rsa
+      permissions: '0600'
+    - content: this is a pub key
+      path: /home/ubuntu/.ssh/id_rsa.pub
+      permissions: '0644'
 
     """
     HEADER = "#cloud-config"
@@ -132,7 +159,6 @@ class Userdata:
         arguments['self'] = None
         arguments =[ (k,v) for k, v in arguments.items() if v is not None]
 
-
         if path is None:
             raise Exception('the path arg supplied is none')
         if content is None:
@@ -147,6 +173,14 @@ class Userdata:
         else:
             self.content['write_files'] = [file]
 
+        return self
+
+    def with_fix_user_dir_owner(self, user=None):
+        if user is None:
+            raise Exception('the user arg supplie is none')
+
+        cmd = ['sh', '-xc', f'sudo chown -R {user}:{user} /home/{user}']
+        self.with_runcmd(cmd=cmd)
         return self
 
     def with_packages(self, packages=None):
