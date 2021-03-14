@@ -60,7 +60,6 @@ class Userdata:
       path: /home/ubuntu/.ssh/id_rsa.pub
       permissions: '0644'
 
-
     """
     HEADER = "#cloud-config"
     def __init__(self, default=False):
