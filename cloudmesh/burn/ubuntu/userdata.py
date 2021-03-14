@@ -132,25 +132,33 @@ class Userdata:
     def with_bootcmd(self,cmd=None):
         if cmd is None:
             raise Exception('the command arg supplied is none')
-        if type(cmd) != list:
-            raise Exception('The command arg should be a list of strings')
 
         if 'bootcmd' in self.content:
-            self.content['bootcmd'].append(cmd)
+            if type(cmd) == str:
+                self.content['bootcmd'].append(cmd)
+            elif type(cmd) == list:
+                self.content['bootcmd'].extend(cmd)
         else:
-            self.content['bootcmd'] = [cmd]
+            if type(cmd) == str:
+                self.content['bootcmd'] = [cmd]
+            elif type(cmd) == list:
+                self.content['bootcmd'] = cmd
         return self
 
     def with_runcmd(self,cmd=None):
         if cmd is None:
             raise Exception('the command arg supplied is none')
-        if type(cmd) != list:
-            raise Exception('The command arg should be a list of strings')
 
-        if 'runcmd' in self.content:
-            self.content['runcmd'].append(cmd)
+        if 'rootcmd' in self.content:
+            if type(cmd) == str:
+                self.content['rootcmd'].append(cmd)
+            elif type(cmd) == list:
+                self.content['rootcmd'].extend(cmd)
         else:
-            self.content['runcmd'] = [cmd]
+            if type(cmd) == str:
+                self.content['rootcmd'] = [cmd]
+            elif type(cmd) == list:
+                self.content['rootcmd'] = cmd
         return self
 
     def with_write_files(self,encoding=None, content=None, owner=None,
