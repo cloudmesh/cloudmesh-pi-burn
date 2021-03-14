@@ -93,7 +93,6 @@ class Configure:
 
         if with_defaults:
             network_data.with_defaults()
-
         if eth0_ip:
             network_data.with_ip(ip=eth0_ip)
         if eth0_nameservers:
