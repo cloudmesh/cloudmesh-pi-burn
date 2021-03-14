@@ -61,7 +61,7 @@ class Configure:
         user_data = Userdata()
 
         if with_defaults:
-            user_data.with_default_user().with_locale().with_net_tools()
+            user_data.with_locale().with_net_tools()
         if hostname:
             user_data.with_hostname(hostname=hostname)
         if keys:
@@ -69,7 +69,7 @@ class Configure:
             user_data.with_ssh_password_login(ssh_pwauth=False)
             user_data.with_authorized_keys(keys=keys)
         else:
-            user_data.with_ssh_password_login()
+            user_data.with_default_user().with_ssh_password_login()
         return user_data
 
     def build_network_data(self, name=None, ssid=None, password=None, with_defaults=True):
