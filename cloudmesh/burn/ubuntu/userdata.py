@@ -121,11 +121,10 @@ class Userdata:
         if country is None:
             raise Exception('the country arg supplied is none')
 
-        cmd = ['sudo', 'iw', 'reg', 'set', country]
+        cmd = f"sudo iw reg set {country}"
         self.with_bootcmd(cmd)
 
-        cmd = ['sh', '-xc', 'sudo echo REGDOMAIN=US | sudo tee '
-                            '/etc/default/crda > /dev/null']
+        cmd =f"sudo echo REGDOMAIN={country} | sudo tee /etc/default/crda > /dev/null"
         self.with_runcmd(cmd)
         return self
 
@@ -187,7 +186,7 @@ class Userdata:
         if user is None:
             raise Exception('the user arg supplie is none')
 
-        cmd = ['sh', '-xc', f'sudo chown -R {user}:{user} /home/{user}']
+        cmd = f'sudo chown -R {user}:{user} /home/{user}'
         self.with_runcmd(cmd=cmd)
         return self
 
