@@ -16,10 +16,10 @@ class Userdata:
     Examples:
 
     d = Userdata()\
-        .with_ssh_password_login()\
-        .with_locale()\
-        .with_hostname(hostname='testserver')\
-        .with_default_user()
+    .with_ssh_password_login()\
+    .with_locale()\
+    .with_hostname(hostname='testserver')\
+    .with_default_user()
 
     print(d)
 
