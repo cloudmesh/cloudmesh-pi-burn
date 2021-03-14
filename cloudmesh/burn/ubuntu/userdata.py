@@ -149,6 +149,14 @@ class Userdata:
 
         return self
 
+    def with_fix_user_dir_owner(self, user=None):
+        if user is None:
+            raise Exception('the user arg supplie is none')
+
+        cmd = ['sh', '-xc', f'sudo chown -R {user}:{user} /home/{user}']
+        self.with_runcmd(cmd=cmd)
+        return self
+
     def with_packages(self, packages=None):
         """
         Given a list of packages or single package as string, add to the installation list. Can be called multiple times
