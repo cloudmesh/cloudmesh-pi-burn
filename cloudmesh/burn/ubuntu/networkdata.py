@@ -6,8 +6,40 @@ from cloudmesh.common.util import path_expand, writefile
 class Networkdata:
     """
     A builder for content in the network-config file with cloud-init
+    https://refactoring.guru/design-patterns/builder
 
-    https://cloudinit.readthedocs.io/en/latest/topics/network-config.html
+    A Builder class follows the Builder design pattern. This design pattern allows
+    users of the class to construct a complex data structure using purely instance
+    methods. This is very useful in that the user of the class need not concern
+    themselves with the underlying implementation of the class. Consequentially,
+    changes to this class can be made without needing a refactor of all existing calls.
+
+    More details on the builder design pattern found here.
+    https://refactoring.guru/design-patterns/builder
+
+    Example:
+    d = Networkdata()\
+        .with_ip(ip="10.1.1.10")\
+        .with_gateway(gateway="10.1.1.1")\
+        .with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
+        .with_defaults()\
+        .with_dhcp4(interfaces='wifis', interface='wlan0', dhcp4=True)\
+        .with_optional(interfaces='wifis', interface='wlan0', optional=True)\
+        .with_access_points(interfaces='wifis', interface='wlan0', ssid='MYSSID',
+                            password='MYPASSWORD')
+
+    print(d)
+
+    To write to file:
+    d = Networkdata()\
+        .with_ip(ip='10.1.1.10')\
+        .with_gateway(gateway='10.1.1.1')\
+        .with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
+        .with_defaults()\
+        .with_dhcp4(interfaces='wifis', interface='wlan0', dhcp4=True)\
+        .with_optional(interfaces='wifis', interface='wlan0', optional=True)\
+        .with_access_points(ssid='MYSSID', password='MYPASSWORD')\
+        .write(filename='test.tmp')
     """
 
     def __init__(self, version=2, default=False):
@@ -80,7 +112,7 @@ class Networkdata:
 
         return self
 
-    def with_access_points(self, interfaces='ethernets', interface='eth0',
+    def with_access_points(self, interfaces='wifis', interface='wlan0',
                ssid=None, password=None):
         if ssid is None:
             raise Exception("ssid argument suppliled is None")
@@ -128,39 +160,3 @@ class Networkdata:
                 "optional": True
             }
         }
-
-"""
-Example:
-d = Networkdata()\
-    .with_ip(ip="10.1.1.10")\
-    .with_gateway(gateway="10.1.1.1")\
-    .with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
-    .with_defaults()\
-    .with_dhcp4(interfaces='wifis',interface='wlan0',dhcp4=True)\
-    .with_optional(interfaces='wifis',interface='wlan0',optional=True)\
-    .with_access_points(interfaces='wifis',interface='wlan0',ssid='MYSSID',
-    password = 'MYPASSWORD')
-
-print(d)
-
-To write to file:
-d = Networkdata()\
-    .with_ip(ip='10.1.1.10')\
-    .with_gateway(gateway='10.1.1.1')\
-    .with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
-    .with_defaults()\
-    .with_dhcp4(interfaces='wifis',interface='wlan0',dhcp4=True)\
-    .with_optional(interfaces='wifis',interface='wlan0',optional=True)\
-    .with_access_points(interfaces='wifis',interface='wlan0',ssid='MYSSID',
-    password = 'MYPASSWORD').write(filename='test.tmp')
-
-Verification of config syntax:
-
-On an ubuntu machine with cloud-init, the following can be taken to verify syntax
-
-1. Paste string output of build() into an arbitrary file (test.txt)
-2. Run the following command on an ubuntu machine with cloud-init
-
-cloud-init devel schema --config-file test.txt
-
-"""
