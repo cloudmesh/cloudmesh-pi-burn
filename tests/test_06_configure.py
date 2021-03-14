@@ -1,14 +1,16 @@
+import os
 import pytest
 
 from cloudmesh.burn.ubuntu.configure import Configure
 from cloudmesh.burn.ubuntu.userdata import Userdata
-from cloudmesh.common.util import readfile
+from cloudmesh.common.util import readfile, path_expand
 from cloudmesh.inventory.inventory import Inventory
 
 @pytest.mark.incremental
 class Test_Configure:
 	def test_build_user_data(self):
-		inv = Inventory('~/.cloudmesh/config_test.yaml')
+		inv_file = '~/.cloudmesh/config_test.yaml'
+		inv = Inventory(inv_file)
 		inv.add(host='test_host1', keyfile='~/.ssh/id_rsa.pub', service='manager')
 		inv.add(host='test_host2', service='worker')
 		inv.save()
@@ -35,7 +37,4 @@ class Test_Configure:
 		
 		assert(t1.content == b1.content)
 		assert(t2.content == b2.content)
-
-
-
-
+		os.system("rm -f " + path_expand(inv_file))
