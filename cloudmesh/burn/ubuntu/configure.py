@@ -72,8 +72,40 @@ class Configure:
             user_data.with_ssh_password_login()
         return user_data
 
-    def build_network_data(self, name=None):
-        pass
+    def build_network_data(self, name=None, ssid=None, password=None, with_defaults=True):
+        """
+        Given a name, get its config from self.inventory and create a Networkdata object
+        """
+        if name is None:
+            raise Exception('name arg supplied is None')
+        elif not self.inventory.has_host(name):
+            raise Exception(f'Could not find {name} in {self.inventory.filename}')
+        if ssid or password:
+            if not ssid or not password:
+                raise Exception("ssid or password supplied with no corresponding ssid or password")
+
+        # Get the current configurations from inventory
+        eth0_ip = self.inventory.get(name=name, attribute='ip')
+        eth0_nameservers = self.inventory.get(name=name, attribute='dns')
+        eth0_gateway = self.inventory.get(name=name, attribute='router')
+
+        network_data = Networkdata()
+
+        if with_defaults:
+            network_data.with_defaults()
+
+        if eth0_ip:
+            network_data.with_ip(ip=eth0_ip)
+        if eth0_nameservers:
+            network_data.with_nameservers(nameservers=eth0_nameservers)
+        if eth0_gateway:
+            network_data.with_gateway(gateway=eth0_gateway)
+        if ssid and password:
+            network_data.with_access_points(ssid=ssid, password=password)\
+            .with_dhcp4(interfaces='wifis', interface='wlan0', dhcp4=True)\
+            .with_optional(interfaces='wifis', interface='wlan0', optional=True)
+
+        return network_data
 
     def write(self):
         cloudinit = Cloudinit()
