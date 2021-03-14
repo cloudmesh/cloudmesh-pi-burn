@@ -1,6 +1,5 @@
 import yaml
 
-from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import path_expand, writefile
 
