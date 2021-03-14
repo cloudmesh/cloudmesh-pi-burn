@@ -12,7 +12,7 @@ class Userdata:
 
     def __str__(self):
         return Userdata.HEADER + '\n' + yaml.dump(self.content)
-    
+
     def with_authorized_keys(self, keys=None):
         """
         Adds a list of authorized keys for default user ubuntu
@@ -40,6 +40,32 @@ class Userdata:
         if ssh_pwauth is None:
             raise Exception('ssh_pwauth arg supplied is None')
         self.content['ssh_pwauth'] = ssh_pwauth
+        return self
+
+    def with_packages(self, packages=None):
+        """
+        Given a list of packages or single package as string, add to the installation list. Can be called multiple times
+        """
+        if packages is None:
+            raise Exception('ssh_pwauth arg supplied is None')
+        if type(packages) != list and type(packages) != str:
+            raise Exception('Type of packages expected to be a list or str')
+        if 'packages' not in self.content:
+            self.content['packages'] = []
+
+        if type(packages) == list:
+            self.content['packages'] += packages
+        elif type(packages) == str:
+            self.content['packages'] += [packages]
+        return self
+
+    def with_net_tools(self):
+        """
+        Adds net-tools and inetutils-traceroute to package installation list
+
+        For useful network commands such as route and traceroute
+        """
+        self.with_packages(packages=['net-tools', 'inetutils-traceroute'])
         return self
 
     def with_locale(self, locale='en_US'):
