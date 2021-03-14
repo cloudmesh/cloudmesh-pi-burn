@@ -70,6 +70,35 @@ class Networkdata:
 
         self.content[interfaces][interface]['dhcp4'] = dhcp4
 
+        return self
+
+    def with_optional(self, interfaces='ethernets', interface='eth0', optional=True):
+        if interface not in self.content[interfaces]:
+            self.content[interfaces][interface] = {}
+
+        self.content[interfaces][interface]['optional'] = optional
+
+        return self
+
+    def with_access_points(self, interfaces='ethernets', interface='eth0',
+               ssid=None, password=None):
+        if ssid is None:
+            raise Exception("ssid argument suppliled is None")
+        if password is None:
+            raise Exception("password argument suppliled is None")
+
+        if interface not in self.content[interfaces]:
+            self.content[interfaces][interface] = {}
+
+        if 'access-points' in self.content[interfaces][interface]:
+            access_points = self.content[interfaces][interface]['access-points']
+            access_points[ssid] = {'password': password}
+        else:
+            self.content[interfaces][interface]['access-points'] = {ssid:
+                {'password': password}}
+
+        return self
+
     def with_defaults(self, interfaces='ethernets', interface='eth0'):
         """
         Unsure if this is needed, however these params were included in the default config, so we keep
@@ -106,7 +135,11 @@ d = Networkdata()\
     .with_ip(ip="10.1.1.10")\
     .with_gateway(gateway="10.1.1.1")\
     .with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
-    .with_defaults()
+    .with_defaults()\
+    .with_dhcp4(interfaces='wifis',interface='wlan0',dhcp4=True)\
+    .with_optional(interfaces='wifis',interface='wlan0',optional=True)\
+    .with_access_points(interfaces='wifis',interface='wlan0',ssid='MYSSID',
+    password = 'MYPASSWORD')
 
 print(d)
 
@@ -115,7 +148,11 @@ d = Networkdata()\
     .with_ip(ip='10.1.1.10')\
     .with_gateway(gateway='10.1.1.1')\
     .with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
-    .with_defaults().write(filename='test.tmp')
+    .with_defaults()\
+    .with_dhcp4(interfaces='wifis',interface='wlan0',dhcp4=True)\
+    .with_optional(interfaces='wifis',interface='wlan0',optional=True)\
+    .with_access_points(interfaces='wifis',interface='wlan0',ssid='MYSSID',
+    password = 'MYPASSWORD').write(filename='test.tmp')
 
 Verification of config syntax:
 
