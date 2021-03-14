@@ -63,6 +63,12 @@ class Networkdata:
         self.content[interfaces][interface]['nameservers'] = {'addresses': nameservers}
         return self
 
+    def with_dhcp4(self,interfaces='ethernets', interface='eth0',dhcp4=True):
+        if interface not in self.content[interfaces]:
+            self.content[interfaces][interface] = {}
+
+        self.content[interfaces][interface]['dhcp4'] = dhcp4
+
     def with_defaults(self, interfaces='ethernets', interface='eth0'):
         """
         Unsure if this is needed, however these params were included in the default config, so we keep
