@@ -4,6 +4,36 @@ from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import path_expand, writefile
 
 class Userdata:
+    """
+    A Builder class for cloud-config Userdata
+
+    A Builder class follows the Builder design pattern. This design pattern allows
+    users of the class to construct a complex data structure using purely instance
+    methods. This is very useful in that the user of the class need not concern
+    themselves with the underlying implementation of the class. Consequentially,
+    changes to this class can be made without needing a refactor of all existing calls.
+
+    Examples:
+
+    d = Userdata()\
+        .with_ssh_password_login()\
+        .with_locale()\
+        .with_hostname(hostname='testserver')\
+        .with_default_user()
+
+    print(d)
+
+    #cloud-config
+    ssh_pwauth: yes
+    locale: en_US
+    preserve_hostname: false
+    hostname: testserver
+    chpasswd:
+    expire: true
+    list:
+    - ubuntu: ubuntu
+
+    """
     HEADER = "#cloud-config"
     def __init__(self, default=False):
         self.content = {}
@@ -101,25 +131,3 @@ class Userdata:
         (Removes comments)
         """
         self.with_default_user().with_ssh_password_login()
-
-"""
-d = Userdata()\
-    .with_ssh_password_login()\
-    .with_locale()\
-    .with_hostname(hostname='testserver')\
-    .with_default_user()
-
-print(d)
-
-#cloud-config
-ssh_pwauth: yes
-locale: en_US
-preserve_hostname: false
-hostname: testserver
-chpasswd:
-  expire: true
-  list:
-  - ubuntu: ubuntu
-
-
-"""
