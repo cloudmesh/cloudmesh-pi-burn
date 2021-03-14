@@ -6,8 +6,10 @@ from cloudmesh.common.util import path_expand, writefile
 
 class Userdata:
     HEADER = "#cloud-config"
-    def __init__(self):
+    def __init__(self, default=False):
         self.content = {}
+        if default:
+            self.__default__()
 
     def __str__(self):
         return Userdata.HEADER + '\n' + yaml.dump(self.content)
@@ -39,7 +41,7 @@ class Userdata:
         self.content['hostname'] = hostname
         return self
 
-    def with_defaults(self):
+    def with_default_user(self):
         """
         Include default user ubuntu with default password ubuntu. Prompt password change upon first access
         """
@@ -50,12 +52,22 @@ class Userdata:
         self.content['chpasswd']['list'] = ['ubuntu:ubuntu']
         return self
 
+    def __default__(self):
+        """
+        Set the default configuration the one that comes burnt with the ubuntu server OS
+
+        Captured with
+        $ grep -Fv \# /{mountpoint}/user-data
+        (Removes comments)
+        """
+        self.with_default_user().with_ssh_password_login()
+
 """
 d = Userdata()\
     .with_ssh_password_login()\
     .with_locale()\
     .with_hostname(hostname='testserver')\
-    .with_defaults()
+    .with_default_user()
 
 print(d)
 
