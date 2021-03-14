@@ -72,6 +72,83 @@ class Userdata:
         self.content['ssh_pwauth'] = ssh_pwauth
         return self
 
+    def with_package_update(self, update=True):
+        self.content['package_update'] = update
+        return self
+
+    def with_package_upgrade(self,upgrade=True):
+        self.content['package_upgrade'] = upgrade
+        return self
+
+    def with_ssh_authorized_keys(self,key=None):
+        if key is None:
+            raise Exception('the key arg supplied is none')
+
+        if 'ssh_authorized_keys' in self.content:
+            self.content['ssh_authorized_keys'].append(key)
+        else:
+            self.content['ssh_authorized_keys'] = [key]
+        return self
+
+    def with_set_wifi_country(self,country=None):
+        if country is None:
+            raise Exception('the country arg supplied is none')
+
+        cmd = ['sudo', 'iw', 'reg', 'set', country]
+        self.with_bootcmd(cmd)
+
+        cmd = ['sh', '-xc', 'sudo echo REGDOMAIN=US | sudo tee '
+                            '/etc/default/crda > /dev/null']
+        self.with_runcmd(cmd)
+        return self
+
+    def with_bootcmd(self,cmd=None):
+        if cmd is None:
+            raise Exception('the command arg supplied is none')
+        if type(cmd) != list:
+            raise Exception('The command arg should be a list of strings')
+
+        if 'bootcmd' in self.content:
+            self.content['bootcmd'].append(cmd)
+        else:
+            self.content['bootcmd'] = [cmd]
+        return self
+
+    def with_runcmd(self,cmd=None):
+        if cmd is None:
+            raise Exception('the command arg supplied is none')
+        if type(cmd) != list:
+            raise Exception('The command arg should be a list of strings')
+
+        if 'runcmd' in self.content:
+            self.content['runcmd'].append(cmd)
+        else:
+            self.content['runcmd'] = [cmd]
+        return self
+
+    def with_write_files(self,encoding=None, content=None, owner=None,
+                         path=None, permissions=None ):
+        arguments = locals()
+        arguments['self'] = None
+        arguments =[ (k,v) for k, v in arguments.items() if v is not None]
+
+
+        if path is None:
+            raise Exception('the path arg supplied is none')
+        if content is None:
+            raise Exception('the content supplied is none')
+
+        file = {}
+        for arg in arguments:
+            file[arg[0]] = arg[1]
+
+        if 'write_files' in self.content:
+            self.content['write_files'].append(file)
+        else:
+            self.content['write_files'] = [file]
+
+        return self
+
     def with_packages(self, packages=None):
         """
         Given a list of packages or single package as string, add to the installation list. Can be called multiple times
