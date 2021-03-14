@@ -12,11 +12,26 @@ class Userdata:
 
     def __str__(self):
         return Userdata.HEADER + '\n' + yaml.dump(self.content)
+    
+    def with_authorized_keys(self, keys=None):
+        """
+        Adds a list of authorized keys for default user ubuntu
+        """
+        if keys is None:
+            raise Exception('keys arg supplied is None')
+        if type(keys) != list:
+            raise TypeError('Expected type of keys to be a list')
+
+        if 'ssh_authorized_keys' not in self.content:
+            self.content['ssh_authorized_keys'] = keys
+        return self
 
     def write(self, filename=None):
         """
         Writes a file to a location. Safe write for files on mounted partitions
         """
+        if filename is None:
+            raise Exception('filename arg supplied is None')
         tmp_location = path_expand('~/.cloudmesh/user-data.tmp')
         writefile(tmp_location, str(self))
         Shell.execute('mv', [tmp_location, filename])
