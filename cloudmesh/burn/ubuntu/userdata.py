@@ -20,7 +20,7 @@ class Userdata:
     .with_locale()\
     .with_hostname(hostname='testserver')\
     .with_default_user()\
-    .with_ssh_authorized_keys(key='ssh-rsa AAAA.....user@laptop')\
+    .with_authorized_keys(key=['ssh-rsa AAAA.....user@laptop'])\
     .with_set_wifi_country(country='US')\
     .with_write_files(path='/home/ubuntu/.ssh/id_rsa', content='this is a ssh key', permissions='0600')\
     .with_write_files(path='/home/ubuntu/.ssh/id_rsa.pub', content='this is a pub key', permissions='0644')\
@@ -105,16 +105,6 @@ class Userdata:
 
     def with_package_upgrade(self,upgrade=True):
         self.content['package_upgrade'] = upgrade
-        return self
-
-    def with_ssh_authorized_keys(self,key=None):
-        if key is None:
-            raise Exception('the key arg supplied is none')
-
-        if 'ssh_authorized_keys' in self.content:
-            self.content['ssh_authorized_keys'].append(key)
-        else:
-            self.content['ssh_authorized_keys'] = [key]
         return self
 
     def with_set_wifi_country(self,country=None):
