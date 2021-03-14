@@ -1,12 +1,79 @@
 from cloudmesh.burn.ubuntu.userdata import Userdata
 from cloudmesh.burn.ubuntu.networkdata import Networkdata
 from cloudmesh.burn.ubuntu.cloudinit import Cloudinit
+from cloudmesh.common.util import readfile
+from cloudmesh.inventory.inventory import Inventory
 
 class Configure:
+    """
+    This class serves to build cloud-init config files for entries in a cloudmesh inventory file.
+    This accepts two params for init:
+    inventory = INVENTORY_FILE
+    cluster = CLUSTER_NAME
 
-    def __init__(self, inventory=None):
+    If inventory arg is None, then default ~/.cloudmesh/inventory.yaml is used
+
+    if cluster arg is not None, then nodes are found by searching via the
+    "cluster" column in inventory
+
+    if cluster arg is None, then nodes are found by searching for "worker" and "manager" in the
+    "service" column in inventory
+
+    Usage:
+    config_generator = Configure()
+    Configure.build_user_data(name=NAME) returns a Userdata builder object
+    where NAME is the hostname of an entry in inventory.yaml with corresponding config options
+    """
+
+    def __init__(self, inventory=None, cluster=None):
         self.network_conf = None # Some call to Networkdata.build()
         self.user_data_conf = None # Some call to Userdata.build()
+
+        if inventory:
+            self.inventory = Inventory(inventory)
+        else:
+            self.inventory = Inventory()
+
+        if cluster is not None:
+            self.nodes = self.inventory.find(cluster=cluster)
+        else:
+            self.managers = self.inventory.find(service='manager')
+            self.workers = self.inventory.find(service='worker')
+
+    def build_user_data(self, name=None, with_defaults=True):
+        """
+        Given a name, get its config from self.inventory and create a Userdata object
+        """
+        if name is None:
+            raise Exception('name arg supplied is None')
+        elif not self.inventory.has_host(name):
+            raise Exception(f'Could not find {name} in {self.inventory.filename}')
+
+        # Get the current configurations from inventory
+        hostname = self.inventory.get(name=name, attribute='host')
+        keyfile = self.inventory.get(name=name, attribute='keyfile')
+        if keyfile:
+            keys = readfile(keyfile).strip().split('\n')
+        else:
+            keys = None
+
+        # Build Userdata
+        user_data = Userdata()
+
+        if with_defaults:
+            user_data.with_default_user().with_locale().with_net_tools()
+        if hostname:
+            user_data.with_hostname(hostname=hostname)
+        if keys:
+            # Disable password auth in favor of key auth
+            user_data.with_ssh_password_login(ssh_pwauth=False)
+            user_data.with_authorized_keys(keys=keys)
+        else:
+            user_data.with_ssh_password_login()
+        return user_data
+
+    def build_network_data(self, name=None):
+        pass
 
     def write(self):
         cloudinit = Cloudinit()
