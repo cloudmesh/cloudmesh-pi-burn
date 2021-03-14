@@ -19,14 +19,14 @@ class Networkdata:
 
     Example:
     d = Networkdata()\
-        .with_ip(ip="10.1.1.10")\
-        .with_gateway(gateway="10.1.1.1")\
-        .with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
-        .with_defaults()\
-        .with_dhcp4(interfaces='wifis', interface='wlan0', dhcp4=True)\
-        .with_optional(interfaces='wifis', interface='wlan0', optional=True)\
-        .with_access_points(interfaces='wifis', interface='wlan0', ssid='MYSSID',
-                            password='MYPASSWORD')
+    .with_ip(ip="10.1.1.10")\
+    .with_gateway(gateway="10.1.1.1")\
+    .with_nameservers(nameservers=['8.8.8.8', '8.8.4.4'])\
+    .with_defaults()\
+    .with_dhcp4(interfaces='wifis', interface='wlan0', dhcp4=True)\
+    .with_optional(interfaces='wifis', interface='wlan0', optional=True)\
+    .with_access_points(interfaces='wifis', interface='wlan0', ssid='MYSSID',
+                        password='MYPASSWORD')
 
     print(d)
 
