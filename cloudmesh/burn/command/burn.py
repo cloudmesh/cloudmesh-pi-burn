@@ -453,10 +453,10 @@ class BurnCommand(PluginCommand):
                 sdcard.mount(device=arguments.device, card_os="ubuntu")
                 c.build_user_data(name=name).write(filename=sdcard.boot_volume + '/user-data')
                 if service == 'manager':
-                    c.build_user_data(name=name,
-                                      country=arguments.country).write(filename=sdcard.boot_volume + '/user-data')
-                    c.build_network_data(name=name,ssid=arguments.ssid,
-                                         password=arguments.wifipassword).write(filename=sdcard.boot_volume + '/network-config')
+                    c.build_user_data(name=name, country=arguments.country)\
+                        .write(filename=sdcard.boot_volume + '/user-data')
+                    c.build_network_data(name=name,ssid=arguments.ssid, password=arguments.wifipassword)\
+                        .write(flename=sdcard.boot_volume + '/network-config')
                 else:
                     c.build_user_data(name=name).write(filename=sdcard.boot_volume + '/user-data')
                     c.build_network_data(name=name).write(filename=sdcard.boot_volume + '/network-config')
