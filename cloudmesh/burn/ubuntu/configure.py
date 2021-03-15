@@ -1,6 +1,5 @@
 from cloudmesh.burn.ubuntu.userdata import Userdata
 from cloudmesh.burn.ubuntu.networkdata import Networkdata
-from cloudmesh.burn.ubuntu.cloudinit import Cloudinit
 from cloudmesh.common.util import readfile
 from cloudmesh.inventory.inventory import Inventory
 
@@ -134,12 +133,3 @@ class Configure:
                 ip = node['ip']
                 result += [f'{ip}:{host}']
         return result
-
-    def write(self):
-        cloudinit = Cloudinit()
-        userdata = Userdata()
-        networkdata = Networkdata()
-
-        cloudinit.write()
-        userdata.write()
-        networkdata.write()
