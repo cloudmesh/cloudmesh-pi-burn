@@ -72,7 +72,7 @@ class Configure:
         user_data.with_hosts(hosts=self.get_hosts_for(name=name))
 
         if self.debug:
-            Console.info(str(user_data))
+            Console.info(f'User data for {name}:\n' + str(user_data))
 
         return user_data
 
@@ -109,7 +109,7 @@ class Configure:
             .with_optional(interfaces='wifis', interface='wlan0', optional=True)
 
         if self.debug:
-            Console.info(str(network_data))
+            Console.info(f'Network data for {name}:\n' + str(network_data))
 
         return network_data
 

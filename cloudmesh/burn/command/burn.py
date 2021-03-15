@@ -1,4 +1,5 @@
 import os
+import time
 from getpass import getpass
 
 # from cloudmesh.common.debug import VERBOSE
@@ -8,6 +9,7 @@ from cloudmesh.burn.burner.raspberryos import MultiBurner
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
 from cloudmesh.burn.sdcard import SDCard
+from cloudmesh.burn.ubuntu.configure import Configure
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
@@ -17,6 +19,8 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.security import generate_strong_pass
 from cloudmesh.common.util import Console
 from cloudmesh.common.util import yn_choice
+from cloudmesh.common.util import banner
+from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
@@ -39,6 +43,7 @@ class BurnCommand(PluginCommand):
                        [--wifipassword=PSK]
                        [--bs=BLOCKSIZE]
                        [--dryrun]
+              burn ubuntu NAMES [--inventory=INVENTORY] [--ssid=SSID] [--wifipassword=PSK] [-v] --device=DEVICE
               burn firmware check
               burn firmware update
               burn install
@@ -396,6 +401,61 @@ class BurnCommand(PluginCommand):
 
             g.run()
 
+            return ""
+
+        elif arguments.ubuntu:
+            banner(txt="Ubuntu Burn with cloud-init", figlet=True)
+            names = Parameter.expand(arguments.NAMES)
+            if len(Parameter.expand(arguments.device)) > 1:
+                Console.error("Too many devices specified. Please only specify one")
+                return ""
+
+            if arguments.inventory:
+                c = Configure(inventory=arguments.inventory, debug=arguments['-v'])
+                inv = Inventory(filename=arguments.inventory)
+            else:
+                c = Configure(debug=arguments['-v'])
+                inv = Inventory()
+
+            # Probably not the best way to get the tag, but we assume all tags
+            # are the same for each row for now
+            if inv.has_host(names[0]):
+                tag = inv.get(name=names[0], attribute='tag')
+            else:
+                Console.error(f'Could not find {names[0]} in inventory {inv.filename}')
+                return ""
+            if 'ubuntu' not in tag:
+                Console.error("This command only supports burning ubuntu cards")
+                return ""
+            sdcard = SDCard(card_os="ubuntu")
+
+            # Code below taken from arguments.sdcard
+            try:
+                USB.check_for_readers()
+            except Exception as e:
+                print()
+                Console.error(e)
+                print()
+                return ""
+
+            for name in names:
+                if not yn_choice(f'Is the card to be burned for {name} inserted?'):
+                    if not yn_choice(f"Please insert the card to be burned for {name}. Type 'y' when done or 'n' to terminante"):
+                        Console.error("Terminating: User Break")
+                        return ""
+
+                sdcard.format_device(device=arguments.device, yes=True)
+                sdcard.unmount(device=arguments.device)
+                sdcard.burn_sdcard(tag=tag, device=arguments.device, yes=True)
+                sdcard.mount(device=arguments.device, card_os="ubuntu")
+                c.build_user_data(name=name).write(filename=sdcard.boot_volume + '/user-data')
+                c.build_network_data(name=name).write(filename=sdcard.boot_volume + '/network-config')
+                time.sleep(1) # Sleep for 3 seconds to give ample time for writing to finish
+                sdcard.unmount(device=arguments.device, card_os="ubuntu")
+
+                Console.info("Remove card")
+
+            Console.ok(f"Burned {len(names)} card(s)")
             return ""
 
         elif arguments.firmware and arguments.check:
