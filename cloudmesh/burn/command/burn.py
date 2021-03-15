@@ -456,7 +456,7 @@ class BurnCommand(PluginCommand):
                     c.build_user_data(name=name, country=arguments.country)\
                         .write(filename=sdcard.boot_volume + '/user-data')
                     c.build_network_data(name=name,ssid=arguments.ssid, password=arguments.wifipassword)\
-                        .write(flename=sdcard.boot_volume + '/network-config')
+                        .write(filename=sdcard.boot_volume + '/network-config')
                 else:
                     c.build_user_data(name=name).write(filename=sdcard.boot_volume + '/user-data')
                     c.build_network_data(name=name).write(filename=sdcard.boot_volume + '/network-config')
