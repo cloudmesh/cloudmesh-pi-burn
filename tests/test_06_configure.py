@@ -22,19 +22,20 @@ class Test_Configure:
 
 		keys = readfile(filename='~/.ssh/id_rsa.pub').strip().split('\n')
 		t1 = Userdata()\
-			.with_default_user()\
 			.with_authorized_keys(keys=keys)\
 			.with_ssh_password_login(ssh_pwauth=False)\
 			.with_locale()\
 			.with_net_tools()\
-			.with_hostname(hostname='test_host1')
+			.with_hostname(hostname='test_host1')\
+			.with_hosts(hosts=['127.0.0.1:test_host1'])
 
 		t2 = Userdata()\
 			.with_default_user()\
 			.with_ssh_password_login()\
 			.with_locale()\
 			.with_net_tools()\
-			.with_hostname(hostname='test_host2')
+			.with_hostname(hostname='test_host2')\
+			.with_hosts(hosts=['127.0.0.1:test_host2'])
 		
 		assert(t1.content == b1.content)
 		assert(t2.content == b2.content)

@@ -118,6 +118,20 @@ class Userdata:
         self.with_runcmd(cmd)
         return self
 
+    def with_hosts(self, hosts=None):
+        """
+        Give a list of ip:hostname formatted strings, add to /etc/hosts
+        """
+        if not hosts:
+            raise Exception('hosts arg passed is None')
+
+        for hostpair in hosts:
+            if ':' not in hostpair:
+                raise Exception('Expected hosts to be a list of ip:hostname strings')
+            ip, hostname = hostpair.split(':')
+            self.with_bootcmd(cmd=f'echo {ip} {hostname} >> /etc/hosts')
+        return self
+
     def with_bootcmd(self,cmd=None):
         if cmd is None:
             raise Exception('the command arg supplied is none')

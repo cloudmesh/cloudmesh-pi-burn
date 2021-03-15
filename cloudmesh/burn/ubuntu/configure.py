@@ -69,6 +69,8 @@ class Configure:
             user_data.with_authorized_keys(keys=keys)
         else:
             user_data.with_default_user().with_ssh_password_login()
+        # Add known hosts
+        user_data.with_hosts(hosts=self.get_hosts_for(name=name))
         return user_data
 
     def build_network_data(self, name=None, ssid=None, password=None, with_defaults=True):
@@ -104,6 +106,34 @@ class Configure:
             .with_optional(interfaces='wifis', interface='wlan0', optional=True)
 
         return network_data
+
+    def get_hosts_for(self, name=None):
+        """
+        Given a hostname, return a list of ':' separated strings of the form:
+
+        ip:hostname
+
+        for all hosts with ips in the inventory. Also includes mapping for own hostname in the form of 127.0.0.1:{name}
+
+        For example, if inventory has worker001 with ip 10.1.1.1, worker002 with ip 10.1.1.2, worker003 with ip 10.1.1.3,
+        then:
+
+        self.get_hosts_for(name='worker001') returns ['127.0.0.1:worker001', '10.1.1.2:worker002', '10.1.1.3:worker003']
+
+        Do not rely on the order of the result here
+        """
+        if name is None:
+            raise Exception('name arg supplied is None')
+        if not self.inventory.has_host(name):
+            raise Exception(f'{name} could not be found in {self.inventory.filename}')
+
+        result = [f'127.0.0.1:{name}']
+        for node in self.nodes:
+            if node['ip'] and name != node['host']:
+                host = node['host']
+                ip = node['ip']
+                result += [f'{ip}:{host}']
+        return result
 
     def write(self):
         cloudinit = Cloudinit()
