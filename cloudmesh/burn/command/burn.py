@@ -450,7 +450,7 @@ class BurnCommand(PluginCommand):
                 sdcard.mount(device=arguments.device, card_os="ubuntu")
                 c.build_user_data(name=name).write(filename=sdcard.boot_volume + '/user-data')
                 c.build_network_data(name=name).write(filename=sdcard.boot_volume + '/network-config')
-                time.sleep(1) # Sleep for 3 seconds to give ample time for writing to finish
+                time.sleep(1) # Sleep for 1 seconds to give ample time for writing to finish
                 sdcard.unmount(device=arguments.device, card_os="ubuntu")
 
                 Console.info("Remove card")
