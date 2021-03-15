@@ -457,9 +457,9 @@ class SDCard:
         """
         Mounts the current SD card
         """
-        Sudo.password()
 
         if os_is_linux():
+            Sudo.password()
             dmesg = USB.get_from_dmesg()
 
             # TODO Need a better way to identify which sd card to use for mounting
@@ -479,6 +479,7 @@ class SDCard:
                     print(e)
 
         elif os_is_pi():
+            Sudo.password()
 
             if card_os is None:
                 Console.error("Please specify the OS you have on the SD Card")
@@ -538,7 +539,6 @@ class SDCard:
         :rtype:
         """
 
-        Sudo.password()
 
         # self.card_os = card_os
 
@@ -546,6 +546,7 @@ class SDCard:
 
         os.system("sync")
         if os_is_linux() or os_is_pi():
+            Sudo.password()
             if full:
                 _execute(f"eject {device}", f"sudo eject {device}")
             else:

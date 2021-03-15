@@ -596,7 +596,8 @@ class BurnCommand(PluginCommand):
 
         elif arguments.unmount:
 
-            execute("unmount", sdcard.unmount(device=arguments.device, card_os=arguments.os))
+            card = SDCard(card_os=arguments.os)
+            execute("unmount", card.unmount(device=arguments.device, card_os=arguments.os))
             return ""
 
         elif arguments.mac:
