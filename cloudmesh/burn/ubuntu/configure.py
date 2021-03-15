@@ -1,5 +1,6 @@
 from cloudmesh.burn.ubuntu.userdata import Userdata
 from cloudmesh.burn.ubuntu.networkdata import Networkdata
+from cloudmesh.common.console import Console
 from cloudmesh.common.util import readfile
 from cloudmesh.inventory.inventory import Inventory
 
@@ -24,9 +25,8 @@ class Configure:
     where NAME is the hostname of an entry in inventory.yaml with corresponding config options
     """
 
-    def __init__(self, inventory=None, cluster=None):
-        self.network_conf = None # Some call to Networkdata.build()
-        self.user_data_conf = None # Some call to Userdata.build()
+    def __init__(self, inventory=None, cluster=None, debug=False):
+        self.debug = debug
 
         if inventory:
             self.inventory = Inventory(inventory)
@@ -70,6 +70,10 @@ class Configure:
             user_data.with_default_user().with_ssh_password_login()
         # Add known hosts
         user_data.with_hosts(hosts=self.get_hosts_for(name=name))
+
+        if self.debug:
+            Console.info(str(user_data))
+
         return user_data
 
     def build_network_data(self, name=None, ssid=None, password=None, with_defaults=True):
@@ -103,6 +107,9 @@ class Configure:
             network_data.with_access_points(ssid=ssid, password=password)\
             .with_dhcp4(interfaces='wifis', interface='wlan0', dhcp4=True)\
             .with_optional(interfaces='wifis', interface='wlan0', optional=True)
+
+        if self.debug:
+            Console.info(str(network_data))
 
         return network_data
 
