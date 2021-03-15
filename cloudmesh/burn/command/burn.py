@@ -43,7 +43,8 @@ class BurnCommand(PluginCommand):
                        [--wifipassword=PSK]
                        [--bs=BLOCKSIZE]
                        [--dryrun]
-              burn ubuntu NAMES [--inventory=INVENTORY] [--ssid=SSID] [--wifipassword=PSK] [-v] --device=DEVICE
+              burn ubuntu NAMES [--inventory=INVENTORY] [--ssid=SSID]
+              [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY]
               burn firmware check
               burn firmware update
               burn install
@@ -444,12 +445,21 @@ class BurnCommand(PluginCommand):
                         Console.error("Terminating: User Break")
                         return ""
 
+                service = inv.get(name=name, attribute='service')
+
                 sdcard.format_device(device=arguments.device, yes=True)
                 sdcard.unmount(device=arguments.device)
                 sdcard.burn_sdcard(tag=tag, device=arguments.device, yes=True)
                 sdcard.mount(device=arguments.device, card_os="ubuntu")
                 c.build_user_data(name=name).write(filename=sdcard.boot_volume + '/user-data')
-                c.build_network_data(name=name).write(filename=sdcard.boot_volume + '/network-config')
+                if service == 'manager':
+                    c.build_user_data(name=name,
+                                      country=arguments.country).write(filename=sdcard.boot_volume + '/user-data')
+                    c.build_network_data(name=name,ssid=arguments.ssid,
+                                         password=arguments.wifipassword).write(filename=sdcard.boot_volume + '/network-config')
+                else:
+                    c.build_user_data(name=name).write(filename=sdcard.boot_volume + '/user-data')
+                    c.build_network_data(name=name).write(filename=sdcard.boot_volume + '/network-config')
                 time.sleep(1) # Sleep for 1 seconds to give ample time for writing to finish
                 sdcard.unmount(device=arguments.device, card_os="ubuntu")
 

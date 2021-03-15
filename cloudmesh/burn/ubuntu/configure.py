@@ -38,7 +38,7 @@ class Configure:
         else:
             self.nodes = self.inventory.find(service='manager') + self.inventory.find(service='worker')
 
-    def build_user_data(self, name=None, with_defaults=True):
+    def build_user_data(self, name=None, with_defaults=True, country=None):
         """
         Given a name, get its config from self.inventory and create a Userdata object
         """
@@ -46,6 +46,8 @@ class Configure:
             raise Exception('name arg supplied is None')
         elif not self.inventory.has_host(name):
             raise Exception(f'Could not find {name} in {self.inventory.filename}')
+        if country is not None and len(country) != 2:
+            raise Exception(f'Country code is not 2 characters.')
 
         # Get the current configurations from inventory
         hostname = self.inventory.get(name=name, attribute='host')
@@ -70,13 +72,16 @@ class Configure:
             user_data.with_default_user().with_ssh_password_login()
         # Add known hosts
         user_data.with_hosts(hosts=self.get_hosts_for(name=name))
+        if country:
+            user_data.with_set_wifi_country(country=country)
 
         if self.debug:
             Console.info(f'User data for {name}:\n' + str(user_data))
 
         return user_data
 
-    def build_network_data(self, name=None, ssid=None, password=None, with_defaults=True):
+    def build_network_data(self, name=None, ssid=None, password=None,
+                           with_defaults=True):
         """
         Given a name, get its config from self.inventory and create a Networkdata object
         """
