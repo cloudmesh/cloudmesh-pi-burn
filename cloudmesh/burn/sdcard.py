@@ -475,6 +475,29 @@ class SDCard:
                     os.system(f"sudo eject -t {device}")
                     os.system('sudo sync')  # flush any pending/in-process writes
 
+                    # ensure the card is mounted before returning
+                    device_basename = os.path.basename(device)
+                    part1 = False
+                    part2 = False
+                    for i in range(10):
+                        result = Shell.run('lsblk')
+                        if device_basename in result.split():
+                            for line in result.splitlines():
+                                line = line.split()
+                                if device_basename + '1' in line[0] and len(
+                                    line) > 6:
+                                    part1 = True
+                                elif device_basename + '2' in line[0] and len(
+                                    line) > 6:
+                                    part2 = True
+                        if part1 and part2:
+                            # card is fully mounted
+                            break
+                        time.sleep(0.5)
+
+                    if not part1 and not part2:
+                        raise Exception("card failed to mount both partitions")
+
                 except Exception as e:
                     print(e)
 
