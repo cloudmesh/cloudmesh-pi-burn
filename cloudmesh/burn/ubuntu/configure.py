@@ -1,8 +1,12 @@
+import os
+import time
+
 from cloudmesh.burn.ubuntu.userdata import Userdata
 from cloudmesh.burn.ubuntu.networkdata import Networkdata
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import readfile
 from cloudmesh.inventory.inventory import Inventory
+from cloudmesh.burn.sdcard import SDCard
 
 class Configure:
     """
@@ -38,7 +42,8 @@ class Configure:
         else:
             self.nodes = self.inventory.find(service='manager') + self.inventory.find(service='worker')
 
-    def build_user_data(self, name=None, with_defaults=True, country=None):
+    def build_user_data(self, name=None, with_defaults=True, country=None,
+                        add_manager_key=False, upgrade=False):
         """
         Given a name, get its config from self.inventory and create a Userdata object
         """
@@ -57,11 +62,21 @@ class Configure:
         else:
             keys = None
 
+        if keys is None and add_manager_key:
+            keys = readfile('~/.cloudmesh/cmburn/id_rsa.pub').strip().split('\n')
+        elif add_manager_key:
+            keys.append(readfile('~/.cloudmesh/cmburn/id_rsa.pub').strip())
+
+        service = self.inventory.get(name=name, attribute='service')
+
         # Build Userdata
         user_data = Userdata()
 
         if with_defaults:
-            user_data.with_locale().with_net_tools()
+            user_data.with_locale().with_net_tools().with_packages(
+                packages='avahi-daemon')
+        if upgrade:
+            user_data.with_package_update().with_package_upgrade()
         if hostname:
             user_data.with_hostname(hostname=hostname)
         if keys:
@@ -74,9 +89,20 @@ class Configure:
         user_data.with_hosts(hosts=self.get_hosts_for(name=name))
         if country:
             user_data.with_set_wifi_country(country=country)
+        if service == 'manager':
+            #generate and store the ssh pub key to add to workers
+            priv_key,pub_key = self.generate_ssh_key(hostname=name)
+            user_data.with_write_files(content=priv_key,
+                                       path='/home/ubuntu/.ssh/id_rsa',
+                                       permissions='0600')
+            user_data.with_write_files(content=pub_key,
+                                       path='/home/ubuntu/.ssh/id_rsa.pub',
+                                       permissions='0644')
+            user_data.with_fix_user_dir_owner(user='ubuntu')
 
         if self.debug:
             Console.info(f'User data for {name}:\n' + str(user_data))
+
 
         return user_data
 
@@ -145,3 +171,32 @@ class Configure:
                 ip = node['ip']
                 result += [f'{ip}:{host}']
         return result
+
+    def generate_ssh_key(self,hostname):
+        card = SDCard(card_os='ubuntu')
+        cmd = f'ssh-keygen -q -N "" -C "ubuntu@{hostname}" -f {card.boot_volume}/id_rsa'
+        os.system(cmd)
+
+        for i in range(10):
+            try:
+                priv_key = readfile(f'{card.boot_volume}/id_rsa').strip()
+                pub_key = readfile(f'{card.boot_volume}/id_rsa.pub').strip()
+                break
+            except:
+                print("Waiting for ssh key to write to sdcard")
+                if i == 9:
+                    raise Exception('Failed to write ssh key to SD card. Did '
+                                    'it mount correctly?')
+            time.sleep(0.5)
+
+        cmd = f'cp {card.boot_volume}/id_rsa.pub ~/.cloudmesh/cmburn/'
+        os.system(cmd)
+
+        cmd = f'rm {card.boot_volume}/id_rsa'
+        os.system(cmd)
+
+        cmd = f'rm {card.boot_volume}/id_rsa.pub'
+        os.system(cmd)
+
+        return priv_key,pub_key
+

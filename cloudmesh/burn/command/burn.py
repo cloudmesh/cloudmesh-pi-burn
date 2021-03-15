@@ -45,6 +45,7 @@ class BurnCommand(PluginCommand):
                        [--dryrun]
               burn ubuntu NAMES [--inventory=INVENTORY] [--ssid=SSID]
               [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY]
+              [--upgrade]
               burn firmware check
               burn firmware update
               burn install
@@ -353,7 +354,8 @@ class BurnCommand(PluginCommand):
                        "name",
                        "bs",
                        "set_passwd",
-                       "cmdline")
+                       "cmdline",
+                       "upgrade")
 
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
@@ -439,6 +441,19 @@ class BurnCommand(PluginCommand):
                 print()
                 return ""
 
+            #determine if we are burning a manager, as this needs to be done
+            # first to get the ssh public key
+            manager = False
+            for name in names:
+                service = inv.get(name=name, attribute='service')
+                if service == 'manager' and not manager:
+                    manager = name
+                    # make manager first in names
+                    names.remove(name)
+                    names.insert(0,name)
+                elif service == 'manager' and manager:
+                    raise Exception('More than one manager detected in NAMES')
+
             for name in names:
                 if not yn_choice(f'Is the card to be burned for {name} inserted?'):
                     if not yn_choice(f"Please insert the card to be burned for {name}. Type 'y' when done or 'n' to terminante"):
@@ -454,16 +469,24 @@ class BurnCommand(PluginCommand):
                 c.build_user_data(name=name).write(filename=sdcard.boot_volume + '/user-data')
                 if service == 'manager':
                     c.build_user_data(name=name,
-                                      country=arguments.country).write(filename=sdcard.boot_volume + '/user-data')
+                                      country=arguments.country,
+                                      upgrade=arguments.upgrade).write(
+                        filename=sdcard.boot_volume + '/user-data')
                     c.build_network_data(name=name,ssid=arguments.ssid,
                                          password=arguments.wifipassword).write(filename=sdcard.boot_volume + '/network-config')
                 else:
-                    c.build_user_data(name=name).write(filename=sdcard.boot_volume + '/user-data')
+                    c.build_user_data(name=name,add_manager_key=manager,
+                                      upgrade=arguments.upgrade).write(
+                        filename=sdcard.boot_volume + '/user-data')
                     c.build_network_data(name=name).write(filename=sdcard.boot_volume + '/network-config')
                 time.sleep(1) # Sleep for 1 seconds to give ample time for writing to finish
                 sdcard.unmount(device=arguments.device, card_os="ubuntu")
 
                 Console.info("Remove card")
+
+            if manager:
+                cmd = 'rm -f ~/.cloudmesh/cmburn/id_rsa.pub'
+                os.system(cmd)
 
             Console.ok(f"Burned {len(names)} card(s)")
             return ""

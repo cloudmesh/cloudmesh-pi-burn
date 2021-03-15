@@ -152,16 +152,16 @@ class Userdata:
         if cmd is None:
             raise Exception('the command arg supplied is none')
 
-        if 'rootcmd' in self.content:
+        if 'runcmd' in self.content:
             if type(cmd) == str:
-                self.content['rootcmd'].append(cmd)
+                self.content['runcmd'].append(cmd)
             elif type(cmd) == list:
-                self.content['rootcmd'].extend(cmd)
+                self.content['runcmd'].extend(cmd)
         else:
             if type(cmd) == str:
-                self.content['rootcmd'] = [cmd]
+                self.content['runcmd'] = [cmd]
             elif type(cmd) == list:
-                self.content['rootcmd'] = cmd
+                self.content['runcmd'] = cmd
         return self
 
     def with_write_files(self,encoding=None, content=None, owner=None,
@@ -174,6 +174,10 @@ class Userdata:
             raise Exception('the path arg supplied is none')
         if content is None:
             raise Exception('the content supplied is none')
+
+        #supports multiline strings, keeps newlines
+        if '\n' in content:
+            content = '|\n' + content
 
         file = {}
         for arg in arguments:
