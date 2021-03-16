@@ -462,6 +462,7 @@ class BurnCommand(PluginCommand):
 
                 service = inv.get(name=name, attribute='service')
 
+                Console.info(f'Burning {name}')
                 sdcard.format_device(device=arguments.device, yes=True)
                 sdcard.unmount(device=arguments.device)
                 sdcard.burn_sdcard(tag=tag, device=arguments.device, yes=True)

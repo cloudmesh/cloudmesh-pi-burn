@@ -139,6 +139,7 @@ class Configure:
         if eth0_gateway:
             network_data.with_gateway(gateway=eth0_gateway)
         if ssid and password:
+            Console.info(f'Providing WiFi access to {name}')
             network_data.with_access_points(ssid=ssid, password=password)\
             .with_dhcp4(interfaces='wifis', interface='wlan0', dhcp4=True)\
             .with_optional(interfaces='wifis', interface='wlan0', optional=True)

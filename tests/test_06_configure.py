@@ -27,7 +27,8 @@ class Test_Configure:
 			.with_locale()\
 			.with_net_tools()\
 			.with_hostname(hostname='test_host1')\
-			.with_hosts(hosts=['127.0.0.1:test_host1'])
+			.with_hosts(hosts=['127.0.0.1:test_host1'])\
+			.with_packages(packages='avahi-daemon')
 
 		t2 = Userdata()\
 			.with_default_user()\
@@ -35,7 +36,8 @@ class Test_Configure:
 			.with_locale()\
 			.with_net_tools()\
 			.with_hostname(hostname='test_host2')\
-			.with_hosts(hosts=['127.0.0.1:test_host2'])
+			.with_hosts(hosts=['127.0.0.1:test_host2'])\
+			.with_packages(packages='avahi-daemon')
 		
 		assert(t1.content == b1.content)
 		assert(t2.content == b2.content)
