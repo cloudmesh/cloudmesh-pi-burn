@@ -179,8 +179,7 @@ class Configure:
 
     def generate_ssh_key(self,hostname):
         Shell.execute('mkdir', '-p ~/.cloudmesh/cmburn')
-        # I could not get Shell.execute to work for this command
-        os.system(f'ssh-keygen -q -N "" -C "ubuntu@{hostname}" -f '
+        Shell.run(f'ssh-keygen -q -N "" -C "ubuntu@{hostname}" -f '
                   f'~/.cloudmesh/cmburn/id_rsa')
         priv_key = readfile('~/.cloudmesh/cmburn/id_rsa').strip()
         pub_key = readfile('~/.cloudmesh/cmburn/id_rsa.pub').strip()
