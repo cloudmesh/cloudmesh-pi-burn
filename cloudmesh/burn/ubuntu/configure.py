@@ -7,6 +7,8 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import readfile
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.burn.sdcard import SDCard
+from cloudmesh.common.Shell import Shell
+from cloudmesh.common.util import path_expand
 
 class Configure:
     """
@@ -42,6 +44,8 @@ class Configure:
         else:
             self.nodes = self.inventory.find(service='manager') + self.inventory.find(service='worker')
 
+        self.manager_public_key = None
+
     def build_user_data(self, name=None, with_defaults=True, country=None,
                         add_manager_key=False, upgrade=False):
         """
@@ -63,9 +67,9 @@ class Configure:
             keys = None
 
         if keys is None and add_manager_key:
-            keys = readfile('~/.cloudmesh/cmburn/id_rsa.pub').strip().split('\n')
+            keys = [self.manager_public_key]
         elif add_manager_key:
-            keys.append(readfile('~/.cloudmesh/cmburn/id_rsa.pub').strip())
+            keys.append(self.manager_public_key)
 
         service = self.inventory.get(name=name, attribute='service')
 
@@ -173,30 +177,14 @@ class Configure:
         return result
 
     def generate_ssh_key(self,hostname):
-        card = SDCard(card_os='ubuntu')
-        cmd = f'ssh-keygen -q -N "" -C "ubuntu@{hostname}" -f {card.boot_volume}/id_rsa'
-        os.system(cmd)
-
-        for i in range(10):
-            try:
-                priv_key = readfile(f'{card.boot_volume}/id_rsa').strip()
-                pub_key = readfile(f'{card.boot_volume}/id_rsa.pub').strip()
-                break
-            except:
-                print("Waiting for ssh key to write to sdcard")
-                if i == 9:
-                    raise Exception('Failed to write ssh key to SD card. Did '
-                                    'it mount correctly?')
-            time.sleep(0.5)
-
-        cmd = f'cp {card.boot_volume}/id_rsa.pub ~/.cloudmesh/cmburn/'
-        os.system(cmd)
-
-        cmd = f'rm {card.boot_volume}/id_rsa'
-        os.system(cmd)
-
-        cmd = f'rm {card.boot_volume}/id_rsa.pub'
-        os.system(cmd)
-
+        Shell.execute('mkdir', '-p ~/.cloudmesh/cmburn')
+        # I could not get Shell.execute to work for this command
+        os.system(f'ssh-keygen -q -N "" -C "ubuntu@{hostname}" -f '
+                  f'~/.cloudmesh/cmburn/id_rsa')
+        priv_key = readfile('~/.cloudmesh/cmburn/id_rsa').strip()
+        pub_key = readfile('~/.cloudmesh/cmburn/id_rsa.pub').strip()
+        self.manager_public_key = pub_key
+        Shell.execute('rm', path_expand('~/.cloudmesh/cmburn/id_rsa'))
+        Shell.execute('rm', path_expand('~/.cloudmesh/cmburn/id_rsa.pub'))
         return priv_key,pub_key
 
