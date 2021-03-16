@@ -91,9 +91,12 @@ class Test_Configure:
 			.with_hostname(hostname='test_host1')\
 			.with_hosts(hosts=['127.0.0.1:test_host1'])\
 			.with_packages(packages='avahi-daemon')\
-			.with_runcmd(f'cat /boot/firmware/id_rsa.pub > ~/.ssh/id_rsa.pub')\
-			.with_runcmd(f'cat /boot/firmware/id_rsa > ~/.ssh/id_rsa')\
-			.with_fix_user_dir_owner(user="ubuntu")
+			.with_runcmd(cmd=f'cat /boot/firmware/id_rsa.pub > /home/ubuntu/.ssh/id_rsa.pub')\
+			.with_runcmd(cmd=f'cat /boot/firmware/id_rsa > /home/ubuntu/.ssh/id_rsa')\
+			.with_fix_user_dir_owner(user='ubuntu')\
+			.with_runcmd(cmd=f'chmod 600 /home/ubuntu/.ssh/id_rsa')\
+			.with_runcmd(cmd=f'sudo rm /boot/firmware/id_rsa.pub')\
+			.with_runcmd(cmd=f'sudo rm /boot/firmware/id_rsa')
 
 		assert (t1.content == u.content)
 

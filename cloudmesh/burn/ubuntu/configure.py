@@ -97,9 +97,13 @@ class Configure:
             user_data.with_set_wifi_country(country=country)
         if service == 'manager' and self.manager_public_key:
             # If public key is set, then we expect /boot/firmware/id_rsa and /boot/firmware/id_rsa.pub on burned card
-            user_data.with_runcmd(cmd=f'cat /boot/firmware/id_rsa.pub > ~/.ssh/id_rsa.pub')
-            user_data.with_runcmd(cmd=f'cat /boot/firmware/id_rsa > ~/.ssh/id_rsa')
-            user_data.with_fix_user_dir_owner(user='ubuntu')
+            user_data.with_runcmd(cmd=f'cat /boot/firmware/id_rsa.pub > /home/ubuntu/.ssh/id_rsa.pub')\
+            .with_runcmd(cmd=f'cat /boot/firmware/id_rsa > /home/ubuntu/.ssh/id_rsa')\
+            .with_fix_user_dir_owner(user='ubuntu')\
+            .with_runcmd(cmd=f'chmod 600 /home/ubuntu/.ssh/id_rsa')\
+            .with_runcmd(cmd=f'sudo rm /boot/firmware/id_rsa.pub')\
+            .with_runcmd(cmd=f'sudo rm /boot/firmware/id_rsa')
+
 
         if self.debug:
             Console.info(f'User data for {name}:\n' + str(user_data))

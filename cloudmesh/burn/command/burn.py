@@ -468,6 +468,11 @@ class BurnCommand(PluginCommand):
                 sdcard.burn_sdcard(tag=tag, device=arguments.device, yes=True)
                 sdcard.mount(device=arguments.device, card_os="ubuntu")
                 if service == 'manager':
+                    # Generate a private public key pair for the manager that will be persistently used
+                    priv_key, pub_key = c.generate_ssh_key(name)
+                    # Write priv_key and pub_key to /boot/id_rsa and /boot/id_rsa.pub
+                    SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa', content=priv_key)
+                    SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa.pub', content=pub_key)
                     c.build_user_data(name=name,
                                       country=arguments.country,
                                       upgrade=arguments.upgrade).write(
