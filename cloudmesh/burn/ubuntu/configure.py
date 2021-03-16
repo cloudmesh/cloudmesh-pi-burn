@@ -30,9 +30,11 @@ class Configure:
     Configure.build_user_data(name=NAME) returns a Userdata builder object
     where NAME is the hostname of an entry in inventory.yaml with corresponding config options
     """
+    KEY_DIR = '~/.cloudmesh/cmburn'
 
     def __init__(self, inventory=None, cluster=None, debug=False):
         self.debug = debug
+        self.manager_public_key = None # Populated by self.generate_ssh_key
 
         if inventory:
             self.inventory = Inventory(inventory)
@@ -177,14 +179,13 @@ class Configure:
                 result += [f'{ip}:{host}']
         return result
 
-    def generate_ssh_key(self,hostname):
-        Shell.execute('mkdir', '-p ~/.cloudmesh/cmburn')
-        Shell.run(f'ssh-keygen -q -N "" -C "ubuntu@{hostname}" -f '
-                  f'~/.cloudmesh/cmburn/id_rsa')
-        priv_key = readfile('~/.cloudmesh/cmburn/id_rsa').strip()
-        pub_key = readfile('~/.cloudmesh/cmburn/id_rsa.pub').strip()
+    def generate_ssh_key(self, hostname):
+        Shell.execute('mkdir', f'-p {Configure.KEY_DIR}')
+        Shell.run(f'ssh-keygen -q -N "" -C "ubuntu@{hostname}" -f ' f'{Configure.KEY_DIR}/id_rsa')
+        priv_key = readfile(f'{Configure.KEY_DIR}/id_rsa').strip()
+        pub_key = readfile(f'{Configure.KEY_DIR}/id_rsa.pub').strip()
         self.manager_public_key = pub_key
-        Shell.execute('rm', path_expand('~/.cloudmesh/cmburn/id_rsa'))
-        Shell.execute('rm', path_expand('~/.cloudmesh/cmburn/id_rsa.pub'))
+        Shell.execute('rm', path_expand(f'{Configure.KEY_DIR}/id_rsa'))
+        Shell.execute('rm', path_expand(f'{Configure.KEY_DIR}/id_rsa.pub'))
         return priv_key,pub_key
 
