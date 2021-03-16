@@ -1,4 +1,3 @@
-import os
 import time
 
 from cloudmesh.burn.ubuntu.userdata import Userdata
@@ -49,7 +48,7 @@ class Configure:
         self.manager_public_key = None
 
     def build_user_data(self, name=None, with_defaults=True, country=None,
-                        add_manager_key=False, upgrade=False):
+                        add_manager_key=False, upgrade=False, with_bridge=False):
         """
         Given a name, get its config from self.inventory and create a Userdata object
         """
@@ -103,7 +102,8 @@ class Configure:
             .with_runcmd(cmd=f'chmod 600 /home/ubuntu/.ssh/id_rsa')\
             .with_runcmd(cmd=f'sudo rm /boot/firmware/id_rsa.pub')\
             .with_runcmd(cmd=f'sudo rm /boot/firmware/id_rsa')
-
+        if with_bridge:
+            user_data.with_access_point_bridge()
 
         if self.debug:
             Console.info(f'User data for {name}:\n' + str(user_data))

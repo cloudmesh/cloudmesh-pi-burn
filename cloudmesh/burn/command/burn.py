@@ -445,6 +445,9 @@ class BurnCommand(PluginCommand):
             # first to get the ssh public key
             manager = False
             for name in names:
+                if not inv.has_host(name):
+                    Console.error(f'Could not find {name} in inventory {inv.filename}')
+                    return ""
                 service = inv.get(name=name, attribute='service')
                 if service == 'manager' and not manager:
                     manager = name
@@ -461,6 +464,14 @@ class BurnCommand(PluginCommand):
                         return ""
 
                 service = inv.get(name=name, attribute='service')
+                # Make sure bridge is only enabled if WiFi enabled
+                if service == 'manager':
+                    services = inv.get(name=name, attribute='services')
+                    if 'bridge' in services and not arguments.ssid:
+                        Console.error('Service bridge can only be configured if WiFi is enabled with --ssid and --wifipassword')
+                        return ""
+                    else:
+                        enable_bridge = 'bridge' in services
 
                 Console.info(f'Burning {name}')
                 sdcard.format_device(device=arguments.device, yes=True)
@@ -475,7 +486,8 @@ class BurnCommand(PluginCommand):
                     SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa.pub', content=pub_key)
                     c.build_user_data(name=name,
                                       country=arguments.country,
-                                      upgrade=arguments.upgrade).write(
+                                      upgrade=arguments.upgrade,
+                                      with_bridge=enable_bridge).write(
                         filename=sdcard.boot_volume + '/user-data')
                     c.build_network_data(name=name,ssid=arguments.ssid,
                                          password=arguments.wifipassword).write(filename=sdcard.boot_volume + '/network-config')
