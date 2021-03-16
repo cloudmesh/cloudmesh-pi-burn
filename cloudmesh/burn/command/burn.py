@@ -485,10 +485,6 @@ class BurnCommand(PluginCommand):
 
                 Console.info("Remove card")
 
-            if manager:
-                cmd = 'rm -f ~/.cloudmesh/cmburn/id_rsa.pub'
-                os.system(cmd)
-
             Console.ok(f"Burned {len(names)} card(s)")
             return ""
 
