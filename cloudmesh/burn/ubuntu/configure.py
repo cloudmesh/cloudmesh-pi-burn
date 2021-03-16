@@ -95,20 +95,14 @@ class Configure:
         user_data.with_hosts(hosts=self.get_hosts_for(name=name))
         if country:
             user_data.with_set_wifi_country(country=country)
-        if service == 'manager':
-            #generate and store the ssh pub key to add to workers
-            priv_key,pub_key = self.generate_ssh_key(hostname=name)
-            user_data.with_write_files(content=priv_key,
-                                       path='/home/ubuntu/.ssh/id_rsa',
-                                       permissions='0600')
-            user_data.with_write_files(content=pub_key,
-                                       path='/home/ubuntu/.ssh/id_rsa.pub',
-                                       permissions='0644')
+        if service == 'manager' and self.manager_public_key:
+            # If public key is set, then we expect /boot/firmware/id_rsa and /boot/firmware/id_rsa.pub on burned card
+            user_data.with_runcmd(cmd=f'cat /boot/firmware/id_rsa.pub > ~/.ssh/id_rsa.pub')
+            user_data.with_runcmd(cmd=f'cat /boot/firmware/id_rsa > ~/.ssh/id_rsa')
             user_data.with_fix_user_dir_owner(user='ubuntu')
 
         if self.debug:
             Console.info(f'User data for {name}:\n' + str(user_data))
-
 
         return user_data
 
