@@ -81,6 +81,8 @@ class Userdata:
 
         if 'ssh_authorized_keys' not in self.content:
             self.content['ssh_authorized_keys'] = keys
+        else:
+            self.content['ssh_authorized_keys']
         return self
 
     def write(self, filename=None):
