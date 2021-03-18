@@ -1,14 +1,20 @@
+###############################################################
+# pytest -v --capture=no tests/test_06_configure.py
+# pytest -v  tests/test_06_configure.py
+# pytest -v --capture=no tests/test_06_configure.py::Test_burn::test_info
+###############################################################
 import os
 import pytest
 
 from cloudmesh.burn.ubuntu.configure import Configure
 from cloudmesh.burn.ubuntu.networkdata import Networkdata
 from cloudmesh.burn.ubuntu.userdata import Userdata
-from cloudmesh.common.util import readfile, path_expand
+from cloudmesh.common.util import readfile, path_expand, HEADING
 from cloudmesh.inventory.inventory import Inventory
 
 class Test_Configure:
 	def test_build_user_data(self):
+		HEADING()
 		inv_file = '~/.cloudmesh/config_test.yaml'
 		inv = Inventory(inv_file)
 		inv.add(host='test_host1', keyfile='~/.ssh/id_rsa.pub', service='manager')
@@ -43,6 +49,7 @@ class Test_Configure:
 		os.system("rm -f " + path_expand(inv_file))
 
 	def test_build_networkdata(self):
+		HEADING()
 		inv_file = '~/.cloudmesh/config_test.yaml'
 		inv = Inventory(inv_file)
 		inv.add(host='test_host1', keyfile='~/.ssh/id_rsa.pub', service='manager', ip='10.1.1.11', router='10.1.1.1', dns=['8.8.8.8', '8.8.4.4'])
@@ -71,6 +78,7 @@ class Test_Configure:
 		os.system("rm -f " + path_expand(inv_file))
 
 	def test_key_gen(self):
+		HEADING()
 		inv_file = '~/.cloudmesh/config_test.yaml'
 		inv = Inventory(inv_file)
 		inv.add(host='test_host1', keyfile='~/.ssh/id_rsa.pub', service='manager')

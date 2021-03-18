@@ -9,10 +9,12 @@ import textwrap
 import yaml
 
 from cloudmesh.burn.ubuntu.networkdata import Networkdata
+from cloudmesh.common.util import HEADING
 
 @pytest.mark.incremental
 class Test_Networkdata:
     def test_static_ip(self):
+        HEADING()
         d = Networkdata()\
                 .with_ip(ip="10.1.1.10")\
                 .with_gateway(gateway="10.1.1.1")\
