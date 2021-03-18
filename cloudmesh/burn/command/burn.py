@@ -43,6 +43,7 @@ class BurnCommand(PluginCommand):
                        [--wifipassword=PSK]
                        [--bs=BLOCKSIZE]
                        [--dryrun]
+                       [--no_diagram]
               burn ubuntu NAMES [--inventory=INVENTORY] [--ssid=SSID]
               [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY]
               [--upgrade]
@@ -355,7 +356,8 @@ class BurnCommand(PluginCommand):
                        "bs",
                        "set_passwd",
                        "cmdline",
-                       "upgrade")
+                       "upgrade",
+                       "no_diagram")
 
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
@@ -400,7 +402,8 @@ class BurnCommand(PluginCommand):
 
             from cloudmesh.burn.gui import Gui
             VERBOSE(arguments)
-            g = Gui(hostname=arguments.hostname, ip=arguments.ip, dryrun=arguments.dryrun)
+            g = Gui(hostname=arguments.hostname, ip=arguments.ip,
+                    dryrun=arguments.dryrun, no_diagram=arguments.no_diagram)
 
             g.run()
 

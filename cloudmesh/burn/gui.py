@@ -57,7 +57,7 @@ image_tags = {
 
 class Gui:
 
-    def __init__(self, hostname=None, ip=None, dryrun=False):
+    def __init__(self, hostname=None, ip=None, dryrun=False, no_diagram=False):
 
         self.dryrun = dryrun or False
         self.hostnames_str = hostname
@@ -67,6 +67,7 @@ class Gui:
         self.ssid = ""
         self.imaged = ""
         self.wifipassword = ""
+        self.no_diagram = no_diagram
 
         hostnames = Parameter.expand(hostnames)
         manager, workers = Host.get_hostnames(hostnames)
@@ -98,7 +99,8 @@ class Gui:
 
         self.load_data()
 
-        self.create_diag(self.manager)
+        if not self.no_diagram:
+            self.create_diag(self.manager)
         self.create_layout()
         # sg.change_look_and_feel('SystemDefault')
         self.window = sg.Window('Cloudmesh Pi Burn', self.layout, resizable=True, size=window_size)
@@ -173,13 +175,17 @@ class Gui:
             [sg.T('')]
         ]
 
-        net_layout = [
-            [sg.Image(data=image(net_file), key='net-image', background_color='white')]
+        if not self.no_diagram:
+            net_layout = [
+                [sg.Image(data=image(net_file), key='net-image', background_color='white')]
 
-        ]
-        rack_layout = [
-            [sg.Image(data=image(rack_file), key='rack-image', background_color='white')]
-        ]
+            ]
+            rack_layout = [
+                [sg.Image(data=image(rack_file), key='rack-image', background_color='white')]
+            ]
+        else:
+            net_layout = []
+            rack_layout = []
 
         size = log_size
         log_layout = [[sg.T('', key="log", size=size)]]
@@ -408,6 +414,11 @@ class Gui:
             event, values = self.window.read()
 
             if event in ("Cancel", 'cancel', None):
+                if not self.no_diagram:
+                    rack_file = f"~/.cloudmesh/gui/{self.manager}-rack.png"
+                    net_file = f"~/.cloudmesh/gui/{self.manager}-net.png"
+                    os.remove(path_expand(rack_file))
+                    os.remove(path_expand(net_file))
                 break
 
             #
@@ -484,7 +495,8 @@ class Gui:
                 tags = values[f'tags-{host}']
                 self.window[f'status-{host}'].update(' Burning ')
 
-                self.update_diagram_colors(self.manager, host, "blue")
+                if not self.no_diagram:
+                    self.update_diagram_colors(self.manager, host, "blue")
 
                 self.hostnames_str = ','.join(hostnames)
                 self.ips_str = ','.join(ips)
@@ -505,14 +517,15 @@ class Gui:
                     else:
                         os.system(command)
                     self.window[f'status-{host}'].update(' Completed ')
-
-                    self.update_diagram_colors(self.manager, host, "green")
+                    if not self.no_diagram:
+                        self.update_diagram_colors(self.manager, host, "green")
                     self.set_button_color(host, 'green')
 
                 except Exception as e:
                     print(e)
                     self.logger("Command failed")
-                    self.update_diagram_colors(self.manager, host, "orange")
+                    if not self.no_diagram:
+                        self.update_diagram_colors(self.manager, host, "orange")
                     self.set_button_color(host, 'red')
 
                 self.window.FindElement(f'button-{host}').Update(button_color=('white', 'green'))
