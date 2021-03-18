@@ -1,5 +1,6 @@
 import yaml
 
+from cloudmesh.common.console import Console
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import path_expand, writefile
 
@@ -93,7 +94,8 @@ class Userdata:
             raise Exception('filename arg supplied is None')
         tmp_location = path_expand('~/.cloudmesh/user-data.tmp')
         writefile(tmp_location, str(self))
-        Shell.execute('mv', [tmp_location, filename])
+        Console.info(f'Writing to {filename}')
+        Shell.run(f'cat {tmp_location} | sudo tee {filename}')
 
     def with_ssh_password_login(self, ssh_pwauth=True):
         if ssh_pwauth is None:
