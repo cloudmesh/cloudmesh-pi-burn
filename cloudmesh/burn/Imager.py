@@ -57,3 +57,6 @@ class Imager:
         elif os_is_mac():
             os.system(f"/Applications/Raspberry\ Pi\ Imager.app/Contents/MacOS/rpi-imager {file} "  # noqa: W605
                       "> /dev/null 2>&1")  # noqa: W605
+        elif os_is_windows():
+            os.chdir(r"C:\Program Files (x86)\Raspberry Pi Imager")
+            os.system("rpi-imager.exe")
