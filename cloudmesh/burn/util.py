@@ -73,6 +73,14 @@ def os_is_mac():
     """
     return platform.system() == "Darwin"
 
+def os_is_windows():
+    """
+    Check if the os is Windows
+
+    :return: True is Windows OS
+    :rtype: bool
+    """
+    return platform.system() == "Windows"
 
 # noinspection PyBroadException
 def os_is_pi():
