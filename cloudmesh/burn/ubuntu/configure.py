@@ -29,7 +29,7 @@ class Configure:
     Configure.build_user_data(name=NAME) returns a Userdata builder object
     where NAME is the hostname of an entry in inventory.yaml with corresponding config options
     """
-    KEY_DIR = '~/.cloudmesh/cmburn'
+    KEY_DIR = path_expand('~/.cloudmesh/cmburn')
 
     def __init__(self, inventory=None, cluster=None, debug=False):
         self.debug = debug
