@@ -42,7 +42,7 @@ class Runfirst:
         """
         pass
 
-    def set_wifi(self, ssid, passwd):
+    def set_wifi(self, ssid, passwd, country="US"):
         """
         sets the wifi password
 
@@ -57,6 +57,7 @@ class Runfirst:
         # just add to first run to place it in place
         self.ssid = ssid
         self.wifipasswd = passwd
+        self.country = country
 
     def set_locale(self):
         """
@@ -91,7 +92,7 @@ class Runfirst:
         set +e
         CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
         echo {self.hostname} >/etc/hostname
-        sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\\tred/g" /etc/hosts
+        sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
         FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
         FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
         install -o "$FIRSTUSER" -m 700 -d "$FIRSTUSERHOME/.ssh"
@@ -99,7 +100,7 @@ class Runfirst:
         echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
         systemctl enable ssh
         cat >/etc/wpa_supplicant/wpa_supplicant.conf <<WPAEOF
-        country=US
+        country={self.country}
         ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
         ap_scan=1
         update_config=1
