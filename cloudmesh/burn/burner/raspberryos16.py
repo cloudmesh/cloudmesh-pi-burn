@@ -33,6 +33,9 @@ from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.inventory.inventory import Inventory
+from cloudmesh.burn.raspberryos.Locale import Locale
+from cloudmesh.burn.raspberryos.cmdline import Cmdline
+from cloudmesh.burn.raspberryos.passwd import Passwd
 
 #
 # this is elewher ejust _writefile, TODO reduce duplication
@@ -42,11 +45,11 @@ from cloudmesh.inventory.inventory import Inventory
 def dedent(content):
     return textwrap.dedent(content).strip()
 
-def writefile_cat(name, content):
+def writefile_cat(name, content, tag="EOF"):
     data = dedent(f"""
-    cat > {name} <<EOF
+    cat > {name} <<{tag}
     {content}
-    EOF
+    {tag}
     """)
     return data
 
@@ -60,7 +63,6 @@ class Burner(object):
         self.hostname = None
         self.keypath = None
 
-    @windows_not_supported
     def firmware(self, action="check"):
         """
         Checks or update the firmware
@@ -85,7 +87,7 @@ class Burner(object):
 
         return "\n".join(self.script)
 
-    @windows_not_supported
+
     def set_locale(self, locale="en_US.UTF-8"):
 
         script = []
@@ -99,28 +101,24 @@ class Burner(object):
 
         script.append(writefile_cat("/etc/default/locale", lang))
 
-        raise NotImplementedError("locale.gen")
-        locale_gen = SDCard.readfile(f"{card.root_volume}/etc/locale.gen",
-                                     split=True, decode=True)
+        # file in cloudmesh.burn.raspberryos/locale.gen
+        locale_gen = Locale.gen.splitlines()
         for i in range(0, len(locale_gen)):
             if not locale_gen[i].startswith("#"):
                 locale_gen[i] = "# " + locale_gen[i]
             if locale in locale_gen[i]:
                 locale_gen[i] = locale_gen[i].replace("# ", "")
         locale_gen = "\n".join(locale_gen) + "\n"
-        SDCard.writefile(f"{card.root_volume}/etc/locale.gen", locale_gen)
+
+        script. append(writefile_cat("/etc/locale.gen", locale_gen))
 
         return "\n".join(script)
 
     def set_cmdline(self,cmdline):
-        card = SDCard()
-        filename = f'{card.boot_volume}/cmdline.txt'
-        content = Sudo.readfile(filename=filename, split=False, decode=True)
-        content = content.rstrip() + " " + cmdline
-        SDCard.writefile(filename=f'{card.boot_volume}/cmdline.txt', \
-                         content=content)
+        content = Cmdline().get().strip() + " " + cmdline
+        return content
 
-    @windows_not_supported
+
     def set_hostname(self, hostname):
         """
         Sets the hostname on the sd card
@@ -130,23 +128,9 @@ class Burner(object):
         """
 
         script = []
-
-        # On macOS we have
-        # 644 -rw-r--r--  1 user  group  /Volumes/rootfs/etc/hostname
-
-        # od -c  /Volumes/rootfs/etc/hostname
-        # 0000000    r   a   s   p   b   e   r   r   y   p   i  \n
-        # 0000014
-
         self.hostname = hostname
         name = hostname.strip()
-
-        # Write it 3 times as sometimes it does not work
         script.append(writefile_cat(f"/etc/hostname", name))
-
-        # change last line of /etc/hosts to have the new hostname
-        # 127.0.1.1 raspberrypi   # default
-        # 127.0.1.1 red47         # new
 
         hosts = textwrap.dedent(f"""
         127.0.0.1  localhost
@@ -195,7 +179,7 @@ class Burner(object):
         hosts = hosts + "#\n"
         return writefile_cat('/etc/hosts', hosts)
 
-    @windows_not_supported
+
     def set_static_ip(self,
                       ip=None,
                       iface="eth0",
@@ -236,8 +220,74 @@ class Burner(object):
         #
         # TODO: what is default dhcp
         #
-        curr_config = SDCard.readfile(f'/etc/dhcpcd.conf', decode=True, split=True)
+        curr_config = textwrap.dedent("""
+        # A sample configuration for dhcpcd.
+        # See dhcpcd.conf(5) for details.
+        
+        # Allow users of this group to interact with dhcpcd via the control socket.
+        #controlgroup wheel
+        
+        # Inform the DHCP server of our hostname for DDNS.
+        hostname
+        
+        # Use the hardware address of the interface for the Client ID.
+        clientid
+        # or
+        # Use the same DUID + IAID as set in DHCPv6 for DHCPv4 ClientID as per RFC4361.
+        # Some non-RFC compliant DHCP servers do not reply with this set.
+        # In this case, comment out duid and enable clientid above.
+        #duid
+        
+        # Persist interface configuration when dhcpcd exits.
+        persistent
+        
+        # Rapid commit support.
+        # Safe to enable by default because it requires the equivalent option set
+        # on the server to actually work.
+        option rapid_commit
+        
+        # A list of options to request from the DHCP server.
+        option domain_name_servers, domain_name, domain_search, host_name
+        option classless_static_routes
+        # Respect the network MTU. This is applied to DHCP routes.
+        option interface_mtu
+        
+        # Most distributions have NTP support.
+        #option ntp_servers
+        
+        # A ServerID is required by RFC2131.
+        require dhcp_server_identifier
+        
+        # Generate SLAAC address using the Hardware Address of the interface
+        #slaac hwaddr
+        # OR generate Stable Private IPv6 Addresses based from the DUID
+        slaac private
+        
+        # Example static IP configuration:
+        #interface eth0
+        #static ip_address=192.168.0.10/24
+        #static ip6_address=fd51:42f8:caae:d92e::ff/64
+        #static routers=192.168.0.1
+        #static domain_name_servers=192.168.0.1 8.8.8.8 fd51:42f8:caae:d92e::1
+        
+        # It is possible to fall back to a static IP if DHCP fails:
+        # define static profile
+        #profile static_eth0
+        #static ip_address=192.168.1.23/24
+        #static routers=192.168.1.1
+        #static domain_name_servers=192.168.1.1
+        
+        # fallback to static profile on eth0
+        #interface eth0
+        #fallback static_eth0        
+        """).split()
 
+
+        # SDCard.readfile(f'/etc/dhcpcd.conf', decode=True, split=True)
+
+        #
+        # TODO: simply fy this while just creating a dhcp file that works
+        #
 
         if iface in curr_config:
             Console.warning("Found previous settings. Overwriting")
@@ -264,7 +314,7 @@ class Burner(object):
 
         return script
 
-    @windows_not_supported
+
     def keyboard(self, country="US"):
         """
         Sets the country on the SDCard
@@ -307,7 +357,7 @@ class Burner(object):
         content = "\n".join(content)
         return content
 
-    @windows_not_supported
+
     def set_key(self, key_file=None):
         """
         Copies the public key into the .ssh/authorized_keys file on the sd card
@@ -382,7 +432,7 @@ class Burner(object):
             content = content + "\n" + "exit 0\n"
             SDCard.writefile(rc_local, content)
 
-    @windows_not_supported
+
     def enable_ssh(self):
         """
         Enables ssh on next boot of sd card
@@ -408,7 +458,7 @@ class Burner(object):
     # IMPROVE
 
     # TODO: docstring
-    @windows_not_supported
+
     def disable_password_ssh(self):
 
         # sshd_config = self.filename("/etc/ssh/sshd_config")
@@ -467,7 +517,7 @@ class Burner(object):
 
             SDCard.writefile(sshd_config, new_sshd_config)
 
-    @windows_not_supported
+
     def configure_wifi(self,
                        ssid=None,
                        psk=None,
@@ -524,7 +574,7 @@ class Burner(object):
     # Plugging pi directly into desktop, however, will still prompt for a user and password.
     # I can't figure out how to disable it
 
-    @windows_not_supported
+
     def disable_terminal_login(self, mountpoint=None, password=None):
         """
         disables and replaces the password with a random string so that by
@@ -538,6 +588,7 @@ class Burner(object):
         :return: file in /etc/shadow
         :rtype: a written file
         """
+        script = []
 
         # Generates random salt for password generation
         def random_salt(length=10):
@@ -555,7 +606,8 @@ class Burner(object):
         #        with open(f'{mountpoint}/etc/passwd', 'r') as f:
         #            info = [l for l in f.readlines()]
 
-        info = SDCard.readfile(f'{mountpoint}/etc/passwd', split=True, decode=True)
+
+        info = Passwd.data.splitlines()
 
         for i in range(len(info)):
             inf = info[i].split(":")
@@ -567,14 +619,13 @@ class Burner(object):
 
         # with open(f'{mountpoint}/etc/passwd', 'w') as f:
         #     f.writelines(info)
-
-        SDCard.writefile(f'{mountpoint}/etc/passwd', content)
+        script.append(writefile_cat("/etc/passwd", content))
 
         # Add it to shadow file
         # with open(f'{mountpoint}/etc/shadow', 'r') as f:
         #     data = [l for l in f.readlines()]
 
-        data = SDCard.readfile(f'{mountpoint}/etc/shadow', decode=True, split=True)
+        data = Passwd.shadow.splitlines()
 
         content = ""
         for i in range(len(data)):
@@ -585,9 +636,12 @@ class Burner(object):
 
         content = '\n'.join(data)
 
-        SDCard.writefile(f'{mountpoint}/etc/shadow', content)
+        script.append('/etc/shadow', content)
+
+        return script
 
     def generate_key(self, hostname=None):
+        # TODO
         card = SDCard()
         # TODO investigate what happens if not run as UID 1000 (e.g. first user)
 
@@ -599,17 +653,23 @@ class Burner(object):
 
     @staticmethod
     def store_public_key():
+        # TODO
+
         card = SDCard()
         cmd = f'cp {card.root_volume}/home/pi/.ssh/id_rsa.pub ~/.cloudmesh/cmburn/'
         os.system(cmd)
 
     @staticmethod
     def remove_public_key():
+        # TODO
+
         cmd = 'rm -f ~/.cloudmesh/cmburn/id_rsa.pub'
         os.system(cmd)
 
     @staticmethod
     def get_tag(worker=True, card_os="raspberry"):
+        # TODO
+
         tag = None
         if "raspberry" in card_os and worker:
             tag = "latest-lite"
@@ -622,6 +682,8 @@ class Burner(object):
         else:
             Console.error("For now only raspberry and ubuntu are supported")
         return tag
+
+    # TODO from here on 
 
     def cluster(self, arguments=None):
 
