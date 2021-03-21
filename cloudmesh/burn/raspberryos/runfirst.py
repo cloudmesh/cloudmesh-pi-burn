@@ -90,7 +90,7 @@ class Runfirst:
         #!/bin/bash
         set +e
         CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
-        echo red >/etc/hostname
+        echo {self.hostname} >/etc/hostname
         sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\\tred/g" /etc/hosts
         FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
         FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
