@@ -1,6 +1,7 @@
 import textwrap
 from cloudmesh.common.util import readfile
 from cloudmesh.common.console import Console
+from passlib.hash import sha256_crypt
 
 
 def dedent(content):
@@ -24,6 +25,7 @@ class Runfirst:
         self.script = None
         self.etc_hosts = None
         self.static_ip_info = None
+        self.password = None
 
     def info(self):
         print("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
@@ -93,6 +95,23 @@ class Runfirst:
             raise Exception("Missing ip arg. None supplied")
 
         self.static_ip_info = [interface, ip, subnet_mask, router, dns]
+
+    def set_password(self,password=None):
+        if password is None:
+            raise Exception("Missing password arg. None supplied")
+
+        self.password = password
+
+    def _get_password_script(self):
+        script = []
+        if not self.password:
+            return ""
+        # repeatable salt if needed for testing
+        # hash = sha256_crypt.using(salt='qY2oeR.YpL', rounds=5000).hash(
+        # self.password)
+        hash = sha256_crypt.using(rounds=5000).hash(self.password)
+        script.append(f'echo "$FIRSTUSER:"\'{hash}\' | chpasswd -e')
+        return '\n'.join(script)
 
     def _get_static_ip_script(self):
         """
@@ -173,6 +192,7 @@ class Runfirst:
             install -o "$FIRSTUSER" -m 600 <(echo "{self.key}") "$FIRSTUSERHOME/.ssh/authorized_keys"
             echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
             systemctl enable ssh
+            {self._get_password_script()}
             {self._get_wifi_config()}
             rm -f /etc/xdg/autostart/piwiz.desktop
             rm -f /etc/localtime

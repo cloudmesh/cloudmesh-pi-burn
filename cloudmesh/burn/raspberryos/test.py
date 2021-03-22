@@ -21,7 +21,7 @@ runfirst.set_locale()
 runfirst.set_hostname("red2")
 runfirst.set_hosts(names, ips)
 runfirst.set_static_ip(ip="10.0.0.4")
-
+runfirst.set_password(password="password")
 runfirst.info()
 
 print(runfirst.get())
