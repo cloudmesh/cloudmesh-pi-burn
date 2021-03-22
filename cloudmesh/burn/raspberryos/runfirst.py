@@ -1,5 +1,6 @@
 import textwrap
 from cloudmesh.common.util import readfile
+from cloudmesh.common.console import Console
 
 
 def dedent(content):
@@ -155,7 +156,7 @@ done""")
     def get_worker(self):
         return self.get()
 
-    def get(self):
+    def get(self, verbose=False):
         self.script = dedent(f'''
 #!/bin/bash
 set +e
@@ -187,5 +188,8 @@ sed -i 's| systemd.run.*||g' /boot/cmdline.txt
 exit 0
         ''')
 
+        if verbose:
+            Console.info(f'firstrun.sh for {self.hostname}')
+            Console.info(self.script)
         return self.script
 
