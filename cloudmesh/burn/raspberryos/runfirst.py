@@ -124,21 +124,23 @@ class Runfirst:
 
     def _get_wifi_config(self):
         if self.ssid:
-            return dedent(f"""cat >/etc/wpa_supplicant/wpa_supplicant.conf <<WPAEOF
-country={self.country}
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-ap_scan=1
-update_config=1
-network={{
-    ssid="{self.ssid}"
-    psk="{self.wifipasswd}"
-}}
-WPAEOF
-chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
-rfkill unblock wifi
-for filename in /var/lib/systemd/rfkill/*:wlan ; do
-echo 0 > $filename
-done""")
+            script = f"""
+                cat >/etc/wpa_supplicant/wpa_supplicant.conf <<WPAEOF
+                country={self.country}
+                ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+                ap_scan=1
+                update_config=1
+                network={{
+                    ssid="{self.ssid}"
+                    psk="{self.wifipasswd}"
+                }}
+                WPAEOF
+                chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
+                rfkill unblock wifi
+                for filename in /var/lib/systemd/rfkill/*:wlan ; do
+                echo 0 > $filename
+                done"""
+            return dedent(script)
         else:
             return ""
 
@@ -158,34 +160,34 @@ done""")
 
     def get(self, verbose=False):
         self.script = dedent(f'''
-#!/bin/bash
-set +e
-CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
-echo {self.hostname} >/etc/hostname
-sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
-{self._get_etc_hosts_script()}
-{self._get_static_ip_script()}
-FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
-FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
-install -o "$FIRSTUSER" -m 700 -d "$FIRSTUSERHOME/.ssh"
-install -o "$FIRSTUSER" -m 600 <(echo "{self.key}") "$FIRSTUSERHOME/.ssh/authorized_keys"
-echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
-systemctl enable ssh
-{self._get_wifi_config()}
-rm -f /etc/xdg/autostart/piwiz.desktop
-rm -f /etc/localtime
-echo "{self.timezone}" >/etc/timezone
-dpkg-reconfigure -f noninteractive tzdata
-cat >/etc/default/keyboard <<KBEOF
-XKBMODEL="pc105"
-XKBLAYOUT="{self.locale}"
-XKBVARIANT=""
-XKBOPTIONS=""
-KBEOF
-dpkg-reconfigure -f noninteractive keyboard-configuration
-rm -f /boot/firstrun.sh
-sed -i 's| systemd.run.*||g' /boot/cmdline.txt
-exit 0
+            #!/bin/bash
+            set +e
+            CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
+            echo {self.hostname} >/etc/hostname
+            sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
+            {self._get_etc_hosts_script()}
+            {self._get_static_ip_script()}
+            FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
+            FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
+            install -o "$FIRSTUSER" -m 700 -d "$FIRSTUSERHOME/.ssh"
+            install -o "$FIRSTUSER" -m 600 <(echo "{self.key}") "$FIRSTUSERHOME/.ssh/authorized_keys"
+            echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
+            systemctl enable ssh
+            {self._get_wifi_config()}
+            rm -f /etc/xdg/autostart/piwiz.desktop
+            rm -f /etc/localtime
+            echo "{self.timezone}" >/etc/timezone
+            dpkg-reconfigure -f noninteractive tzdata
+            cat >/etc/default/keyboard <<KBEOF
+            XKBMODEL="pc105"
+            XKBLAYOUT="{self.locale}"
+            XKBVARIANT=""
+            XKBOPTIONS=""
+            KBEOF
+            dpkg-reconfigure -f noninteractive keyboard-configuration
+            rm -f /boot/firstrun.sh
+            sed -i 's| systemd.run.*||g' /boot/cmdline.txt
+            exit 0
         ''')
 
         if verbose:
