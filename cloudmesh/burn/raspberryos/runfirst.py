@@ -21,6 +21,8 @@ class Runfirst:
         self.locale = None
         self.country = None
         self.script = None
+        self.etc_hosts = None
+        self.static_ip_info = None
 
     def info(self):
         print ("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
@@ -82,6 +84,43 @@ class Runfirst:
         self.timezone = timezone 
         self.locale = locale
 
+    def set_static_ip(self, interface='eth0', ip=None, subnet_mask='24', router=None, dns=None):
+        """
+        Sets a static IP on the specified interface
+        """
+        if ip is None:
+            raise Exception("Missing ip arg. None supplied")
+
+        self.static_ip_info = [interface, ip, subnet_mask, router, dns]
+    
+    def _get_static_ip_script(self):
+        """
+        If the self.interface_ip pair is not None, then return the script
+        to configure it
+        """
+        script = []
+        if not self.static_ip_info:
+            return ""
+        interface, ip, mask, router, dns = self.static_ip_info
+        script.append(f'echo "interface {interface}" >> /etc/dhcpcd.conf')
+        script.append(f'echo "static ip_address={ip}/{mask}" >> /etc/dhcpcd.conf')
+        if router is not None:
+            script.append(f'echo "static routers={router}" >> /etc/dhcpcd.conf')
+        if dns is not None:
+            script.append(f'echo "static domain_name_servers={dns}" >> /etc/dhcpcd.conf')
+        return '\n'.join(script)
+
+    def _get_etc_hosts_script(self):
+        """
+        If self.etc_hosts is not None, then we must append the known hosts
+        to /etc/hosts
+        """
+        script = []
+        if self.etc_hosts:
+            for hostname, ip in self.etc_hosts.items():
+                script.append(f"echo {ip}\t{hostname} >> /etc/hosts")
+        return '\n'.join(script)
+
     def _get_wifi_config(self):
         if self.ssid:
             return dedent(f"""cat >/etc/wpa_supplicant/wpa_supplicant.conf <<WPAEOF
@@ -123,6 +162,8 @@ set +e
 CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
 echo {self.hostname} >/etc/hostname
 sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
+{self._get_etc_hosts_script()}
+{self._get_static_ip_script()}
 FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
 FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
 install -o "$FIRSTUSER" -m 700 -d "$FIRSTUSERHOME/.ssh"
