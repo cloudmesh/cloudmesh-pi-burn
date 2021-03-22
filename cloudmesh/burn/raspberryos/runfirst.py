@@ -31,6 +31,9 @@ class Runfirst:
         print("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
         print("Hostname:", self.hostname)
         print("Timezone:", self.timezone)
+        print("SSID:    ", self.ssid)
+        print("Locale:  ", self.locale)
+        print("Country: ", self.country)
         print()
 
     def set_key(self, key=None):
