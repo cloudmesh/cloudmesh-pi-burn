@@ -484,11 +484,9 @@ class SDCard:
                         if device_basename in result.split():
                             for line in result.splitlines():
                                 line = line.split()
-                                if device_basename + '1' in line[0] and len(
-                                    line) > 6:
+                                if device_basename + '1' in line[0] and len(line) > 6:
                                     part1 = True
-                                elif device_basename + '2' in line[0] and len(
-                                    line) > 6:
+                                elif device_basename + '2' in line[0] and len(line) > 6:
                                     part2 = True
                         if part1 and part2:
                             # card is fully mounted

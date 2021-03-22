@@ -117,7 +117,7 @@ class Networkdata:
         return self
 
     def with_access_points(self, interfaces='wifis', interface='wlan0',
-               ssid=None, password=None):
+                           ssid=None, password=None):
         if ssid is None:
             raise Exception("ssid argument suppliled is None")
         if password is None:
@@ -130,8 +130,9 @@ class Networkdata:
             access_points = self.content[interfaces][interface]['access-points']
             access_points[ssid] = {'password': password}
         else:
-            self.content[interfaces][interface]['access-points'] = {ssid:
-                {'password': password}}
+            self.content[interfaces][interface]['access-points'] = {
+                ssid: {'password': password}
+            }
 
         return self
 
@@ -151,7 +152,7 @@ class Networkdata:
         Set the default configuration the one that comes burnt with the ubuntu server OS
 
         Captured with
-        $ grep - Fv \  # /{mountpoint}/network-config
+        $ grep - Fv \\  # /{mountpoint}/network-config
         (Removes comments)
         """
         self.content['ethernets'] = {

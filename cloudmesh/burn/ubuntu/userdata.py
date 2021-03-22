@@ -275,7 +275,7 @@ class Userdata:
         Set the default configuration the one that comes burnt with the ubuntu server OS
 
         Captured with
-        $ grep -Fv \# /{mountpoint}/user-data
+        $ grep -Fv \\# /{mountpoint}/user-data
         (Removes comments)
         """
         self.with_default_user().with_ssh_password_login()

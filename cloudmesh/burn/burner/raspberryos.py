@@ -229,7 +229,7 @@ class Burner(object):
         filename = f'{card.boot_volume}/cmdline.txt'
         content = Sudo.readfile(filename=filename, split=False, decode=True)
         content = content.rstrip() + " " + cmdline
-        SDCard.writefile(filename=f'{card.boot_volume}/cmdline.txt', \
+        SDCard.writefile(filename=f'{card.boot_volume}/cmdline.txt',
                          content=content)
 
     @windows_not_supported

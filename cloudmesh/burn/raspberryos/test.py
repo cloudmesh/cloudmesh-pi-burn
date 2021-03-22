@@ -7,7 +7,7 @@ from cloudmesh.common.parameter import Parameter
 
 cmsline = Cmdline()
 
-print (cmsline.get())
+print(cmsline.get())
 print()
 
 

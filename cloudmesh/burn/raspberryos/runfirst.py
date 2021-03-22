@@ -26,13 +26,13 @@ class Runfirst:
         self.static_ip_info = None
 
     def info(self):
-        print ("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
-        print ("Hostname:", self.hostname)
-        print ("Timezone:", self.timezone)
+        print("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
+        print("Hostname:", self.hostname)
+        print("Timezone:", self.timezone)
         print()
 
     def set_key(self, key=None):
-        if key == None:
+        if key is None:
             self.key = readfile("~/.ssh/id_rsa.pub")
         else:
             self.key = key

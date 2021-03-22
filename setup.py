@@ -30,10 +30,11 @@ def readfile(filename):
 # add minimum requirements here
 #
 requiers = """
-cloudmesh-common
 cloudmesh-cmd5
+cloudmesh-sys
 cloudmesh-inventory
 cloudmesh-configuration
+cloudmesh-common
 wget
 python-hostlist
 docopt
@@ -43,6 +44,7 @@ oyaml
 requests
 pyusb
 tqdm
+PySimpleGUI
 """.split("\n")
 
 # dependency_links = ['http://github.com/nicolaiarocci/eve.git@develop']
