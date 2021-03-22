@@ -4,7 +4,7 @@ from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_windows
 
-def get():
+def get_ssid():
     ssid = ""
     try:
         if os_is_mac():

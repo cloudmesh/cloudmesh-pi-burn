@@ -26,6 +26,7 @@ from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.burn.usb import USB
 from cloudmesh.common.debug import VERBOSE
+from cloudmesh.burn.wifi.ssid import get_ssid
 
 
 class BurnCommand(PluginCommand):
@@ -402,8 +403,10 @@ class BurnCommand(PluginCommand):
 
             from cloudmesh.burn.gui import Gui
             VERBOSE(arguments)
-            g = Gui(hostname=arguments.hostname, ip=arguments.ip,
-                    dryrun=arguments.dryrun, no_diagram=arguments.no_diagram)
+            g = Gui(hostname=arguments.hostname,
+                    ip=arguments.ip,
+                    dryrun=arguments.dryrun,
+                    no_diagram=arguments.no_diagram)
 
             g.run()
 
@@ -596,7 +599,7 @@ class BurnCommand(PluginCommand):
         elif arguments.wifi:
 
             password = arguments.passwd
-            ssid = arguments.ssid
+            ssid = arguments.ssid or get_ssid()
             country = arguments.country
 
             if password is None:

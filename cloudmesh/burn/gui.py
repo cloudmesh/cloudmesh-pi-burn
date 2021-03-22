@@ -16,7 +16,7 @@ from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.diagram.diagram import Diagram
-
+from cloudmesh.burn.wifi.ssid import get_ssid
 
 def _execute(command):
     # print(".", end="", flush=True)
@@ -64,7 +64,7 @@ class Gui:
         self.ips_str = ip
         self.hostnames = hostnames = hostname or "red,red[01-02]"
         self.ips = ips = ip or "10.0.0.[1-3]"
-        self.ssid = ""
+        self.ssid = get_ssid()
         self.imaged = ""
         self.wifipassword = ""
         self.no_diagram = no_diagram
@@ -262,7 +262,7 @@ class Gui:
         if self.key is not None:
             burn_layout.append([sg.Text("Key", size=security_width), sg.Input(key="key", default_text=self.key)])
 
-        burn_layout.append([sg.Text("SSID", size=security_width), sg.Input(key="ssid", default_text="")])
+        burn_layout.append([sg.Text("SSID", size=security_width), sg.Input(key="ssid", default_text=self.ssid)])
         burn_layout.append(
             [sg.Text("Wifi Password", size=security_width), sg.Input(key="wifi", default_text="", password_char='*')])
 
