@@ -4,6 +4,7 @@ from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
 from cloudmesh.burn.util import os_is_windows
 
+
 def get_ssid():
     ssid = ""
     try:
@@ -25,4 +26,3 @@ def get_ssid():
         pass
 
     return ssid
-

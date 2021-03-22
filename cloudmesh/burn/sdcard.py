@@ -560,7 +560,6 @@ class SDCard:
         :rtype:
         """
 
-
         # self.card_os = card_os
 
         os.system('sudo sync')  # flush any pending/in-process writes

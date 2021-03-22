@@ -1,5 +1,6 @@
 import textwrap
 
+
 class Passwd:
 
     file = textwrap.dedent("""

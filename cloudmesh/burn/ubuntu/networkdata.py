@@ -4,6 +4,7 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import path_expand, writefile
 
+
 class Networkdata:
     """
     A builder for content in the network-config file with cloud-init
@@ -74,7 +75,7 @@ class Networkdata:
         if interface not in self.content[interfaces]:
             self.content[interfaces][interface] = {}
 
-        self.content[interfaces][interface]['addresses'] = [ip] # Expects a list value
+        self.content[interfaces][interface]['addresses'] = [ip]  # Expects a list value
         self.content[interfaces][interface]['dhcp4'] = 'no'
         return self
 
@@ -100,7 +101,7 @@ class Networkdata:
         self.content[interfaces][interface]['nameservers'] = {'addresses': nameservers}
         return self
 
-    def with_dhcp4(self,interfaces='ethernets', interface='eth0',dhcp4=True):
+    def with_dhcp4(self, interfaces='ethernets', interface='eth0', dhcp4=True):
         if interface not in self.content[interfaces]:
             self.content[interfaces][interface] = {}
 
@@ -146,7 +147,7 @@ class Networkdata:
         self.content[interfaces][interface]['match'] = {"driver": "bcmgenet smsc95xx lan78xx"}
         self.content[interfaces][interface]['set-name'] = interface
         return self
-    
+
     def __default__(self):
         """
         Set the default configuration the one that comes burnt with the ubuntu server OS

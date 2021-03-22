@@ -11,6 +11,9 @@ from getpass import getpass
 
 from cloudmesh.bridge.Bridge import Bridge
 from cloudmesh.burn.image import Image
+from cloudmesh.burn.raspberryos.Locale import Locale
+from cloudmesh.burn.raspberryos.cmdline import Cmdline
+from cloudmesh.burn.raspberryos.passwd import Passwd
 from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
@@ -20,9 +23,7 @@ from cloudmesh.burn.wifi.provider import Wifi
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Shell import Shell
-from cloudmesh.common.Shell import windows_not_supported
 from cloudmesh.common.StopWatch import StopWatch
-from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.security import generate_strong_pass
@@ -33,9 +34,7 @@ from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.inventory.inventory import Inventory
-from cloudmesh.burn.raspberryos.Locale import Locale
-from cloudmesh.burn.raspberryos.cmdline import Cmdline
-from cloudmesh.burn.raspberryos.passwd import Passwd
+
 
 #
 # this is elewher ejust _writefile, TODO reduce duplication
@@ -45,6 +44,7 @@ from cloudmesh.burn.raspberryos.passwd import Passwd
 def dedent(content):
     return textwrap.dedent(content).strip()
 
+
 def writefile_cat(name, content, tag="EOF"):
     data = dedent(f"""
     cat > {name} <<{tag}
@@ -52,6 +52,7 @@ def writefile_cat(name, content, tag="EOF"):
     {tag}
     """)
     return data
+
 
 # noinspection PyPep8
 class Burner(object):
@@ -87,7 +88,6 @@ class Burner(object):
 
         return "\n".join(self.script)
 
-
     def set_locale(self, locale="en_US.UTF-8"):
 
         script = []
@@ -114,10 +114,9 @@ class Burner(object):
 
         return "\n".join(script)
 
-    def set_cmdline(self,cmdline):
+    def set_cmdline(self, cmdline):
         content = Cmdline().get().strip() + " " + cmdline
         return content
-
 
     def set_hostname(self, hostname):
         """
@@ -130,7 +129,7 @@ class Burner(object):
         script = []
         self.hostname = hostname
         name = hostname.strip()
-        script.append(writefile_cat(f"/etc/hostname", name))
+        script.append(writefile_cat("/etc/hostname", name))
 
         hosts = textwrap.dedent(f"""
         127.0.0.1  localhost
@@ -142,7 +141,7 @@ class Burner(object):
         #
         """).strip()
 
-        script.append(writefile_cat(f'/etc/hosts', hosts))
+        script.append(writefile_cat('/etc/hosts', hosts))
         return "\n".join(script)
 
     def add_to_hosts(self, ip=None, etc_hosts=None):
@@ -178,7 +177,6 @@ class Burner(object):
             hosts = hosts + f"{ip}\t{hostname}\n"
         hosts = hosts + "#\n"
         return writefile_cat('/etc/hosts', hosts)
-
 
     def set_static_ip(self,
                       ip=None,
@@ -216,20 +214,19 @@ class Burner(object):
         static_ip = f'static ip_address={ip}/{mask}'
         static_routers = f'static routers={router_ip}'
 
-
         #
         # TODO: what is default dhcp
         #
         curr_config = textwrap.dedent("""
         # A sample configuration for dhcpcd.
         # See dhcpcd.conf(5) for details.
-        
+
         # Allow users of this group to interact with dhcpcd via the control socket.
         #controlgroup wheel
-        
+
         # Inform the DHCP server of our hostname for DDNS.
         hostname
-        
+
         # Use the hardware address of the interface for the Client ID.
         clientid
         # or
@@ -237,51 +234,50 @@ class Burner(object):
         # Some non-RFC compliant DHCP servers do not reply with this set.
         # In this case, comment out duid and enable clientid above.
         #duid
-        
+
         # Persist interface configuration when dhcpcd exits.
         persistent
-        
+
         # Rapid commit support.
         # Safe to enable by default because it requires the equivalent option set
         # on the server to actually work.
         option rapid_commit
-        
+
         # A list of options to request from the DHCP server.
         option domain_name_servers, domain_name, domain_search, host_name
         option classless_static_routes
         # Respect the network MTU. This is applied to DHCP routes.
         option interface_mtu
-        
+
         # Most distributions have NTP support.
         #option ntp_servers
-        
+
         # A ServerID is required by RFC2131.
         require dhcp_server_identifier
-        
+
         # Generate SLAAC address using the Hardware Address of the interface
         #slaac hwaddr
         # OR generate Stable Private IPv6 Addresses based from the DUID
         slaac private
-        
+
         # Example static IP configuration:
         #interface eth0
         #static ip_address=192.168.0.10/24
         #static ip6_address=fd51:42f8:caae:d92e::ff/64
         #static routers=192.168.0.1
         #static domain_name_servers=192.168.0.1 8.8.8.8 fd51:42f8:caae:d92e::1
-        
+
         # It is possible to fall back to a static IP if DHCP fails:
         # define static profile
         #profile static_eth0
         #static ip_address=192.168.1.23/24
         #static routers=192.168.1.1
         #static domain_name_servers=192.168.1.1
-        
+
         # fallback to static profile on eth0
         #interface eth0
-        #fallback static_eth0        
+        #fallback static_eth0
         """).split()
-
 
         # SDCard.readfile(f'/etc/dhcpcd.conf', decode=True, split=True)
 
@@ -300,7 +296,7 @@ class Burner(object):
                 curr_config[index + 1] = static_ip
 
             except IndexError:
-                Console.error(f'/etc/dhcpcd.conf ends abruptly. Aborting')
+                Console.error('/etc/dhcpcd.conf ends abruptly. Aborting')
                 sys.exit(1)
 
         else:
@@ -313,7 +309,6 @@ class Burner(object):
         script = writefile_cat("/etc/dhcpcd.conf", '\n'.join(curr_config))
 
         return script
-
 
     def keyboard(self, country="US"):
         """
@@ -339,7 +334,7 @@ class Burner(object):
 
         script = []
 
-        layout = f"/etc/default/keyboard"
+        layout = "/etc/default/keyboard"
 
         #
         # TODO: original keybard layout file
@@ -356,7 +351,6 @@ class Burner(object):
 
         content = "\n".join(content)
         return content
-
 
     def set_key(self, key_file=None):
         """
@@ -431,7 +425,6 @@ class Burner(object):
             content = content.replace("exit 0", f"sudo python {fix}")
             content = content + "\n" + "exit 0\n"
             SDCard.writefile(rc_local, content)
-
 
     def enable_ssh(self):
         """
@@ -517,7 +510,6 @@ class Burner(object):
 
             SDCard.writefile(sshd_config, new_sshd_config)
 
-
     def configure_wifi(self,
                        ssid=None,
                        psk=None,
@@ -574,7 +566,6 @@ class Burner(object):
     # Plugging pi directly into desktop, however, will still prompt for a user and password.
     # I can't figure out how to disable it
 
-
     def disable_terminal_login(self, mountpoint=None, password=None):
         """
         disables and replaces the password with a random string so that by
@@ -605,7 +596,6 @@ class Burner(object):
         # Make sure there's an 'x' in /etc/passwd
         #        with open(f'{mountpoint}/etc/passwd', 'r') as f:
         #            info = [l for l in f.readlines()]
-
 
         info = Passwd.data.splitlines()
 

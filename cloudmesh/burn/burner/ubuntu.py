@@ -3,4 +3,3 @@ class Burner:
 
     def __init__(self):
         pass
-

@@ -1,7 +1,7 @@
 import textwrap
 
-# Locale.gen
 
+# Locale.gen
 class Locale:
 
     @property
@@ -13,7 +13,6 @@ class Locale:
         # user defined locales to /usr/local/share/i18n/SUPPORTED. If you change
         # this file, you need to rerun locale-gen.
         #
-        
         # aa_DJ ISO-8859-1
         # aa_DJ.UTF-8 UTF-8
         # aa_ER UTF-8
@@ -512,4 +511,3 @@ class Locale:
         """).strip()
 
         return data
-

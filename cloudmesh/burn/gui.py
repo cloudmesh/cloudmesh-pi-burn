@@ -18,6 +18,7 @@ from cloudmesh.common.util import path_expand
 from cloudmesh.diagram.diagram import Diagram
 from cloudmesh.burn.wifi.ssid import get_ssid
 
+
 def _execute(command):
     # print(".", end="", flush=True)
     os.system(f"{command} >> burn-gui.log")
@@ -106,7 +107,7 @@ class Gui:
         self.window = sg.Window('Cloudmesh Pi Burn', self.layout, resizable=True, size=window_size)
 
     def burn(self, kind, hostname):
-        '''
+        """
         if hostname == 'red':
             ip = self.ips[0]
             print("in red")
@@ -118,7 +119,7 @@ class Gui:
             ip = self.ips[ip_location]
             print("in red")
             print(ip)
-        '''
+        """
 
         return
 

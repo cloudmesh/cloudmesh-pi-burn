@@ -5,6 +5,7 @@ cloudmesh-configuration
 cloudmesh-common
 wget
 python-hostlist
+humanize
 docopt
 prompter
 pyyaml

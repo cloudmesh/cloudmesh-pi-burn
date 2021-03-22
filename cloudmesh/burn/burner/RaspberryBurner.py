@@ -1,4 +1,6 @@
 from cloudmesh.burn.burner.BurnerABC import AbstractBurner
+
+
 class Burner(AbstractBurner):
     def __init__(self):
         pass

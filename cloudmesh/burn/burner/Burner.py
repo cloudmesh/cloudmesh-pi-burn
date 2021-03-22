@@ -93,7 +93,7 @@ class Burner:
     def set_static_ip(self, ip):
         self.burner.set_static_ip(ip)
 
-    def set_cmdline(self,cmdline):
+    def set_cmdline(self, cmdline):
         self.burner.set_cmdline(cmdline)
 
     def set_key(self, key):

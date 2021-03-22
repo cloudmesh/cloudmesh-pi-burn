@@ -402,17 +402,17 @@ class USB(object):
                 Console.warning("No partitions found for device")
                 partition = r['AllDisksAndPartitions'][no]
                 entry = {
-                        "dev": f"/dev/{partition['DeviceIdentifier']}",
-                        "active": False,
-                        "info": "Not Formatted",
-                        "readable": False,
-                        "formatted": False,
-                        "empty": partition['Size'] == 0,
-                        "size": partition['Size'],
-                        "direct-access": True,
-                        "removable": True,
-                        "writeable": 'VolumeName' in partition
-                    }
+                    "dev": f"/dev/{partition['DeviceIdentifier']}",
+                    "active": False,
+                    "info": "Not Formatted",
+                    "readable": False,
+                    "formatted": False,
+                    "empty": partition['Size'] == 0,
+                    "size": partition['Size'],
+                    "direct-access": True,
+                    "removable": True,
+                    "writeable": 'VolumeName' in partition
+                }
                 details.append(entry)
 
         return details

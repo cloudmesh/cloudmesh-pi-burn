@@ -1,8 +1,9 @@
-import yaml
+import oyaml as yaml
 
 from cloudmesh.common.console import Console
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import path_expand, writefile
+
 
 class Userdata:
     """
@@ -62,7 +63,9 @@ class Userdata:
       permissions: '0644'
 
     """
+
     HEADER = "#cloud-config"
+
     def __init__(self, default=False):
         self.content = {}
         if default:
@@ -107,18 +110,18 @@ class Userdata:
         self.content['package_update'] = update
         return self
 
-    def with_package_upgrade(self,upgrade=True):
+    def with_package_upgrade(self, upgrade=True):
         self.content['package_upgrade'] = upgrade
         return self
 
-    def with_set_wifi_country(self,country=None):
+    def with_set_wifi_country(self, country=None):
         if country is None:
             raise Exception('the country arg supplied is none')
 
         cmd = f"sudo iw reg set {country}"
         self.with_bootcmd(cmd)
 
-        cmd =f"sudo echo REGDOMAIN={country} | sudo tee /etc/default/crda > /dev/null"
+        cmd = f"sudo echo REGDOMAIN={country} | sudo tee /etc/default/crda > /dev/null"
         self.with_runcmd(cmd)
         return self
 
@@ -136,7 +139,7 @@ class Userdata:
             self.with_bootcmd(cmd=f'echo {ip} {hostname} >> /etc/hosts')
         return self
 
-    def with_bootcmd(self,cmd=None):
+    def with_bootcmd(self, cmd=None):
         if cmd is None:
             raise Exception('the command arg supplied is none')
 
@@ -152,7 +155,7 @@ class Userdata:
                 self.content['bootcmd'] = cmd
         return self
 
-    def with_runcmd(self,cmd=None):
+    def with_runcmd(self, cmd=None):
         if cmd is None:
             raise Exception('the command arg supplied is none')
 
@@ -186,18 +189,22 @@ class Userdata:
 
         return self
 
-    def with_write_files(self,encoding=None, content=None, owner=None,
-                         path=None, permissions=None ):
+    def with_write_files(self,
+                         encoding=None,
+                         content=None,
+                         owner=None,
+                         path=None,
+                         permissions=None):
         arguments = locals()
         arguments['self'] = None
-        arguments =[ (k,v) for k, v in arguments.items() if v is not None]
+        arguments = [(k, v) for k, v in arguments.items() if v is not None]
 
         if path is None:
             raise Exception('the path arg supplied is none')
         if content is None:
             raise Exception('the content supplied is none')
 
-        #supports multiline strings, keeps newlines
+        # supports multiline strings, keeps newlines
         if '\n' in content:
             content = '|\n' + content
 

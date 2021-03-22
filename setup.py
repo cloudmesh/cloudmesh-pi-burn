@@ -35,6 +35,7 @@ cloudmesh-sys
 cloudmesh-inventory
 cloudmesh-configuration
 cloudmesh-common
+humanize
 wget
 python-hostlist
 docopt

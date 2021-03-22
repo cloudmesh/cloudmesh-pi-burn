@@ -224,7 +224,7 @@ class Burner(object):
         for i in range(0, 3):
             SDCard.writefile(f"{card.root_volume}/etc/locale.gen", locale_gen)
 
-    def set_cmdline(self,cmdline):
+    def set_cmdline(self, cmdline):
         card = SDCard()
         filename = f'{card.boot_volume}/cmdline.txt'
         content = Sudo.readfile(filename=filename, split=False, decode=True)

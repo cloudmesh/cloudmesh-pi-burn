@@ -447,7 +447,7 @@ class BurnCommand(PluginCommand):
                 print()
                 return ""
 
-            #determine if we are burning a manager, as this needs to be done
+            # determine if we are burning a manager, as this needs to be done
             # first to get the ssh public key
             manager = False
             for name in names:
@@ -459,13 +459,14 @@ class BurnCommand(PluginCommand):
                     manager = name
                     # make manager first in names
                     names.remove(name)
-                    names.insert(0,name)
+                    names.insert(0, name)
                 elif service == 'manager' and manager:
                     raise Exception('More than one manager detected in NAMES')
 
             for name in names:
                 if not yn_choice(f'Is the card to be burned for {name} inserted?'):
-                    if not yn_choice(f"Please insert the card to be burned for {name}. Type 'y' when done or 'n' to terminante"):
+                    if not yn_choice(f"Please insert the card to be burned for {name}. "
+                                     "Type 'y' when done or 'n' to terminante"):
                         Console.error("Terminating: User Break")
                         return ""
 
@@ -474,7 +475,8 @@ class BurnCommand(PluginCommand):
                 if service == 'manager':
                     services = inv.get(name=name, attribute='services')
                     if 'bridge' in services and not arguments.ssid:
-                        Console.error('Service bridge can only be configured if WiFi is enabled with --ssid and --wifipassword')
+                        Console.error('Service bridge can only be configured if WiFi'
+                                      ' is enabled with --ssid and --wifipassword')
                         return ""
                     else:
                         enable_bridge = 'bridge' in services
@@ -495,14 +497,14 @@ class BurnCommand(PluginCommand):
                                       upgrade=arguments.upgrade,
                                       with_bridge=enable_bridge).write(
                         filename=sdcard.boot_volume + '/user-data')
-                    c.build_network_data(name=name,ssid=arguments.ssid,
+                    c.build_network_data(name=name, ssid=arguments.ssid,
                                          password=arguments.wifipassword).write(filename=sdcard.boot_volume + '/network-config')
                 else:
-                    c.build_user_data(name=name,add_manager_key=manager,
+                    c.build_user_data(name=name, add_manager_key=manager,
                                       upgrade=arguments.upgrade).write(
                         filename=sdcard.boot_volume + '/user-data')
                     c.build_network_data(name=name).write(filename=sdcard.boot_volume + '/network-config')
-                time.sleep(1) # Sleep for 1 seconds to give ample time for writing to finish
+                time.sleep(1)  # Sleep for 1 seconds to give ample time for writing to finish
                 sdcard.unmount(device=arguments.device, card_os="ubuntu")
 
                 Console.info("Remove card")

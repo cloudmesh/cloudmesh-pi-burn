@@ -1,6 +1,7 @@
 import os
 import textwrap
 
+
 class Cmdline:
 
     def __init__(self):
@@ -27,7 +28,7 @@ class Cmdline:
         self.script = " ".join(textwrap.dedent("""
         splash
         plymouth.ignore-serial-consoles
-        systemd.run=/boot/firstrun.sh 
+        systemd.run=/boot/firstrun.sh
         systemd.run_success_action=reboot
         systemd.unit=kernel-command-line.target
         """).splitlines()).strip()
@@ -39,7 +40,6 @@ class Cmdline:
         if filename is None:
             raise Exception("write called with no filename")
         os.system(f'echo "{self.script}" | sudo tee {filename}')
-
 
     def get(self):
         return self.script

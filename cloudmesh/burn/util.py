@@ -73,6 +73,7 @@ def os_is_mac():
     """
     return platform.system() == "Darwin"
 
+
 # noinspection PyBroadException
 def os_is_pi():
     """

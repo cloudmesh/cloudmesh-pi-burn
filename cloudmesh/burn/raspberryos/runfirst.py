@@ -60,8 +60,8 @@ class Runfirst:
 
         :param ssid:
         :type ssid:
-        :param password:
-        :type password:
+        :param passwd:
+        :type passwd:
         :return:
         :rtype:
         """
@@ -82,7 +82,7 @@ class Runfirst:
         # machine and create the KBEOF
         # see the get script how they include it.
         #
-        self.timezone = timezone 
+        self.timezone = timezone
         self.locale = locale
 
     def set_static_ip(self, interface='eth0', ip=None, subnet_mask='24', router=None, dns=None):
@@ -93,7 +93,7 @@ class Runfirst:
             raise Exception("Missing ip arg. None supplied")
 
         self.static_ip_info = [interface, ip, subnet_mask, router, dns]
-    
+
     def _get_static_ip_script(self):
         """
         If the self.interface_ip pair is not None, then return the script
@@ -194,4 +194,3 @@ class Runfirst:
             Console.info(f'firstrun.sh for {self.hostname}')
             Console.info(self.script)
         return self.script
-

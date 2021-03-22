@@ -1,13 +1,11 @@
-import time
-
 from cloudmesh.burn.ubuntu.userdata import Userdata
 from cloudmesh.burn.ubuntu.networkdata import Networkdata
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import readfile
 from cloudmesh.inventory.inventory import Inventory
-from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import path_expand
+
 
 class Configure:
     """
@@ -33,7 +31,7 @@ class Configure:
 
     def __init__(self, inventory=None, cluster=None, debug=False):
         self.debug = debug
-        self.manager_public_key = None # Populated by self.generate_ssh_key
+        self.manager_public_key = None  # Populated by self.generate_ssh_key
 
         if inventory:
             self.inventory = Inventory(inventory)
@@ -57,7 +55,7 @@ class Configure:
         elif not self.inventory.has_host(name):
             raise Exception(f'Could not find {name} in {self.inventory.filename}')
         if country is not None and len(country) != 2:
-            raise Exception(f'Country code is not 2 characters.')
+            raise Exception('Country code is not 2 characters.')
 
         # Get the current configurations from inventory
         hostname = self.inventory.get(name=name, attribute='host')
@@ -96,12 +94,12 @@ class Configure:
             user_data.with_set_wifi_country(country=country)
         if service == 'manager' and self.manager_public_key:
             # If public key is set, then we expect /boot/firmware/id_rsa and /boot/firmware/id_rsa.pub on burned card
-            user_data.with_runcmd(cmd=f'cat /boot/firmware/id_rsa.pub > /home/ubuntu/.ssh/id_rsa.pub')\
-            .with_runcmd(cmd=f'cat /boot/firmware/id_rsa > /home/ubuntu/.ssh/id_rsa')\
-            .with_fix_user_dir_owner(user='ubuntu')\
-            .with_runcmd(cmd=f'chmod 600 /home/ubuntu/.ssh/id_rsa')\
-            .with_runcmd(cmd=f'sudo rm /boot/firmware/id_rsa.pub')\
-            .with_runcmd(cmd=f'sudo rm /boot/firmware/id_rsa')
+            user_data.with_runcmd(cmd='cat /boot/firmware/id_rsa.pub > /home/ubuntu/.ssh/id_rsa.pub')\
+                .with_runcmd(cmd='cat /boot/firmware/id_rsa > /home/ubuntu/.ssh/id_rsa')\
+                .with_fix_user_dir_owner(user='ubuntu')\
+                .with_runcmd(cmd='chmod 600 /home/ubuntu/.ssh/id_rsa')\
+                .with_runcmd(cmd='sudo rm /boot/firmware/id_rsa.pub')\
+                .with_runcmd(cmd='sudo rm /boot/firmware/id_rsa')
         if with_bridge:
             user_data.with_access_point_bridge()
 
@@ -141,8 +139,8 @@ class Configure:
         if ssid and password:
             Console.info(f'Providing WiFi access to {name}')
             network_data.with_access_points(ssid=ssid, password=password)\
-            .with_dhcp4(interfaces='wifis', interface='wlan0', dhcp4=True)\
-            .with_optional(interfaces='wifis', interface='wlan0', optional=True)
+                .with_dhcp4(interfaces='wifis', interface='wlan0', dhcp4=True)\
+                .with_optional(interfaces='wifis', interface='wlan0', optional=True)
 
         if self.debug:
             Console.info(f'Network data for {name}:\n' + str(network_data))
@@ -185,5 +183,4 @@ class Configure:
         self.manager_public_key = pub_key
         Shell.execute('rm', path_expand(f'{Configure.KEY_DIR}/id_rsa'))
         Shell.execute('rm', path_expand(f'{Configure.KEY_DIR}/id_rsa.pub'))
-        return priv_key,pub_key
-
+        return priv_key, pub_key
