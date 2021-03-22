@@ -1,3 +1,4 @@
+import os
 import textwrap
 
 class Cmdline:
@@ -34,8 +35,11 @@ class Cmdline:
     def read(self):
         pass
 
-    def write(self):
-        pass
+    def write(self, filename=None):
+        if filename is None:
+            raise Exception("write called with no filename")
+        os.system(f'echo "{self.script}" | sudo tee {filename}')
+
 
     def get(self):
         return self.script

@@ -16,10 +16,11 @@ ips = Parameter.expand("10.0.0.[1-3]")
 
 runfirst = Runfirst()
 runfirst.set_key()
-runfirst.set_wifi("abc", "123")
+# runfirst.set_wifi("abc", "123")
 runfirst.set_locale()
-runfirst.set_hostname("name")
+runfirst.set_hostname("red2")
 runfirst.set_hosts(names, ips)
+runfirst.set_static_ip(ip="10.0.0.4")
 
 runfirst.info()
 
