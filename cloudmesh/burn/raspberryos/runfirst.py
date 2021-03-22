@@ -92,11 +92,11 @@ class Runfirst:
         set +e
         CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
         echo {self.hostname} >/etc/hostname
-        sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
+        sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
         FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
         FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
         install -o "$FIRSTUSER" -m 700 -d "$FIRSTUSERHOME/.ssh"
-        install -o "$FIRSTUSER" -m 600 <(echo "ssh-rsa {self.key}") "$FIRSTUSERHOME/.ssh/authorized_keys"
+        install -o "$FIRSTUSER" -m 600 <(echo "{self.key}") "$FIRSTUSERHOME/.ssh/authorized_keys"
         echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
         systemctl enable ssh
         cat >/etc/wpa_supplicant/wpa_supplicant.conf <<WPAEOF
