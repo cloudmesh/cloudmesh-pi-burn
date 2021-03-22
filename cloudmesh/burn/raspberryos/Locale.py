@@ -1,5 +1,7 @@
 import textwrap
 
+# Locale.gen
+
 class Locale:
 
     @property

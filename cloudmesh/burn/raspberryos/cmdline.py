@@ -20,5 +20,11 @@ class Cmdline:
         systemd.unit=kernel-command-line.target
         """).splitlines()).strip()
 
+    def read(self):
+        pass
+
+    def write(self):
+        pass
+
     def get(self):
         return self.script
