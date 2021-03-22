@@ -13,7 +13,7 @@ from cloudmesh.common.util import path_expand
 
 
 # class Burner(AbstractBurner):
-class Burner():
+class Burner:
 
     def __init__(self, card_os="raspberryos"):
         if "raspberry" in card_os:
