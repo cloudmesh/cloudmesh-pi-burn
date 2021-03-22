@@ -683,7 +683,7 @@ class Burner(object):
             Console.error("For now only raspberry and ubuntu are supported")
         return tag
 
-    # TODO from here on 
+    # TODO from here on
 
     def cluster(self, arguments=None):
 
