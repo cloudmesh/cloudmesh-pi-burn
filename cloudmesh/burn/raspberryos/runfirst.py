@@ -7,11 +7,20 @@ def dedent(content):
 
 
 class Runfirst:
+    """
+    A builder-like class for constructing a firstrun.sh script to be run
+    at boot by a Raspberry Pi
+    """
 
     def __init__(self):
         self.key = None
         self.hostname = None
         self.timezone = None
+        self.ssid = None
+        self.wifipasswd = None
+        self.locale = None
+        self.country = None
+        self.script = None
 
     def info(self):
         print ("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
@@ -59,7 +68,7 @@ class Runfirst:
         self.wifipasswd = passwd
         self.country = country
 
-    def set_locale(self):
+    def set_locale(self, timezone="America/Indianapolis", locale="us"):
         """
         sets the locale of the OS
 
@@ -70,8 +79,8 @@ class Runfirst:
         # machine and create the KBEOF
         # see the get script how they include it.
         #
-        self.timezone = "America/Indianapolis"
-        self.locale = "us"
+        self.timezone = timezone 
+        self.locale = locale
 
     def _writefile(self, name, content):
         data = dedent(f"""
@@ -79,6 +88,7 @@ class Runfirst:
         {content}
         EOF
         """)
+        return data
 
     def get_manager(self):
         return self.get()
