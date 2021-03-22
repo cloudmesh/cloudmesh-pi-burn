@@ -40,7 +40,7 @@ class Runfirst:
         :param ips: list of ips
         :type ips: list
         """
-        pass
+        self.etc_hosts = dict(zip(names, ips))
 
     def set_wifi(self, ssid, passwd, country="US"):
         """
