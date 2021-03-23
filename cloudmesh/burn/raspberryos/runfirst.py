@@ -1,6 +1,7 @@
 import textwrap
 from cloudmesh.common.util import readfile
 from cloudmesh.common.console import Console
+from cloudmesh.common.Shell import Shell
 from passlib.hash import sha256_crypt
 
 
@@ -179,6 +180,16 @@ class Runfirst:
 
     def get_worker(self):
         return self.get()
+
+    def write(self, filename=None):
+        """
+        Write the cmdline config to the specified filename
+        """
+        if filename is None:
+            raise Exception("write called with no filename")
+        if self.script is None:
+            raise Exception("no script found. Did you run .get() first?")
+        Shell.run(f'echo "{self.script}" | sudo tee {filename}')
 
     def get(self, verbose=False):
         self.script = dedent(f'''
