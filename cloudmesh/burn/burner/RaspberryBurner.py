@@ -39,7 +39,7 @@ class Burner(AbstractBurner):
     def burn(
         self, name=None, device=None,
         verbose=False, password=None, ssid=None,
-        wifipasswd=None, timezone=None, locale=None
+        wifipasswd=None, country=None
         ):
         """
         Given the name of a config, burn device with RaspberryOS and configure properly
@@ -99,9 +99,9 @@ class Burner(AbstractBurner):
         if password:
             runfirst.set_password(password=password)
 
-        runfirst.set_locale(timezone=timezone, locale=locale)
+        runfirst.set_locale(timezone=config['timezone'], locale=config['locale'])
         if ssid:
-            runfirst.set_wifi(ssid, wifipasswd)
+            runfirst.set_wifi(ssid, wifipasswd, country=country)
 
         runfirst.set_key(key=readfile(config['keyfile']).strip())
         if 'bridge' in config['services']:
@@ -122,7 +122,7 @@ class Burner(AbstractBurner):
     def multi_burn(
         self, names=None, devices=None,
         verbose=False, password=None, ssid=None,
-        wifipasswd=None, timezone=None, locale=None):
+        wifipasswd=None, country=None):
         """
         Given multiple names, burn them
         """
@@ -144,7 +144,7 @@ class Burner(AbstractBurner):
             self.burn(
                 name=name, device=devices[0], verbose=verbose,
                 password=password, ssid=ssid, wifipasswd=wifipasswd,
-                timezone=timezone, locale=locale
+                country=None
                 )
         Console.ok('Finished burning all cards')
 

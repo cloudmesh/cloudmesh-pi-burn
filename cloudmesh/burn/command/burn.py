@@ -50,8 +50,13 @@ class BurnCommand(PluginCommand):
               burn ubuntu NAMES [--inventory=INVENTORY] [--ssid=SSID]
               [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY]
               [--upgrade]
-              burn raspberry NAMES [--inventory=INVENTORY] [--ssid=SSID]
-              [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY] [--password=PASSWORD]
+              burn raspberry NAMES --device=DEVICE
+                                  [--inventory=INVENTORY]
+                                  [--ssid=SSID]
+                                  [--wifipassword=PSK]
+                                  [--country=COUNTRY]
+                                  [--password=PASSWORD]
+                                  [-v]
               [--timezone=TIMEZONE]
               burn firmware check
               burn firmware update
@@ -430,7 +435,7 @@ class BurnCommand(PluginCommand):
                 password=arguments['--password'],
                 ssid=arguments['--ssid'],
                 wifipasswd=arguments['--wifipassword'],
-                timezone=arguments['--timezone']
+                country=arguments['--country']
             ))
             return ""
 
