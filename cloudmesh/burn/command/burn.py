@@ -5,6 +5,8 @@ from getpass import getpass
 # from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.Imager import Imager
 from cloudmesh.burn.burner.Burner import Burner
+from cloudmesh.burn.burner.RaspberryBurner import Burner as RaspberryBurner
+from cloudmesh.burn.burner.raspberryos import MultiBurner
 from cloudmesh.burn.burner.raspberryos import MultiBurner
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
@@ -48,6 +50,9 @@ class BurnCommand(PluginCommand):
               burn ubuntu NAMES [--inventory=INVENTORY] [--ssid=SSID]
               [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY]
               [--upgrade]
+              burn raspberry NAMES [--inventory=INVENTORY] [--ssid=SSID]
+              [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY] [--password=PASSWORD]
+              [--timezone=TIMEZONE]
               burn firmware check
               burn firmware update
               burn install
@@ -410,6 +415,23 @@ class BurnCommand(PluginCommand):
 
             g.run()
 
+            return ""
+
+        elif arguments.raspberry:
+            banner(txt="RaspberryOS Burn", figlet=True)
+            if arguments.inventory:
+                burner = RaspberryBurner(inventory=arguments.inventory)
+            else:
+                burner = RaspberryBurner()
+            execute("burn raspberry", burner.multi_burn(
+                names=arguments.NAMES,
+                devices=arguments.device,
+                verbose=arguments['-v'],
+                password=arguments['--password'],
+                ssid=arguments['--ssid'],
+                wifipasswd=arguments['--wifipassword'],
+                timezone=arguments['--timezone']
+            ))
             return ""
 
         elif arguments.ubuntu:

@@ -7,8 +7,7 @@ from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.usb import USB
 from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.util import banner
-from cloudmesh.common.util import yn_choice
+from cloudmesh.common.util import yn_choice, readfile
 from cloudmesh.inventory.inventory import Inventory
 
 
@@ -103,6 +102,9 @@ class Burner(AbstractBurner):
         runfirst.set_locale(timezone=timezone, locale=locale)
         if ssid:
             runfirst.set_wifi(ssid, wifipasswd)
+        
+        runfirst.set_key(key=readfile(config['keyfile']).strip())
+
 
         runfirst.get(verbose=verbose)
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
@@ -137,7 +139,6 @@ class Burner(AbstractBurner):
             Console.error('We do not yet support burning on multiple devices')
             return
 
-        banner(txt="RaspberryOS Burn", figlet=True)
         for name in names:
             self.burn(
                 name=name, device=devices[0], verbose=verbose,

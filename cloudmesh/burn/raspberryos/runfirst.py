@@ -1,5 +1,5 @@
 import textwrap
-from cloudmesh.common.util import readfile
+from cloudmesh.common.util import path_expand, readfile, writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.Shell import Shell
 from passlib.hash import sha256_crypt
@@ -197,39 +197,45 @@ class Runfirst:
             raise Exception("write called with no filename")
         if self.script is None:
             raise Exception("no script found. Did you run .get() first?")
-        Shell.run(f'echo "{self.script}" | sudo tee {filename}')
+
+        tmp_location = path_expand('~/.cloudmesh/cmburn/firstrun.sh.tmp')
+        writefile(tmp_location, self.script)
+        Shell.run(f'cat {tmp_location} | sudo tee {filename}')
+        Shell.execute('rm', arguments=[tmp_location])
 
     def get(self, verbose=False):
+        # NEEDS TO BE INDENTED THIS WAY
+        # OR ELSE WRITTEN SCRIPT WILL NOT WORK
         self.script = dedent(f'''
-            #!/bin/bash
-            set +e
-            CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
-            echo {self.hostname} >/etc/hostname
-            sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
-            {self._get_etc_hosts_script()}
-            {self._get_static_ip_script()}
-            FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
-            FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
-            install -o "$FIRSTUSER" -m 700 -d "$FIRSTUSERHOME/.ssh"
-            install -o "$FIRSTUSER" -m 600 <(echo "{self.key}") "$FIRSTUSERHOME/.ssh/authorized_keys"
-            echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
-            systemctl enable ssh
-            {self._get_password_script()}
-            {self._get_wifi_config()}
-            rm -f /etc/xdg/autostart/piwiz.desktop
-            rm -f /etc/localtime
-            echo "{self.timezone}" >/etc/timezone
-            dpkg-reconfigure -f noninteractive tzdata
-            cat >/etc/default/keyboard <<KBEOF
-            XKBMODEL="pc105"
-            XKBLAYOUT="{self.locale}"
-            XKBVARIANT=""
-            XKBOPTIONS=""
-            KBEOF
-            dpkg-reconfigure -f noninteractive keyboard-configuration
-            rm -f /boot/{Runfirst.SCRIPT_NAME}
-            sed -i 's| systemd.run.*||g' /boot/cmdline.txt
-            exit 0
+#!/bin/bash
+set +e
+CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
+echo {self.hostname} >/etc/hostname
+sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
+{self._get_etc_hosts_script()}
+{self._get_static_ip_script()}
+FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
+FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
+install -o "$FIRSTUSER" -m 700 -d "$FIRSTUSERHOME/.ssh"
+install -o "$FIRSTUSER" -m 600 <(echo "{self.key}") "$FIRSTUSERHOME/.ssh/authorized_keys"
+echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
+systemctl enable ssh
+{self._get_password_script()}
+{self._get_wifi_config()}
+rm -f /etc/xdg/autostart/piwiz.desktop
+rm -f /etc/localtime
+echo "{self.timezone}" >/etc/timezone
+dpkg-reconfigure -f noninteractive tzdata
+cat >/etc/default/keyboard <<KBEOF
+XKBMODEL="pc105"
+XKBLAYOUT="{self.locale}"
+XKBVARIANT=""
+XKBOPTIONS=""
+KBEOF
+dpkg-reconfigure -f noninteractive keyboard-configuration
+rm -f /boot/{Runfirst.SCRIPT_NAME}
+sed -i 's| systemd.run.*||g' /boot/cmdline.txt
+exit 0
         ''')
 
         if verbose:

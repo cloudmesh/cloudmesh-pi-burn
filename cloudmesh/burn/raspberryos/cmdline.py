@@ -56,7 +56,7 @@ class Cmdline:
             raise Exception("Please read a pre-existing cmdline.txt first")
         if filename is None:
             raise Exception("write called with no filename")
-        Shell.run(f'echo "{self.cmdline + self.script}" | sudo tee {filename}')
+        Shell.run(f'echo "{self.cmdline} {self.script}" | sudo tee {filename}')
 
     def get(self):
         """
