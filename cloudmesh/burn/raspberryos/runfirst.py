@@ -15,6 +15,8 @@ class Runfirst:
     at boot by a Raspberry Pi
     """
 
+    SCRIPT_NAME='firstrun.sh'
+
     def __init__(self):
         self.key = None
         self.hostname = None
@@ -219,12 +221,12 @@ class Runfirst:
             XKBOPTIONS=""
             KBEOF
             dpkg-reconfigure -f noninteractive keyboard-configuration
-            rm -f /boot/firstrun.sh
+            rm -f /boot/{Runfirst.SCRIPT_NAME}
             sed -i 's| systemd.run.*||g' /boot/cmdline.txt
             exit 0
         ''')
 
         if verbose:
-            Console.info(f'firstrun.sh for {self.hostname}')
+            Console.info(f'{Runfirst.SCRIPT_NAME}.sh for {self.hostname}')
             Console.info(self.script)
         return self.script
