@@ -79,7 +79,7 @@ class Runfirst:
         self.wifipasswd = passwd
         self.country = country
 
-    def set_locale(self, timezone="America/Indiana/Indianapolis", locale="us"):
+    def set_locale(self, timezone=None, locale=None):
         """
         sets the locale of the OS
 
@@ -90,8 +90,14 @@ class Runfirst:
         # machine and create the KBEOF
         # see the get script how they include it.
         #
-        self.timezone = timezone
-        self.locale = locale
+        if not timezone:
+            self.timezone = "America/Indiana/Indianapolis"
+        else:
+            self.timezone = timezone
+        if not locale:
+            self.locale = "us"
+        else:
+            self.locale = locale
 
     def set_static_ip(self, interface='eth0', ip=None, subnet_mask='24', router=None, dns=None):
         """
@@ -194,7 +200,6 @@ class Runfirst:
         Shell.run(f'echo "{self.script}" | sudo tee {filename}')
 
     def get(self, verbose=False):
-<<<<<<< HEAD
         self.script = dedent(f'''
             #!/bin/bash
             set +e
@@ -225,38 +230,6 @@ class Runfirst:
             rm -f /boot/{Runfirst.SCRIPT_NAME}
             sed -i 's| systemd.run.*||g' /boot/cmdline.txt
             exit 0
-=======
-        self.script = dedent(f''' 
-#!/bin/bash
-set +e
-CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
-echo {self.hostname} >/etc/hostname
-sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
-{self._get_etc_hosts_script()}
-{self._get_static_ip_script()}
-FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
-FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
-install -o "$FIRSTUSER" -m 700 -d "$FIRSTUSERHOME/.ssh"
-install -o "$FIRSTUSER" -m 600 <(echo "{self.key}") "$FIRSTUSERHOME/.ssh/authorized_keys"
-echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
-systemctl enable ssh
-{self._get_password_script()}
-{self._get_wifi_config()}
-rm -f /etc/xdg/autostart/piwiz.desktop
-rm -f /etc/localtime
-echo "{self.timezone}" > /etc/timezone
-dpkg-reconfigure -f noninteractive tzdata
-cat > /etc/default/keyboard <<KBEOF
-XKBMODEL="pc105"
-XKBLAYOUT="{self.locale}"
-XKBVARIANT=""
-XKBOPTIONS=""
-KBEOF
-dpkg-reconfigure -f noninteractive keyboard-configuration
-rm -f /boot/firstrun.sh
-sed -i 's| systemd.run.*||g' /boot/cmdline.txt
-exit 0
->>>>>>> f76c794b3100905732d66103ae30017264142a73
         ''')
 
         if verbose:
