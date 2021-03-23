@@ -6,6 +6,8 @@ from cloudmesh.burn.raspberryos.runfirst import Runfirst
 from cloudmesh.common.parameter import Parameter
 
 cmsline = Cmdline()
+# cmsline.read(filename='/Volumes/boot/cmdline.txt')
+# cmsline.write(filename="test.txt")
 
 print(cmsline.get())
 print()
