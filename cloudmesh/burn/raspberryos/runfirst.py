@@ -29,6 +29,7 @@ class Runfirst:
         self.etc_hosts = None
         self.static_ip_info = None
         self.password = None
+        self.bridge = None
 
     def info(self):
         print("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
@@ -44,6 +45,12 @@ class Runfirst:
             self.key = readfile("~/.ssh/id_rsa.pub").strip()
         else:
             self.key = key
+
+    def enable_bridge(self):
+        """
+        Enables the wifi bridge
+        """
+        self.bridge = True
 
     def set_hostname(self, name):
         #
@@ -114,6 +121,22 @@ class Runfirst:
 
         self.password = password
 
+    def _get_bridge_script(self):
+        """
+        If self.bridge is True, then enable a bridge from eth0 to wlan0
+        """
+        if self.bridge:
+            script = []
+            script += ["sudo sed -i 's/#net\.ipv4\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf"]
+            script += ["sudo iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT"]
+            script += ["sudo iptables -A FORWARD -i wlan0 -o eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT"]
+            script += ["sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE"]
+            script += ['sh -c "iptables-save > /etc/iptables.ipv4.nat"']
+            script += ["sudo sed -i '$i iptables-restore < /etc/iptables.ipv4.nat' /etc/rc.local"]
+            return '\n'.join(script)
+        else:
+            return ""
+
     def _get_password_script(self):
         script = []
         if not self.password:
@@ -136,9 +159,10 @@ class Runfirst:
         interface, ip, mask, router, dns = self.static_ip_info
         script.append(f'echo "interface {interface}" >> /etc/dhcpcd.conf')
         script.append(f'echo "static ip_address={ip}/{mask}" >> /etc/dhcpcd.conf')
-        if router is not None:
+        if router:
             script.append(f'echo "static routers={router}" >> /etc/dhcpcd.conf')
-        if dns is not None:
+        if dns:
+            dns = ' '.join(dns)
             script.append(f'echo "static domain_name_servers={dns}" >> /etc/dhcpcd.conf')
         return '\n'.join(script)
 
@@ -220,6 +244,7 @@ install -o "$FIRSTUSER" -m 700 -d "$FIRSTUSERHOME/.ssh"
 install -o "$FIRSTUSER" -m 600 <(echo "{self.key}") "$FIRSTUSERHOME/.ssh/authorized_keys"
 echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
 systemctl enable ssh
+{self._get_bridge_script()}
 {self._get_password_script()}
 {self._get_wifi_config()}
 rm -f /etc/xdg/autostart/piwiz.desktop

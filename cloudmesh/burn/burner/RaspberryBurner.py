@@ -102,9 +102,10 @@ class Burner(AbstractBurner):
         runfirst.set_locale(timezone=timezone, locale=locale)
         if ssid:
             runfirst.set_wifi(ssid, wifipasswd)
-        
-        runfirst.set_key(key=readfile(config['keyfile']).strip())
 
+        runfirst.set_key(key=readfile(config['keyfile']).strip())
+        if 'bridge' in config['services']:
+            runfirst.enable_bridge()
 
         runfirst.get(verbose=verbose)
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
