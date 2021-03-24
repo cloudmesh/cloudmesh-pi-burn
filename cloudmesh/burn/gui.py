@@ -2,7 +2,7 @@ import inspect
 import os.path
 import time
 
-import PySimpleGUI as sg
+import PySimpleGUI as sg  # noqa
 import oyaml as yaml
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.util import os_is_linux
@@ -361,7 +361,7 @@ class Gui:
             text = self.window['log']
             text.update(text.get() + msg + end)
             self.window.Refresh()
-        except:
+        except:  # noqa
             print(msg)
 
     def set_diagram_value(self, name, entry, attribute, value):
@@ -394,7 +394,7 @@ class Gui:
         try:
             self.window.FindElement(f'button-{host}').Update(button_color=('white', color))
             self.window.Refresh()
-        except:
+        except:   # noqa
             pass
 
     def run(self):

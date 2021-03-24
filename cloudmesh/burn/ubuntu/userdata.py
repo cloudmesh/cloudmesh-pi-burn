@@ -86,6 +86,9 @@ class Userdata:
         if 'ssh_authorized_keys' not in self.content:
             self.content['ssh_authorized_keys'] = keys
         else:
+            #
+            # BUG: this has no effect
+            #
             self.content['ssh_authorized_keys']
         return self
 
@@ -180,6 +183,9 @@ class Userdata:
         """
         self.with_packages(packages=["iptables-persistent"])
         # Enable ipv4 forwarding and configure ip tables rules
+        #
+        # BUG: Should / be // ?
+        #
         self.with_runcmd(cmd="sudo sysctl -w net.ipv4.ip_forward=1")\
             .with_runcmd(cmd="sudo sed -i 's/#net\.ipv4\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf")\
             .with_runcmd(cmd=f"sudo iptables -A FORWARD -i {priv_interface} -o {ext_interface} -j ACCEPT")\

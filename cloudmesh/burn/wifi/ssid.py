@@ -22,7 +22,7 @@ def get_ssid():
             command = "netsh wlan show interfaces"
             r = Shell.run(command).replace("\t", "").splitlines()
             ssid = Shell.cm_grep(r, " SSID ")[0].split(":")[1].strip()
-    except:
+    except:  # noqa
         pass
 
     return ssid

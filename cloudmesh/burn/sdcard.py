@@ -247,7 +247,7 @@ class SDCard:
                 found = content != []
                 if found:
                     break
-            except:
+            except:  # noqa
                 pass
             print(f"read {filename} attempt {i}")
 
