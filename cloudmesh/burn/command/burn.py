@@ -451,7 +451,7 @@ class BurnCommand(PluginCommand):
                         return ""
 
                     _build_default_inventory(filename=inventory,
-                                             manager=manager,workers=workers)
+                                             manager=manager, workers=workers)
 
                 burner = RaspberryBurner(inventory=inventory)
 
@@ -463,7 +463,7 @@ class BurnCommand(PluginCommand):
                                          'config')
                     if not wifipasswd and not ssid == "":
                         wifipasswd = getpass(f"Using --SSID={ssid}, please "
-                                            f"enter wifi password:")
+                                             f"enter wifi password:")
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
@@ -1002,10 +1002,13 @@ class BurnCommand(PluginCommand):
         Console.error("see manual page: cms help burn")
         return ""
 
+
 def _build_default_inventory(filename, manager, workers):
-    # cms inventory add red --service=manager --ip=10.1.1.1 --tag=latest-lite --timezone="America/Indiana/Indianapolis" --locale="us"
+    # cms inventory add red --service=manager --ip=10.1.1.1 --tag=latest-lite
+    # --timezone="America/Indiana/Indianapolis" --locale="us"
     # cms inventory set red services to "bridge" --listvalue
-    # cms inventory add "red0[1-3]" --service=worker --ip="10.1.1.[2-4]" --router=10.1.1.1 --tag=latest-lite  --timezone="America/Indiana/Indianapolis" --locale="us"
+    # cms inventory add "red0[1-3]" --service=worker --ip="10.1.1.[2-4]"
+    # --router=10.1.1.1 --tag=latest-lite  --timezone="America/Indiana/Indianapolis" --locale="us"
     # cms inventory set "red0[1-3]" dns to "8.8.8.8,8.8.4.4" --listvalue
 
     Console.info("No inventory found. Buidling inventory with defaults.")
@@ -1023,7 +1026,7 @@ def _build_default_inventory(filename, manager, workers):
     element['timezone'] = timezone
     element['locale'] = locale
     element['services'] = ['bridge']
-    element['keyfile'] ='~/.ssh/id_rsa.pub'
+    element['keyfile'] = '~/.ssh/id_rsa.pub'
     i.add(**element)
     i.save()
 
@@ -1045,4 +1048,3 @@ def _build_default_inventory(filename, manager, workers):
         last_octet += 1
 
     print(i.list(format="table"))
-
