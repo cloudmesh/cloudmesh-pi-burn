@@ -142,7 +142,7 @@ class Runfirst:
 
     def _get_password_script(self):
         #
-        # BUG: hash should be hash_str
+        # BUG: hash should be hash_str, you can not use hash and .hash as function
         #
         script = []
         if not self.password:
