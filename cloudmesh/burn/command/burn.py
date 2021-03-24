@@ -28,6 +28,9 @@ from cloudmesh.shell.command import map_parameters
 from cloudmesh.burn.usb import USB
 from cloudmesh.common.debug import VERBOSE
 from cloudmesh.burn.wifi.ssid import get_ssid
+from cloudmesh.common.Host import Host
+from cloudmesh.common.util import path_expand
+from cloudmesh.common.Shell import Shell
 
 
 class BurnCommand(PluginCommand):
@@ -56,6 +59,7 @@ class BurnCommand(PluginCommand):
                                   [--country=COUNTRY]
                                   [--password=PASSWORD]
                                   [-v]
+                                  [-f]
               [--timezone=TIMEZONE]
               burn firmware check
               burn firmware update
@@ -423,17 +427,51 @@ class BurnCommand(PluginCommand):
 
         elif arguments.raspberry:
             banner(txt="RaspberryOS Burn", figlet=True)
+
+            names = Parameter.expand(arguments.NAMES)
+            manager, workers = Host.get_hostnames(names)
+            ssid = arguments['--ssid']
+            wifipasswd = arguments['--wifipassword']
+
             if arguments.inventory:
                 burner = RaspberryBurner(inventory=arguments.inventory)
             else:
-                burner = RaspberryBurner()
+                if workers:
+                    worker_base_name = ''.join(
+                        [i for i in workers[0] if not i.isdigit()])
+
+                cluster_name = manager or worker_base_name
+                inventory = path_expand(f'~/.cloudmesh/inventory-{cluster_name}.yml')
+
+                if not os.path.exists(inventory) or arguments['-f']:
+                    if not manager:
+                        Console.error("No inventory found. Can not create an "
+                                      "inventory without a "
+                                      "manager.")
+                        return ""
+
+                    _build_default_inventory(filename=inventory,
+                                             manager=manager,workers=workers)
+
+                burner = RaspberryBurner(inventory=inventory)
+
+                if manager:
+                    if not ssid:
+                        ssid = get_ssid()
+                        if ssid == "":
+                            Console.info('Could not determine SSID, skipping wifi '
+                                         'config')
+                    if not wifipasswd and not ssid == "":
+                        wifipasswd = getpass(f"Using --SSID={ssid}, please "
+                                            f"enter wifi password:")
+
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
                 devices=arguments.device,
                 verbose=arguments['-v'],
                 password=arguments['--password'],
-                ssid=arguments['--ssid'],
-                wifipasswd=arguments['--wifipassword'],
+                ssid=ssid,
+                wifipasswd=wifipasswd,
                 country=arguments['--country']
             ))
             return ""
@@ -963,3 +1001,48 @@ class BurnCommand(PluginCommand):
 
         Console.error("see manual page: cms help burn")
         return ""
+
+def _build_default_inventory(filename, manager, workers):
+    # cms inventory add red --service=manager --ip=10.1.1.1 --tag=latest-lite --timezone="America/Indiana/Indianapolis" --locale="us"
+    # cms inventory set red services to "bridge" --listvalue
+    # cms inventory add "red0[1-3]" --service=worker --ip="10.1.1.[2-4]" --router=10.1.1.1 --tag=latest-lite  --timezone="America/Indiana/Indianapolis" --locale="us"
+    # cms inventory set "red0[1-3]" dns to "8.8.8.8,8.8.4.4" --listvalue
+
+    Console.info("No inventory found. Buidling inventory with defaults.")
+    i = Inventory(filename=filename)
+    timezone = Shell.timezone()
+    # todo method to find localhost locale
+    locale = 'us'
+
+    element = {}
+    element['host'] = manager
+    element['status'] = 'inactive'
+    element['service'] = 'manager'
+    element['ip'] = '10.1.1.1'
+    element['tag'] = 'latest-lite'
+    element['timezone'] = timezone
+    element['locale'] = locale
+    element['services'] = ['bridge']
+    element['keyfile'] ='~/.ssh/id_rsa.pub'
+    i.add(**element)
+    i.save()
+
+    last_octet = 2
+    for worker in workers:
+        element = {}
+        element['host'] = worker
+        element['status'] = 'inactive'
+        element['service'] = 'worker'
+        element['ip'] = f'10.1.1.{last_octet}'
+        element['tag'] = 'latest-lite'
+        element['timezone'] = timezone
+        element['locale'] = locale
+        element['router'] = '10.1.1.1'
+        element['dns'] = ['8.8.8.8', '8.8.4.4']
+        element['keyfile'] = '~/.ssh/id_rsa.pub'
+        i.add(**element)
+        i.save()
+        last_octet += 1
+
+    print(i.list(format="table"))
+
