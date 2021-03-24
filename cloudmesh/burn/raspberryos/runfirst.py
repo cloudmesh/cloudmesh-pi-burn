@@ -242,6 +242,7 @@ FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
 FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
 install -o "$FIRSTUSER" -m 700 -d "$FIRSTUSERHOME/.ssh"
 install -o "$FIRSTUSER" -m 600 <(echo "{self.key}") "$FIRSTUSERHOME/.ssh/authorized_keys"
+cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
 echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
 systemctl enable ssh
 {self._get_bridge_script()}
