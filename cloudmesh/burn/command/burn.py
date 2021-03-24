@@ -7,7 +7,6 @@ from cloudmesh.burn.Imager import Imager
 from cloudmesh.burn.burner.Burner import Burner
 from cloudmesh.burn.burner.RaspberryBurner import Burner as RaspberryBurner
 from cloudmesh.burn.burner.raspberryos import MultiBurner
-from cloudmesh.burn.burner.raspberryos import MultiBurner
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.network import Network
 from cloudmesh.burn.sdcard import SDCard
@@ -524,8 +523,8 @@ class BurnCommand(PluginCommand):
                                       upgrade=arguments.upgrade,
                                       with_bridge=enable_bridge).write(
                         filename=sdcard.boot_volume + '/user-data')
-                    c.build_network_data(name=name, ssid=arguments.ssid,
-                                         password=arguments.wifipassword).write(filename=sdcard.boot_volume + '/network-config')
+                    c.build_network_data(name=name, ssid=arguments.ssid, password=arguments.wifipassword)\
+                        .write(filename=sdcard.boot_volume + '/network-config')
                 else:
                     c.build_user_data(name=name, add_manager_key=manager,
                                       upgrade=arguments.upgrade).write(

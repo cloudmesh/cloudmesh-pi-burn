@@ -183,9 +183,10 @@ class Userdata:
         self.with_runcmd(cmd="sudo sysctl -w net.ipv4.ip_forward=1")\
             .with_runcmd(cmd="sudo sed -i 's/#net\.ipv4\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf")\
             .with_runcmd(cmd=f"sudo iptables -A FORWARD -i {priv_interface} -o {ext_interface} -j ACCEPT")\
-            .with_runcmd(cmd=f"sudo iptables -A FORWARD -i {ext_interface} -o {priv_interface} -m state --state ESTABLISHED,RELATED -j ACCEPT")\
+            .with_runcmd(cmd=f"sudo iptables -A FORWARD -i {ext_interface} -o {priv_interface} "
+                             "-m state --state ESTABLISHED,RELATED -j ACCEPT")\
             .with_runcmd(cmd=f"sudo iptables -t nat -A POSTROUTING -o {ext_interface} -j MASQUERADE")\
-            .with_runcmd(cmd="iptables-save > /etc/iptables/rules.v4")
+            .with_runcmd(cmd="iptables-save > /etc/iptables/rules.v4")  # nqa: E501
 
         return self
 

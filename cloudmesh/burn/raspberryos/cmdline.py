@@ -1,8 +1,8 @@
-import os
 import textwrap
 
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import readfile
+
 
 class Cmdline:
 

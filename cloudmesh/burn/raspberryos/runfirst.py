@@ -15,7 +15,7 @@ class Runfirst:
     at boot by a Raspberry Pi
     """
 
-    SCRIPT_NAME='firstrun.sh'
+    SCRIPT_NAME = 'firstrun.sh'
 
     def __init__(self):
         self.key = None
@@ -115,7 +115,7 @@ class Runfirst:
 
         self.static_ip_info = [interface, ip, subnet_mask, router, dns]
 
-    def set_password(self,password=None):
+    def set_password(self, password=None):
         if password is None:
             raise Exception("Missing password arg. None supplied")
 

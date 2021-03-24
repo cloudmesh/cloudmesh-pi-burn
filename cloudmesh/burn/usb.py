@@ -4,14 +4,17 @@ import subprocess
 
 import humanize
 import requests
+
 import usb as usb_device
+from cloudmesh.burn.util import os_is_mac
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.sudo import Sudo
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
-from cloudmesh.burn.util import os_is_mac
+
+
 # from cloudmesh.burn.util import os_is_linux
 # from cloudmesh.burn.util import os_is_pi
 
@@ -398,7 +401,7 @@ class USB(object):
                     if device is None or device in entry["dev"]:
                         details.append(entry)
                 no = no + 1
-            except KeyError as e:
+            except KeyError as e:  # noqa: F841
                 Console.warning("No partitions found for device")
                 partition = r['AllDisksAndPartitions'][no]
                 entry = {

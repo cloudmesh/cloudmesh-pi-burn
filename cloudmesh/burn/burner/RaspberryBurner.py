@@ -36,11 +36,14 @@ class Burner(AbstractBurner):
     def cluster(self, arguments=None):
         raise NotImplementedError
 
-    def burn(
-        self, name=None, device=None,
-        verbose=False, password=None, ssid=None,
-        wifipasswd=None, country=None
-        ):
+    def burn(self,
+             name=None,
+             device=None,
+             verbose=False,
+             password=None,
+             ssid=None,
+             wifipasswd=None,
+             country=None):
         """
         Given the name of a config, burn device with RaspberryOS and configure properly
         """
@@ -68,7 +71,7 @@ class Burner(AbstractBurner):
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
             if not yn_choice(f"Please insert the card to be burned for {name}. "
-                                "Type 'y' when done or 'n' to terminante"):
+                             "Type 'y' when done or 'n' to terminante"):
                 Console.error("Terminating: User Break")
                 return ""
 
@@ -119,10 +122,14 @@ class Burner(AbstractBurner):
     def inventory(self, arguments=None):
         raise NotImplementedError
 
-    def multi_burn(
-        self, names=None, devices=None,
-        verbose=False, password=None, ssid=None,
-        wifipasswd=None, country=None):
+    def multi_burn(self,
+                   names=None,
+                   devices=None,
+                   verbose=False,
+                   password=None,
+                   ssid=None,
+                   wifipasswd=None,
+                   country=None):
         """
         Given multiple names, burn them
         """
@@ -142,12 +149,15 @@ class Burner(AbstractBurner):
 
         for name in names:
             self.burn(
-                name=name, device=devices[0], verbose=verbose,
-                password=password, ssid=ssid, wifipasswd=wifipasswd,
+                name=name,
+                device=devices[0],
+                verbose=verbose,
+                password=password,
+                ssid=ssid,
+                wifipasswd=wifipasswd,
                 country=None
-                )
+            )
         Console.ok('Finished burning all cards')
-
 
     def _get_hosts_for(self, name=None):
         """
