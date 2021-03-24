@@ -556,6 +556,8 @@ class SDCard:
         :type device: str
         :param card_os:
         :type card_os:
+        :param full:
+        :type full:
         :return:
         :rtype:
         """
