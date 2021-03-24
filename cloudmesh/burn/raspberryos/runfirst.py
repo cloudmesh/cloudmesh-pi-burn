@@ -126,6 +126,9 @@ class Runfirst:
         If self.bridge is True, then enable a bridge from eth0 to wlan0
         """
         if self.bridge:
+            #
+            # BUG: shoul / be // ?
+            #
             script = []
             script += ["sudo sed -i 's/#net\.ipv4\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf"]
             script += ["sudo iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT"]
@@ -138,6 +141,9 @@ class Runfirst:
             return ""
 
     def _get_password_script(self):
+        #
+        # BUG: hash should be hash_str, you can not use hash and .hash as function
+        #
         script = []
         if not self.password:
             return ""
