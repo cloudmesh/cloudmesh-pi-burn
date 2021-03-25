@@ -19,6 +19,7 @@ from cloudmesh.diagram.diagram import Diagram
 from cloudmesh.burn.wifi.ssid import get_ssid
 from cloudmesh.burn.command.burn import _build_default_inventory
 
+
 def _execute(command):
     # print(".", end="", flush=True)
     os.system(f"{command} >> burn-gui.log")
@@ -496,14 +497,14 @@ class Gui:
 
                 # Call burn function for manager and workers
                 self.logger(f"Burning {kind} {host}")
-                #tags = values[f'tags-{host}']
+                # tags = values[f'tags-{host}']
                 self.window[f'status-{host}'].update(' Burning ')
 
                 if not self.no_diagram:
                     self.update_diagram_colors(self.manager, host, "blue")
                 self.hostnames_str = ','.join(hostnames)
                 self.ips_str = ','.join(ips)
-                #command = f"cms burn cluster --device={device}" \
+                # command = f"cms burn cluster --device={device}" \
                 #          f" --hostname={self.hostnames_str}" \
                 #          f" --ssid={self.ssid}" \
                 #          f" --wifipassword={self.wifipassword}" \
@@ -514,8 +515,8 @@ class Gui:
 
                 manager, workers = Host.get_hostnames(hostnames)
                 filename = path_expand(f"~/.cloudmesh/inventory-{manager}.yml")
-                _build_default_inventory(filename=filename,manager=manager,
-                                         workers=workers,ips=ips,images=tags)
+                _build_default_inventory(filename=filename, manager=manager,
+                                         workers=workers, ips=ips, images=tags)
                 if host == manager:
                     command = f"cms burn raspberry {host}" \
                               f" --device={device}" \

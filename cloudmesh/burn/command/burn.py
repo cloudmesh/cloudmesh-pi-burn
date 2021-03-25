@@ -1042,7 +1042,7 @@ def _build_default_inventory(filename, manager, workers, ips=None, images=None):
         element['status'] = 'inactive'
         element['service'] = 'worker'
         element['ip'] = ip
-        element['tag'] =  image
+        element['tag'] = image
         element['timezone'] = timezone
         element['locale'] = locale
         element['router'] = manager_ip
