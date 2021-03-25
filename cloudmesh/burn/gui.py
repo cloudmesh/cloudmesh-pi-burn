@@ -17,7 +17,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.diagram.diagram import Diagram
 from cloudmesh.burn.wifi.ssid import get_ssid
-
+from cloudmesh.burn.command.burn import _build_default_inventory
 
 def _execute(command):
     # print(".", end="", flush=True)
@@ -455,6 +455,7 @@ class Gui:
                 #
                 ips = []
                 hostnames = []
+                tags = []
                 for entry in values:
                     if str(entry).startswith("name"):
                         hostnames.append(values[entry])
@@ -462,6 +463,8 @@ class Gui:
                         ips.append(values[entry])
                     if str(entry).startswith("device-") and values[entry]:
                         device = "/dev/" + entry.replace("device-", "")
+                    if str(entry).startswith("tag") and values[entry]:
+                        tags.append(values[entry])
                 key = values['key']
                 self.hostnames_str = ','.join(hostnames)
                 self.ips_str = ','.join(ips)
@@ -493,23 +496,35 @@ class Gui:
 
                 # Call burn function for manager and workers
                 self.logger(f"Burning {kind} {host}")
-                tags = values[f'tags-{host}']
+                #tags = values[f'tags-{host}']
                 self.window[f'status-{host}'].update(' Burning ')
 
                 if not self.no_diagram:
                     self.update_diagram_colors(self.manager, host, "blue")
-
                 self.hostnames_str = ','.join(hostnames)
                 self.ips_str = ','.join(ips)
-                command = f"cms burn cluster --device={device}" \
-                          f" --hostname={self.hostnames_str}" \
-                          f" --ssid={self.ssid}" \
-                          f" --wifipassword={self.wifipassword}" \
-                          f" --ip={self.ips_str}" \
-                          f" --burning={host}" \
-                          " -y" \
-                          f" {self.imaged_str}"
-                print(command)
+                #command = f"cms burn cluster --device={device}" \
+                #          f" --hostname={self.hostnames_str}" \
+                #          f" --ssid={self.ssid}" \
+                #          f" --wifipassword={self.wifipassword}" \
+                #          f" --ip={self.ips_str}" \
+                #          f" --burning={host}" \
+                #          " -y" \
+                #          f" {self.imaged_str}"
+
+                manager, workers = Host.get_hostnames(hostnames)
+                filename = path_expand(f"~/.cloudmesh/inventory-{manager}.yml")
+                _build_default_inventory(filename=filename,manager=manager,
+                                         workers=workers,ips=ips,images=tags)
+                if host == manager:
+                    command = f"cms burn raspberry {host}" \
+                              f" --device={device}" \
+                              f" --ssid={self.ssid}" \
+                              f" --wifipassword={self.wifipassword}"
+                else:
+                    command = f"cms burn raspberry {host}" \
+                              f" --device={device}"
+                    print(command)
 
                 try:
                     self.logger(f"Executing: {command}")

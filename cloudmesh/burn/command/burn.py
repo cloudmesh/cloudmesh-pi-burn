@@ -1003,7 +1003,7 @@ class BurnCommand(PluginCommand):
         return ""
 
 
-def _build_default_inventory(filename, manager, workers):
+def _build_default_inventory(filename, manager, workers, ips=None, images=None):
     # cms inventory add red --service=manager --ip=10.1.1.1 --tag=latest-lite
     # --timezone="America/Indiana/Indianapolis" --locale="us"
     # cms inventory set red services to "bridge" --listvalue
@@ -1011,18 +1011,20 @@ def _build_default_inventory(filename, manager, workers):
     # --router=10.1.1.1 --tag=latest-lite  --timezone="America/Indiana/Indianapolis" --locale="us"
     # cms inventory set "red0[1-3]" dns to "8.8.8.8,8.8.4.4" --listvalue
 
-    Console.info("No inventory found. Buidling inventory with defaults.")
+    Console.info("No inventory found or forced rebuild. Buidling inventory "
+                 "with defaults.")
     i = Inventory(filename=filename)
     timezone = Shell.timezone()
     # todo method to find localhost locale
     locale = 'us'
-
+    manager_ip = ips[0] if ips else '10.1.1.1'
+    image = images[0] if images else 'latest-lite'
     element = {}
     element['host'] = manager
     element['status'] = 'inactive'
     element['service'] = 'manager'
-    element['ip'] = '10.1.1.1'
-    element['tag'] = 'latest-lite'
+    element['ip'] = manager_ip
+    element['tag'] = image
     element['timezone'] = timezone
     element['locale'] = locale
     element['services'] = ['bridge']
@@ -1031,20 +1033,24 @@ def _build_default_inventory(filename, manager, workers):
     i.save()
 
     last_octet = 2
+    index = 1
     for worker in workers:
+        ip = ips[index] if ips else f'10.1.1.{last_octet}'
+        image = images[index] if images else 'latest-lite'
         element = {}
         element['host'] = worker
         element['status'] = 'inactive'
         element['service'] = 'worker'
-        element['ip'] = f'10.1.1.{last_octet}'
-        element['tag'] = 'latest-lite'
+        element['ip'] = ip
+        element['tag'] =  image
         element['timezone'] = timezone
         element['locale'] = locale
-        element['router'] = '10.1.1.1'
+        element['router'] = manager_ip
         element['dns'] = ['8.8.8.8', '8.8.4.4']
         element['keyfile'] = '~/.ssh/id_rsa.pub'
         i.add(**element)
         i.save()
         last_octet += 1
+        index += 1
 
     print(i.list(format="table"))
