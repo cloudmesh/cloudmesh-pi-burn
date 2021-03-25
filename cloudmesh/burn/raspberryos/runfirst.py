@@ -126,11 +126,8 @@ class Runfirst:
         If self.bridge is True, then enable a bridge from eth0 to wlan0
         """
         if self.bridge:
-            #
-            # BUG: shoul / be // ?
-            #
             script = []
-            script += ["sudo sed -i 's/#net\.ipv4\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf"]
+            script += ["sudo sed -i 's/#net\\.ipv4\\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf"]
             script += ["sudo iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT"]
             script += ["sudo iptables -A FORWARD -i wlan0 -o eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT"]
             script += ["sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE"]
