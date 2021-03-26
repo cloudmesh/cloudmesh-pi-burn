@@ -46,6 +46,7 @@ requests
 pyusb
 tqdm
 PySimpleGUI
+passlib
 """.split("\n")
 
 # dependency_links = ['http://github.com/nicolaiarocci/eve.git@develop']
