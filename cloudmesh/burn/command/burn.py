@@ -1034,23 +1034,24 @@ def _build_default_inventory(filename, manager, workers, ips=None, images=None):
 
     last_octet = 2
     index = 1
-    for worker in workers:
-        ip = ips[index] if ips else f'10.1.1.{last_octet}'
-        image = images[index] if images else 'latest-lite'
-        element = {}
-        element['host'] = worker
-        element['status'] = 'inactive'
-        element['service'] = 'worker'
-        element['ip'] = ip
-        element['tag'] = image
-        element['timezone'] = timezone
-        element['locale'] = locale
-        element['router'] = manager_ip
-        element['dns'] = ['8.8.8.8', '8.8.4.4']
-        element['keyfile'] = '~/.ssh/id_rsa.pub'
-        i.add(**element)
-        i.save()
-        last_octet += 1
-        index += 1
+    if workers is not None:
+        for worker in workers:
+            ip = ips[index] if ips else f'10.1.1.{last_octet}'
+            image = images[index] if images else 'latest-lite'
+            element = {}
+            element['host'] = worker
+            element['status'] = 'inactive'
+            element['service'] = 'worker'
+            element['ip'] = ip
+            element['tag'] = image
+            element['timezone'] = timezone
+            element['locale'] = locale
+            element['router'] = manager_ip
+            element['dns'] = ['8.8.8.8', '8.8.4.4']
+            element['keyfile'] = '~/.ssh/id_rsa.pub'
+            i.add(**element)
+            i.save()
+            last_octet += 1
+            index += 1
 
     print(i.list(format="table"))
