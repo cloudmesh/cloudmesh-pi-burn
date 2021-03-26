@@ -1013,10 +1013,11 @@ def _build_default_inventory(filename, manager, workers, ips=None, images=None):
 
     Console.info("No inventory found or forced rebuild. Buidling inventory "
                  "with defaults.")
+    Shell.execute("rm", arguments=[
+                  '-f', '/Users/richie/.cloudmesh/inventory.yaml'])
     i = Inventory(filename=filename)
     timezone = Shell.timezone()
-    # todo method to find localhost locale
-    locale = 'us'
+    locale = Shell.locale()
     manager_ip = ips[0] if ips else '10.1.1.1'
     image = images[0] if images else 'latest-lite'
     element = {}
@@ -1027,7 +1028,7 @@ def _build_default_inventory(filename, manager, workers, ips=None, images=None):
     element['tag'] = image
     element['timezone'] = timezone
     element['locale'] = locale
-    element['services'] = ['bridge']
+    element['services'] = ['bridge', 'wifi']
     element['keyfile'] = '~/.ssh/id_rsa.pub'
     i.add(**element)
     i.save()
