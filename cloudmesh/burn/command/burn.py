@@ -60,7 +60,6 @@ class BurnCommand(PluginCommand):
                                   [--password=PASSWORD]
                                   [-v]
                                   [-f]
-              [--timezone=TIMEZONE]
               burn firmware check
               burn firmware update
               burn install

@@ -103,7 +103,7 @@ class Burner(AbstractBurner):
             runfirst.set_password(password=password)
 
         runfirst.set_locale(timezone=config['timezone'], locale=config['locale'])
-        if ssid:
+        if ssid and 'wifi' in config['services']:
             runfirst.set_wifi(ssid, wifipasswd, country=country)
 
         runfirst.set_key(key=readfile(config['keyfile']).strip())
