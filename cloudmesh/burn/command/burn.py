@@ -1014,7 +1014,7 @@ def _build_default_inventory(filename, manager, workers, ips=None, images=None):
     Console.info("No inventory found or forced rebuild. Buidling inventory "
                  "with defaults.")
     Shell.execute("rm", arguments=[
-                  '-f', filename] 
+                  '-f', filename])
     i = Inventory(filename=filename)
     timezone = Shell.timezone()
     locale = Shell.locale()
