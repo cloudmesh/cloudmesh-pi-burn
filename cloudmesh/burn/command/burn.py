@@ -433,7 +433,8 @@ class BurnCommand(PluginCommand):
             wifipasswd = arguments['--wifipassword']
 
             if arguments.inventory:
-                burner = RaspberryBurner(inventory=arguments.inventory)
+                inv_path = path_expand(f'~/.cloudmesh/{arguments.inventory}.yaml')
+                burner = RaspberryBurner(inventory=inv_path)
             else:
                 if workers:
                     worker_base_name = ''.join(
