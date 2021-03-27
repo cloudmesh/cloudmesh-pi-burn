@@ -440,7 +440,7 @@ class BurnCommand(PluginCommand):
                         [i for i in workers[0] if not i.isdigit()])
 
                 cluster_name = manager or worker_base_name
-                inventory = path_expand(f'~/.cloudmesh/inventory-{cluster_name}.yml')
+                inventory = path_expand(f'~/.cloudmesh/inventory-{cluster_name}.yaml')
 
                 if not os.path.exists(inventory) or arguments['-f']:
                     if not manager:
@@ -1002,7 +1002,7 @@ class BurnCommand(PluginCommand):
         return ""
 
 
-def _build_default_inventory(filename, manager, workers, ips=None, images=None):
+def _build_default_inventory(filename, manager, workers, ips=None, manager_image='latest-lite', worker_image='latest-lite'):
     # cms inventory add red --service=manager --ip=10.1.1.1 --tag=latest-lite
     # --timezone="America/Indiana/Indianapolis" --locale="us"
     # cms inventory set red services to "bridge" --listvalue
@@ -1018,7 +1018,7 @@ def _build_default_inventory(filename, manager, workers, ips=None, images=None):
     timezone = Shell.timezone()
     locale = Shell.locale()
     manager_ip = ips[0] if ips else '10.1.1.1'
-    image = images[0] if images else 'latest-lite'
+    image = manager_image
     element = {}
     element['host'] = manager
     element['status'] = 'inactive'
@@ -1037,7 +1037,7 @@ def _build_default_inventory(filename, manager, workers, ips=None, images=None):
     if workers is not None:
         for worker in workers:
             ip = ips[index] if ips else f'10.1.1.{last_octet}'
-            image = images[index] if images else 'latest-lite'
+            image = worker_image
             element = {}
             element['host'] = worker
             element['status'] = 'inactive'
@@ -1054,4 +1054,5 @@ def _build_default_inventory(filename, manager, workers, ips=None, images=None):
             last_octet += 1
             index += 1
 
+    i.save()
     print(i.list(format="table"))

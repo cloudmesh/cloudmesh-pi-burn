@@ -1,13 +1,14 @@
 import time
 
 from cloudmesh.burn.burner.BurnerABC import AbstractBurner
+from cloudmesh.burn.image import Image
 from cloudmesh.burn.raspberryos.cmdline import Cmdline
 from cloudmesh.burn.raspberryos.runfirst import Runfirst
 from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.usb import USB
 from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.util import yn_choice, readfile
+from cloudmesh.common.util import yn_choice, readfile, banner
 from cloudmesh.inventory.inventory import Inventory
 
 
@@ -27,11 +28,33 @@ class Burner(AbstractBurner):
         # Find managers and workers
         managers = inv.find(service='manager')
         workers = inv.find(service='worker')
+        self.inventory = inv
 
         # No inherenet need to distinguish the configs by service
         configs = managers + workers
         # Create dict for them for easy lookup
         self.configs = dict((config['host'], config) for config in configs)
+        self.get_images()
+
+    def get_images(self):
+        """
+        Downloads all tags found in self.configs
+        """
+        tags = set()
+        for config in self.configs.values():
+            try:
+                tags.add(config['tag'])
+            except KeyError as e:
+                Console.warning(f'Could not find tag for {config["host"]}. Skipping')
+
+        banner("Downloading Images", figlet=True)
+
+        image = Image()
+
+        for tag in tags:
+            Console.info(f'Attempting to download {tag}')
+            image.fetch(tag=[tag])
+
 
     def cluster(self, arguments=None):
         raise NotImplementedError
@@ -120,7 +143,7 @@ class Burner(AbstractBurner):
         return
 
     def inventory(self, arguments=None):
-        raise NotImplementedError
+        return self.inventory
 
     def multi_burn(self,
                    names=None,
