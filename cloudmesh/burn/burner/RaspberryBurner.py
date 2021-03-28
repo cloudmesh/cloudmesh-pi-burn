@@ -1,4 +1,5 @@
 import time
+import sys
 
 from cloudmesh.burn.burner.BurnerABC import AbstractBurner
 from cloudmesh.burn.image import Image
@@ -53,8 +54,10 @@ class Burner(AbstractBurner):
 
         for tag in tags:
             Console.info(f'Attempting to download {tag}')
-            image.fetch(tag=[tag])
-
+            res = image.fetch(tag=[tag])
+            if not res:
+                Console.error('Failed Image Fetch.')
+                raise Exception('Failed Image Fetch')
 
     def cluster(self, arguments=None):
         raise NotImplementedError

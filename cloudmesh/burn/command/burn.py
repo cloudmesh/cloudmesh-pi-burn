@@ -434,7 +434,11 @@ class BurnCommand(PluginCommand):
 
             if arguments.inventory:
                 inv_path = path_expand(f'~/.cloudmesh/{arguments.inventory}.yaml')
-                burner = RaspberryBurner(inventory=inv_path)
+                try:
+                    burner = RaspberryBurner(inventory=inv_path)
+                except:
+                    Console.error('Burner Error')
+                    return ""
             else:
                 if workers:
                     worker_base_name = ''.join(
@@ -453,7 +457,11 @@ class BurnCommand(PluginCommand):
                     _build_default_inventory(filename=inventory,
                                              manager=manager, workers=workers)
 
-                burner = RaspberryBurner(inventory=inventory)
+                try:
+                    burner = RaspberryBurner(inventory=inventory)
+                except:
+                    Console.error('Burner Error')
+                    return ""
 
                 if manager:
                     if not ssid:
