@@ -5,6 +5,8 @@ from cloudmesh.common.util import readfile
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import path_expand
+from cloudmesh.common.util import yn_choice, readfile, banner
+from cloudmesh.burn.image import Image
 
 
 class Configure:
@@ -44,6 +46,35 @@ class Configure:
             self.nodes = self.inventory.find(service='manager') + self.inventory.find(service='worker')
 
         self.manager_public_key = None
+
+        managers = self.inventory.find(service='manager')
+        workers = self.inventory.find(service='worker')
+        configs = managers + workers
+        # Create dict for them for easy lookup
+        self.configs = dict((config['host'], config) for config in configs)
+        self.get_images()
+
+    def get_images(self):
+        """
+        Downloads all tags found in self.configs
+        """
+        tags = set()
+        for config in self.configs.values():
+            try:
+                tags.add(config['tag'])
+            except KeyError as e:
+                Console.warning(f'Could not find tag for {config["host"]}. Skipping')
+
+        banner("Downloading Images", figlet=True)
+
+        image = Image()
+
+        for tag in tags:
+            Console.info(f'Attempting to download {tag}')
+            res = image.fetch(tag=[tag])
+            if not res:
+                Console.error('Failed Image Fetch.')
+                raise Exception('Failed Image Fetch')
 
     def build_user_data(self, name=None, with_defaults=True, country=None,
                         add_manager_key=False, upgrade=False, with_bridge=False):
