@@ -49,11 +49,11 @@ class SdCard:
         pass
 
     @staticmethod
-    def info(volume_number, volume_letter):
+    def info():
         print("Disk info")
         writefile(SdCard.tmp, "list volume")
         b = Shell.run(f"diskpart /s {SdCard.tmp}").splitlines()[8:]
-        print(b)
+        return b
 
     @staticmethod
     def get_free_drive():
@@ -75,6 +75,8 @@ class SdCard:
 
     @staticmethod
     def guess_volume_number():
+        r = SdCard.info()
+        print(r)
         for line in r:
             line = line.strip()
             if "*" not in line:
@@ -88,7 +90,8 @@ class SdCard:
                     return num
         raise ValueError("No SD card found")
 
-SdCard.info()
+r = SdCard.info()
+print(r)
 volume_number = SdCard.guess_volume_number()
 
 if not yn_choice (f"Would you like to contine burning on disk {volume_number}"):
