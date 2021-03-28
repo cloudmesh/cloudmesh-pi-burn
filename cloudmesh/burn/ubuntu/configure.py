@@ -5,7 +5,7 @@ from cloudmesh.common.util import readfile
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import path_expand
-from cloudmesh.common.util import yn_choice, readfile, banner
+from cloudmesh.common.util import banner
 from cloudmesh.burn.image import Image
 
 

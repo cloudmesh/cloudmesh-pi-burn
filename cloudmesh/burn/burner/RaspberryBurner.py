@@ -1,5 +1,4 @@
 import time
-import sys
 
 from cloudmesh.burn.burner.BurnerABC import AbstractBurner
 from cloudmesh.burn.image import Image

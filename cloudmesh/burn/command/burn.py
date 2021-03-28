@@ -470,7 +470,7 @@ class BurnCommand(PluginCommand):
                             Console.info('Could not determine SSID, skipping wifi '
                                          'config')
                             ssid = None
-                    if not wifipasswd and not ssid is None:
+                    if not wifipasswd and ssid is not None:
                         wifipasswd = getpass(f"Using --SSID={ssid}, please "
                                              f"enter wifi password:")
 
@@ -518,7 +518,7 @@ class BurnCommand(PluginCommand):
                                              manager_image='ubuntu-20.10-64-bit',
                                              worker_image='ubuntu-20.10-64-bit')
 
-                c = Configure(inventory = inventory, debug=arguments['-v'])
+                c = Configure(inventory=inventory, debug=arguments['-v'])
                 inv = Inventory(filename=inventory)
 
                 if manager:
@@ -528,13 +528,13 @@ class BurnCommand(PluginCommand):
                             Console.info('Could not determine SSID, skipping wifi '
                                          'config')
                             arguments.ssid = None
-                    if not arguments.wifipassword and not arguments.ssid is None:
+                    if not arguments.wifipassword and arguments.ssid is not None:
                         arguments.country = Shell.locale().upper()
                         arguments.wifipassword = getpass(f"Using --SSID="
-                                                       f"{arguments.ssid} and "
-                                                       f" --COUNTRY="
-                                                       f"{arguments.country}, please "
-                                                       f"enter wifi password:")
+                                                         f"{arguments.ssid} and "
+                                                         f" --COUNTRY="
+                                                         f"{arguments.country}, please "
+                                                         f"enter wifi password:")
 
             # Probably not the best way to get the tag, but we assume all tags
             # are the same for each row for now
