@@ -427,7 +427,6 @@ class BurnCommand(PluginCommand):
         elif arguments.raspberry:
             banner(txt="RaspberryOS Burn", figlet=True)
 
-
             if arguments.inventory:
                 inv_path = path_expand(f'~/.cloudmesh/{arguments.inventory}.yaml')
                 try:
@@ -448,7 +447,6 @@ class BurnCommand(PluginCommand):
                     raise e
 
                     return ""
-
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
@@ -487,10 +485,10 @@ class BurnCommand(PluginCommand):
                         return ""
 
                     Inventory.build_default_inventory(filename=inventory,
-                                             manager=manager,
-                                             workers=workers,
-                                             manager_image='ubuntu-20.10-64-bit',
-                                             worker_image='ubuntu-20.10-64-bit')
+                                                      manager=manager,
+                                                      workers=workers,
+                                                      manager_image='ubuntu-20.10-64-bit',
+                                                      worker_image='ubuntu-20.10-64-bit')
 
                 c = Configure(inventory=inventory, debug=arguments['-v'], download_images=True)
                 inv = Inventory(filename=inventory)
@@ -1021,4 +1019,3 @@ class BurnCommand(PluginCommand):
 
         Console.error("see manual page: cms help burn")
         return ""
-

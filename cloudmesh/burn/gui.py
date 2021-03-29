@@ -522,8 +522,8 @@ class Gui:
                 manager, workers = Host.get_hostnames(hostnames)
                 filename = path_expand(f"~/.cloudmesh/inventory-{manager}.yaml")
                 Inventory.build_default_inventory(filename=filename, manager=manager,
-                                         workers=workers, ips=ips,
-                                         gui_images=tags)
+                                                  workers=workers, ips=ips,
+                                                  gui_images=tags)
 
                 if "ubuntu" in tags[0]:
                     os_cmd = 'ubuntu'

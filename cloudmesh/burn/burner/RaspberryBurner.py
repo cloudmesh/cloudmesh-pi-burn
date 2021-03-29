@@ -29,7 +29,6 @@ class Burner(AbstractBurner):
         if inventory is None:
             names = Parameter.expand(names)
             manager, workers = Host.get_hostnames(names)
-            wifipasswd = wifipassword
             if workers:
                 worker_base_name = ''.join(
                     [i for i in workers[0] if not i.isdigit()])
@@ -40,22 +39,23 @@ class Burner(AbstractBurner):
             if not os.path.exists(inventory) or force_inv:
                 if not manager:
                     Console.error("No inventory found. Can not create an "
-                                    "inventory without a "
-                                    "manager.")
+                                  "inventory without a "
+                                  "manager.")
                     return ""
 
                 Inventory.build_default_inventory(filename=inventory,
-                                            manager=manager, workers=workers)
+                                                  manager=manager,
+                                                  workers=workers)
             if manager:
                 if not self.ssid:
                     self.ssid = get_ssid()
                     if self.ssid == "":
                         Console.info('Could not determine SSID, skipping wifi '
-                                        'config')
+                                     'config')
                         self.ssid = None
                 if not self.wifipasswd and self.ssid:
                     self.wifipasswd = getpass(f"Using --SSID={self.ssid}, please "
-                                            f"enter wifi password:")
+                                              f"enter wifi password:")
             inv = Inventory(filename=inventory)
 
         else:
