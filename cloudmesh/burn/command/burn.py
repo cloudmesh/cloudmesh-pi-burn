@@ -486,17 +486,17 @@ class BurnCommand(PluginCommand):
                                       "manager.")
                         return ""
 
-                    _build_default_inventory(filename=inventory,
+                    Inventory.build_default_inventory(filename=inventory,
                                              manager=manager,
                                              workers=workers,
                                              manager_image='ubuntu-20.10-64-bit',
                                              worker_image='ubuntu-20.10-64-bit')
 
-                c = Configure(inventory=inventory, debug=arguments['-v'])
+                c = Configure(inventory=inventory, debug=arguments['-v'], download_images=True)
                 inv = Inventory(filename=inventory)
 
                 if manager:
-                    if not arguments.ssid:
+                    if not arguments.ssid and 'wifi' in c.configs[manager]['services']:
                         arguments.ssid = get_ssid()
                         if arguments.ssid == "":
                             Console.info('Could not determine SSID, skipping wifi '
@@ -533,19 +533,19 @@ class BurnCommand(PluginCommand):
 
             # determine if we are burning a manager, as this needs to be done
             # first to get the ssh public key
-            manager = False
-            for name in names:
-                if not inv.has_host(name):
-                    Console.error(f'Could not find {name} in inventory {inv.filename}')
-                    return ""
-                service = inv.get(name=name, attribute='service')
-                if service == 'manager' and not manager:
-                    manager = name
-                    # make manager first in names
-                    names.remove(name)
-                    names.insert(0, name)
-                elif service == 'manager' and manager:
-                    raise Exception('More than one manager detected in NAMES')
+            # manager = False
+            # for name in names:
+            #     if not inv.has_host(name):
+            #         Console.error(f'Could not find {name} in inventory {inv.filename}')
+            #         return ""
+            #     service = inv.get(name=name, attribute='service')
+            #     if service == 'manager' and not manager:
+            #         manager = name
+            #         # make manager first in names
+            #         names.remove(name)
+            #         names.insert(0, name)
+            #     elif service == 'manager' and manager:
+            #         raise Exception('More than one manager detected in NAMES')
 
             for name in names:
                 if not yn_choice(f'Is the card to be burned for {name} inserted?'):
@@ -572,10 +572,10 @@ class BurnCommand(PluginCommand):
                 sdcard.mount(device=arguments.device, card_os="ubuntu")
                 if service == 'manager':
                     # Generate a private public key pair for the manager that will be persistently used
-                    priv_key, pub_key = c.generate_ssh_key(name)
+                    # priv_key, pub_key = c.generate_ssh_key(name)
                     # Write priv_key and pub_key to /boot/id_rsa and /boot/id_rsa.pub
-                    SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa', content=priv_key)
-                    SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa.pub', content=pub_key)
+                    # SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa', content=priv_key)
+                    # SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa.pub', content=pub_key)
                     c.build_user_data(name=name,
                                       country=arguments.country,
                                       upgrade=arguments.upgrade,
