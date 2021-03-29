@@ -466,6 +466,7 @@ class Gui:
                         device = "/dev/" + entry.replace("device-", "")
                     if str(entry).startswith("tag") and values[entry]:
                         tags.append(values[entry])
+
                 key = values['key']
                 self.hostnames_str = ','.join(hostnames)
                 self.ips_str = ','.join(ips)
@@ -531,7 +532,7 @@ class Gui:
                               f" --wifipassword={self.wifipassword}" \
                               f" --country={Shell.locale().upper()}"
                 else:
-                    command = f"cms burn raspberry {host}" \
+                    command = f"cms burn {os_cmd} {host}" \
                               f" --device={device}"
                     print(command)
 
