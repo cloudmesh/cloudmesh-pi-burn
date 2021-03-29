@@ -53,6 +53,11 @@ image_tags = {
         "name": "Ubuntu 64-bit 20.10",
         "manager": "ubuntu-20.10-64-bit",
         "worker": "ubuntu-20.10-64-bit"
+    },
+    "os_ubuntu_64bit_20_10_desktop": {
+        "name": "Ubuntu 64-bit 20.10 desktop",
+        "manager": "ubuntu-desktop",
+        "worker": "ubuntu-desktop"
     }
 }
 
@@ -515,7 +520,7 @@ class Gui:
                 #          f" {self.imaged_str}"
 
                 manager, workers = Host.get_hostnames(hostnames)
-                filename = path_expand(f"~/.cloudmesh/inventory-{manager}.yml")
+                filename = path_expand(f"~/.cloudmesh/inventory-{manager}.yaml")
                 Inventory.build_default_inventory(filename=filename, manager=manager,
                                          workers=workers, ips=ips,
                                          gui_images=tags)
