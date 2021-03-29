@@ -1,4 +1,6 @@
+import os
 import time
+from getpass import getpass
 
 from cloudmesh.burn.burner.BurnerABC import AbstractBurner
 from cloudmesh.burn.image import Image
@@ -6,9 +8,11 @@ from cloudmesh.burn.raspberryos.cmdline import Cmdline
 from cloudmesh.burn.raspberryos.runfirst import Runfirst
 from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.usb import USB
+from cloudmesh.burn.wifi.ssid import get_ssid
 from cloudmesh.common.console import Console
+from cloudmesh.common.Host import Host
 from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.util import yn_choice, readfile, banner
+from cloudmesh.common.util import yn_choice, readfile, banner, path_expand
 from cloudmesh.inventory.inventory import Inventory
 
 
@@ -18,10 +22,42 @@ class Burner(AbstractBurner):
 
     Inventory should contain information on manager and workers
     """
-    def __init__(self, inventory=None):
+    def __init__(self, inventory=None, names=None, ssid=None, wifipassword=None, force_inv=False):
         # Get inventory
+        self.ssid = ssid
+        self.wifipasswd = wifipassword
         if inventory is None:
-            inv = Inventory()
+            names = Parameter.expand(names)
+            manager, workers = Host.get_hostnames(names)
+            wifipasswd = wifipassword
+            if workers:
+                worker_base_name = ''.join(
+                    [i for i in workers[0] if not i.isdigit()])
+
+            cluster_name = manager or worker_base_name
+            inventory = path_expand(f'~/.cloudmesh/inventory-{cluster_name}.yaml')
+
+            if not os.path.exists(inventory) or force_inv:
+                if not manager:
+                    Console.error("No inventory found. Can not create an "
+                                    "inventory without a "
+                                    "manager.")
+                    return ""
+
+                Inventory.build_default_inventory(filename=inventory,
+                                            manager=manager, workers=workers)
+            if manager:
+                if not self.ssid:
+                    self.ssid = get_ssid()
+                    if self.ssid == "":
+                        Console.info('Could not determine SSID, skipping wifi '
+                                        'config')
+                        self.ssid = None
+                if not self.wifipasswd and self.ssid:
+                    self.wifipasswd = getpass(f"Using --SSID={self.ssid}, please "
+                                            f"enter wifi password:")
+            inv = Inventory(filename=inventory)
+
         else:
             inv = Inventory(filename=inventory)
 
@@ -66,8 +102,6 @@ class Burner(AbstractBurner):
              device=None,
              verbose=False,
              password=None,
-             ssid=None,
-             wifipasswd=None,
              country=None):
         """
         Given the name of a config, burn device with RaspberryOS and configure properly
@@ -128,8 +162,8 @@ class Burner(AbstractBurner):
             runfirst.set_password(password=password)
 
         runfirst.set_locale(timezone=config['timezone'], locale=config['locale'])
-        if ssid and 'wifi' in config['services']:
-            runfirst.set_wifi(ssid, wifipasswd, country=country)
+        if self.ssid and 'wifi' in config['services']:
+            runfirst.set_wifi(self.ssid, self.wifipasswd, country=country)
 
         runfirst.set_key(key=readfile(config['keyfile']).strip())
         if 'bridge' in config['services']:
@@ -152,8 +186,6 @@ class Burner(AbstractBurner):
                    devices=None,
                    verbose=False,
                    password=None,
-                   ssid=None,
-                   wifipasswd=None,
                    country=None):
         """
         Given multiple names, burn them
@@ -178,8 +210,6 @@ class Burner(AbstractBurner):
                 device=devices[0],
                 verbose=verbose,
                 password=password,
-                ssid=ssid,
-                wifipasswd=wifipasswd,
                 country=None
             )
         Console.ok('Finished burning all cards')
