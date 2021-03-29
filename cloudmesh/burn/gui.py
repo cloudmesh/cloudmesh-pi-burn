@@ -17,7 +17,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.diagram.diagram import Diagram
 from cloudmesh.burn.wifi.ssid import get_ssid
-from cloudmesh.burn.command.burn import _build_default_inventory
+from cloudmesh.inventory.inventory import Inventory
 
 
 def _execute(command):
@@ -515,7 +515,7 @@ class Gui:
 
                 manager, workers = Host.get_hostnames(hostnames)
                 filename = path_expand(f"~/.cloudmesh/inventory-{manager}.yml")
-                _build_default_inventory(filename=filename, manager=manager,
+                Inventory.build_default_inventory(filename=filename, manager=manager,
                                          workers=workers, ips=ips,
                                          gui_images=tags)
 
