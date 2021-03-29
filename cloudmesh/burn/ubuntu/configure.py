@@ -31,7 +31,7 @@ class Configure:
     """
     KEY_DIR = path_expand('~/.cloudmesh/cmburn')
 
-    def __init__(self, inventory=None, cluster=None, debug=False):
+    def __init__(self, inventory=None, cluster=None, debug=False, download_images=False):
         self.debug = debug
         self.manager_public_key = None  # Populated by self.generate_ssh_key
 
@@ -52,7 +52,8 @@ class Configure:
         configs = managers + workers
         # Create dict for them for easy lookup
         self.configs = dict((config['host'], config) for config in configs)
-        self.get_images()
+        if download_images:
+            self.get_images()
 
     def get_images(self):
         """

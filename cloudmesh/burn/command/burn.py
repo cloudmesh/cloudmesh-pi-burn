@@ -427,10 +427,6 @@ class BurnCommand(PluginCommand):
         elif arguments.raspberry:
             banner(txt="RaspberryOS Burn", figlet=True)
 
-            names = Parameter.expand(arguments.NAMES)
-            manager, workers = Host.get_hostnames(names)
-            ssid = arguments['--ssid']
-            wifipasswd = arguments['--wifipassword']
 
             if arguments.inventory:
                 inv_path = path_expand(f'~/.cloudmesh/{arguments.inventory}.yaml')
@@ -440,47 +436,25 @@ class BurnCommand(PluginCommand):
                     Console.error('Burner Error')
                     return ""
             else:
-                if workers:
-                    worker_base_name = ''.join(
-                        [i for i in workers[0] if not i.isdigit()])
-
-                cluster_name = manager or worker_base_name
-                inventory = path_expand(f'~/.cloudmesh/inventory-{cluster_name}.yaml')
-
-                if not os.path.exists(inventory) or arguments['-f']:
-                    if not manager:
-                        Console.error("No inventory found. Can not create an "
-                                      "inventory without a "
-                                      "manager.")
-                        return ""
-
-                    _build_default_inventory(filename=inventory,
-                                             manager=manager, workers=workers)
-
                 try:
-                    burner = RaspberryBurner(inventory=inventory)
-                except:
+                    burner = RaspberryBurner(
+                        names=arguments.NAMES,
+                        ssid=arguments['--ssid'],
+                        wifipassword=arguments['--wifipassword'],
+                        force_inv=arguments['-f']
+                    )
+                except Exception as e:
                     Console.error('Burner Error')
+                    raise e
+
                     return ""
 
-                if manager:
-                    if not ssid:
-                        ssid = get_ssid()
-                        if ssid == "":
-                            Console.info('Could not determine SSID, skipping wifi '
-                                         'config')
-                            ssid = None
-                    if not wifipasswd and ssid is not None:
-                        wifipasswd = getpass(f"Using --SSID={ssid}, please "
-                                             f"enter wifi password:")
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
                 devices=arguments.device,
                 verbose=arguments['-v'],
                 password=arguments['--password'],
-                ssid=ssid,
-                wifipasswd=wifipasswd,
                 country=arguments['--country']
             ))
             return ""
@@ -512,17 +486,17 @@ class BurnCommand(PluginCommand):
                                       "manager.")
                         return ""
 
-                    _build_default_inventory(filename=inventory,
+                    Inventory.build_default_inventory(filename=inventory,
                                              manager=manager,
                                              workers=workers,
                                              manager_image='ubuntu-20.10-64-bit',
                                              worker_image='ubuntu-20.10-64-bit')
 
-                c = Configure(inventory=inventory, debug=arguments['-v'])
+                c = Configure(inventory=inventory, debug=arguments['-v'], download_images=True)
                 inv = Inventory(filename=inventory)
 
                 if manager:
-                    if not arguments.ssid:
+                    if not arguments.ssid and 'wifi' in c.configs[manager]['services']:
                         arguments.ssid = get_ssid()
                         if arguments.ssid == "":
                             Console.info('Could not determine SSID, skipping wifi '
@@ -559,19 +533,19 @@ class BurnCommand(PluginCommand):
 
             # determine if we are burning a manager, as this needs to be done
             # first to get the ssh public key
-            manager = False
-            for name in names:
-                if not inv.has_host(name):
-                    Console.error(f'Could not find {name} in inventory {inv.filename}')
-                    return ""
-                service = inv.get(name=name, attribute='service')
-                if service == 'manager' and not manager:
-                    manager = name
-                    # make manager first in names
-                    names.remove(name)
-                    names.insert(0, name)
-                elif service == 'manager' and manager:
-                    raise Exception('More than one manager detected in NAMES')
+            # manager = False
+            # for name in names:
+            #     if not inv.has_host(name):
+            #         Console.error(f'Could not find {name} in inventory {inv.filename}')
+            #         return ""
+            #     service = inv.get(name=name, attribute='service')
+            #     if service == 'manager' and not manager:
+            #         manager = name
+            #         # make manager first in names
+            #         names.remove(name)
+            #         names.insert(0, name)
+            #     elif service == 'manager' and manager:
+            #         raise Exception('More than one manager detected in NAMES')
 
             for name in names:
                 if not yn_choice(f'Is the card to be burned for {name} inserted?'):
@@ -598,10 +572,10 @@ class BurnCommand(PluginCommand):
                 sdcard.mount(device=arguments.device, card_os="ubuntu")
                 if service == 'manager':
                     # Generate a private public key pair for the manager that will be persistently used
-                    priv_key, pub_key = c.generate_ssh_key(name)
+                    # priv_key, pub_key = c.generate_ssh_key(name)
                     # Write priv_key and pub_key to /boot/id_rsa and /boot/id_rsa.pub
-                    SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa', content=priv_key)
-                    SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa.pub', content=pub_key)
+                    # SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa', content=priv_key)
+                    # SDCard.writefile(filename=f'{sdcard.boot_volume}/id_rsa.pub', content=pub_key)
                     c.build_user_data(name=name,
                                       country=arguments.country,
                                       upgrade=arguments.upgrade,
@@ -1048,61 +1022,3 @@ class BurnCommand(PluginCommand):
         Console.error("see manual page: cms help burn")
         return ""
 
-
-def _build_default_inventory(filename, manager, workers, ips=None,
-                             manager_image='latest-lite',
-                             worker_image='latest-lite',
-                             gui_images=None):
-    # cms inventory add red --service=manager --ip=10.1.1.1 --tag=latest-lite
-    # --timezone="America/Indiana/Indianapolis" --locale="us"
-    # cms inventory set red services to "bridge" --listvalue
-    # cms inventory add "red0[1-3]" --service=worker --ip="10.1.1.[2-4]"
-    # --router=10.1.1.1 --tag=latest-lite  --timezone="America/Indiana/Indianapolis" --locale="us"
-    # cms inventory set "red0[1-3]" dns to "8.8.8.8,8.8.4.4" --listvalue
-
-    Console.info("No inventory found or forced rebuild. Buidling inventory "
-                 "with defaults.")
-    Shell.execute("rm", arguments=[
-                  '-f', filename])
-    i = Inventory(filename=filename)
-    timezone = Shell.timezone()
-    locale = Shell.locale()
-    manager_ip = ips[0] if ips else '10.1.1.1'
-    image = gui_images[0] if gui_images else manager_image
-    element = {}
-    element['host'] = manager
-    element['status'] = 'inactive'
-    element['service'] = 'manager'
-    element['ip'] = manager_ip
-    element['tag'] = image
-    element['timezone'] = timezone
-    element['locale'] = locale
-    element['services'] = ['bridge', 'wifi']
-    element['keyfile'] = '~/.ssh/id_rsa.pub'
-    i.add(**element)
-    i.save()
-
-    last_octet = 2
-    index = 1
-    if workers is not None:
-        for worker in workers:
-            ip = ips[index] if ips else f'10.1.1.{last_octet}'
-            image = gui_images[index] if gui_images else worker_image
-            element = {}
-            element['host'] = worker
-            element['status'] = 'inactive'
-            element['service'] = 'worker'
-            element['ip'] = ip
-            element['tag'] = image
-            element['timezone'] = timezone
-            element['locale'] = locale
-            element['router'] = manager_ip
-            element['dns'] = ['8.8.8.8', '8.8.4.4']
-            element['keyfile'] = '~/.ssh/id_rsa.pub'
-            i.add(**element)
-            i.save()
-            last_octet += 1
-            index += 1
-
-    i.save()
-    print(i.list(format="table"))
