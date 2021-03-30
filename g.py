@@ -6,6 +6,7 @@ import string
 import win32api
 import win32wnet
 import win32netcon
+import subprocess
 
 
 
@@ -24,8 +25,23 @@ class SdCard:
     tmp = "tmp.txt"
     # Take a look at Gregor's SDCard init method
     @staticmethod
-    def format_card(volume_number):
+    def format_card(volume_number, disk_number):
         print(f"format :{volume_number}")
+
+        writefile(SdCard.tmp, f"select disk {disk_number}")
+        a = Shell.run(f"diskpart /s {SdCard.tmp}")
+
+        print(a)
+
+        writefile(SdCard.tmp, f"select volume {volume_number}")
+        a = Shell.run(f"diskpart /s {SdCard.tmp}")
+        print(SdCard.tmp)
+        print(a)
+
+        writefile(SdCard.tmp, "format fs=fat32 quick")
+        print(SdCard.tmp)
+        a = Shell.run(f"diskpart /s {SdCard.tmp}")
+
 
     @staticmethod
     def mount(volume_number, volume_letter=None):
@@ -90,6 +106,12 @@ class SdCard:
                     return num
         raise ValueError("No SD card found")
 
+SdCard.format_card(5, 3)
+
+
+'''
+DO NOT DELETE THIS COMMENT - WORKING CODE HERE. 
+
 r = SdCard.info()
 print(r)
 volume_number = SdCard.guess_volume_number()
@@ -106,7 +128,7 @@ files = glob(f"{volume_letter}:")
 print(files)
 
 SdCard.unmount(volume_letter)
-
+'''
 
 
 
