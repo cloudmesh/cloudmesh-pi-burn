@@ -1,5 +1,6 @@
 import os
 import textwrap
+import wget
 import zipfile
 from pathlib import Path
 
@@ -307,7 +308,8 @@ class Image(object):
                 Console.warning(f"The file is already downloaded. Found at:\n\n"
                                 f"    {img_file}\n")
                 return img_file
-            os.system(f'wget -O {xz_filename} {image["url"]}')
+            wget.download(image["url"], out=xz_filename)
+            # os.system(f'wget -O {xz_filename} {image["url"]}')
 
             print(f"Extracting {img_filename}")
             self.unzip_image(xz_filename)
@@ -343,10 +345,13 @@ class Image(object):
             image['sha1'] = image['url'] + ".sha1"
             image['sha256'] = image['url'] + ".sha256"
             if verify:
-                os.system(f'wget -O {sha1_filename} {image["sha1"]}')
-                os.system(f'wget -O {sha256_filename} {image["sha256"]}')
+                wget.download(image["sha1"], out=sha1_filename)
+                wget.download(image["sha256"], out=sha256_filename)
+                # os.system(f'wget -O {sha1_filename} {image["sha1"]}')
+                # os.system(f'wget -O {sha256_filename} {image["sha256"]}')
 
-            os.system(f'wget -O {zip_filename} {image["url"]}')
+            wget.download(image["url"], out=zip_filename)
+            # os.system(f'wget -O {zip_filename} {image["url"]}')
 
             if verify:
                 sha1 = sha1sum(zip_file)
