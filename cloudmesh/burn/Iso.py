@@ -1,4 +1,5 @@
 import os
+import wget
 
 from cloudmesh.burn.image import Image
 
@@ -13,4 +14,5 @@ class Iso:
         url = Iso.distribution[tag]
         destination = Image().directory + os.path.basename(url)
 
-        os.system(f'wget -O {destination} {url}')
+        wget.download(url, out=destination)
+        # os.system(f'wget -O {destination} {url}')
