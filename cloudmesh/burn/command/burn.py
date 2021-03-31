@@ -453,7 +453,7 @@ class BurnCommand(PluginCommand):
                 devices=arguments.device,
                 verbose=arguments['-v'],
                 password=arguments['--password'],
-                country=arguments['--country']
+                country=burner.country
             ))
             return ""
 
