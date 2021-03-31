@@ -11,6 +11,7 @@ from cloudmesh.burn.usb import USB
 from cloudmesh.burn.wifi.ssid import get_ssid
 from cloudmesh.common.console import Console
 from cloudmesh.common.Host import Host
+from cloudmesh.common.Shell import Shell
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import yn_choice, readfile, banner, path_expand
 from cloudmesh.inventory.inventory import Inventory
@@ -56,6 +57,7 @@ class Burner(AbstractBurner):
                 if not self.wifipasswd and self.ssid:
                     self.wifipasswd = getpass(f"Using --SSID={self.ssid}, please "
                                               f"enter wifi password:")
+                    self.country = Shell.locale().upper()
             inv = Inventory(filename=inventory)
 
         else:
@@ -210,7 +212,7 @@ class Burner(AbstractBurner):
                 device=devices[0],
                 verbose=verbose,
                 password=password,
-                country=None
+                country=country
             )
         Console.ok('Finished burning all cards')
 
