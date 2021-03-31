@@ -1,6 +1,6 @@
 import os
 import textwrap
-import wget
+# import wget
 import zipfile
 from pathlib import Path
 
@@ -11,6 +11,7 @@ from cloudmesh.burn.util import sha1sum
 from cloudmesh.burn.util import sha256sum
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
+from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile, writefile
@@ -308,7 +309,8 @@ class Image(object):
                 Console.warning(f"The file is already downloaded. Found at:\n\n"
                                 f"    {img_file}\n")
                 return img_file
-            wget.download(image["url"], out=xz_filename)
+            Shell.download(image["url"], xz_filename, provider='system')
+            # wget.download(image["url"], out=xz_filename)
             # os.system(f'wget -O {xz_filename} {image["url"]}')
 
             print(f"Extracting {img_filename}")
@@ -345,12 +347,15 @@ class Image(object):
             image['sha1'] = image['url'] + ".sha1"
             image['sha256'] = image['url'] + ".sha256"
             if verify:
-                wget.download(image["sha1"], out=sha1_filename)
-                wget.download(image["sha256"], out=sha256_filename)
+                Shell.download(image["sha1"], sha1_filename, provider='system')
+                Shell.download(image["sha256"], sha256_filename, provider='system')
+                # wget.download(image["sha1"], out=sha1_filename)
+                # wget.download(image["sha256"], out=sha256_filename)
                 # os.system(f'wget -O {sha1_filename} {image["sha1"]}')
                 # os.system(f'wget -O {sha256_filename} {image["sha256"]}')
 
-            wget.download(image["url"], out=zip_filename)
+            Shell.download(image["url"], zip_filename, provider='system')
+            # wget.download(image["url"], out=zip_filename)
             # os.system(f'wget -O {zip_filename} {image["url"]}')
 
             if verify:

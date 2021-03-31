@@ -1,5 +1,5 @@
 import os
-import wget
+# import wget
 
 from cloudmesh.burn.burner.raspberryos import Burner as RaspberryOsBurner
 from cloudmesh.burn.usb import USB
@@ -54,7 +54,8 @@ class Burner:
             return ""
         else:
             banner("Installing pishrink.sh into /usr/local/bin")
-            script_name = wget.download('https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh')
+            script_name = Shell.download(
+                'https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh', 'pishrink.sh', provider='system')
             script = \
                 f"""
                 chmod +x {script_name}
