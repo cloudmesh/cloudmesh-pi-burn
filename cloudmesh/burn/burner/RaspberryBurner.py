@@ -23,7 +23,8 @@ class Burner(AbstractBurner):
 
     Inventory should contain information on manager and workers
     """
-    def __init__(self, inventory=None, names=None, ssid=None, wifipassword=None, force_inv=False):
+    def __init__(self, inventory=None, names=None, ssid=None,
+                 wifipassword=None, force_inv=False, country=None):
         # Get inventory
         self.ssid = ssid
         self.wifipasswd = wifipassword
@@ -57,7 +58,7 @@ class Burner(AbstractBurner):
                 if not self.wifipasswd and self.ssid:
                     self.wifipasswd = getpass(f"Using --SSID={self.ssid}, please "
                                               f"enter wifi password:")
-                    self.country = Shell.locale().upper()
+
             inv = Inventory(filename=inventory)
 
         else:
@@ -73,6 +74,7 @@ class Burner(AbstractBurner):
         # Create dict for them for easy lookup
         self.configs = dict((config['host'], config) for config in configs)
         self.get_images()
+        self.country = country if country else Shell.locale().upper()
 
     def get_images(self):
         """
@@ -104,7 +106,7 @@ class Burner(AbstractBurner):
              device=None,
              verbose=False,
              password=None,
-             country=None):
+             ):
         """
         Given the name of a config, burn device with RaspberryOS and configure properly
         """
@@ -165,7 +167,7 @@ class Burner(AbstractBurner):
 
         runfirst.set_locale(timezone=config['timezone'], locale=config['locale'])
         if self.ssid and 'wifi' in config['services']:
-            runfirst.set_wifi(self.ssid, self.wifipasswd, country=country)
+            runfirst.set_wifi(self.ssid, self.wifipasswd, self.country)
 
         runfirst.set_key(key=readfile(config['keyfile']).strip())
         if 'bridge' in config['services']:
@@ -188,7 +190,7 @@ class Burner(AbstractBurner):
                    devices=None,
                    verbose=False,
                    password=None,
-                   country=None):
+                   ):
         """
         Given multiple names, burn them
         """
@@ -211,8 +213,7 @@ class Burner(AbstractBurner):
                 name=name,
                 device=devices[0],
                 verbose=verbose,
-                password=password,
-                country=country
+                password=password
             )
         Console.ok('Finished burning all cards')
 

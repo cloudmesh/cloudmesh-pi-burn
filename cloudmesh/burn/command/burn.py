@@ -430,7 +430,10 @@ class BurnCommand(PluginCommand):
             if arguments.inventory:
                 inv_path = path_expand(f'~/.cloudmesh/{arguments.inventory}.yaml')
                 try:
-                    burner = RaspberryBurner(inventory=inv_path)
+                    burner = RaspberryBurner(inventory=inv_path,
+                                             ssid=arguments['--ssid'],
+                                             wifipassword=arguments['--wifipassword'],
+                                             country=arguments['--country'])
                 except:
                     Console.error('Burner Error')
                     return ""
@@ -440,7 +443,8 @@ class BurnCommand(PluginCommand):
                         names=arguments.NAMES,
                         ssid=arguments['--ssid'],
                         wifipassword=arguments['--wifipassword'],
-                        force_inv=arguments['-f']
+                        force_inv=arguments['-f'],
+                        country=arguments['--country']
                     )
                 except Exception as e:
                     Console.error('Burner Error')
@@ -453,7 +457,6 @@ class BurnCommand(PluginCommand):
                 devices=arguments.device,
                 verbose=arguments['-v'],
                 password=arguments['--password'],
-                country=burner.country
             ))
             return ""
 
