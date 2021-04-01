@@ -17,7 +17,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.diagram.diagram import Diagram
 from cloudmesh.burn.wifi.ssid import get_ssid
-from cloudmesh.burn.command.burn import _build_default_inventory
+from cloudmesh.inventory.inventory import Inventory
 
 
 def _execute(command):
@@ -46,13 +46,18 @@ image_tags = {
     },
     "os_ubuntu_64bit_20_04": {
         "name": "Ubuntu 64-bit 20.04",
-        "manager": "Ubuntu 64 04",
-        "worker": "Ubuntu 64 04"
+        "manager": "ubuntu-20.04.2-64-bit ",
+        "worker": "ubuntu-20.04.2-64-bit "
     },
     "os_ubuntu_64bit_20_10": {
         "name": "Ubuntu 64-bit 20.10",
-        "manager": "Ubuntu 64 10",
-        "worker": "Ubuntu 64 10"
+        "manager": "ubuntu-20.10-64-bit",
+        "worker": "ubuntu-20.10-64-bit"
+    },
+    "os_ubuntu_64bit_20_10_desktop": {
+        "name": "Ubuntu 64-bit 20.10 desktop",
+        "manager": "ubuntu-desktop",
+        "worker": "ubuntu-desktop"
     }
 }
 
@@ -219,7 +224,7 @@ class Gui:
             default = count == 0
             if os_is_linux():
                 burn_layout.append(
-                    [sg.Radio(device, group_id="DEVICE",
+                    [sg.Radio(device['dev'], group_id="DEVICE",
                               default=default,
                               key=f"device-{device['name']}")]
                 )
@@ -466,6 +471,7 @@ class Gui:
                         device = "/dev/" + entry.replace("device-", "")
                     if str(entry).startswith("tag") and values[entry]:
                         tags.append(values[entry])
+
                 key = values['key']
                 self.hostnames_str = ','.join(hostnames)
                 self.ips_str = ','.join(ips)
@@ -514,16 +520,24 @@ class Gui:
                 #          f" {self.imaged_str}"
 
                 manager, workers = Host.get_hostnames(hostnames)
-                filename = path_expand(f"~/.cloudmesh/inventory-{manager}.yml")
-                _build_default_inventory(filename=filename, manager=manager,
-                                         workers=workers, ips=ips, images=tags)
+                filename = path_expand(f"~/.cloudmesh/inventory-{manager}.yaml")
+                Inventory.build_default_inventory(filename=filename, manager=manager,
+                                                  workers=workers, ips=ips,
+                                                  gui_images=tags)
+
+                if "ubuntu" in tags[0]:
+                    os_cmd = 'ubuntu'
+                else:
+                    os_cmd = 'raspberry'
+
                 if host == manager:
-                    command = f"cms burn raspberry {host}" \
+                    command = f"cms burn {os_cmd} {host}" \
                               f" --device={device}" \
                               f" --ssid={self.ssid}" \
-                              f" --wifipassword={self.wifipassword}"
+                              f" --wifipassword={self.wifipassword}" \
+                              f" --country={Shell.locale().upper()}"
                 else:
-                    command = f"cms burn raspberry {host}" \
+                    command = f"cms burn {os_cmd} {host}" \
                               f" --device={device}"
                     print(command)
 

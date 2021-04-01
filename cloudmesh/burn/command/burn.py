@@ -427,11 +427,13 @@ class BurnCommand(PluginCommand):
         elif arguments.raspberry:
             banner(txt="RaspberryOS Burn", figlet=True)
 
-
             if arguments.inventory:
                 inv_path = path_expand(f'~/.cloudmesh/{arguments.inventory}.yaml')
                 try:
-                    burner = RaspberryBurner(inventory=inv_path)
+                    burner = RaspberryBurner(inventory=inv_path,
+                                             ssid=arguments['--ssid'],
+                                             wifipassword=arguments['--wifipassword'],
+                                             country=arguments['--country'])
                 except:
                     Console.error('Burner Error')
                     return ""
@@ -441,7 +443,8 @@ class BurnCommand(PluginCommand):
                         names=arguments.NAMES,
                         ssid=arguments['--ssid'],
                         wifipassword=arguments['--wifipassword'],
-                        force_inv=arguments['-f']
+                        force_inv=arguments['-f'],
+                        country=arguments['--country']
                     )
                 except Exception as e:
                     Console.error('Burner Error')
@@ -449,13 +452,11 @@ class BurnCommand(PluginCommand):
 
                     return ""
 
-
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
                 devices=arguments.device,
                 verbose=arguments['-v'],
                 password=arguments['--password'],
-                country=arguments['--country']
             ))
             return ""
 
@@ -487,10 +488,10 @@ class BurnCommand(PluginCommand):
                         return ""
 
                     Inventory.build_default_inventory(filename=inventory,
-                                             manager=manager,
-                                             workers=workers,
-                                             manager_image='ubuntu-20.10-64-bit',
-                                             worker_image='ubuntu-20.10-64-bit')
+                                                      manager=manager,
+                                                      workers=workers,
+                                                      manager_image='ubuntu-20.10-64-bit',
+                                                      worker_image='ubuntu-20.10-64-bit')
 
                 c = Configure(inventory=inventory, debug=arguments['-v'], download_images=True)
                 inv = Inventory(filename=inventory)
@@ -1021,4 +1022,3 @@ class BurnCommand(PluginCommand):
 
         Console.error("see manual page: cms help burn")
         return ""
-

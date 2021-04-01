@@ -11,6 +11,7 @@ from cloudmesh.burn.usb import USB
 from cloudmesh.burn.wifi.ssid import get_ssid
 from cloudmesh.common.console import Console
 from cloudmesh.common.Host import Host
+from cloudmesh.common.Shell import Shell
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import yn_choice, readfile, banner, path_expand
 from cloudmesh.inventory.inventory import Inventory
@@ -22,14 +23,14 @@ class Burner(AbstractBurner):
 
     Inventory should contain information on manager and workers
     """
-    def __init__(self, inventory=None, names=None, ssid=None, wifipassword=None, force_inv=False):
+    def __init__(self, inventory=None, names=None, ssid=None,
+                 wifipassword=None, force_inv=False, country=None):
         # Get inventory
         self.ssid = ssid
         self.wifipasswd = wifipassword
         if inventory is None:
             names = Parameter.expand(names)
             manager, workers = Host.get_hostnames(names)
-            wifipasswd = wifipassword
             if workers:
                 worker_base_name = ''.join(
                     [i for i in workers[0] if not i.isdigit()])
@@ -40,22 +41,24 @@ class Burner(AbstractBurner):
             if not os.path.exists(inventory) or force_inv:
                 if not manager:
                     Console.error("No inventory found. Can not create an "
-                                    "inventory without a "
-                                    "manager.")
+                                  "inventory without a "
+                                  "manager.")
                     return ""
 
                 Inventory.build_default_inventory(filename=inventory,
-                                            manager=manager, workers=workers)
+                                                  manager=manager,
+                                                  workers=workers)
             if manager:
                 if not self.ssid:
                     self.ssid = get_ssid()
                     if self.ssid == "":
                         Console.info('Could not determine SSID, skipping wifi '
-                                        'config')
+                                     'config')
                         self.ssid = None
                 if not self.wifipasswd and self.ssid:
                     self.wifipasswd = getpass(f"Using --SSID={self.ssid}, please "
-                                            f"enter wifi password:")
+                                              f"enter wifi password:")
+
             inv = Inventory(filename=inventory)
 
         else:
@@ -71,6 +74,7 @@ class Burner(AbstractBurner):
         # Create dict for them for easy lookup
         self.configs = dict((config['host'], config) for config in configs)
         self.get_images()
+        self.country = country if country else Shell.locale().upper()
 
     def get_images(self):
         """
@@ -102,7 +106,7 @@ class Burner(AbstractBurner):
              device=None,
              verbose=False,
              password=None,
-             country=None):
+             ):
         """
         Given the name of a config, burn device with RaspberryOS and configure properly
         """
@@ -163,7 +167,7 @@ class Burner(AbstractBurner):
 
         runfirst.set_locale(timezone=config['timezone'], locale=config['locale'])
         if self.ssid and 'wifi' in config['services']:
-            runfirst.set_wifi(self.ssid, self.wifipasswd, country=country)
+            runfirst.set_wifi(self.ssid, self.wifipasswd, self.country)
 
         runfirst.set_key(key=readfile(config['keyfile']).strip())
         if 'bridge' in config['services']:
@@ -186,7 +190,7 @@ class Burner(AbstractBurner):
                    devices=None,
                    verbose=False,
                    password=None,
-                   country=None):
+                   ):
         """
         Given multiple names, burn them
         """
@@ -209,8 +213,7 @@ class Burner(AbstractBurner):
                 name=name,
                 device=devices[0],
                 verbose=verbose,
-                password=password,
-                country=None
+                password=password
             )
         Console.ok('Finished burning all cards')
 

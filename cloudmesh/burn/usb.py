@@ -335,9 +335,9 @@ class USB(object):
                 raise ValueError("No card found")
             elif len(readers) > 1:
                 print()
-                Console.error("At this time we only support one SDCard "
-                              "reader/writer for MacOS")
-                raise ValueError("Too many cards found")
+                # Console.error("At this time we only support one SDCard "
+                #               "reader/writer for MacOS")
+                # raise ValueError("Too many cards found")
 
     @staticmethod
     def get_dev_from_diskutil():
