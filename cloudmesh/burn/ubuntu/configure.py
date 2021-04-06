@@ -109,7 +109,7 @@ class Configure:
 
         if with_defaults:
             user_data.with_locale().with_net_tools().with_packages(
-                packages='avahi-daemon')
+                packages=['avahi-daemon','libraspberrypi-bin'])
         if upgrade:
             user_data.with_package_update().with_package_upgrade()
         if hostname:
