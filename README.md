@@ -848,16 +848,6 @@ Description:
 
 
 
-
-
-
-
-
-
-
-
-
-
 ### 6.3 Manual Page for the `host` command
 
 Note to execute the command on the commandline you have to type in
@@ -1922,6 +1912,7 @@ sudo iwlist wlan0 scan
 * TODO1 = todo for boot fs, rootfs not supported
 
 ### 7.16 I run into a Kernal Panic on my burned Pi. What do I do?
+
 Occassionally, one may run into an error similar to the following:
 
 ```
@@ -1930,15 +1921,19 @@ Kernel panic-not syncing: VFS: unable to mount root fs on unknown-block(179,2)
 
 See [here](https://raspberrypi.stackexchange.com/questions/40854/kernel-panic-not-syncing-vfs-unable-to-mount-root-fs-on-unknown-block179-6) for more information on this bug.
 
-This error has been reported in the past. A simple reburn using `cms burn` tends to resolve the issue.
+This error has been reported in the past. A simple reburn using `cms burn`
+tends to resolve the issue.
 
 ### 7.17 How do I enable password login?
 
-The option `--set_passwd` in `cms burn cluster` enables you to securely enter a password to prevent the password disable. 
+The option `--set_passwd` in `cms burn cluster` enables you to securely enter a
+password to prevent the password disable.
 
-The option `[--passwd=PASSWD]` is used with `cms burn create` todo the same thing. Note entering the passwd in the command is optional.If empty you will be prompted.
+The option `[--passwd=PASSWD]` is used with `cms burn create` todo the same
+thing. Note entering the passwd in the command is optional.If empty you will be
+prompted.
 
-### 7.18 Becuase I am using and sd card extender, I need to set a cmdline argument to force 3.3V SD card operation.
+### 7.18 Becauase I am using and sd card extender, I need to set a cmdline argument to force 3.3V SD card operation.
 
 You can set an arbitray command line argument with
 
@@ -1951,6 +1946,33 @@ To force 3.3V operation to enable the use of an SD card extender use
 ```
 cms burn set--cmdline=sdhci.quirks2=4
 ```
+
+### 7.19 How do I get the latest image if a new image was released?
+
+From time to time raspberry.org releases new operating systems. To assure you
+get the latest version, you can do the following to download the latest lite
+abd full images :
+
+```bash
+$ cms burn image versions --refresh
+$ cms burn image get latest-lite
+$ cms burn image get latest-full
+```
+
+To safe space you can also delete the old versions. Look at the storage
+location where we place the images with
+
+```bash
+$ ls -1 ~/.cloudmesh/cmburn/images
+```
+
+YOu can delete the ones that do not have the lates date. Such as 
+
+```bash
+$ rm  ~/.cloudmesh/cmburn/images/2021-01-11-raspio*
+```
+
+If you see any images with the date 2021-01-11 and so on.
 
 ## 8. How can I contribute Contributing
 
