@@ -46,7 +46,8 @@ to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
     - [7.15 What is the status of the implementation?](#715-what-is-the-status-of-the-implementation)
     - [7.16 I run into a Kernal Panic on my burned Pi. What do I do?](#716-i-run-into-a-kernal-panic-on-my-burned-pi-what-do-i-do)
     - [7.17 How do I enable password login?](#717-how-do-i-enable-password-login)
-    - [7.18 Becuase I am using and sd card extender, I need to set a cmdline argument to force 3.3V SD card operation.](#718-becuase-i-am-using-and-sd-card-extender-i-need-to-set-a-cmdline-argument-to-force-33v-sd-card-operation)
+    - [7.18 How do I use SDCard externers with different voltage?](#718-how-do-i-use-sdcard-externers-with-different-voltage)
+    - [7.19 How do I get the latest image if a new image was released?](#719-how-do-i-get-the-latest-image-if-a-new-image-was-released)
   - [8. How can I contribute Contributing](#8-how-can-i-contribute-contributing)
 
 <!--TOC-->
@@ -514,6 +515,18 @@ Note to execute the command on the command line you have to type in
            [--wifipassword=PSK]
            [--bs=BLOCKSIZE]
            [--dryrun]
+           [--no_diagram]
+  burn ubuntu NAMES [--inventory=INVENTORY] [--ssid=SSID] [-f]
+  [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY]
+  [--upgrade]
+  burn raspberry NAMES --device=DEVICE
+                      [--inventory=INVENTORY]
+                      [--ssid=SSID]
+                      [--wifipassword=PSK]
+                      [--country=COUNTRY]
+                      [--password=PASSWORD]
+                      [-v]
+                      [-f]
   burn firmware check
   burn firmware update
   burn install
@@ -796,9 +809,10 @@ Examples: ( \ is not shown)
 
    > cms burn image delete 2019-09-26-raspbian-buster-lite
 
-
 ```
 <!--MANUAL-BURN-->
+
+
 
 
 
@@ -842,9 +856,10 @@ Description:
   bridge create [--interface=INTERFACE] [--ip=IP] [--dns=NAMESERVER]
       creates the bridge on the current device.
       A reboot is required.
-
 ```
 <!--MANUAL-BRIDGE-->
+
+
 
 
 
@@ -862,7 +877,7 @@ Note to execute the command on the commandline you have to type in
     host key create NAMES [--user=USER] [--dryrun] [--output=FORMAT]
     host key list NAMES [--output=FORMAT]
     host key gather NAMES [--authorized_keys] [FILE]
-    host key scatter NAMES FILE
+    host key scatter NAMES FILE [--user=USER]
     host key add NAMES FILE
     host key delete NAMES FILE
     host tunnel create NAMES [--port=PORT]
@@ -870,6 +885,12 @@ Note to execute the command on the commandline you have to type in
     host setup WORKERS [LAPTOP]
     host shutdown NAMES
     host reboot NAMES
+    host adduser NAMES USER
+    host passwd NAMES USER
+    host addsudo NAMES USER
+    host deluser NAMES USER
+    host config proxy PROXY NAMES [--append]
+
 
 This command does some useful things.
 
@@ -910,17 +931,21 @@ Description:
 
           ssh key gather "red[01-10]" keys.txt
 
-    host key scatter HOSTS FILE
+    host key scatter HOSTS FILE [--user=USER]
 
       copies all keys from file FILE to authorized_keys on all hosts,
       but also makes sure that the users ~/.ssh/id_rsa.pub key is in
-      the file.
+      the file. If provided the optional user, it will add the keys to
+      that user's .ssh directory. This is often required when
+      adding a new user in which case HOSTS should still a sudo
+      user with ssh currently enabled.
 
       1) adds ~/.id_rsa.pub to the FILE only if its not already in it
       2) removes all duplicated keys
 
       Example:
           ssh key scatter "red[01-10]"
+          ssh key scatter pi@red[01-10] keys.txt --user=alice
 
     host key add NAMES FILE
 
@@ -1006,8 +1031,36 @@ Description:
       Reboots NAMES with `sudo reboot`. If localhost in names,
       it is rebooted last.
 
+    host adduser NAMES USER
+
+      Adds a user with user name USER to the hosts identified by
+      NAMES. Password is disabled, see host passwd to enable.
+
+    host addsudo NAMES USER
+
+      Adds sudo rights to USER at NAMES
+
+    host passwd NAMES USER
+
+      Changes the password for USER at NAMES
+
+    host deluser NAMES USER
+
+      Deleted USER from NAMES. Home directory will be removed.
+
+    host config proxy PROXY NAMES
+
+      This adds to your ~/.ssh/config file a ProxyJump
+      configuration to reach NAMES via PROXY. This is useful when
+      the PROXY is acting as a network bridge for NAMES to your
+      current device.
+
+      Example:
+          cms host config proxy pi@red.lcaol red00[1-2]
 ```
 <!--MANUAL-HOST-->
+
+
 
 
 
@@ -1129,9 +1182,10 @@ Description:
           pi script list SERVICE NAMES
           pi script list
 
-
 ```
 <!--MANUAL-PI-->
+
+
 
 
 
@@ -1146,13 +1200,9 @@ file via the commandline
 
 <!--MANUAL-SSH-->
 ```
-    ssh
     ssh config list [--output=OUTPUT]
     ssh config add NAME IP [USER] [KEY]
     ssh config delete NAME
-    ssh host delete NAME
-    ssh host add NAME
-    ssh [--name=VMs] [--user=USERs] [COMMAND]
 
 Arguments:
   NAME        Name or ip of the machine to log in
@@ -1162,53 +1212,42 @@ Arguments:
               parameters to the ssh config file.  if the
               resource exists, it will be overwritten. The
               information will be written in /.ssh/config
+  USER        The username for the ssh resource
+  KEY         The location of the public keye used for
+              authentication to the host
 
 Options:
-   -v                verbose mode
    --output=OUTPUT   the format in which this list is given
                      formats includes cat, table, json, yaml,
                      dict. If cat is used, it is just printed as
                      is. [default: table]
-   --user=USERs      overwrites the username that is
-                     specified in ~/.ssh/config
-   --name=CMs        the names of the VMS to execute the
-                     command on
 
 Description:
     ssh config list
-        lists the hostsnames that are present in the
-        ~/.ssh/config file
+        lists the hostsnames that are present in the ~/.ssh/config file
 
     ssh config add NAME IP [USER] [KEY]
         registers a host i ~/.ssh/config file
         Parameters are attribute=value pairs
-        Note: Note yet implemented
 
-    ssh [--name=VMs] [--user=USERs] [COMMAND]
-        executes the command on the named hosts. If user is
-        specified and is greater than 1, it must be specified for
-        each vm. If only one username is specified it is used for
-        all vms. However, as the user is typically specified in the
-        cloudmesh database, you probably do not have to specify
-        it as it is automatically found.
+    ssh config delete NAME
+        deletes the named host from the ssh config file
 
 Examples:
 
-
-     ssh config add blue 192.168.1.245 blue
+     ssh config add blue 192.168.1.245 gregor
 
          Adds the following to the !/.ssh/config file
 
          Host blue
               HostName 192.168.1.245
-              User blue
+              User gergor
               IdentityFile ~/.ssh/id_rsa.pub
-
-
-
 
 ```
 <!--MANUAL-SSH-->
+
+
 
 
 
