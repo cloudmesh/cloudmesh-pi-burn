@@ -1933,7 +1933,11 @@ The option `[--passwd=PASSWD]` is used with `cms burn create` todo the same
 thing. Note entering the passwd in the command is optional.If empty you will be
 prompted.
 
-### 7.18 Becauase I am using and sd card extender, I need to set a cmdline argument to force 3.3V SD card operation.
+### 7.18 How do I use SDCard externers with different voltage?
+
+
+Becauase I am using and sd card extender, I need to set a cmdline argument to
+force 3.3V SD card operation.
 
 You can set an arbitray command line argument with
 
