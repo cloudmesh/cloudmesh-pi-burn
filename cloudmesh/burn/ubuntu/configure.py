@@ -134,6 +134,9 @@ class Configure:
                 .with_runcmd(cmd='sudo rm /boot/firmware/id_rsa')
         if with_bridge:
             user_data.with_access_point_bridge()
+        if with_defaults:
+            # disable cloud-init on subsequent boots
+            user_data.with_runcmd(cmd='sudo touch /etc/cloud/cloud-init.disabled')
 
         if self.debug:
             Console.info(f'User data for {name}:\n' + str(user_data))
