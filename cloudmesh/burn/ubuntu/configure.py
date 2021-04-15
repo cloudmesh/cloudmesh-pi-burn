@@ -109,7 +109,7 @@ class Configure:
 
         if with_defaults:
             user_data.with_locale().with_net_tools().with_packages(
-                packages='avahi-daemon')
+                packages=['avahi-daemon','libraspberrypi-bin'])
         if upgrade:
             user_data.with_package_update().with_package_upgrade()
         if hostname:
@@ -134,6 +134,9 @@ class Configure:
                 .with_runcmd(cmd='sudo rm /boot/firmware/id_rsa')
         if with_bridge:
             user_data.with_access_point_bridge()
+        if with_defaults:
+            # disable cloud-init on subsequent boots
+            user_data.with_runcmd(cmd='sudo touch /etc/cloud/cloud-init.disabled')
 
         if self.debug:
             Console.info(f'User data for {name}:\n' + str(user_data))
