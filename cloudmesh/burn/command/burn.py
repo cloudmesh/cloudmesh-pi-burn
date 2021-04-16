@@ -425,6 +425,7 @@ class BurnCommand(PluginCommand):
             return ""
 
         elif arguments.raspberry:
+
             banner(txt="RaspberryOS Burn", figlet=True)
 
             if arguments.inventory:

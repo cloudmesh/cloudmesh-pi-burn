@@ -9,11 +9,14 @@ from cloudmesh.burn.raspberryos.runfirst import Runfirst
 from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.wifi.ssid import get_ssid
-from cloudmesh.common.console import Console
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Shell import Shell
+from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.util import yn_choice, readfile, banner, path_expand
+from cloudmesh.common.util import banner
+from cloudmesh.common.util import path_expand
+from cloudmesh.common.util import readfile
+from cloudmesh.common.util import yn_choice
 from cloudmesh.inventory.inventory import Inventory
 
 
@@ -130,6 +133,8 @@ class Burner(AbstractBurner):
             Console.error(e)
             print()
             return ""
+
+        banner(f"Burn {name}", figlet=True)
 
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
