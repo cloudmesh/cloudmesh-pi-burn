@@ -160,7 +160,7 @@ class Image(object):
         """
         creates a cache of all released pi images
 
-        :param refresh: reresd it from the Web if True
+        :param refresh: refresh it from the Web if True
         :type refresh: bool
         :return: writes it into ~/.cloudmesh/cmburn/distributions.yaml
         :rtype: file
