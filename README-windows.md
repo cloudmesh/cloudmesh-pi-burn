@@ -54,4 +54,45 @@ DISKPART> list disk
   Disk 1    Online           59 GB    51 GB
 
 DISKPART>
+
+
+DISKPART> select disk 3
+
+Disk 3 is now the selected disk.
+
+DISKPART> select volume 5
+
+Volume 5 is the selected volume.
+
+DISKPART> format fs=fat32 quick
+
+  100 percent completed
+
+DiskPart successfully formatted the volume.
+
+DISKPART> list disk
+
+  Disk ###  Status         Size     Free     Dyn  Gpt
+  --------  -------------  -------  -------  ---  ---
+  Disk 0    Online          931 GB    12 MB        *
+  Disk 1    No Media           0 B      0 B
+  Disk 2    No Media           0 B      0 B
+* Disk 3    Online           59 GB  3072 KB
+
+DISKPART> list disk volume
+
+The arguments specified for this command are not valid.
+For more information on the command type: HELP LIST DISK
+
+DISKPART> list volume
+
+  Volume ###  Ltr  Label        Fs     Type        Size     Status     Info
+  ----------  ---  -----------  -----  ----------  -------  ---------  --------
+  Volume 0     C   OS           NTFS   Partition    930 GB  Healthy    Boot
+  Volume 1         ESP          FAT32  Partition    500 MB  Healthy    System
+  Volume 2                      NTFS   Partition    851 MB  Healthy    Hidden
+  Volume 3     D                       Removable       0 B  No Media
+  Volume 4     E                       Removable       0 B  No Media
+* Volume 5     F                FAT32  Removable    256 MB  Healthy
+
 ```
