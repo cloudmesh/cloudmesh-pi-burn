@@ -1,15 +1,18 @@
 import os
+import sys
 
 from cloudmesh.burn.burner.raspberryos import Burner as RaspberryOsBurner
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
+from cloudmesh.burn.util import os_is_windows
 from cloudmesh.common.JobScript import JobScript
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
+
 
 
 # class Burner(AbstractBurner):
@@ -28,11 +31,18 @@ class Burner:
     def detect():
         if os_is_mac():
             details = USB.get_from_diskutil()
+        elif os_is_windows():
+            Console.error("detect: Windws is not yet supported")
+            sys.exit()
         else:
             details = USB.get_from_dmesg()
         return details
 
     def shrink(self, image=None):
+        if os_is_windows():
+            ## we do not support for now shrink on windows
+            Console.error("detect: Windws is not yet supported")
+            sys.exit()
         if image is None:
             Console.error("Image must have a value")
         image = path_expand(image)
@@ -49,6 +59,9 @@ class Burner:
         """
 
         if os_is_mac():
+            Console.error("This command is not supported on MacOS")
+            return ""
+        elif os_is_windows():
             Console.error("This command is not supported on MacOS")
             return ""
         else:
