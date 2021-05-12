@@ -339,6 +339,7 @@ class SDCard:
             :rtype: bool
             """
             #
+
             Console.ok(f'sudo eject -t {device}')
             os.system(f'sudo eject -t {device}')
             time.sleep(3)
@@ -362,6 +363,9 @@ class SDCard:
                     return prepare_sdcard()
 
         Sudo.password()
+        if os_is_windows():
+            pass
+
         if os_is_linux() or os_is_pi():
 
             if verbose:

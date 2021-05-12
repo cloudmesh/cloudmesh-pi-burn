@@ -23,9 +23,26 @@ class USB:
 '''
 class SdCard:
     tmp = "tmp.txt"
+
+    @staticmethod
+    def clean():
+        raise NotImplementedError
+        # rm SDCard.tmp
+
     # Take a look at Gregor's SDCard init method
     @staticmethod
     def format_card(volume_number, disk_number):
+
+        '''
+        # see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/format
+        if unmount:
+            set_unmount = "/x"
+        else:
+            set_unmount = ""
+        command = f"format {device} /fs:FAT32 /v:UNTITLED /q {set_unmount}".strip()
+        print(command)
+        '''
+
         print(f"format :{volume_number}")
 
         writefile(SdCard.tmp, f"select disk {disk_number}")
@@ -58,6 +75,9 @@ class SdCard:
     def unmount(volume_letter):
         writefile(SdCard.tmp, f"remove letter={volume_letter}")
         b = Shell.run(f"diskpart /s {SdCard.tmp}").splitlines()[8:]
+
+        # os.system(f"mountvol {device} /p")
+
         print(b)
 
     @staticmethod
