@@ -10,6 +10,7 @@ import subprocess
 import textwrap
 
 
+
 class USB:
     @staticmethod
     def info():

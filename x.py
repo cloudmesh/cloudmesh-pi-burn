@@ -1,3 +1,5 @@
+from cloudmesh.common.Tabulate import Printer
+
 script = '''
 
   Volume ###  Ltr  Label        Fs     Type        Size     Status     Info
@@ -8,6 +10,7 @@ script = '''
   Volume 3     D                       Removable       0 B  No Media
   Volume 4     E                       Removable       0 B  No Media
   Volume 5     F                FAT32  Removable    256 MB  Healthy
+  Volume 6     F                FAT32  Removable    256 MB  Healthy
 
 '''.strip()
 
@@ -22,7 +25,7 @@ for line in result:
     data = {
 
         "volume" : line[0:12].replace("Volume", "").strip(),
-        "ltr"    : line[12:17].strip(),
+        "drive"    : line[12:17].strip(),
         "label"  : line[17:30].strip(),
         "fs"     : line[30:37].strip(),
         "type"   : line[37:49].strip(),
@@ -32,6 +35,8 @@ for line in result:
     }
     info.append(data)
 print(info)
+
+print(Printer.write(info, order=["volume","drive", "fs", "label", "size"]))
 
 
 
