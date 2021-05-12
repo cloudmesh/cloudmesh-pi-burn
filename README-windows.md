@@ -1,4 +1,5 @@
-'''DISKPART> LIST VOLUME
+'''
+DISKPART> LIST VOLUME
 
   Volume ###  Ltr  Label        Fs     Type        Size     Status     Info
   ----------  ---  -----------  -----  ----------  -------  ---------  --------
