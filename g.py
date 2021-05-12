@@ -7,7 +7,7 @@ import win32api
 import win32wnet
 import win32netcon
 import subprocess
-
+import textwrap
 
 
 class USB:
@@ -27,20 +27,27 @@ class SdCard:
     @staticmethod
     def format_card(volume_number, disk_number):
         print(f"format :{volume_number}")
+        script = textwrap.dedent(f"""
+        select disk {disk_number}
+        select volume {volume_number}
+        format fs=fat32 quick
+        """)
+        writefile(SdCard.tmp, script)
+        #a = Shell.run(f"diskpart /s {SdCard.tmp}")
 
-        writefile(SdCard.tmp, f"select disk {disk_number}")
-        a = Shell.run(f"diskpart /s {SdCard.tmp}")
 
-        print(a)
+        #writefile(SdCard.tmp, f"select volume {volume_number}")
+        #a = Shell.run(f"diskpart /s {SdCard.tmp}")
 
-        writefile(SdCard.tmp, f"select volume {volume_number}")
-        a = Shell.run(f"diskpart /s {SdCard.tmp}")
-        print(SdCard.tmp)
-        print(a)
 
-        writefile(SdCard.tmp, "format fs=fat32 quick")
-        print(SdCard.tmp)
-        a = Shell.run(f"diskpart /s {SdCard.tmp}")
+        #writefile(SdCard.tmp, "format fs=fat32 quick")
+
+        try:
+
+            a = Shell.run(f"diskpart /s {SdCard.tmp}")
+        except Exception as e:
+            print(e)
+
 
 
     @staticmethod
@@ -73,6 +80,9 @@ class SdCard:
 
     @staticmethod
     def get_free_drive():
+        """
+
+        """
         drives = set(string.ascii_uppercase[2:])
         for d in win32api.GetLogicalDriveStrings().split(':\\\x00'):
             drives.discard(d)
