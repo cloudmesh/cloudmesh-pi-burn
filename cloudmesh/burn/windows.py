@@ -1,7 +1,15 @@
 import string
-from ctypes import windll
+
+from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.util import readfile, writefile
 import ascii
 from cloudmesh.common.Shell import Shell
+
+# we need to deal with that imports of windos libraries are conditional
+
+if os_is_windows():
+    from ctypes import windll
+
 
 # see mountvol
 # see diskpart
@@ -96,5 +104,39 @@ class Windows:
         # diskpart list disk
         # diskpart detail disk
         # diskpart detail volume
-        
+
         # diskpart /s <script_file>
+
+        #os.system("diskpart list disk")
+
+        # Path pathlib
+        # filename = Path("/tmp/list-disk.txt")
+
+        # writefile(filename, "list disk\n\exit")
+        # os.system(f"diskpart /s {filename}")
+
+
+# TASK 1 explre sdcard that has raspberry os on it.
+'''
+1. plug in card with raspberry os burned on it
+2. see hw the card registers
+3. prg : cms burn info
+4. prg : w = Windows()
+         r = w.info()
+         print(r)
+5. find the drive letter
+6. prg: drive = device = "Z:"
+7: prg: ... mount the drive
+8: prg: look if you can find the boot partition on the drive
+10: prg: can you list and write things in the boot partition?
+11: prg: unmount the drive
+
+12: First task won
+
+TASK 2: do the same as task 1 but with ubuntu on it
+
+
+TASK 3: FORMAT SD CARD form commandline
+
+9: prg: format the sdcard
+'''
