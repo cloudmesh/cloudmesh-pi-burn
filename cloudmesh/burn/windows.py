@@ -1,6 +1,12 @@
 import string
 from ctypes import windll
 import ascii
+from cloudmesh.common.Shell import Shell
+
+# see mountvol
+# see diskpart
+
+# https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-vista/cc766465(v=ws.10)?redirectedfrom=MSDN
 
 class Windows:
 
@@ -42,7 +48,6 @@ class Windows:
         :return:
         :rtype:
         """
-        raise NotImplementedError
         os.system(f"mountvol {device} /p")
 
     def mount(self, device=None):
@@ -82,7 +87,14 @@ class Windows:
         :return:
         :rtype:
         """
-        raise NotImplementedError
-        # see gregos implementation for mac, osx, and raspberry,
+        command = f"mountvol {self.device} /L"
+        r = Shell.run(command)
+        print (r)
+        # see also gregos implementation for mac, osx, and raspberry,
         # that just may work
 
+        # diskpart list disk
+        # diskpart detail disk
+        # diskpart detail volume
+        
+        # diskpart /s <script_file>
