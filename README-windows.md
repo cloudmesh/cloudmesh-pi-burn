@@ -1,4 +1,4 @@
-DISKPART> LIST VOLUME
+'''DISKPART> LIST VOLUME
 
   Volume ###  Ltr  Label        Fs     Type        Size     Status     Info
   ----------  ---  -----------  -----  ----------  -------  ---------  --------
@@ -53,3 +53,4 @@ DISKPART> list disk
   Disk 1    Online           59 GB    51 GB
 
 DISKPART>
+'''
