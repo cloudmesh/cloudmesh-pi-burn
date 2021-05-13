@@ -24,13 +24,13 @@ info = []
 for line in result:
     data = {
 
-        "volume" : line[0:12].replace("Volume", "").strip(),
-        "drive"    : line[12:17].strip(),
-        "label"  : line[17:30].strip(),
-        "fs"     : line[30:37].strip(),
-        "type"   : line[37:49].strip(),
-        "size"   : line[49:58].strip(),
-        "status" : line[58:69].strip(),
+        "volume" : line[0:13].replace("Volume", "").strip(),
+        "drive"  : line[13:18].strip(),
+        "label"  : line[18:31].strip(),
+        "fs"     : line[31:38].strip(),
+        "type"   : line[38:50].strip(),
+        "size"   : line[50:59].strip(),
+        "status" : line[59:70].strip(),
 
     }
     info.append(data)

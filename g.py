@@ -1,3 +1,5 @@
+import os
+
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import yn_choice
@@ -8,8 +10,8 @@ import win32wnet
 import win32netcon
 import subprocess
 import textwrap
-
-
+from cloudmesh.common.Tabulate import Printer
+from pathlib import Path
 
 class USB:
     @staticmethod
@@ -27,8 +29,8 @@ class SdCard:
 
     @staticmethod
     def clean():
-        raise NotImplementedError
         # rm SDCard.tmp
+        os.remove(SdCard.tmp)
 
     # Take a look at Gregor's SDCard init method
     @staticmethod
@@ -50,19 +52,9 @@ class SdCard:
         select volume {volume_number}
         format fs=fat32 quick
         """)
-        writefile(SdCard.tmp, script)
-        #a = Shell.run(f"diskpart /s {SdCard.tmp}")
-
-
-        #writefile(SdCard.tmp, f"select volume {volume_number}")
-        #a = Shell.run(f"diskpart /s {SdCard.tmp}")
-
-
-        #writefile(SdCard.tmp, "format fs=fat32 quick")
 
         try:
-
-            a = Shell.run(f"diskpart /s {SdCard.tmp}")
+            a = SdCard.diskpart(script)
         except Exception as e:
             print(e)
 
@@ -70,20 +62,15 @@ class SdCard:
 
     @staticmethod
     def mount(volume_number, volume_letter=None):
+        #Figure out drive letter
         if volume_letter == None:
             volume_letter = SdCard.get_free_drive()
-        writefile(SdCard.tmp, f"select volume {volume_number}")
-        a = Shell.run(f"diskpart /s {SdCard.tmp}")
-
-        writefile(SdCard.tmp, f"assign letter={volume_letter}")
-        a = Shell.run(f"diskpart /s {SdCard.tmp}")
+        a = SdCard.diskpart(f"select volume {volume_number}\nassign letter={volume_letter}")
         return volume_letter
 
     @staticmethod
     def unmount(volume_letter):
-        writefile(SdCard.tmp, f"remove letter={volume_letter}")
-        b = Shell.run(f"diskpart /s {SdCard.tmp}").splitlines()[8:]
-
+        b = SdCard.diskpart(f"remove letter={volume_letter}")
         # os.system(f"mountvol {device} /p")
 
         print(b)
@@ -93,11 +80,50 @@ class SdCard:
         pass
 
     @staticmethod
+    def sync(drive_letter):
+        os.system(f"sync -r {drive_letter}")
+
+    @staticmethod
+    def eject(drive_letter):
+        os.system(f"sync -e {drive_letter}")
+
+    @staticmethod
+    def diskpart(command):
+        _diskpart = Path("C:/Windows/system32/diskpart.exe")
+        writefile(SdCard.tmp, f"{command}\nexit")
+        b = Shell.run(f"{_diskpart} /s {SdCard.tmp}")
+        SdCard.clean()
+        return b
+
+    @staticmethod
     def info():
         print("Disk info")
-        writefile(SdCard.tmp, "list volume")
-        b = Shell.run(f"diskpart /s {SdCard.tmp}").splitlines()[8:]
-        return b
+        b = SdCard.diskpart("list volume")
+
+        lines = b.splitlines()
+        result = []
+        for line in lines:
+            if "Removable" in line and "Healthy" in line:
+                result.append(line)
+
+        info = []
+        for line in result:
+            data = {
+
+                "volume" : line[0:13].replace("Volume", "").strip(),
+                "drive"  : line[13:18].strip(),
+                "label"  : line[18:31].strip(),
+                "fs"     : line[31:38].strip(),
+                "type"   : line[38:50].strip(),
+                "size"   : line[50:59].strip(),
+                "status" : line[59:70].strip(),
+
+            }
+            info.append(data)
+
+        return info
+
+
 
     @staticmethod
     def get_free_drive():
@@ -137,8 +163,10 @@ class SdCard:
                     return num
         raise ValueError("No SD card found")
 
-SdCard.format_card(5, 3)
+# SdCard.format_card(5, 3)
+info = SdCard.info()
 
+print(Printer.write(info, order=["volume", "drive", "fs", "label", "size"]))
 
 '''
 DO NOT DELETE THIS COMMENT - WORKING CODE HERE. 

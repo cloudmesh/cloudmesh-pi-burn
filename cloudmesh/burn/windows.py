@@ -113,6 +113,7 @@ class Windows:
         raise NotImplementedError
 
     def info(self):
+
         """
         Prints information about the USB and sdcard if it is available
 
@@ -181,7 +182,8 @@ class WindowsSDCard:
 
         print(f"format :{volume_number}")
 
-        writefile(SdCard.tmp, f"select disk {disk_number}")
+        writefile(SdCard.tmp, f"select disk {disk_number} \n exit")
+        
         a = Shell.run(f"diskpart /s {SdCard.tmp}")
 
         print(a)
