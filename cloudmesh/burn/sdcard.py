@@ -34,7 +34,7 @@ def _execute(msg, command):
         # but ignore error
 
 
-def location(host_os=None, card_os="raspberry", volume="boot"):
+def location(host_os=None, card_os="raspberry", volume="boot", drive=None):
     """
     Returns the location of the specific volume after mounting
 
@@ -46,6 +46,8 @@ def location(host_os=None, card_os="raspberry", volume="boot"):
     @param card_os: The operating system to be burned on the card.
                     Values are raspberry, ubuntu
     @type card_os: str
+    @param drive: the drive letter in windows, only used for windows
+    @type drive: str
     @return:
     @rtype:
     """
@@ -86,6 +88,13 @@ def location(host_os=None, card_os="raspberry", volume="boot"):
               ubuntu:
                 root: /media/{user}/writable
                 boot: /media/{user}/system-boot
+            windows:
+              raspberry:
+                root: /{drive}/rootfs
+                boot: /{drive}/boot
+              ubuntu:
+                root: {drive}/writable
+                boot: {drive}/system-boot
             """))
     try:
         return where[host_os][card_os][volume]
@@ -107,6 +116,10 @@ class SDCard:
         """
         self.card_os = card_os or "raspberry"
         self.host_os = host_os or get_platform()
+        self.drive = None
+
+    def set_drive(self, drive):
+        self.drive = drive
 
     @staticmethod
     def execute(command=None, decode="True", debug=False):
@@ -136,7 +149,10 @@ class SDCard:
         :return: the location
         :rtype: str
         """
-        return location(volume="root", card_os=self.card_os, host_os=self.host_os)
+        if os_is_windows():
+            return location(volume="root", card_os=self.card_os, host_os=self.host_os, drive=self.drive)
+        else:
+            return location(volume="root", card_os=self.card_os, host_os=self.host_os)
 
     @property
     def boot_volume(self):
@@ -147,7 +163,10 @@ class SDCard:
         :return: the location
         :rtype: str
         """
-        return location(volume="boot", card_os=self.card_os, host_os=self.host_os)
+        if os_is_windows():
+            return location(volume="boot", card_os=self.card_os, host_os=self.host_os, drive=self.drive)
+        else:
+            return location(volume="boot", card_os=self.card_os, host_os=self.host_os)
 
     def ls(self):
         """
@@ -156,30 +175,34 @@ class SDCard:
         :return: A dict representing the file systems on the SDCCards
         :rtype: dict
         """
+        if os_is_windows():
+            details = None
+            # Provide the filesystems on the sdcard
+            # details = Windows.list_file_systems()
+        else:
+            r = Shell.run("mount -l").splitlines()
+            root_fs = self.root_volume
+            boot_fs = self.boot_volume
 
-        r = Shell.run("mount -l").splitlines()
-        root_fs = self.root_volume
-        boot_fs = self.boot_volume
-
-        details = {}
-        for line in r:
-            if str(root_fs) in line or str(boot_fs) in line:
-                entry = \
-                    line.replace(" on ", "|") \
-                        .replace(" type ", "|") \
-                        .replace(" (", "|") \
-                        .replace(") [", "|") \
-                        .replace("]", "") \
-                        .split("|")
-                # print(entry)
-                detail = {
-                    "device": entry[0],
-                    "path": entry[1],
-                    "type": entry[2],
-                    "parameters": entry[3],
-                    "name": entry[4],
-                }
-                details[detail["name"]] = detail
+            details = {}
+            for line in r:
+                if str(root_fs) in line or str(boot_fs) in line:
+                    entry = \
+                        line.replace(" on ", "|") \
+                            .replace(" type ", "|") \
+                            .replace(" (", "|") \
+                            .replace(") [", "|") \
+                            .replace("]", "") \
+                            .split("|")
+                    # print(entry)
+                    detail = {
+                        "device": entry[0],
+                        "path": entry[1],
+                        "type": entry[2],
+                        "parameters": entry[3],
+                        "name": entry[4],
+                    }
+                    details[detail["name"]] = detail
         return details
 
     @staticmethod
@@ -199,25 +222,30 @@ class SDCard:
         :return: the content
         :rtype: str or list
         """
-        Sudo.execute("sync")
-
-        if os_is_mac():
-            if decode:
-                mode = "r"
-            else:
-                mode = "rb"
-            content = common_readfile(filename, mode=mode)
+        if os_is_windows():
+            raise NotImplementedError
+            # content = ??? probably just plain read write is used, please check if you need sudo
+            # please implement
         else:
-            Sudo.password()
-            result = Sudo.execute(f"cat {filename}", decode=decode)
-            content = result.stdout
+            Sudo.execute("sync")
 
-        if trim:
-            content = content.rstrip()
+            if os_is_mac():
+                if decode:
+                    mode = "r"
+                else:
+                    mode = "rb"
+                content = common_readfile(filename, mode=mode)
+            else:
+                Sudo.password()
+                result = Sudo.execute(f"cat {filename}", decode=decode)
+                content = result.stdout
 
-        if split:
-            content = content.splitlines()
-        Sudo.execute("sync")
+            if trim:
+                content = content.rstrip()
+
+            if split:
+                content = content.splitlines()
+            Sudo.execute("sync")
 
         return content
 
@@ -238,7 +266,6 @@ class SDCard:
         :return: the content
         :rtype: str or list
         """
-
         found = False
         for i in range(0, 10):
             try:
@@ -268,14 +295,20 @@ class SDCard:
         :return: the output created by the write process
         :rtype: int
         """
-        os.system("sync")
-        if append:
-            content = Sudo.readfile(filename, split=False, decode=True) + content
-        command = f"echo '{content}' | sudo cp /dev/stdin {filename}"
-        if os_is_mac() and "\0" in command:
-            command = command.replace("\0", "")
-        os.system(command)
-        os.system("sync")
+        if os_is_windows():
+            raise NotImplementedError
+            # content = ??? probably just plain read write is used, please check if you need sudo
+            # we had some issues on linux and osx and the trick with the pipe worked ...
+            # please implement
+        else:
+            os.system("sync")
+            if append:
+                content = Sudo.readfile(filename, split=False, decode=True) + content
+            command = f"echo '{content}' | sudo cp /dev/stdin {filename}"
+            if os_is_mac() and "\0" in command:
+                command = command.replace("\0", "")
+            os.system(command)
+            os.system("sync")
 
         return content
 
@@ -285,7 +318,11 @@ class SDCard:
 
         size = 64 * 1000 ** 3  # this is a bug as we need that for Linux and PI
 
-        if os_is_mac():
+        if os_is_windows():
+            # here devise is the drive letter, it should be passed along via device
+            # calculates the size of the sdcard not just one partition
+            raise NotImplementedError
+        elif os_is_mac():
             result = Shell.run("diskutil list external").splitlines()
             for line in result:
                 if "FDisk_partition_scheme" in line:
@@ -306,7 +343,6 @@ class SDCard:
                 sys.exit()
         return size
 
-    @windows_not_supported
     def format_device(self,
                       device='dev/sdX',
                       unmount=True,
@@ -362,72 +398,75 @@ class SDCard:
                     time.sleep(3)
                     return prepare_sdcard()
 
-        Sudo.password()
         if os_is_windows():
-            pass
-
-        if os_is_linux() or os_is_pi():
-
-            if verbose:
-                banner(f"format {device}")
-            else:
-                print(f"format {device}")
-
-            if not prepare_sdcard():
-                return False
-
-            # TODO Gregor verify commenting out the below is ok
-            # if os_is_mac():
-            #    self.mount(device=device)
-
-            user = os.environ.get('USER')
-
-            script = textwrap.dedent(f"""
-                ls /media/{user}
-                sudo parted {device} --script -- mklabel msdos
-                sudo parted {device} --script -- mkpart primary fat32 1MiB 100%
-                sudo mkfs.vfat -n {_title} -F32 {device}1
-                sudo parted {device} --script print""").strip().splitlines()
-            for line in script:
-                _execute(line, line)
-
-            os.system("sudo sync")
-            if unmount:
-                self.unmount(device=device)  # without dev we unmount but do not eject. If
-                # we completely eject, burn will fail to detect the device.
-                os.system("sudo sync")
-
-            Console.ok("Formatted SD Card")
-
-        elif os_is_mac():
-
-            details = USB.get_dev_from_diskutil()
-
-            # checking if string contains list element
-            valid = any(entry in device for entry in details)
-
-            if not valid:
-                Console.error(f"this device can not be used for formatting: {device}")
-                return False
-
-            elif len(details) > 1:
-                Console.error("For security reasons, please only put one USB writer in")
-                Console.msg(f"we found {details}")
-                return False
-
-            else:
-
-                details = USB.get_from_diskutil()
-
-                USB.print_details(details)
-
-                print()
-                if yes or yn_choice(f"\nDo you like to format {device} as {_title}"):
-                    _execute(f"Formatting {device} as {_title}",
-                             f"sudo diskutil eraseDisk FAT32 {_title} MBRFormat {device}")
-
+            raise NotImplementedError
+            # w = Windows(???).format_device(???) or something like that
         else:
-            raise NotImplementedError("Not implemented for this OS")
+
+            Sudo.password()
+
+            if os_is_linux() or os_is_pi():
+
+                if verbose:
+                    banner(f"format {device}")
+                else:
+                    print(f"format {device}")
+
+                if not prepare_sdcard():
+                    return False
+
+                # TODO Gregor verify commenting out the below is ok
+                # if os_is_mac():
+                #    self.mount(device=device)
+
+                user = os.environ.get('USER')
+
+                script = textwrap.dedent(f"""
+                    ls /media/{user}
+                    sudo parted {device} --script -- mklabel msdos
+                    sudo parted {device} --script -- mkpart primary fat32 1MiB 100%
+                    sudo mkfs.vfat -n {_title} -F32 {device}1
+                    sudo parted {device} --script print""").strip().splitlines()
+                for line in script:
+                    _execute(line, line)
+
+                os.system("sudo sync")
+                if unmount:
+                    self.unmount(device=device)  # without dev we unmount but do not eject. If
+                    # we completely eject, burn will fail to detect the device.
+                    os.system("sudo sync")
+
+                Console.ok("Formatted SD Card")
+
+            elif os_is_mac():
+
+                details = USB.get_dev_from_diskutil()
+
+                # checking if string contains list element
+                valid = any(entry in device for entry in details)
+
+                if not valid:
+                    Console.error(f"this device can not be used for formatting: {device}")
+                    return False
+
+                elif len(details) > 1:
+                    Console.error("For security reasons, please only put one USB writer in")
+                    Console.msg(f"we found {details}")
+                    return False
+
+                else:
+
+                    details = USB.get_from_diskutil()
+
+                    USB.print_details(details)
+
+                    print()
+                    if yes or yn_choice(f"\nDo you like to format {device} as {_title}"):
+                        _execute(f"Formatting {device} as {_title}",
+                                 f"sudo diskutil eraseDisk FAT32 {_title} MBRFormat {device}")
+
+            else:
+                raise NotImplementedError("Not implemented for this OS")
 
         return True
 
@@ -436,7 +475,12 @@ class SDCard:
         print("boot", self.boot_volume)
 
     def probe_os(self):
-        if os_is_mac():
+        if os_is_windows():
+            # set drive must be caled as this determines the drive letter
+            drive = self.drive
+            where_raspberry = location(host_os="macos", card_os="raspberry", volume="boot", drive=drive)
+            where_ubuntu = location(host_os="macos", card_os="ubuntu", volume="boot", drive=drive)
+        elif os_is_mac():
             where_raspberry = location(host_os="macos", card_os="raspberry", volume="boot")
             where_ubuntu = location(host_os="macos", card_os="ubuntu", volume="boot")
         elif os_is_pi():
@@ -446,7 +490,7 @@ class SDCard:
             where_raspberry = location(host_os="ubuntu", card_os="raspberry", volume="boot")
             where_ubuntu = location(host_os="ubuntu", card_os="ubuntu", volume="boot")
         else:
-            return "unkwn"
+            return "unkown"
 
         if os.path.exists(where_raspberry):
             return "raspberryos"
@@ -455,14 +499,24 @@ class SDCard:
         else:
             return "unkown"
 
-    # @windows_not_supported
     # TODO Gregor verify the default arg for card_os is ok
     def mount(self, device=None, card_os="raspberry"):
         """
         Mounts the current SD card
+
+        :param device:
+        :type device:
+        :param card_os:
+        :type card_os:
+        :return:
+        :rtype:
         """
 
-        if os_is_linux():
+        if os_is_windows():
+            # if on windows the devise is the drive letter
+            raise NotImplementedError
+
+        elif os_is_linux():
             Sudo.password()
             dmesg = USB.get_from_dmesg()
 
@@ -551,7 +605,6 @@ class SDCard:
         Sudo.execute("sync")
         return ""
 
-    @windows_not_supported
     def unmount(self, device=None, card_os="raspberry", full=False):
         """
         Unmounts the current SD card. param full indicates whether to use -t flag
@@ -568,42 +621,46 @@ class SDCard:
 
         # self.card_os = card_os
 
-        os.system('sudo sync')  # flush any pending/in-process writes
-
-        os.system("sync")
-        if os_is_linux() or os_is_pi():
-            Sudo.password()
-            if full:
-                _execute(f"eject {device}", f"sudo eject {device}")
-            else:
-                # _execute(f"eject {device}", f"sudo eject -t {device}")
-                device_basename = os.path.basename(device)
-                result = Shell.run('lsblk')
-                if device_basename in result.split():
-                    for line in result.splitlines():
-                        line = line.split()
-                        if device_basename in line[0] and len(line) > 6:
-                            Console.ok(f'sudo umount {line[6]}')
-                            os.system(f'sudo umount {line[6]}')
-            # _execute(f"unmounting {self.boot_volume}", f"sudo umount {self.boot_volume}")
-            # _execute(f"unmounting  {self.root_volume}", f"sudo umount {self.root_volume}")
-        elif os_is_mac():
-
-            _execute(f"unmounting {self.boot_volume}", f"diskutil umountDisk {device}")
-
+        if os_is_windows():
+            raise NotImplementedError
+            # use the new method for unmout, device is the driveletter in windows
         else:
-            Console.error("Not yet implemented for your OS")
-            return ""
-        os.system("sync")
-        # rm = [f"sudo rmdir {self.boot_volume}",
-        #      f"sudo rmdir {self.root_volume}"]
 
-        # for command in rm:
-        #    _execute(command, command)
+            os.system('sudo sync')  # flush any pending/in-process writes
+
+            os.system("sync")
+            if os_is_linux() or os_is_pi():
+                Sudo.password()
+                if full:
+                    _execute(f"eject {device}", f"sudo eject {device}")
+                else:
+                    # _execute(f"eject {device}", f"sudo eject -t {device}")
+                    device_basename = os.path.basename(device)
+                    result = Shell.run('lsblk')
+                    if device_basename in result.split():
+                        for line in result.splitlines():
+                            line = line.split()
+                            if device_basename in line[0] and len(line) > 6:
+                                Console.ok(f'sudo umount {line[6]}')
+                                os.system(f'sudo umount {line[6]}')
+                # _execute(f"unmounting {self.boot_volume}", f"sudo umount {self.boot_volume}")
+                # _execute(f"unmounting  {self.root_volume}", f"sudo umount {self.root_volume}")
+            elif os_is_mac():
+
+                _execute(f"unmounting {self.boot_volume}", f"diskutil umountDisk {device}")
+
+            else:
+                Console.error("Not yet implemented for your OS")
+                return ""
+            os.system("sync")
+            # rm = [f"sudo rmdir {self.boot_volume}",
+            #      f"sudo rmdir {self.root_volume}"]
+
+            # for command in rm:
+            #    _execute(command, command)
 
         return True
 
-    @windows_not_supported
     def load_device(self, device='dev/sdX'):
         """
         Loads the USB device via trayload
@@ -615,7 +672,9 @@ class SDCard:
             banner(f"load {device}")
             Sudo.password()
             os.system(f"sudo eject -t {device}")
-
+        elif os_is_windows():
+            # find of to to the reverse of an eject in windows from commandline
+            raise NotImplementedError
         else:
             raise Console.error("Not implemented for this OS")
 
@@ -650,7 +709,6 @@ class SDCard:
 
             os.system(command)
 
-    @windows_not_supported
     def burn_sdcard(self,
                     image=None,
                     tag=None,
@@ -790,7 +848,6 @@ class SDCard:
             Console.error("Device must have a value")
         self.burn_sdcard(image=from_file, device=device)
 
-    @windows_not_supported
     def info(self,
              print_os=True,
              print_fdisk=True,
@@ -832,6 +889,10 @@ class SDCard:
             if print_stdout:
                 banner("Operating System SD Card")
                 print(result)
+        elif os_is_windows():
+            # figure out what on the sdcardand print  the table
+            # r = Windows.info(??)
+            raise NotImplementedError
 
         details = USB.get_from_usb()
 
@@ -867,6 +928,10 @@ class SDCard:
         # banner("Devices found")
 
         # print ('\n'.join(sorted(devices)))
+
+        if os_is_windows():
+            # print cool info that helps the user
+            raise NotImplementedError
 
         if os_is_mac():
 
@@ -942,6 +1007,9 @@ class SDCard:
                 else:
                     Console.warning("No mount points found. Use cms burn mount")
                     print()
+            elif os_is_windows():
+                # print cool info of the mount points z/....
+                raise NotImplementedError
 
         # Convert details into a dict where the key for each entry is the device
         details = {detail['dev']: detail for detail in details}
