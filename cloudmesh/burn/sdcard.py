@@ -22,6 +22,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import yn_choice
+from cloudmesh.burn.windows import Windows
 
 
 # noinspection PyBroadException
@@ -33,7 +34,7 @@ def _execute(msg, command):
         Console.error("{command} failed")
         # but ignore error
 
-
+# requires an import of the ascii command to function as well as arguments for host_os and drive, otherwise could work fine
 def location(host_os=None, card_os="raspberry", volume="boot", drive=None):
     """
     Returns the location of the specific volume after mounting
@@ -93,8 +94,8 @@ def location(host_os=None, card_os="raspberry", volume="boot", drive=None):
                 root: /{drive}/rootfs
                 boot: /{drive}/boot
               ubuntu:
-                root: {drive}/writable
-                boot: {drive}/system-boot
+                root: /{drive}/writable
+                boot: /{drive}/system-boot
             """))
     try:
         return where[host_os][card_os][volume]
@@ -118,9 +119,11 @@ class SDCard:
         self.host_os = host_os or get_platform()
         self.drive = None
 
+    # Set drive letter the sd card should be mounted on
     def set_drive(self, drive):
         self.drive = drive
 
+    # Seems to be working, had trouble escaping quotes however
     @staticmethod
     def execute(command=None, decode="True", debug=False):
         """
@@ -135,9 +138,15 @@ class SDCard:
         :return:
         :rtype:
         """
-        result = Sudo.execute(command, decode=decode, debug=debug)
-        return result
 
+        if os_is_windows():
+            result = Shell.execute(cmd=command)
+            return result
+        else:
+            result = Sudo.execute(command, decode=decode, debug=debug)
+            return result
+
+    # Works when drive is set
     @property
     def root_volume(self):
         """
@@ -154,6 +163,7 @@ class SDCard:
         else:
             return location(volume="root", card_os=self.card_os, host_os=self.host_os)
 
+    # Works when drive is set
     @property
     def boot_volume(self):
         """
@@ -168,6 +178,7 @@ class SDCard:
         else:
             return location(volume="boot", card_os=self.card_os, host_os=self.host_os)
 
+    # Unsure of how to list the filesystems on the SDCard on windows
     def ls(self):
         """
         List all file systems on the SDCard. This is for the PI rootfs and boot
@@ -223,9 +234,11 @@ class SDCard:
         :rtype: str or list
         """
         if os_is_windows():
-            raise NotImplementedError
-            # content = ??? probably just plain read write is used, please check if you need sudo
+            content = common_readfile(filename)
+            # ??? probably just plain read write is used, please check if you need sudo
             # please implement
+            return content
+
         else:
             Sudo.execute("sync")
 
@@ -399,8 +412,13 @@ class SDCard:
                     return prepare_sdcard()
 
         if os_is_windows():
-            raise NotImplementedError
+            card = Windows.format_drive(drive=self.drive, unmount=False)
             # w = Windows(???).format_device(???) or something like that
+
+            check = True
+            #check if format is valid
+            if check:
+                Console.ok("Formatted SD Card")
         else:
 
             Sudo.password()
@@ -622,7 +640,8 @@ class SDCard:
         # self.card_os = card_os
 
         if os_is_windows():
-            raise NotImplementedError
+
+            card = Windows.unmount(drive=self.drive)
             # use the new method for unmout, device is the driveletter in windows
         else:
 
@@ -674,6 +693,9 @@ class SDCard:
             os.system(f"sudo eject -t {device}")
         elif os_is_windows():
             # find of to to the reverse of an eject in windows from commandline
+
+            # test this
+            pass
             raise NotImplementedError
         else:
             raise Console.error("Not implemented for this OS")
@@ -813,7 +835,11 @@ class SDCard:
         if device.startswith("/dev/disk"):
             device = device.replace("/dev/disk", "/dev/rdisk")
 
-        if os_is_mac():
+        if os_is_windows():
+            details = USB.get_from_diskutil()
+            USB.print_details(details)
+
+        elif os_is_mac():
             details = USB.get_from_diskutil()
             USB.print_details(details)
 
@@ -824,24 +850,29 @@ class SDCard:
         # TODO Gregor verify this is ok commenting out this line
         # self.mount(device=device)
 
-        if os_is_mac():
-            command = f"sudo dd if={image_path} bs={blocksize} |" \
-                      f' tqdm --bytes --total {size} --ncols 80 |' \
-                      f" sudo dd of={device} bs={blocksize}"
-        else:
-            # command = f"sudo dd if={image_path} of={device} bs={blocksize} status=progress conv=fsync"
-            command = f"sudo dd if={image_path} bs={blocksize} oflag=direct |" \
-                      f' tqdm --bytes --total {size} --ncols 80 |' \
-                      f" sudo dd of={device} bs={blocksize} iflag=fullblock " \
-                      f"oflag=direct conv=fsync"
-        print(command)
-        os.system(command)
+        if os_is_windows():
+            card = Windows.format_drive(self.drive)
+            raise NotImplementedError
 
-        Sudo.execute("sync")
-        if os_is_linux():
-            self.unmount(device=device, full=True)
         else:
-            self.unmount(device=device)
+            if os_is_mac():
+                command = f"sudo dd if={image_path} bs={blocksize} |" \
+                          f' tqdm --bytes --total {size} --ncols 80 |' \
+                          f" sudo dd of={device} bs={blocksize}"
+            else:
+                # command = f"sudo dd if={image_path} of={device} bs={blocksize} status=progress conv=fsync"
+                command = f"sudo dd if={image_path} bs={blocksize} oflag=direct |" \
+                          f' tqdm --bytes --total {size} --ncols 80 |' \
+                          f" sudo dd of={device} bs={blocksize} iflag=fullblock " \
+                          f"oflag=direct conv=fsync"
+            print(command)
+            os.system(command)
+
+            Sudo.execute("sync")
+            if os_is_linux():
+                self.unmount(device=device, full=True)
+            else:
+                self.unmount(device=device)
 
     def copy(self, device=None, from_file="latest"):
         if device is None:
@@ -890,6 +921,8 @@ class SDCard:
                 banner("Operating System SD Card")
                 print(result)
         elif os_is_windows():
+            card = Windows.info()
+            print(card)
             # figure out what on the sdcardand print  the table
             # r = Windows.info(??)
             raise NotImplementedError
