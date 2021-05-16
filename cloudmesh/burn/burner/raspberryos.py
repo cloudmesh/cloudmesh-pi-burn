@@ -1,4 +1,3 @@
-import crypt
 import os
 import random
 import re
@@ -33,6 +32,11 @@ from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.inventory.inventory import Inventory
+
+if not os_is_windows():
+    import crypt
+else:
+    import bcrypt as crypt
 
 
 # noinspection PyPep8

@@ -924,11 +924,10 @@ class SDCard:
                 banner("Operating System SD Card")
                 print(result)
         elif os_is_windows():
-            card = WindowsSDCard.info()
-            print(card)
-            # figure out what on the sdcardand print  the table
-            # r = WindowsSDCard.info(??)
-            raise NotImplementedError
+            card = WindowsSDCard()
+            content = card.info()
+            print(Printer.write(content, order=["volume", "drive", "fs", "label", "size"]))
+
 
         details = USB.get_from_usb()
 
@@ -964,11 +963,6 @@ class SDCard:
         # banner("Devices found")
 
         # print ('\n'.join(sorted(devices)))
-
-        if os_is_windows():
-            # print cool info that helps the user
-            raise NotImplementedError
-
         if os_is_mac():
 
             names = USB.get_dev_from_diskutil()
@@ -1027,7 +1021,6 @@ class SDCard:
             # for line in udev.splitlines():
             #    if any(word in line for word in attributes):
             #        print(line)
-
         if print_stdout:
 
             if os_is_linux():
@@ -1044,8 +1037,17 @@ class SDCard:
                     Console.warning("No mount points found. Use cms burn mount")
                     print()
             elif os_is_windows():
-                # print cool info of the mount points z/....
-                raise NotImplementedError
+                card = WindowsSDCard()
+                content = card.ls()
+                if len(content) != 0:
+                    print(Printer.write(content,
+                                        order=["volume", "drive", "fs", "label", "size"],
+                                        header=["Volume", "Drive", "Format", "Label", "Size"],
+                                        output=output))
+                else:
+                    Console.warning("No mount points found. Use cms burn mount")
+                    print()
+
 
         # Convert details into a dict where the key for each entry is the device
         details = {detail['dev']: detail for detail in details}

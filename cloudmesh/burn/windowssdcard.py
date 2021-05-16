@@ -1,11 +1,13 @@
 from cloudmesh.burn.util import os_is_windows
 
 import string
+from cloudmesh.common.console import Console
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import writefile as common_writefile
 from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.util import path_expand
+from pathlib import Path
 import os
 import ascii
 import sys
@@ -42,7 +44,7 @@ class USB:
 
 
 class WindowsSDCard:
-
+    tmp = "tmp.txt"
     # device will be likely of form Z:/path we need to use Path from new python 3
 
     # see https://superuser.com/questions/704870/mount-and-dismount-hard-drive-through-a-script-software#:~:text=Tutorial,open%20Command%20Prompt%20as%20Administrator.&text=To%20mount%20a%20drive%2C%20type,you%20noted%20in%20Step%202.
@@ -124,6 +126,14 @@ class WindowsSDCard:
         # os.system(command)  ## this must be checked to prevent disaster
         raise NotImplementedError
 
+
+    def diskpart(self,command):
+        _diskpart = Path("C:/Windows/system32/diskpart.exe")
+        common_writefile(WindowsSDCard.tmp, f"{command}\nexit")
+        b = Shell.run(f"{_diskpart} /s {WindowsSDCard.tmp}")
+        WindowsSDCard.clean()
+        return b
+
     def info(self):
 
         """
@@ -133,10 +143,31 @@ class WindowsSDCard:
         :rtype:
         """
         Console.info("Disk info")
-        common_writefile(SdCard.tmp, "list volume")
-        b = Shell.run(f"diskpart /s {SdCard.tmp}").splitlines()[8:]
-        Windows.clean()
-        return b
+
+        b = self.diskpart("list volume")
+
+        lines = b.splitlines()
+        result = []
+        for line in lines:
+            if "Removable" in line and "Healthy" in line:
+                result.append(line)
+
+        content = []
+        for line in result:
+            data = {
+
+                "volume": line[0:13].replace("Volume", "").strip(),
+                "drive": line[13:18].strip(),
+                "label": line[18:31].strip(),
+                "fs": line[31:38].strip(),
+                "type": line[38:50].strip(),
+                "size": line[50:59].strip(),
+                "status": line[59:70].strip(),
+
+            }
+            content.append(data)
+
+        return content
 
         # command = f"mountvol {self.drive} /L"
         # r = Shell.run(command)
@@ -161,12 +192,15 @@ class WindowsSDCard:
     @staticmethod
     def guess_drive():
         return None
-        raise NotImplementedError
+        raise NotImplementedErrFor
+
+    def ls(self):
+        content = self.info()
+        return content
 
     @staticmethod
     def clean():
-        raise NotImplementedError
-        # rm SDCard.tmp
+        os.remove(WindowsSDCard.tmp)
 
     # @staticmethod
     # def list_file_systems():
