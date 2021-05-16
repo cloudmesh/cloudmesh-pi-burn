@@ -49,6 +49,7 @@ class WindowsSDCard:
     def __init__(self, drive=None):
         self.drive = drive
 
+
     def get_drives():
         drives = []
         bitmask = windll.kernel32.GetLogicalDrives()
