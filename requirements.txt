@@ -15,4 +15,3 @@ pyusb
 tqdm
 PySimpleGUI
 passlib
-

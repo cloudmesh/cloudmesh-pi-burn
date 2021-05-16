@@ -37,7 +37,6 @@ def _execute(msg, command):
         Console.error("{command} failed")
         # but ignore error
 
-# requires an import of the ascii command to function as well as arguments for host_os and drive, otherwise could work fine
 def location(host_os=None, card_os="raspberry", volume="boot", drive=None):
     """
     Returns the location of the specific volume after mounting

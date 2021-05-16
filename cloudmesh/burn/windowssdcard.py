@@ -9,7 +9,6 @@ from cloudmesh.common.util import yn_choice
 from cloudmesh.common.util import path_expand
 from pathlib import Path
 import os
-import ascii
 import sys
 import string
 import subprocess
@@ -69,17 +68,6 @@ class WindowsSDCard:
         # import os
         # os.spawnl(os.P_NOWAIT, 'diskmgmt.msc')
 
-    def find_free_drive_letter(self):
-        """
-        returns the first free driveletter
-        :return: returns a free drive letter
-        :rtype:
-        """
-        drives = self.get_drives()
-        for drive in ascii.charlist()[10:]:
-            if drive not in drives:
-                return drive
-        return ValueError("no free drive found")
 
     def automount(self):
         self.diskpart("automount")
