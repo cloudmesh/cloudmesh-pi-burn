@@ -203,10 +203,21 @@ class WindowsSDCard:
             set_unmount = "/x"
         else:
             set_unmount = ""
-        command = f"format {drive} /fs:FAT32 /v:UNTITLED /q {set_unmount}".strip()
+
+        # search for temporary drive, make sure it is the same
+        info = self.info()[0]
+        v = info["volume"]
+        d = info["drive"]
+
+        if drive != d:
+            Console.error("Drive letters do not match")
+            sys.exit()
+
+        command = f"select volume {v}\n"
+        command = command + f"format {drive}: FS=FAT32 LABEL=UNTITLED QUICK {set_unmount}".strip()
         Console.info(command)
-        # os.system(command)  ## this must be checked to prevent disaster
-        raise NotImplementedError
+
+        self.diskpart(command=command)
 
     def diskpart(self, command):
         _diskpart = Path("C:/Windows/system32/diskpart.exe")
