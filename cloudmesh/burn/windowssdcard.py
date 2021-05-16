@@ -40,7 +40,7 @@ class USB:
 '''
 
 
-class Windows:
+class WindowsSDCard:
 
     # device will be likely of form Z:/path we need to use Path from new python 3
 
