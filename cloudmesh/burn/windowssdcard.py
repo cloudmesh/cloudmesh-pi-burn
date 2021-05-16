@@ -79,7 +79,29 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
+
+        # which is correct
         os.system(f"mountvol {drive} /p")
+
+        b = self.diskpart(f"remove letter={drive}")
+        # os.system(f"mountvol {device} /p")
+
+        print(b)
+
+    def basic_mount(self, volume_number, drive=None):
+        """
+        mounts the drive
+
+        :param drive:
+        :type drive:
+        :return:
+        :rtype:
+        """
+        # Figure out drive letter
+        if drive is not None:
+            volume_letter = self.get_free_drive()
+        a = self.diskpart(f"select volume {volume_number}\nassign letter={drive}")
+        return drive
 
     def mount(self, drive=None):
         """
@@ -90,7 +112,6 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
-        # this will use mountvol
         raise NotImplementedError
 
     def format_drive(self, drive=None, unmount=True):
