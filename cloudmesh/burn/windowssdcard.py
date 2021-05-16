@@ -199,38 +199,27 @@ class WindowsSDCard:
         :rtype:
         """
         # see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/format
-        if False:
-            if unmount:
-                set_unmount = "/x"
-            else:
-                set_unmount = ""
+        command = f"C:\Windows\system32\\format.com {drive}: /FS:EXFAT /V:UNTITLED /Q"
+        print(command)
 
-            # search for temporary drive, make sure it is the same
-            info = self.info()[0]
-            v = info["volume"]
-            d = info["drive"]
+        import ctypes
+        class disable_file_system_redirection:
+            _disable = ctypes.windll.kernel32.Wow64DisableWow64FsRedirection
+            _revert = ctypes.windll.kernel32.Wow64RevertWow64FsRedirection
 
-            if drive != d:
-                Console.error("Drive letters do not match")
-                sys.exit()
+            def __enter__(self):
+                self.old_value = ctypes.c_long()
+                self.success = self._disable(ctypes.byref(self.old_value))
 
-            command = f"select volume {v}\n"
-            command = command + f"format {drive}: FS=FAT32 LABEL=UNTITLED QUICK {set_unmount}".strip()
-            Console.info(command)
+            def __exit__(self, type, value, traceback):
+                if self.success:
+                    self._revert(self.old_value)
 
-            self.diskpart(command=command)
+        with disable_file_system_redirection():
+            command = command.split(" ")
+            r = subprocess.run(command)
+            return r.__dict__["returncode"] == 0
 
-        # I think we always all it wit unmount=True for us
-        # so call it with card.format_drive(drive="d") where drive is without :
-        if unmount:
-            set_unmount = "//x"
-        else:
-            set_unmount = ""
-        command = f"c:/Windows/system32/format.com* {drive}: //FS:FAT32 //V:UNTITLED //Q {set_unmount}".strip()
-        print (command)
-        print()
-        if yn_choice("Woudl you like to execute the format command"):
-            os.system(command)
 
     def diskpart(self, command):
         _diskpart = Path("C:/Windows/system32/diskpart.exe")

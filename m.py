@@ -14,7 +14,8 @@ answer = yn_choice(f"Is the drive {drive}: the drive you would like to format")
 
 if answer:
     print("Great!")
-    card.format_drive(drive=drive,unmount=False)
+    r = card.format_drive(drive=drive,unmount=False)
+    print(r)
 
 # card = WindowsSDCard()
 # # card.automount()

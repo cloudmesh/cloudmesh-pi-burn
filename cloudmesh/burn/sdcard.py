@@ -415,10 +415,10 @@ class SDCard:
                     return prepare_sdcard()
 
         if os_is_windows():
-            card = WindowsSDCard.format_drive(drive=self.drive, unmount=False)
-            # w = Windows(???).format_device(???) or something like that
+            card = WindowsSDCard()
+            device = device.replace(":","")
+            check = card.format_drive(drive=device, unmount=False)
 
-            check = True
             #check if format is valid
             if check:
                 Console.ok("Formatted SD Card")
