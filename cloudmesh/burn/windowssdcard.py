@@ -58,6 +58,17 @@ class WindowsSDCard:
 
         return drives
 
+    def diskmanager(self):
+        os.system('diskmgmt.msc &')
+        # DETACHED_PROCESS = 0x00000008
+        #
+        # pid = subprocess.Popen([sys.executable, "diskmgmt.msc"],
+        #                        creationflags=DETACHED_PROCESS).pid
+
+
+        # import os
+        # os.spawnl(os.P_NOWAIT, 'diskmgmt.msc')
+
     def find_free_drive_letter(self):
         """
         returns the first free driveletter
@@ -70,6 +81,9 @@ class WindowsSDCard:
                 return drive
         return ValueError("no free drive found")
 
+    def automount(self):
+        self.diskpart("automount")
+
     def unmount(self, drive=None):
         """
         unmounts the drive
@@ -81,14 +95,40 @@ class WindowsSDCard:
         """
 
         # which is correct
+        print("abc")
         os.system(f"mountvol {drive} /p")
-
-        b = self.diskpart(f"remove letter={drive}")
+        print("hello")
+        # b = self.diskpart(f"remove letter={drive}")
+        print("goodbye")
         # os.system(f"mountvol {device} /p")
 
-        print(b)
+    @staticmethod
+    def guess_drive():
+        drives = set(string.ascii_uppercase[2:])
+        for d in win32api.GetLogicalDriveStrings().split(':\\\x00'):
+            drives.discard(d)
+        # Discard persistent network drives, even if not connected.
+        henum = win32wnet.WNetOpenEnum(win32netcon.RESOURCE_REMEMBERED,
+                                       win32netcon.RESOURCETYPE_DISK, 0, None)
+        while True:
+            result = win32wnet.WNetEnumResource(henum)
+            if not result:
+                break
+            for r in result:
+                if len(r.lpLocalName) == 2 and r.lpLocalName[1] == ':':
+                    drives.discard(r.lpLocalName[0])
+        if drives:
+            return sorted(drives)[0] + ':'
 
-    def basic_mount(self, volume_number, drive=None):
+
+    def assign_drive(self,volume=None,drive=None):
+        if drive is None:
+            drive = self.guess_drive()
+        print(drive)
+        result = self.diskpart(f"select volume {volume}\nassign letter={drive}")
+        print(result)
+
+    def basic_mount(self, volume_number=None, drive=None):
         """
         mounts the drive
 
@@ -98,12 +138,13 @@ class WindowsSDCard:
         :rtype:
         """
         # Figure out drive letter
-        if drive is not None:
-            volume_letter = self.get_free_drive()
+        # if drive is not None:
+        #     volume_letter = self.get_free_drive()
         a = self.diskpart(f"select volume {volume_number}\nassign letter={drive}")
         return drive
 
-    def mount(self, drive=None):
+
+    def mount(self, drive=None,label=None):
         """
         mounts the drive
 
@@ -112,7 +153,42 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
-        raise NotImplementedError
+        content = self.info()
+        print(content)
+
+        if drive is not None:
+            found = False
+            d = drive
+            v = -1
+            for _drive in content:
+                d = _drive["drive"] + ":"
+                v = _drive["volume"]
+                if d == drive:
+                    found = True
+
+            if found:
+                self.basic_mount(volume_number=v,drive=d)
+            else:
+                Console.error(f"Mount: Drive letters do not match, Found: {drive}, {d}")
+        elif label is not None and drive is None:
+            drive = self.guess_drive()
+            v= -1
+            for _drive in content:
+                l = _drive["label"]
+                v = _drive["volume"]
+                if l == label:
+                    found = True
+
+            if found:
+                self.assign_drive(volume=v,drive=drive)
+                self.basic_mount(volume_number=v, drive=drive)
+
+            else:
+                Console(f"Mount: Drive label not found")
+        else:
+            Console.error("Drive or label not specified")
+            return None
+
 
     def format_drive(self, drive=None, unmount=True):
         """
@@ -138,6 +214,26 @@ class WindowsSDCard:
         b = Shell.run(f"{_diskpart} /s {WindowsSDCard.tmp}")
         WindowsSDCard.clean()
         return b
+
+    def diskinfo(self,number):
+        result = self.diskpart(f"select disk {number}\ndetail disk")
+
+        content = []
+        for line in result:
+            data = {
+
+                "volume": line[0:13].replace("Volume", "").strip(),
+                "drive": line[13:18].strip(),
+                "label": line[18:31].strip(),
+                "fs": line[31:38].strip(),
+                "type": line[38:50].strip(),
+                "size": line[50:59].strip(),
+                "status": line[59:70].strip(),
+
+            }
+            content.append(data)
+
+        return content
 
     def info(self):
 
@@ -193,11 +289,6 @@ class WindowsSDCard:
 
         # common_writefile(filename, "list disk\n\exit")
         # os.system(f"diskpart /s {filename}")
-
-    @staticmethod
-    def guess_drive():
-        return None
-        raise NotImplementedErrFor
 
     def ls(self):
         content = self.info()

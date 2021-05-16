@@ -923,11 +923,14 @@ class SDCard:
             if print_stdout:
                 banner("Operating System SD Card")
                 print(result)
+
         elif os_is_windows():
             card = WindowsSDCard()
             content = card.info()
             print(Printer.write(content, order=["volume", "drive", "fs", "label", "size"]))
-
+            # TODO
+            # content = card.diskinfo(number=)
+            # print(content)
 
         details = USB.get_from_usb()
 
