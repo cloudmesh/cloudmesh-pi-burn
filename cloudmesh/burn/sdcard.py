@@ -192,7 +192,7 @@ class SDCard:
         if os_is_windows():
             details = None
             # Provide the filesystems on the sdcard
-            # details = Windows.list_file_systems()
+            # details = WindowsSDCard.list_file_systems()
         else:
             r = Shell.run("mount -l").splitlines()
             root_fs = self.root_volume
@@ -415,7 +415,7 @@ class SDCard:
                     return prepare_sdcard()
 
         if os_is_windows():
-            card = Windows.format_drive(drive=self.drive, unmount=False)
+            card = WindowsSDCard.format_drive(drive=self.drive, unmount=False)
             # w = Windows(???).format_device(???) or something like that
 
             check = True
@@ -644,7 +644,7 @@ class SDCard:
 
         if os_is_windows():
 
-            card = Windows.unmount(drive=self.drive)
+            card = WindowsSDCard.unmount(drive=self.drive)
             # use the new method for unmout, device is the driveletter in windows
         else:
 
@@ -854,7 +854,7 @@ class SDCard:
         # self.mount(device=device)
 
         if os_is_windows():
-            card = Windows.format_drive(self.drive)
+            card = WindowsSDCard.format_drive(self.drive)
             raise NotImplementedError
 
         else:
@@ -924,10 +924,10 @@ class SDCard:
                 banner("Operating System SD Card")
                 print(result)
         elif os_is_windows():
-            card = Windows.info()
+            card = WindowsSDCard.info()
             print(card)
             # figure out what on the sdcardand print  the table
-            # r = Windows.info(??)
+            # r = WindowsSDCard.info(??)
             raise NotImplementedError
 
         details = USB.get_from_usb()
