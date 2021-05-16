@@ -22,7 +22,6 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import yn_choice
-from cloudmesh.burn.windows import Windows
 
 if os_is_windows():
     from cloudmesh.burn.windowssdcard import WindowsSDCard
