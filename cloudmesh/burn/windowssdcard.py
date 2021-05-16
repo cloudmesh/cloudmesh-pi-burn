@@ -157,6 +157,9 @@ class WindowsSDCard:
         raise NotImplementedError
         # rm SDCard.tmp
 
+    # @staticmethod
+    # def list_file_systems():
+
 """
 class WindowsSDCard:
     
