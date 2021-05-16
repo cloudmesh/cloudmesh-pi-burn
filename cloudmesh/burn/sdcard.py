@@ -23,6 +23,9 @@ from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import yn_choice
 
+if os_is_windows():
+    from cloudmesh.burn.windowssdcard import WindowsSDCard
+
 
 # noinspection PyBroadException
 def _execute(msg, command):
