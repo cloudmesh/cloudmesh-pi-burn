@@ -2,10 +2,11 @@ from cloudmesh.burn.util import os_is_windows
 
 import string
 from cloudmesh.common.Shell import Shell
-from cloudmesh.common.util import writefile
-from cloudmesh.common.util import readfile
+from cloudmesh.common.util import writefile as common_writefile
+from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import yn_choice
-
+from cloudmesh.common.util import path_expand
+import os
 import ascii
 import sys
 import string
@@ -49,8 +50,18 @@ class WindowsSDCard:
     def __init__(self, drive=None):
         self.drive = drive
 
+    def readfile(self, filename=None):
+        content = common_readfile(filename, mode='rb')
+        # this may need to be changed to just "r"
+        return content
 
-    def get_drives():
+    def writefile(self, filename=None, content=None):
+        with open(path_expand(filename), 'w') as outfile:
+            outfile.write(content)
+            outfile.truncate() # may not be needed, but is better
+            os.fsync(outfile)
+
+    def get_drives(self):
         drives = []
         bitmask = windll.kernel32.GetLogicalDrives()
         for letter in string.uppercase:
@@ -122,7 +133,7 @@ class WindowsSDCard:
         :rtype:
         """
         Console.info("Disk info")
-        writefile(SdCard.tmp, "list volume")
+        common_writefile(SdCard.tmp, "list volume")
         b = Shell.run(f"diskpart /s {SdCard.tmp}").splitlines()[8:]
         Windows.clean()
         return b
@@ -144,7 +155,7 @@ class WindowsSDCard:
         # Path pathlib
         # filename = Path("/tmp/list-disk.txt")
 
-        # writefile(filename, "list disk\n\exit")
+        # common_writefile(filename, "list disk\n\exit")
         # os.system(f"diskpart /s {filename}")
 
     @staticmethod
@@ -186,18 +197,18 @@ class WindowsSDCard:
 
         print(f"format :{volume_number}")
 
-        writefile(SdCard.tmp, f"select disk {disk_number} \n exit")
+        common_writefile(SdCard.tmp, f"select disk {disk_number} \n exit")
         
         a = Shell.run(f"diskpart /s {SdCard.tmp}")
 
         print(a)
 
-        writefile(SdCard.tmp, f"select volume {volume_number}")
+        common_writefile(SdCard.tmp, f"select volume {volume_number}")
         a = Shell.run(f"diskpart /s {SdCard.tmp}")
         print(SdCard.tmp)
         print(a)
 
-        writefile(SdCard.tmp, "format fs=fat32 quick")
+        common_writefile(SdCard.tmp, "format fs=fat32 quick")
         print(SdCard.tmp)
         a = Shell.run(f"diskpart /s {SdCard.tmp}")
 
@@ -205,16 +216,16 @@ class WindowsSDCard:
     def mount(volume_number, volume_letter=None):
         if volume_letter == None:
             volume_letter = SdCard.get_free_drive()
-        writefile(SdCard.tmp, f"select volume {volume_number}")
+        common_writefile(SdCard.tmp, f"select volume {volume_number}")
         a = Shell.run(f"diskpart /s {SdCard.tmp}")
 
-        writefile(SdCard.tmp, f"assign letter={volume_letter}")
+        common_writefile(SdCard.tmp, f"assign letter={volume_letter}")
         a = Shell.run(f"diskpart /s {SdCard.tmp}")
         return volume_letter
 
     @staticmethod
     def unmount(volume_letter):
-        writefile(SdCard.tmp, f"remove letter={volume_letter}")
+        common_writefile(SdCard.tmp, f"remove letter={volume_letter}")
         b = Shell.run(f"diskpart /s {SdCard.tmp}").splitlines()[8:]
 
         # os.system(f"mountvol {device} /p")
@@ -228,7 +239,7 @@ class WindowsSDCard:
     @staticmethod
     def info():
         print("Disk info")
-        writefile(SdCard.tmp, "list volume")
+        common_writefile(SdCard.tmp, "list volume")
         b = Shell.run(f"diskpart /s {SdCard.tmp}").splitlines()[8:]
         return b
 
