@@ -266,6 +266,12 @@ class WindowsSDCard:
 
         return content
 
+    def writefile(self,filename=None,content=None):
+        with open(filename, 'w') as outfile:
+            outfile.write(content)
+            outfile.truncate()
+
+
         # command = f"mountvol {self.drive} /L"
         # r = Shell.run(command)
         # print (r)

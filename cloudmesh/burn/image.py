@@ -13,6 +13,8 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile, writefile
+from cloudmesh.common.Shell import Shell
+from cloudmesh.burn.util import os_is_windows
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -108,7 +110,12 @@ class Image(object):
 
         self.directory = os.path.expanduser('~/.cloudmesh/cmburn/images')
         self.cache = Path(os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
-        os.system('mkdir -p ' + self.directory)
+        Shell.mkdir(self.directory)
+
+        #
+        # import pathlib
+        # directory = pathlib.Path.home() / '.cloudmesh' / 'cmburn'
+        # directory.mkdir(parents=True, exist_ok=True)
 
         self.raspberry_images = {
             "lite": "https://downloads.raspberrypi.org/raspios_lite_armhf/images",
@@ -198,7 +205,7 @@ class Image(object):
                 data[kind].append(latest)
 
         if refresh or not cache.exists():
-            os.system("mkdir -p ~/.cloudmesh/cmburn")
+            Shell.mkdir(path_expand("/.cloudmesh/cmburn"))
             fetch_kind(kind="lite")
             fetch_kind(kind="full")
             writefile(cache, yaml.dump(data))
@@ -254,6 +261,13 @@ class Image(object):
     def get_name(url):
         return os.path.basename(url).replace('.zip', '')
 
+    def download_file(self,url=None,filename=None):
+        if os_is_windows:
+            os.system(f"curl -o {filename} {url}")
+        else:
+            os.system(f'wget -O {filename} {url}')
+
+
     # noinspection PyBroadException
     def fetch(self, url=None, tag=None, verify=True):
         """
@@ -307,7 +321,8 @@ class Image(object):
                 Console.warning(f"The file is already downloaded. Found at:\n\n"
                                 f"    {img_file}\n")
                 return img_file
-            os.system(f'wget -O {xz_filename} {image["url"]}')
+
+            self.download_file(url=image["url"],filename=xz_filename)
 
             print(f"Extracting {img_filename}")
             self.unzip_image(xz_filename)
@@ -343,10 +358,10 @@ class Image(object):
             image['sha1'] = image['url'] + ".sha1"
             image['sha256'] = image['url'] + ".sha256"
             if verify:
-                os.system(f'wget -O {sha1_filename} {image["sha1"]}')
-                os.system(f'wget -O {sha256_filename} {image["sha256"]}')
+                self.download_file(url=image["sha1"], filename=sha1_filename)
+                self.download_file(url=image["sha256"], filename=sha256_filename)
 
-            os.system(f'wget -O {zip_filename} {image["url"]}')
+            self.download_file(url=image["url"], filename=zip_filename)
 
             if verify:
                 sha1 = sha1sum(zip_file)
