@@ -199,25 +199,38 @@ class WindowsSDCard:
         :rtype:
         """
         # see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/format
+        if False:
+            if unmount:
+                set_unmount = "/x"
+            else:
+                set_unmount = ""
+
+            # search for temporary drive, make sure it is the same
+            info = self.info()[0]
+            v = info["volume"]
+            d = info["drive"]
+
+            if drive != d:
+                Console.error("Drive letters do not match")
+                sys.exit()
+
+            command = f"select volume {v}\n"
+            command = command + f"format {drive}: FS=FAT32 LABEL=UNTITLED QUICK {set_unmount}".strip()
+            Console.info(command)
+
+            self.diskpart(command=command)
+
+        # I think we always all it wit unmount=True for us
+        # so call it with card.format_drive(drive="d") where drive is without :
         if unmount:
-            set_unmount = "/x"
+            set_unmount = "//x"
         else:
             set_unmount = ""
-
-        # search for temporary drive, make sure it is the same
-        info = self.info()[0]
-        v = info["volume"]
-        d = info["drive"]
-
-        if drive != d:
-            Console.error("Drive letters do not match")
-            sys.exit()
-
-        command = f"select volume {v}\n"
-        command = command + f"format {drive}: FS=FAT32 LABEL=UNTITLED QUICK {set_unmount}".strip()
-        Console.info(command)
-
-        self.diskpart(command=command)
+        command = f"FORMAT {drive}: //FS:FAT32 //V:UNTITLED //Q {set_unmount}".strip()
+        print (command)
+        print()
+        if yn_choice("Woudl you like to execute the format command"):
+            os.system(command)
 
     def diskpart(self, command):
         _diskpart = Path("C:/Windows/system32/diskpart.exe")
