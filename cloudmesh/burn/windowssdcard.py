@@ -95,11 +95,8 @@ class WindowsSDCard:
         """
 
         # which is correct
-        print("abc")
         os.system(f"mountvol {drive} /p")
-        print("hello")
         # b = self.diskpart(f"remove letter={drive}")
-        print("goodbye")
         # os.system(f"mountvol {device} /p")
 
     @staticmethod
@@ -124,9 +121,8 @@ class WindowsSDCard:
     def assign_drive(self,volume=None,drive=None):
         if drive is None:
             drive = self.guess_drive()
-        print(drive)
         result = self.diskpart(f"select volume {volume}\nassign letter={drive}")
-        print(result)
+        return result
 
     def basic_mount(self, volume_number=None, drive=None):
         """
@@ -154,7 +150,6 @@ class WindowsSDCard:
         :rtype:
         """
         content = self.info()
-        print(content)
 
         if drive is not None:
             found = False
@@ -200,7 +195,7 @@ class WindowsSDCard:
         """
         # see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/format
         command = f"C:\Windows\system32\\format.com {drive}: /FS:EXFAT /V:UNTITLED /Q"
-        print(command)
+        Console.info(command)
 
         import ctypes
         class disable_file_system_redirection:

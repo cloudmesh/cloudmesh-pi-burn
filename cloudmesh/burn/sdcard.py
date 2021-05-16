@@ -535,7 +535,9 @@ class SDCard:
 
         if os_is_windows():
             # if on windows the devise is the drive letter
-            raise NotImplementedError
+            card = WindowsSDCard()
+            self.drive = device
+            card.mount(drive=self.drive)
 
         elif os_is_linux():
             Sudo.password()
@@ -643,8 +645,9 @@ class SDCard:
         # self.card_os = card_os
 
         if os_is_windows():
-
-            card = WindowsSDCard.unmount(drive=self.drive)
+            self.drive = device
+            card = WindowsSDCard()
+            card.unmount(drive=self.drive)
             # use the new method for unmout, device is the driveletter in windows
         else:
 
@@ -699,7 +702,6 @@ class SDCard:
 
             # test this
             pass
-            raise NotImplementedError
         else:
             raise Console.error("Not implemented for this OS")
 
@@ -854,8 +856,11 @@ class SDCard:
         # self.mount(device=device)
 
         if os_is_windows():
-            card = WindowsSDCard.format_drive(self.drive)
-            raise NotImplementedError
+            self.drive=device
+            card = WindowsSDCard()
+            result = card.format_drive(self.drive)
+            if result:
+                Console.ok('Card Formatted')
 
         else:
             if os_is_mac():
