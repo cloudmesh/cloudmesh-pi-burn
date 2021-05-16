@@ -23,31 +23,16 @@ if os_is_windows():
     import win32netcon
 
 
-# see mountvol
-# see diskpart
-
-# https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-vista/cc766465(v=ws.10)?redirectedfrom=MSDN
-
-
-
 class USB:
     @staticmethod
     def info():
         print("Prints the table of information about devices on the  usb info")
 
 
-'''
-    diskpart commands - 
-    https://www.windowscentral.com/how-mount-drive-windows-10#:~:text=Unmount%20drive%20with%20DiskPart&text=using%20these%20steps%3A-,Open%20Start.,Run%20as%20administrator**%20option.&text=Confirm%20the%20volume%20you%20want%20to%20unmount.&text=volume%20VOLUME%2DNUMBER-,In%20the%20command%2C%20replace%20VOLUME%2DNUMBER%20with%20the%20number%20of,volume)%20you%20want%20to%20mount.
-    https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-xp/bb490893(v=technet.10)?redirectedfrom=MSDN
-'''
-
-
 class WindowsSDCard:
     tmp = "tmp.txt"
-    # device will be likely of form Z:/path we need to use Path from new python 3
 
-    # see https://superuser.com/questions/704870/mount-and-dismount-hard-drive-through-a-script-software#:~:text=Tutorial,open%20Command%20Prompt%20as%20Administrator.&text=To%20mount%20a%20drive%2C%20type,you%20noted%20in%20Step%202.
+    # device will be likely of form Z:/path we need to use Path from new python 3
 
     def __init__(self, drive=None):
         self.drive = drive
@@ -60,7 +45,7 @@ class WindowsSDCard:
     def writefile(self, filename=None, content=None):
         with open(path_expand(filename), 'w') as outfile:
             outfile.write(content)
-            outfile.truncate() # may not be needed, but is better
+            outfile.truncate()  # may not be needed, but is better
             os.fsync(outfile)
 
     def get_drives(self):
@@ -126,8 +111,7 @@ class WindowsSDCard:
         # os.system(command)  ## this must be checked to prevent disaster
         raise NotImplementedError
 
-
-    def diskpart(self,command):
+    def diskpart(self, command):
         _diskpart = Path("C:/Windows/system32/diskpart.exe")
         common_writefile(WindowsSDCard.tmp, f"{command}\nexit")
         b = Shell.run(f"{_diskpart} /s {WindowsSDCard.tmp}")
@@ -181,7 +165,7 @@ class WindowsSDCard:
 
         # diskpart /s <script_file>
 
-        #os.system("diskpart list disk")
+        # os.system("diskpart list disk")
 
         # Path pathlib
         # filename = Path("/tmp/list-disk.txt")
@@ -204,6 +188,7 @@ class WindowsSDCard:
 
     # @staticmethod
     # def list_file_systems():
+
 
 """
 class WindowsSDCard:
@@ -316,7 +301,6 @@ class WindowsSDCard:
 SdCard.format_card(5, 3)
 """
 
-
 '''
 DO NOT DELETE THIS COMMENT - WORKING CODE HERE. 
 
@@ -337,9 +321,6 @@ print(files)
 
 SdCard.unmount(volume_letter)
 '''
-
-
-
 
 # TASK 1 explre sdcard that has raspberry os on it.
 '''

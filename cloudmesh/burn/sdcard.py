@@ -1041,8 +1041,8 @@ class SDCard:
                 content = card.ls()
                 if len(content) != 0:
                     print(Printer.write(content,
-                                        order=["volume", "drive", "fs", "label", "size"],
-                                        header=["Volume", "Drive", "Format", "Label", "Size"],
+                                        order=["drive","fs", "label", "size","volume"],
+                                        header=["Drive", "Format", "Label", "Size","Volume"],
                                         output=output))
                 else:
                     Console.warning("No mount points found. Use cms burn mount")
