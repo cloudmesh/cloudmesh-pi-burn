@@ -226,7 +226,7 @@ class WindowsSDCard:
             set_unmount = "//x"
         else:
             set_unmount = ""
-        command = f"FORMAT {drive}: //FS:FAT32 //V:UNTITLED //Q {set_unmount}".strip()
+        command = f"c:/Windows/system32/format.com* {drive}: //FS:FAT32 //V:UNTITLED //Q {set_unmount}".strip()
         print (command)
         print()
         if yn_choice("Woudl you like to execute the format command"):
