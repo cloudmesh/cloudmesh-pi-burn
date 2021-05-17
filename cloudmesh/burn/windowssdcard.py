@@ -105,6 +105,23 @@ class WindowsSDCard:
         if drives:
             return sorted(drives)[0] + ':'
 
+    def inject(self,volume=None):
+        if volume is not None:
+            all_volumes = self.info()
+            matching_volumes = self.filter_info(all_volumes, {"volume": volume,"drive":"","label":""})
+
+            if len(matching_volumes) != 0:
+                requested_volume = matching_volumes[0]
+                self.diskpart(command=f"select volume {volume}")
+                self.diskpart(command="online volume")
+                self.mount(label=requested_volume["label"])
+
+                Console.ok(f"Volume {volume} injected")
+            else:
+                Console.error(f"Volume {volume} not injectable")
+        else:
+            Console.error("Provide volume")
+
 
     def assign_drive(self,volume=None,drive=None):
         if drive is None:
@@ -210,6 +227,14 @@ class WindowsSDCard:
         b = Shell.run(f"{_diskpart} /s {WindowsSDCard.tmp}")
         WindowsSDCard.clean()
         return b
+
+    @staticmethod
+    def filter_info(info=None, args=None):
+        for key,value in args.items():
+            info = [device for device in info if device[key] == value]
+
+        return info
+
 
     def diskinfo(self,number):
         result = self.diskpart(f"select disk {number}\ndetail disk")

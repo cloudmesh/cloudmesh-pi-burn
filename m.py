@@ -1,30 +1,44 @@
 from cloudmesh.burn.windowssdcard import WindowsSDCard
-from cloudmesh.common.util import yn_choice
 from cloudmesh.burn.sdcard import SDCard
-from cloudmesh.common.console import Console
 
 device = SDCard()
 card = WindowsSDCard()
-info = card.info()
-if len(info) > 1:
-    Console.error("Too many SD Cards found")
-drive = info[0]["drive"]
-print(device.info())
-answer = yn_choice(f"Is the drive {drive}: the drive you would like to format")
 
-if answer:
-    print("Great!")
-    r = card.format_drive(drive=drive,unmount=False)
-    print(r)
+# injecting a volume that is already injected
+r_inject = card.inject(volume="5")
 
-# card = WindowsSDCard()
-# # card.automount()
-# # card.mount(drive="D:")
-# card.mount(label="UNTITLED")
-# # print("aaa")
-# # # card.unmount("D:")
-# # print("bbb")
+# formatting mounted and injected volume
+r_format = card.format_drive(drive="D")
+print("r_format",r_format)
+
+# Should list a card without label or volume
+card.ls()
+
+# injecting recently formatted card
+r_inject = card.inject(volume=5)
+
+# mounting injected card
+
+
+
 #
-# # card.assign_drive("UNTITLED")
+# def inject_all():
+#     #get all volumes
+#     info = card.info()
+#     #filter for volumes that aren't injected
+#     info = WindowsSDCard.filter_info(info,{"type":"Removable","label":"","drive":""})
+#     print(info)
 #
-# # card.diskmanager()
+#
+#     for device in info:
+#         card.diskpart(command=f"select volume {device['volume']}")
+#         card.diskpart(command="online volume")
+#         if device["drive"] != "":
+#             r_mount = card.mount(drive=device["drive"],label=device["label"])
+#             print("r_mount",r_mount)
+#         else:
+#             r_mount = card.mount(label=device["label"])
+#             print("r_mount",r_mount)
+#
+# inject(volume=)
+# card.ls()

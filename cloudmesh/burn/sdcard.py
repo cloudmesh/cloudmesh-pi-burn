@@ -624,7 +624,10 @@ class SDCard:
         else:
             Console.error("Not yet implemented for your OS")
 
-        Sudo.execute("sync")
+        if os_is_windows():
+            pass
+        else:
+            Sudo.execute("sync")
         return ""
 
     def unmount(self, device=None, card_os="raspberry", full=False):
@@ -840,8 +843,9 @@ class SDCard:
             device = device.replace("/dev/disk", "/dev/rdisk")
 
         if os_is_windows():
-            details = USB.get_from_diskutil()
-            USB.print_details(details)
+            pass
+            # details = USB.get_from_diskutil()
+            # USB.print_details(details)
 
         elif os_is_mac():
             details = USB.get_from_diskutil()
