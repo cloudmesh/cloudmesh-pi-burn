@@ -416,8 +416,14 @@ class SDCard:
         if os_is_windows():
             card = WindowsSDCard()
             device = device.replace(":","")
-            check = card.format_drive(drive=device, unmount=False)
+            info = card.info()
+            volume_of_device = card.filter_info(info, {"drive": device})
+            print(info)
+            print(volume_of_device)
+            print("about to format")
 
+            check = card.format_drive(drive=device)
+            print("formatted")
             #check if format is valid
             if check:
                 Console.ok("Formatted SD Card")

@@ -77,7 +77,9 @@ class Burner(AbstractBurner):
 
         Console.info(f'Burning {name}')
         sdcard.format_device(device=device, yes=True)
+        print("aaa")
         sdcard.unmount(device=device)
+        print("bbb")
         sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
         sdcard.mount(device=device, card_os="raspberry")
 

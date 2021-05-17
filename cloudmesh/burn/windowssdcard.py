@@ -36,6 +36,10 @@ class WindowsSDCard:
     def __init__(self, drive=None):
         self.drive = drive
 
+    def fix_path(self,path=None):
+        path = path.replace(r"\","/")
+        return path
+
     def readfile(self, filename=None):
         content = common_readfile(filename, mode='rb')
         # this may need to be changed to just "r"
@@ -83,7 +87,11 @@ class WindowsSDCard:
         """
 
         # which is correct
-        os.system(f"mountvol {drive} /p")
+        content = self.info()
+        v = content[0]["volume"]
+        d = content[0]["drive"]
+        print(content)
+        os.system(f"mountvol {drive}: /p")
 
         # b = self.diskpart(f"remove letter={drive}")
         # os.system(f"mountvol {device} /p")
@@ -113,12 +121,14 @@ class WindowsSDCard:
     def inject(self,volume=None):
         if volume is not None:
             all_volumes = self.info()
-            matching_volumes = self.filter_info(all_volumes, {"volume": volume,"drive":"","label":""})
+            matching_volumes = self.filter_info(all_volumes, {"volume": volume,
+                                                              "type": "Removable",
+                                                              "status": "Healthy",
+                                                              "info": "Offline"})
 
             if len(matching_volumes) != 0:
-                requested_volume = matching_volumes[0]
                 self.diskpart(command=f"select volume {volume}\nonline volume")
-                self.mount(label=requested_volume["label"])
+                self.mount(label="UNTITLED")
 
                 Console.ok(f"Volume {volume} injected")
             else:
@@ -159,13 +169,13 @@ class WindowsSDCard:
         :rtype:
         """
         content = self.info()
+        found = False
 
         if drive is not None:
-            found = False
             d = drive
             v = -1
             for _drive in content:
-                d = _drive["drive"] + ":"
+                d = _drive["drive"]
                 v = _drive["volume"]
                 if d == drive:
                     found = True
@@ -188,13 +198,13 @@ class WindowsSDCard:
                 self.basic_mount(volume_number=v, drive=drive)
 
             else:
-                Console(f"Mount: Drive label not found")
+                Console.error(f"Mount: Drive label not found")
         else:
             Console.error("Drive or label not specified")
             return None
 
 
-    def format_drive(self, drive=None, unmount=True):
+    def format_drive(self, drive=None):
         """
         formats the drive
         :param drive: is a drive latte in Windows
@@ -202,6 +212,14 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
+        content = self.info()
+
+        d = content[0]["drive"]
+        v = content[0]["volume"]
+        if d == "":
+            self.inject(volume=v)
+        content = self.info()
+
         # see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/format
         command = f"C:\Windows\system32\\format.com {drive}: /FS:EXFAT /V:UNTITLED /Q"
         Console.info(command)
@@ -236,7 +254,6 @@ class WindowsSDCard:
     def filter_info(info=None, args=None):
         for key,value in args.items():
             info = [device for device in info if device[key] == value]
-
         return info
 
 
@@ -289,6 +306,7 @@ class WindowsSDCard:
                 "type": line[38:50].strip(),
                 "size": line[50:59].strip(),
                 "status": line[59:70].strip(),
+                "info": line[70:].strip()
 
             }
             content.append(data)
