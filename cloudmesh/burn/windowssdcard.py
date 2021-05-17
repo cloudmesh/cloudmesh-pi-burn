@@ -84,8 +84,13 @@ class WindowsSDCard:
 
         # which is correct
         os.system(f"mountvol {drive} /p")
+
         # b = self.diskpart(f"remove letter={drive}")
         # os.system(f"mountvol {device} /p")
+
+    # def eject(self,volume=None):
+    #     if volume is not None:
+
 
     @staticmethod
     def guess_drive():
@@ -112,8 +117,7 @@ class WindowsSDCard:
 
             if len(matching_volumes) != 0:
                 requested_volume = matching_volumes[0]
-                self.diskpart(command=f"select volume {volume}")
-                self.diskpart(command="online volume")
+                self.diskpart(command=f"select volume {volume}\nonline volume")
                 self.mount(label=requested_volume["label"])
 
                 Console.ok(f"Volume {volume} injected")
