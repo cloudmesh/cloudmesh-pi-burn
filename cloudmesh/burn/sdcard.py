@@ -870,6 +870,10 @@ class SDCard:
             result = card.format_drive(self.drive)
             if result:
                 Console.ok('Card Formatted')
+            Console.error("The image is not yet written onto the sdcard as not "
+                          "implemented yet")
+            raise NotImplementedError
+
 
         else:
             if os_is_mac():
