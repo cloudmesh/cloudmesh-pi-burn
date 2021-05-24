@@ -37,7 +37,7 @@ class WindowsSDCard:
         self.drive = drive
 
     def fix_path(self,path=None):
-        path = path.replace(r"\","/")
+        path = path.replace(r"\\","/")
         return path
 
     def readfile(self, filename=None):
@@ -142,6 +142,11 @@ class WindowsSDCard:
             drive = self.guess_drive()
         result = self.diskpart(f"select volume {volume}\nassign letter={drive}")
         return result
+
+    def remove_drive(self,volume=None,drive=None):
+        if drive is None:
+            drive = self.guess_drive()
+        result = self.diskpart(f"select volume {volume}\nremove letter={drive}")
 
     def basic_mount(self, volume_number=None, drive=None):
         """
@@ -256,26 +261,6 @@ class WindowsSDCard:
             info = [device for device in info if device[key] == value]
         return info
 
-
-    def diskinfo(self,number):
-        result = self.diskpart(f"select disk {number}\ndetail disk")
-
-        content = []
-        for line in result:
-            data = {
-
-                "volume": line[0:13].replace("Volume", "").strip(),
-                "drive": line[13:18].strip(),
-                "label": line[18:31].strip(),
-                "fs": line[31:38].strip(),
-                "type": line[38:50].strip(),
-                "size": line[50:59].strip(),
-                "status": line[59:70].strip(),
-
-            }
-            content.append(data)
-
-        return content
 
     def info(self):
 

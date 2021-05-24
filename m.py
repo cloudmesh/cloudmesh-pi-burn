@@ -4,20 +4,24 @@ from cloudmesh.burn.sdcard import SDCard
 device = SDCard()
 card = WindowsSDCard()
 
+
+r_disk = card.diskpart("select volume 5")
+r_diskinfo = card.diskinfo()
+print(r_diskinfo)
 #
 #
 # card.assign_drive(volume=5,drive="D")
 # injecting a volume that is already injected
-print("r_inject")
-r_inject = card.inject(volume="5")
+# print("r_inject")
+# r_inject = card.inject(volume="5")
 
 # formatting mounted and injected volume
 # r_format = card.format_drive(drive="D")
 # print("r_format",r_format)
-
-# # Should list a card without label or volume
-# card.ls()
 #
+# # # Should list a card without label or volume
+# # card.ls()
+# #
 # print('aaa')
 # # injecting recently formatted card
 # r_inject = card.inject(volume=5)

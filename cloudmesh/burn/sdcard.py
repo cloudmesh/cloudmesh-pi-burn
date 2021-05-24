@@ -870,8 +870,16 @@ class SDCard:
             result = card.format_drive(self.drive)
             if result:
                 Console.ok('Card Formatted')
-            Console.error("The image is not yet written onto the sdcard as not "
-                          "implemented yet")
+
+            result = card.diskpart(f"select volume {self.drive}")
+
+            # remove letter
+            result = card.remove_letter(self.drive)
+            # convert device (drive letter) to disk, disk to linux-like sdcard path ex. /dev/sdb
+            # disk numbers correspond to alphabet letters ex. disk1 -> /dev/sda, disk2 -> /dev/sdb, etc.
+
+            command = f"sudo dd if={image_path} bs={blocksize} of={device} conv=notruc,sync status=progress"
+
             raise NotImplementedError
 
 
