@@ -90,7 +90,7 @@ class WindowsSDCard:
         content = self.info()
         v = content[0]["volume"]
         d = content[0]["drive"]
-        print(content)
+        Console.info("Unmounting Card")
         os.system(f"mountvol {drive}: /p")
 
         # b = self.diskpart(f"remove letter={drive}")
@@ -227,7 +227,7 @@ class WindowsSDCard:
 
         # see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/format
         command = f"C:\Windows\system32\\format.com {drive}: /FS:EXFAT /V:UNTITLED /Q"
-        Console.info(command)
+        Console.info("Formatting Card with command: " + command)
 
         import ctypes
         class disable_file_system_redirection:
@@ -262,7 +262,6 @@ class WindowsSDCard:
         return info
 
     def disk_info(self):
-        Console.info("Disks info")
         r = self.diskpart("list disk")
         disks = self.process_disks(text=r)
         return disks
@@ -312,7 +311,6 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
-        Console.info("Volumes info")
 
         b = self.diskpart("list volume")
         volumes = self.process_volumes(text=b)

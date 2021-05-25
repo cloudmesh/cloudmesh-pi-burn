@@ -4,12 +4,6 @@ from cloudmesh.burn.sdcard import SDCard
 device = SDCard()
 card = WindowsSDCard()
 
-
-r_disk = card.diskpart("select volume 5")
-r_diskinfo = card.diskinfo()
-print(r_diskinfo)
-#
-#
 # card.assign_drive(volume=5,drive="D")
 # injecting a volume that is already injected
 # print("r_inject")

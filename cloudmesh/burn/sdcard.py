@@ -416,17 +416,12 @@ class SDCard:
         if os_is_windows():
             card = WindowsSDCard()
             device = device.replace(":","")
-            info = card.info()
-            volume_of_device = card.filter_info(info, {"drive": device})
-            print(info)
-            print(volume_of_device)
-            print("about to format")
-
             check = card.format_drive(drive=device)
-            print("formatted")
-            #check if format is valid
+
             if check:
                 Console.ok("Formatted SD Card")
+            else:
+                Console.error("Failed to format card")
         else:
 
             Sudo.password()
@@ -834,9 +829,9 @@ class SDCard:
         if os_is_mac():
             blocksize = blocksize.lower()
 
-        print()
 
-        Sudo.password()
+        if not os_is_windows():
+            Sudo.password()
 
         if device is None:
             Console.error("Please specify a device")
@@ -867,21 +862,21 @@ class SDCard:
         if os_is_windows():
             self.drive=device
             card = WindowsSDCard()
-            result = card.format_drive(self.drive)
-            if result:
-                Console.ok('Card Formatted')
+            # result = card.format_drive(self.drive)
+            # if result:
+            #     Console.ok('Card Formatted')
 
-            result = card.diskpart(f"select volume {self.drive}")
+            print("got here")
+            disk = card.get_disk(drive=self.drive)
+            print("did we get here")
+            disksuffix = chr(ord('`') + disk + 1)
+            device = "/dev/sd" + disksuffix
 
-            # remove letter
             result = card.remove_letter(self.drive)
-            # convert device (drive letter) to disk, disk to linux-like sdcard path ex. /dev/sdb
-            # disk numbers correspond to alphabet letters ex. disk1 -> /dev/sda, disk2 -> /dev/sdb, etc.
-
-            command = f"sudo dd if={image_path} bs={blocksize} of={device} conv=notruc,sync status=progress"
-
-            raise NotImplementedError
-
+            print('aaa')
+            command = f"dd if={image_path} bs={blocksize} of={device} conv=notruc,sync status=progress"
+            SDCard.execute(cmd=command)
+            print('bbb')
 
         else:
             if os_is_mac():
