@@ -261,6 +261,48 @@ class WindowsSDCard:
             info = [device for device in info if device[key] == value]
         return info
 
+    def disk_info(self):
+        Console.info("Disks info")
+        r = self.diskpart("list disk")
+        disks = self.process_disks(text=r)
+        return disks
+
+    def process_disks(self,text=None):
+        if text is None:
+            Console.error("No disks provided")
+            return None
+        else:
+            r = text.splitlines()
+            content = []
+            for line in r:
+                if "Disk " in line:
+                    content.append(line)
+            content = content[1:]
+
+            disks = []
+            for line in content:
+                data = {
+                    "disk": line[0:11].replace("Disk", "").replace("*","").strip(),
+                    "status": line[11:26].strip(),
+                    "size": line[26:35].strip(),
+                    "free": line[35:44].strip(),
+                    "dyn": line[44:49].strip(),
+                    "gpt": line[49:].strip()
+                }
+                disks.append(data)
+            return disks
+
+    def get_disk(self,volume=None,drive=None):
+        r = ""
+        if volume is not None:
+            r = self.diskpart(f"select volume {volume}\ndetail volume")
+        elif drive is not None:
+            r = self.diskpart(f"select volume {drive}\ndetail volume")
+        else:
+            Console.error("Provide volume or drive to get disk")
+
+        disks = self.process_disks(text=r)
+        return disks[0]["disk"]
 
     def info(self):
 
@@ -270,33 +312,39 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
-        Console.info("Disk info")
+        Console.info("Volumes info")
 
         b = self.diskpart("list volume")
+        volumes = self.process_volumes(text=b)
+        return volumes
 
-        lines = b.splitlines()
-        result = []
-        for line in lines:
-            if "Removable" in line and "Healthy" in line:
-                result.append(line)
+    def process_volumes(self,text=None):
+        if text is None:
+            Console.error("No volume info provided")
+        else:
+            lines = text.splitlines()
+            result = []
+            for line in lines:
+                if "Removable" in line and "Healthy" in line:
+                    result.append(line)
 
-        content = []
-        for line in result:
-            data = {
+            content = []
+            for line in result:
+                data = {
 
-                "volume": line[0:13].replace("Volume", "").strip(),
-                "drive": line[13:18].strip(),
-                "label": line[18:31].strip(),
-                "fs": line[31:38].strip(),
-                "type": line[38:50].strip(),
-                "size": line[50:59].strip(),
-                "status": line[59:70].strip(),
-                "info": line[70:].strip()
+                    "volume": line[0:13].replace("Volume", "").strip(),
+                    "drive": line[13:18].strip(),
+                    "label": line[18:31].strip(),
+                    "fs": line[31:38].strip(),
+                    "type": line[38:50].strip(),
+                    "size": line[50:59].strip(),
+                    "status": line[59:70].strip(),
+                    "info": line[70:].strip()
 
-            }
-            content.append(data)
+                }
+                content.append(data)
 
-        return content
+            return content
 
     def writefile(self,filename=None,content=None):
         with open(filename, 'w') as outfile:
