@@ -61,6 +61,9 @@ class WindowsSDCard:
 
         return drives
 
+    def drive_to_volume(self,drive=None):
+        return self.filter_info(self.info(),args={"drive":drive})[0]["volume"]
+
     def diskmanager(self):
         os.system('diskmgmt.msc &')
         # DETACHED_PROCESS = 0x00000008
@@ -292,16 +295,27 @@ class WindowsSDCard:
             return disks
 
     def get_disk(self,volume=None,drive=None):
-        r = ""
         if volume is not None:
-            r = self.diskpart(f"select volume {volume}\ndetail volume")
+            volume = self.filter_info(info=self.info(),args={'volume': volume})
+            if(len(volume) == 0):
+                Console.error("Volume does not exist")
+            else:
+                r = self.diskpart(f"select volume {volume}\ndetail volume")
+                disks = self.process_disks(text=r)
+                return disks[0]["disk"]
+
         elif drive is not None:
-            r = self.diskpart(f"select volume {drive}\ndetail volume")
+            volume = self.filter_info(info=self.info(), args={'drive': drive})
+            print(volume)
+            if (len(volume) == 0):
+                Console.error("Drive with given letter does not exist.")
+            else:
+                r = self.diskpart(f"select volume {drive}\ndetail volume")
+                print(r)
+                disks = self.process_disks(text=r)
+                return disks[0]["disk"]
         else:
             Console.error("Provide volume or drive to get disk")
-
-        disks = self.process_disks(text=r)
-        return disks[0]["disk"]
 
     def info(self):
 

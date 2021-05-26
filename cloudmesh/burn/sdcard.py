@@ -120,6 +120,7 @@ class SDCard:
         self.card_os = card_os or "raspberry"
         self.host_os = host_os or get_platform()
         self.drive = None
+        self.volume = None
 
     # Set drive letter the sd card should be mounted on
     def set_drive(self, drive):
@@ -537,6 +538,7 @@ class SDCard:
             # if on windows the devise is the drive letter
             card = WindowsSDCard()
             self.drive = device
+            self.volume = card.drive_to_volume(drive=self.drive)
             card.mount(drive=self.drive)
 
         elif os_is_linux():
@@ -651,7 +653,7 @@ class SDCard:
             self.drive = device
             card = WindowsSDCard()
             card.unmount(drive=self.drive)
-            # use the new method for unmout, device is the driveletter in windows
+
         else:
 
             os.system('sudo sync')  # flush any pending/in-process writes
