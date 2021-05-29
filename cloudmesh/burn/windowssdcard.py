@@ -35,6 +35,7 @@ class WindowsSDCard:
 
     def __init__(self, drive=None):
         self.drive = drive
+        # self.volume = self.drive_to_volume(drive=drive)
 
     def fix_path(self,path=None):
         path = path.replace(r"\\","/")
@@ -211,6 +212,39 @@ class WindowsSDCard:
             Console.error("Drive or label not specified")
             return None
 
+    def burn_drive(self,drive=None,image=None):
+        # if os_is_mac():
+        #     command = f"sudo dd if={image_path} bs={blocksize} |" \
+        #               f' tqdm --bytes --total {size} --ncols 80 |' \
+        #               f" sudo dd of={device} bs={blocksize}"
+        # else:
+        #     # command = f"sudo dd if={image_path} of={device} bs={blocksize} status=progress conv=fsync"
+        #     command = f"sudo dd if={image_path} bs={blocksize} oflag=direct |" \
+        #               f' tqdm --bytes --total {size} --ncols 80 |' \
+        #               f" sudo dd of={device} bs={blocksize} iflag=fullblock " \
+        #               f"oflag=direct conv=fsync"
+        # # self.drive = device
+
+
+        if drive is None:
+            drive = self.drive
+        card = WindowsSDCard()
+
+        # command = f"sudo dd if={image_path} bs={blocksize} |" \
+        #     #               f' tqdm --bytes --total {size} --ncols 80 |' \
+        # #               f" sudo dd of={device} bs={blocksize}"
+
+        print("got here")
+        disk = card.get_disk(drive=self.drive)
+        print("did we get here")
+        disksuffix = chr(ord('`') + disk + 1)
+        device = "/dev/sd" + disksuffix
+
+        result = card.remove_letter(self.drive)
+        print('aaa')
+        command = f"dd if={image_path} bs={blocksize} of={device} conv=notrunc,sync status=progress"
+        SDCard.execute(cmd=command)
+        print('bbb')
 
     def format_drive(self, drive=None):
         """

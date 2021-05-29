@@ -863,10 +863,8 @@ class SDCard:
 
         if os_is_windows():
             self.drive=device
+
             card = WindowsSDCard()
-            # result = card.format_drive(self.drive)
-            # if result:
-            #     Console.ok('Card Formatted')
 
             print("got here")
             disk = card.get_disk(drive=self.drive)
