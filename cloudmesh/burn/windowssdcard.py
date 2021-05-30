@@ -36,7 +36,7 @@ class WindowsSDCard:
 
     def __init__(self, drive=None):
         self.drive = drive
-        # self.volume = self.drive_to_volume(drive=drive)
+        self.volume = self.drive_to_volume(drive=drive)
 
     def fix_path(self,path=None):
         path = path.replace(r"\\","/")
@@ -221,7 +221,8 @@ class WindowsSDCard:
         card = WindowsSDCard()
         os.system("DVC_IGNORE_ISATTY = true")
 
-        print(drive)
+        # result = card.remove_letter(self.drive)
+        print(result)
 
         device = None
         try:
@@ -230,17 +231,12 @@ class WindowsSDCard:
         except IndexError as e:
             Console.error("No device with that drive is mounted")
 
-        print(device)
-
         command = f"dd bs={blocksize} if={image_path} oflag= direct |" \
                   f"tqdm --bytes --total {size} --ncols 80 |" \
                   f"dd bs={blocksize} of={device} conv=fdatasync oflag=direct  iflag=fullblock"
 
-        # result = card.remove_letter(self.drive)
-        # print('aaa')
-        # command = f"dd if={image_path} bs={blocksize} of={device} conv=notrunc,sync status=progress"
-        # SDCard.execute(cmd=command)
-        # print('bbb')
+        Shell.execute(cmd=command)
+
 
     def format_drive(self, drive=None):
         """

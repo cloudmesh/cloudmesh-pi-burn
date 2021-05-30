@@ -120,7 +120,6 @@ class SDCard:
         self.card_os = card_os or "raspberry"
         self.host_os = host_os or get_platform()
         self.drive = None
-        self.volume = None
 
     # Set drive letter the sd card should be mounted on
     def set_drive(self, drive):
@@ -863,20 +862,8 @@ class SDCard:
 
         if os_is_windows():
             self.drive=device
-
             card = WindowsSDCard()
-
-            print("got here")
-            disk = card.get_disk(drive=self.drive)
-            print("did we get here")
-            disksuffix = chr(ord('`') + disk + 1)
-            device = "/dev/sd" + disksuffix
-
-            result = card.remove_letter(self.drive)
-            print('aaa')
-            command = f"dd if={image_path} bs={blocksize} of={device} conv=notruc,sync status=progress"
-            SDCard.execute(cmd=command)
-            print('bbb')
+            card.burn_drive(drive=self.drive, image_path=image_path, blocksize=blocksize,size=size)
 
         else:
             if os_is_mac():
