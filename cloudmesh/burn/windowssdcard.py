@@ -12,6 +12,7 @@ import os
 import sys
 import string
 import subprocess
+import re
 
 # we need to deal with that imports of windos libraries are conditional
 
@@ -212,39 +213,34 @@ class WindowsSDCard:
             Console.error("Drive or label not specified")
             return None
 
-    def burn_drive(self,drive=None,image=None):
-        # if os_is_mac():
-        #     command = f"sudo dd if={image_path} bs={blocksize} |" \
-        #               f' tqdm --bytes --total {size} --ncols 80 |' \
-        #               f" sudo dd of={device} bs={blocksize}"
-        # else:
-        #     # command = f"sudo dd if={image_path} of={device} bs={blocksize} status=progress conv=fsync"
-        #     command = f"sudo dd if={image_path} bs={blocksize} oflag=direct |" \
-        #               f' tqdm --bytes --total {size} --ncols 80 |' \
-        #               f" sudo dd of={device} bs={blocksize} iflag=fullblock " \
-        #               f"oflag=direct conv=fsync"
-        # # self.drive = device
 
-
+    def burn_drive(self,drive=None,image_path=None,blocksize=None,size=None):
         if drive is None:
             drive = self.drive
+
         card = WindowsSDCard()
+        os.system("DVC_IGNORE_ISATTY = true")
 
-        # command = f"sudo dd if={image_path} bs={blocksize} |" \
-        #     #               f' tqdm --bytes --total {size} --ncols 80 |' \
-        # #               f" sudo dd of={device} bs={blocksize}"
+        print(drive)
 
-        print("got here")
-        disk = card.get_disk(drive=self.drive)
-        print("did we get here")
-        disksuffix = chr(ord('`') + disk + 1)
-        device = "/dev/sd" + disksuffix
+        device = None
+        try:
+            device = self.filter_info(self.device_info(),{"win-mounts": drive})[0]
+            device = "/dev/" + device["name"][0:3]
+        except IndexError as e:
+            Console.error("No device with that drive is mounted")
 
-        result = card.remove_letter(self.drive)
-        print('aaa')
-        command = f"dd if={image_path} bs={blocksize} of={device} conv=notrunc,sync status=progress"
-        SDCard.execute(cmd=command)
-        print('bbb')
+        print(device)
+
+        command = f"dd bs={blocksize} if={image_path} oflag= direct |" \
+                  f"tqdm --bytes --total {size} --ncols 80 |" \
+                  f"dd bs={blocksize} of={device} conv=fdatasync oflag=direct  iflag=fullblock"
+
+        # result = card.remove_letter(self.drive)
+        # print('aaa')
+        # command = f"dd if={image_path} bs={blocksize} of={device} conv=notrunc,sync status=progress"
+        # SDCard.execute(cmd=command)
+        # print('bbb')
 
     def format_drive(self, drive=None):
         """
@@ -295,15 +291,43 @@ class WindowsSDCard:
     @staticmethod
     def filter_info(info=None, args=None):
         for key,value in args.items():
-            info = [device for device in info if device[key] == value]
+            info = [device for device in info if key in device.keys() and device[key] == value]
         return info
+
+    def device_info(self):
+        r = Shell.execute("cat", arguments="/proc/partitions")
+        r = r.splitlines()
+        content = []
+        for line in r:
+            if "sd" in line:
+                content.append(line)
+
+        devices = []
+        for line in content:
+            line = line.strip()
+            values = re.split("\s+",line)
+            values = [value.strip() for value in values]
+
+            data = {
+                "major": values[0],
+                "minor": values[1],
+                "#blocks": values[2],
+                "name": values[3],
+            }
+            if len(values) > 4:
+                data["win-mounts"] = values[4][0]
+
+            devices.append(data)
+
+        return devices
+
 
     def disk_info(self):
         r = self.diskpart("list disk")
-        disks = self.process_disks(text=r)
+        disks = self.process_disks_text(text=r)
         return disks
 
-    def process_disks(self,text=None):
+    def process_disks_text(self,text=None):
         if text is None:
             Console.error("No disks provided")
             return None
@@ -335,7 +359,7 @@ class WindowsSDCard:
                 Console.error("Volume does not exist")
             else:
                 r = self.diskpart(f"select volume {volume}\ndetail volume")
-                disks = self.process_disks(text=r)
+                disks = self.process_disks_text(text=r)
                 return disks[0]["disk"]
 
         elif drive is not None:
@@ -346,7 +370,7 @@ class WindowsSDCard:
             else:
                 r = self.diskpart(f"select volume {drive}\ndetail volume")
                 print(r)
-                disks = self.process_disks(text=r)
+                disks = self.process_disks_text(text=r)
                 return disks[0]["disk"]
         else:
             Console.error("Provide volume or drive to get disk")
@@ -361,10 +385,10 @@ class WindowsSDCard:
         """
 
         b = self.diskpart("list volume")
-        volumes = self.process_volumes(text=b)
+        volumes = self.process_volumes_text(text=b)
         return volumes
 
-    def process_volumes(self,text=None):
+    def process_volumes_text(self,text=None):
         if text is None:
             Console.error("No volume info provided")
         else:
