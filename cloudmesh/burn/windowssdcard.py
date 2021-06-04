@@ -13,6 +13,7 @@ import sys
 import string
 import subprocess
 import re
+from pathlib import Path
 
 # we need to deal with that imports of windos libraries are conditional
 
@@ -36,7 +37,11 @@ class WindowsSDCard:
 
     def __init__(self, drive=None):
         self.drive = drive
-        self.volume = self.drive_to_volume(drive=drive)
+
+        # if drive is not None:
+        #     self.volume = self.drive_to_volume(drive=self.drive)
+        #     self.device = self.filter_info(info=self.device_info(), args={"win-mounts": self.drive})[0]
+        #     self.device = "/dev/" + self.device["name"][0:3]
 
     def fix_path(self,path=None):
         path = path.replace(r"\\","/")
@@ -64,6 +69,9 @@ class WindowsSDCard:
         return drives
 
     def drive_to_volume(self,drive=None):
+        print("entered")
+        print(drive)
+
         return self.filter_info(self.info(),args={"drive":drive})[0]["volume"]
 
     def diskmanager(self):
@@ -131,6 +139,7 @@ class WindowsSDCard:
                                                               "status": "Healthy",
                                                               "info": "Offline"})
 
+            print(matching_volumes)
             if len(matching_volumes) != 0:
                 self.diskpart(command=f"select volume {volume}\nonline volume")
                 self.mount(label="UNTITLED")
@@ -151,6 +160,7 @@ class WindowsSDCard:
     def remove_drive(self,volume=None,drive=None):
         if drive is None:
             drive = self.guess_drive()
+
         result = self.diskpart(f"select volume {volume}\nremove letter={drive}")
 
     def basic_mount(self, volume_number=None, drive=None):
@@ -193,6 +203,7 @@ class WindowsSDCard:
             if found:
                 self.basic_mount(volume_number=v,drive=d)
             else:
+                print(self.info())
                 Console.error(f"Mount: Drive letters do not match, Found: {drive}, {d}")
         elif label is not None and drive is None:
             drive = self.guess_drive()
@@ -215,28 +226,48 @@ class WindowsSDCard:
 
 
     def burn_drive(self,drive=None,image_path=None,blocksize=None,size=None):
-        if drive is None:
-            drive = self.drive
+        print(drive)
+        self.volume = self.drive_to_volume(drive=drive)
 
-        card = WindowsSDCard()
-        os.system("DVC_IGNORE_ISATTY = true")
-
-        # result = card.remove_letter(self.drive)
-        print(result)
-
-        device = None
         try:
-            device = self.filter_info(self.device_info(),{"win-mounts": drive})[0]
-            device = "/dev/" + device["name"][0:3]
+            self.devName = self.filter_info(self.device_info(), {"win-mounts": drive})[0]
+            self.devName = "/dev/" + self.devName["name"][0:3]
         except IndexError as e:
             Console.error("No device with that drive is mounted")
 
-        command = f"dd bs={blocksize} if={image_path} oflag= direct |" \
-                  f"tqdm --bytes --total {size} --ncols 80 |" \
-                  f"dd bs={blocksize} of={device} conv=fdatasync oflag=direct  iflag=fullblock"
+        self.remove_drive(volume=self.volume, drive=drive)
+        # command = "DVC_IGNORE_ISATTY=true: "\
+        #         "dd bs=4M if=/c/Users/venkata/.cloudmesh/cmburn/images/2021-03-04-raspios-buster-armhf-lite.img oflag=direct |"\
+        #         " tqdm --bytes --total 68719441552 --ncols 80 |"\
+        #         " dd bs=4M of=/dev/sdb conv=fdatasync oflag=direct iflag=fullblock"
 
-        Shell.execute(cmd=command)
 
+        command =  "dd bs=4M if=/c/Users/venkata/.cloudmesh/cmburn/images/2021-03-04-raspios-buster-armhf-lite.img oflag=direct of=/dev/sdb conv=fdatasync iflag=fullblock status=progress"
+        print(command)
+        os.system(command)
+        # os.environ["DVC_IGNORE_ISATTY"] = "true"
+        # image_path = (Path(image_path))
+        #
+        # #
+        # # command = f"dd bs={blocksize} if={image_path} oflag= direct |" \
+        # #           f" tqdm --bytes --total {size} --ncols 80 |" \
+        # #           f" dd bs={blocksize} of={self.devName} conv=fdatasync oflag=direct  iflag=fullblock"
+        #
+        # command = "dd"
+        # args = f"bs={blocksize} if={image_path}  of={self.devName} conv=fdatasync status=progress"
+
+        # try:
+        #     result = subprocess.check_output(
+        #     command,
+        #     # shell=True,
+        #     stderr=subprocess.STDOUT,
+        #     cwd=os.getcwd())
+        # except subprocess.CalledProcessError as e:
+        #     raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+
+        # Shell.execute(cmd=command,arguments=args)
+        self.assign_drive(volume=self.volume, drive=drive)
+        sys.exit()
 
     def format_drive(self, drive=None):
         """
@@ -247,12 +278,12 @@ class WindowsSDCard:
         :rtype:
         """
         content = self.info()
-
-        d = content[0]["drive"]
-        v = content[0]["volume"]
-        if d == "":
-            self.inject(volume=v)
-        content = self.info()
+        print(content)
+        # d = content[0]["drive"]
+        # v = content[0]["volume"]
+        # if d == "":
+        #     self.inject(volume=v)
+        # content = self.info()
 
         # see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/format
         command = f"C:\Windows\system32\\format.com {drive}: /FS:EXFAT /V:UNTITLED /Q"
@@ -274,6 +305,7 @@ class WindowsSDCard:
         with disable_file_system_redirection():
             command = command.split(" ")
             r = subprocess.run(command)
+            print(r.__dict__["returncode"])
             return r.__dict__["returncode"] == 0
 
 
@@ -411,6 +443,11 @@ class WindowsSDCard:
                 content.append(data)
 
             return content
+
+    def dd(self,image_path=None,device=None):
+        command = f"dd bs=4M if={image_path} oflag=direct of={device} conv=fdatasync iflag=fullblock status=progress"
+        print(command)
+        os.system(command)
 
     def writefile(self,filename=None,content=None):
         with open(filename, 'w') as outfile:

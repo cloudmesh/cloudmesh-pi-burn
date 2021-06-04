@@ -9,7 +9,8 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import yn_choice, readfile
 from cloudmesh.inventory.inventory import Inventory
-
+from cloudmesh.burn.util import os_is_windows
+from cloudmesh.burn.windowssdcard import WindowsSDCard
 
 class Burner(AbstractBurner):
     """
@@ -76,9 +77,18 @@ class Burner(AbstractBurner):
                 return ""
 
         Console.info(f'Burning {name}')
+
         sdcard.format_device(device=device, yes=True)
-        sdcard.unmount(device=device)
-        sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
+        if os_is_windows():
+            card = WindowsSDCard()
+            # volume = card.drive_to_volume(drive=device)
+            # sdcard.unmount(device=device)
+            # card.assign_drive(volume=volume)
+            sdcard.burn_sdcard (tag=config['tag'], device=device, yes=True)
+            card.assign_drive(volume="5", drive=device)
+        else:
+            sdcard.unmount(device=device)
+            sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
         sdcard.mount(device=device, card_os="raspberry")
 
         # Read and write cmdline.txt

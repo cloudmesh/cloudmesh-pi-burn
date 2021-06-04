@@ -120,6 +120,12 @@ class SDCard:
         self.card_os = card_os or "raspberry"
         self.host_os = host_os or get_platform()
         self.drive = None
+        self.volume = None
+        self.devName = None
+        self.windowscard = None
+
+        if host_os == "windows":
+            self.windowscard = WindowsSDCard()
 
     # Set drive letter the sd card should be mounted on
     def set_drive(self, drive):
@@ -538,6 +544,8 @@ class SDCard:
             card = WindowsSDCard()
             self.drive = device
             self.volume = card.drive_to_volume(drive=self.drive)
+            if len(card.filter_info(card.info(),{"drive": "D"})) > 0:
+                card.assign_drive(volume=self.volume,drive=self.drive)
             card.mount(drive=self.drive)
 
         elif os_is_linux():
@@ -651,6 +659,7 @@ class SDCard:
         if os_is_windows():
             self.drive = device
             card = WindowsSDCard()
+
             card.unmount(drive=self.drive)
 
         else:
@@ -863,6 +872,8 @@ class SDCard:
         if os_is_windows():
             self.drive=device
             card = WindowsSDCard()
+
+            print(self.drive)
             card.burn_drive(drive=self.drive, image_path=image_path, blocksize=blocksize,size=size)
 
         else:
