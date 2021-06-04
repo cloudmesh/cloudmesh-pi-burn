@@ -131,7 +131,7 @@ class WindowsSDCard:
         if drives:
             return sorted(drives)[0] + ':'
 
-    def inject(self,volume=None):
+    def online(self,volume=None):
         if volume is not None:
             all_volumes = self.info()
             matching_volumes = self.filter_info(all_volumes, {"volume": volume,
@@ -144,11 +144,18 @@ class WindowsSDCard:
                 self.diskpart(command=f"select volume {volume}\nonline volume")
                 self.mount(label="UNTITLED")
 
-                Console.ok(f"Volume {volume} injected")
+                Console.ok(f"Volume {volume} online")
             else:
-                Console.error(f"Volume {volume} not injectable")
+                Console.error(f"Volume {volume} cannot be brought online")
         else:
             Console.error("Provide volume")
+
+    def inject(self):
+        info = self.info()
+        if(info[0]["status"] == "No Media"):
+            Console.ok("Please plug out and in your card")
+            return yn_choice("Have you inserted the card?")
+        return True
 
 
     def assign_drive(self,volume=None,drive=None):
@@ -411,10 +418,73 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
-
+        empty = {"volume": None, "drive": None, "fs": None, "label": None, "size": None, "#blocks":None, "major": None,
+                 "minor": None, "minor": None, "name": None, "win-mounts": None}
         b = self.diskpart("list volume")
         volumes = self.process_volumes_text(text=b)
-        return volumes
+        print("aaa",volumes)
+        if volumes[0]["drive"] == 0:
+            check = self.inject()
+            if not check:
+                return [empty]
+
+
+        for volume in volumes:
+            for key in empty:
+                if key not in volume:
+                    volume[key] = None
+
+        content = volumes
+        print("bbb",content)
+        d = content[0]["drive"]
+        v = content[0]["volume"]
+        if d == "":
+            d = self.guess_drive()
+            self.assign_drive(volume=v, drive=d)
+        if len(content) > 1:
+            Console.error("Too many removable USB devices found")
+            return content
+        # TODO
+        results = []
+        proc_info = self.device_info()
+        for entry in proc_info:
+            if "win-mounts" in entry and entry["win-mounts"] == d:
+                results.append(entry)
+        for attribute in ["#blocks", "major", "minor", "minor", "name", "name", "win-mounts"]:
+            content[0][attribute] = results[0][attribute]
+        # content = card.diskinfo(number=)
+        # print(content)
+
+        return content
+
+
+
+    # def info_fancy(self):
+    #     content = self.
+    #     d = content[0]["drive"]
+    #     v = content[0]["volume"]
+    #     if d == "":
+    #         d = card.guess_drive()
+    #         card.assign_drive(volume=v, drive=d)
+    #     print(Printer.write(content, order=["volume", "drive", "fs", "label", "size"]))
+    #     if len(content) > 1:
+    #         print(Printer.write(content, order=["volume", "drive", "fs", "label", "size"]))
+    #         Console.error("Too many removable USB devices found")
+    #         return ""
+    #     # TODO
+    #     results = []
+    #     proc_info = card.device_info()
+    #     for entry in proc_info:
+    #         if "win-mounts" in entry and entry["win-mounts"] == d:
+    #             results.append(entry)
+    #     for attribute in ["#blocks", "major", "minor", "minor", "name", "win-mounts"]:
+    #         content[0][attribute] = results[0][attribute]
+    #     # content = card.diskinfo(number=)
+    #     # print(content)
+    #     print(Printer.write(content,
+    #                         order=["volume", "drive", "fs", "label", "size", "#blocks", "major", "minor", "minor",
+    #                                "name", "win-mounts"]))
+
 
     def process_volumes_text(self,text=None):
         if text is None:

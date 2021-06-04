@@ -1,4 +1,5 @@
 import os
+import pprint
 import sys
 import textwrap
 import time
@@ -946,10 +947,8 @@ class SDCard:
         elif os_is_windows():
             card = WindowsSDCard()
             content = card.info()
-            print(Printer.write(content, order=["volume", "drive", "fs", "label", "size"]))
-            # TODO
-            # content = card.diskinfo(number=)
-            # print(content)
+            card.inject()
+            print(Printer.write(content, order=["volume", "drive", "fs", "label", "size","#blocks","major","minor","minor","name","win-mounts"]))
 
         details = USB.get_from_usb()
 
@@ -1058,18 +1057,6 @@ class SDCard:
                 else:
                     Console.warning("No mount points found. Use cms burn mount")
                     print()
-            elif os_is_windows():
-                card = WindowsSDCard()
-                content = card.ls()
-                if len(content) != 0:
-                    print(Printer.write(content,
-                                        order=["drive","fs", "label", "size","volume"],
-                                        header=["Drive", "Format", "Label", "Size","Volume"],
-                                        output=output))
-                else:
-                    Console.warning("No mount points found. Use cms burn mount")
-                    print()
-
 
         # Convert details into a dict where the key for each entry is the device
         details = {detail['dev']: detail for detail in details}

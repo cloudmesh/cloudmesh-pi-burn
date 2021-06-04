@@ -39,13 +39,6 @@ class WindowsSDCard:
 
     def info(self):
 
-        """
-        Prints information about the USB and sdcard if it is available
-
-        :return:
-        :rtype:
-        """
-
         b = self.diskpart("list volume")
         volumes = self.process_volumes_text(text=b)
 
@@ -56,6 +49,7 @@ class WindowsSDCard:
         if not drive_assigned:
             pass
             #assign the drive letter
+            self.assign_drive(volume=v,drive)
             #find more info for sdb
             #self.remove_letter()
 
