@@ -23,11 +23,105 @@ if os_is_windows():
     import win32wnet
     import win32netcon
 
+import re
 
 class USB:
     @staticmethod
     def info():
         print("Prints the table of information about devices on the  usb info")
+
+class Diskpart:
+    tmp = "tmp.txt"
+
+    @staticmethod
+    def run(command):
+        _diskpart = Path("C:/Windows/system32/diskpart.exe")
+        common_writefile(Diskpart.tmp, f"{command}\nexit")
+        result = Shell.run(f"{_diskpart} /s {Diskpart.tmp}")
+        WindowsSDCard.clean()
+        # print(result)
+        return result
+
+    @staticmethod
+    def clean():
+        os.remove(Diskpart.tmp)
+
+    @staticmethod
+    def table_parser(content=None, kind=None):
+        lines = content.splitlines()
+
+        i = 0
+        for line in lines:
+            if line.strip().startswith(kind):
+                break
+            i = i + 1
+        lines = lines[i:-2]
+        print ("LLLL", lines)
+        headline = lines[0].strip()
+        words = re.sub('\\s+', ' ', headline.strip()).split(" ")
+        start = []
+        end = []
+        for word in words:
+            start.append(headline.index(word))
+        for i in range(0,len(words)):
+            try:
+                end.append(start[i+1]-1)
+            except:
+                end.append(len(headline))
+        data = []
+        lines = lines[2:]
+        for line in lines:
+            line = line.strip()
+            entry = {}
+            for i in range(0,len(words)):
+                    try:
+                        value = line[start[i]:end[i]].strip()
+                    except:
+                        value = ""
+                    entry[words[i]] = value.strip()
+            data.append(entry)
+        return data
+
+    @staticmethod
+    def select(disk=None, partition=None, volume=None):
+        result = None
+        if disk is not None and partition is None and volume is None:
+            result = Diskpart.run(f"select disk {disk}")
+        elif disk is None and partition is not None and volume is None:
+            Diskpart.run(f"select partition {partition}")
+        elif disk is None and partition is None and volume is not None:
+            Diskpart.run(f"select volume {volume}")
+        return result
+
+    @staticmethod
+    def list_disk():
+        result = Diskpart.run("list disk")
+        """
+          Disk ###  Status         Size     Free     Dyn  Gpt
+          --------  -------------  -------  -------  ---  ---
+          Disk 0    Online         1863 GB  1024 KB        *
+          Disk 1    No Media           0 B      0 B
+          Disk 2    Online           59 GB  1024 KB
+        """
+        return Diskpart.table_parser(content=result, kind="Disk")
+
+
+    @staticmethod
+    def list_volume():
+        result =  Diskpart.run("list volume")
+        return Diskpart.table_parser(content=result, kind="Volume")
+
+    @staticmethod
+    def list_partition(disk=""):
+        result = Diskpart.run(f"select disk {disk}\nlist partition")
+        print (result)
+        return Diskpart.table_parser(content=result, kind="Partition")
+
+    @staticmethod
+    def help(command=None):
+        if command is None:
+            command = ""
+        print(Diskpart.run(f"help {command}"))
 
 
 class WindowsSDCard:
