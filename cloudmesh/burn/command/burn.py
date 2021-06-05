@@ -50,8 +50,8 @@ class BurnCommand(PluginCommand):
                        [--dryrun]
                        [--no_diagram]
               burn ubuntu NAMES [--inventory=INVENTORY] [--ssid=SSID]
-              [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY]
-              [--upgrade]
+                                [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY]
+                                [--upgrade]
               burn raspberry NAMES --device=DEVICE
                                   [--inventory=INVENTORY]
                                   [--ssid=SSID]
@@ -60,7 +60,7 @@ class BurnCommand(PluginCommand):
                                   [--password=PASSWORD]
                                   [-v]
                                   [-f]
-              [--timezone=TIMEZONE]
+                                  [--timezone=TIMEZONE]
               burn firmware check
               burn firmware update
               burn install
@@ -114,6 +114,7 @@ class BurnCommand(PluginCommand):
               burn wifi --ssid=SSID [--passwd=PASSWD] [--country=COUNTRY]
               burn check [--device=DEVICE]
               burn mac --hostname=HOSTNAME
+              burn drive rm DRIVE
 
 
 
@@ -395,7 +396,12 @@ class BurnCommand(PluginCommand):
         burner = Burner()
         sdcard = SDCard()
 
-        if arguments.imager:
+        if arguments.drive and arguments.rm:
+
+            from cloudmesh.burn.windowssdcard import Diskpart
+            Diskpart.remove_drive(arguments["DRIVE"])
+
+        elif arguments.imager:
 
             arguments.TAG = arguments.TAG or ["latest-lite"]
 

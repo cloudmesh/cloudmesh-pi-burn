@@ -36,6 +36,22 @@ class Diskpart:
     tmp = "tmp.txt"
 
     @staticmethod
+    def remove_drive(letter=None):
+        volumes = Diskpart.list_volume()
+        found = False
+        for volume in volumes:
+            if letter in volume["Ltr"]:
+                found = True
+                number = volume["###"]
+                break
+        if found:
+            result = Diskpart.run(f"select volume {number}\nremove letter={letter}")
+            print (result)
+        else:
+            Console.error(f"Could not remove drive {letter}")
+
+
+    @staticmethod
     def automount(enable=True):
         if enable:
             result = Diskpart.run(f"automount enable")
