@@ -1,19 +1,19 @@
-from cloudmesh.burn.util import os_is_windows
-
-import string
-from cloudmesh.common.console import Console
-from cloudmesh.common.Shell import Shell
-from cloudmesh.common.util import writefile as common_writefile
-from cloudmesh.common.util import readfile as common_readfile
-from cloudmesh.common.util import yn_choice
-from cloudmesh.common.util import path_expand
-from pathlib import Path
 import os
-import sys
 import string
 import subprocess
-import re
+import sys
 from pathlib import Path
+from pprint import pprint
+
+from cloudmesh.common.Printer import Printer
+from cloudmesh.common.Shell import Shell
+from cloudmesh.common.console import Console
+from cloudmesh.common.util import path_expand
+from cloudmesh.common.util import readfile as common_readfile
+from cloudmesh.common.util import writefile as common_writefile
+from cloudmesh.common.util import yn_choice
+
+from cloudmesh.burn.util import os_is_windows
 
 # we need to deal with that imports of windos libraries are conditional
 
@@ -25,13 +25,53 @@ if os_is_windows():
 
 import re
 
+
 class USB:
     @staticmethod
     def info():
         print("Prints the table of information about devices on the  usb info")
 
+
 class Diskpart:
     tmp = "tmp.txt"
+
+    @staticmethod
+    def automount(enable=True):
+        if enable:
+            result = Diskpart.run(f"automount enable")
+        else:
+            result = Diskpart.run(f"automount disable")
+        # print(result)
+        return "enable" in result
+
+    @staticmethod
+    def list_device():
+        lines = Shell.execute("cat", arguments="/proc/partitions").splitlines()
+        headline = lines[0].strip()
+        words = re.sub('\s+', ' ', headline.strip()).split(" ")
+        lines = lines[1:]
+        devices = []
+        for line in lines:
+            if "sd" not in line:
+                continue
+            line = line.strip()
+            values = re.split("\s+", line)
+            values = [value.strip() for value in values]
+
+            data = {
+                "major": values[0],
+                "minor": values[1],
+                "#blocks": values[2],
+                "name": values[3],
+            }
+            if len(values) > 4:
+                data["win-mounts"] = values[4][0]
+            else:
+                data["win-mounts"] = ""
+
+            devices.append(data)
+
+        return devices
 
     @staticmethod
     def run(command):
@@ -47,7 +87,7 @@ class Diskpart:
         os.remove(Diskpart.tmp)
 
     @staticmethod
-    def table_parser(content=None, kind=None):
+    def table_parser(content=None, kind=None, truncate=2):
         lines = content.splitlines()
 
         i = 0
@@ -55,17 +95,18 @@ class Diskpart:
             if line.strip().startswith(kind):
                 break
             i = i + 1
-        lines = lines[i:-2]
-        print ("LLLL", lines)
+        if truncate > 0:
+            lines = lines[i:-truncate]
+
         headline = lines[0].strip()
         words = re.sub('\\s+', ' ', headline.strip()).split(" ")
         start = []
         end = []
         for word in words:
             start.append(headline.index(word))
-        for i in range(0,len(words)):
+        for i in range(0, len(words)):
             try:
-                end.append(start[i+1]-1)
+                end.append(start[i + 1] - 1)
             except:
                 end.append(len(headline))
         data = []
@@ -73,12 +114,12 @@ class Diskpart:
         for line in lines:
             line = line.strip()
             entry = {}
-            for i in range(0,len(words)):
-                    try:
-                        value = line[start[i]:end[i]].strip()
-                    except:
-                        value = ""
-                    entry[words[i]] = value.strip()
+            for i in range(0, len(words)):
+                try:
+                    value = line[start[i]:end[i]].strip()
+                except:
+                    value = ""
+                entry[words[i]] = value.strip()
             data.append(entry)
         return data
 
@@ -105,17 +146,18 @@ class Diskpart:
         """
         return Diskpart.table_parser(content=result, kind="Disk")
 
-
     @staticmethod
     def list_volume():
-        result =  Diskpart.run("list volume")
+        result = Diskpart.run("list volume")
         return Diskpart.table_parser(content=result, kind="Volume")
 
     @staticmethod
     def list_partition(disk=""):
-        result = Diskpart.run(f"select disk {disk}\nlist partition")
-        print (result)
-        return Diskpart.table_parser(content=result, kind="Partition")
+        try:
+            result = Diskpart.run(f"select disk {disk}\nlist partition")
+            return Diskpart.table_parser(content=result, kind="Partition")
+        except:
+            return None
 
     @staticmethod
     def help(command=None):
@@ -137,8 +179,8 @@ class WindowsSDCard:
         #     self.device = self.filter_info(info=self.device_info(), args={"win-mounts": self.drive})[0]
         #     self.device = "/dev/" + self.device["name"][0:3]
 
-    def fix_path(self,path=None):
-        path = path.replace(r"\\","/")
+    def fix_path(self, path=None):
+        path = path.replace(r"\\", "/")
         return path
 
     def readfile(self, filename=None):
@@ -162,11 +204,11 @@ class WindowsSDCard:
 
         return drives
 
-    def drive_to_volume(self,drive=None):
+    def drive_to_volume(self, drive=None):
         print("entered")
         print(drive)
 
-        return self.filter_info(self.volume_info(),args={"drive":drive})[0]["volume"]
+        return self.filter_info(self.volume_info(), args={"drive": drive})[0]["volume"]
 
     def diskmanager(self):
         os.system('diskmgmt.msc &')
@@ -175,10 +217,8 @@ class WindowsSDCard:
         # pid = subprocess.Popen([sys.executable, "diskmgmt.msc"],
         #                        creationflags=DETACHED_PROCESS).pid
 
-
         # import os
         # os.spawnl(os.P_NOWAIT, 'diskmgmt.msc')
-
 
     def automount(self):
         self.diskpart("automount")
@@ -206,7 +246,6 @@ class WindowsSDCard:
     # def eject(self,volume=None):
     #     if volume is not None:
 
-
     @staticmethod
     def guess_drive():
         drives = set(string.ascii_uppercase[2:])
@@ -225,7 +264,7 @@ class WindowsSDCard:
         if drives:
             return sorted(drives)[0] + ':'
 
-    def online(self,volume=None):
+    def online(self, volume=None):
         if volume is not None:
             all_volumes = self.volume_info()
             matching_volumes = self.filter_info(all_volumes, {"volume": volume,
@@ -256,14 +295,13 @@ class WindowsSDCard:
             Console.error("Please plug out and reinsert your card")
             return user_action
 
-
-    def assign_drive(self,volume=None,drive=None):
+    def assign_drive(self, volume=None, drive=None):
         if drive is None:
             drive = self.guess_drive()
         result = self.diskpart(f"select volume {volume}\nassign letter={drive}")
         return result
 
-    def remove_drive(self,volume=None,drive=None):
+    def remove_drive(self, volume=None, drive=None):
         if drive is None:
             drive = self.guess_drive()
 
@@ -284,8 +322,7 @@ class WindowsSDCard:
         a = self.diskpart(f"select volume {volume_number}\nassign letter={drive}")
         return drive
 
-
-    def mount(self, drive=None,label=None):
+    def mount(self, drive=None, label=None):
         """
         mounts the drive
 
@@ -307,13 +344,13 @@ class WindowsSDCard:
                     found = True
 
             if found:
-                self.basic_mount(volume_number=v,drive=d)
+                self.basic_mount(volume_number=v, drive=d)
             else:
                 print(self.volume_info())
                 Console.error(f"Mount: Drive letters do not match, Found: {drive}, {d}")
         elif label is not None and drive is None:
             drive = self.guess_drive()
-            v= -1
+            v = -1
             for _drive in content:
                 l = _drive["label"]
                 v = _drive["volume"]
@@ -321,7 +358,7 @@ class WindowsSDCard:
                     found = True
 
             if found:
-                self.assign_drive(volume=v,drive=drive)
+                self.assign_drive(volume=v, drive=drive)
                 self.basic_mount(volume_number=v, drive=drive)
 
             else:
@@ -330,8 +367,7 @@ class WindowsSDCard:
             Console.error("Drive or label not specified")
             return None
 
-
-    def burn_drive(self,drive=None,image_path=None,blocksize=None,size=None):
+    def burn_drive(self, drive=None, image_path=None, blocksize=None, size=None):
         print(drive)
         self.volume = self.drive_to_volume(drive=drive)
 
@@ -347,8 +383,7 @@ class WindowsSDCard:
         #         " tqdm --bytes --total 68719441552 --ncols 80 |"\
         #         " dd bs=4M of=/dev/sdb conv=fdatasync oflag=direct iflag=fullblock"
 
-
-        command =  "dd bs=4M if=/c/Users/venkata/.cloudmesh/cmburn/images/2021-03-04-raspios-buster-armhf-lite.img oflag=direct of=/dev/sdb conv=fdatasync iflag=fullblock status=progress"
+        command = "dd bs=4M if=/c/Users/venkata/.cloudmesh/cmburn/images/2021-03-04-raspios-buster-armhf-lite.img oflag=direct of=/dev/sdb conv=fdatasync iflag=fullblock status=progress"
         print(command)
         os.system(command)
         # os.environ["DVC_IGNORE_ISATTY"] = "true"
@@ -414,7 +449,6 @@ class WindowsSDCard:
             print(r.__dict__["returncode"])
             return r.__dict__["returncode"] == 0
 
-
     def diskpart(self, command):
         _diskpart = Path("C:/Windows/system32/diskpart.exe")
         common_writefile(WindowsSDCard.tmp, f"{command}\nexit")
@@ -424,72 +458,22 @@ class WindowsSDCard:
 
     @staticmethod
     def filter_info(info=None, args=None):
-        for key,value in args.items():
+        for key, value in args.items():
             info = [device for device in info if key in device.keys() and device[key] == value]
         return info
 
     def device_info(self):
-        r = Shell.execute("cat", arguments="/proc/partitions")
-        r = r.splitlines()
-        content = []
-        for line in r:
-            if "sd" in line:
-                content.append(line)
-
-        devices = []
-        for line in content:
-            line = line.strip()
-            values = re.split("\s+",line)
-            values = [value.strip() for value in values]
-
-            data = {
-                "major": values[0],
-                "minor": values[1],
-                "#blocks": values[2],
-                "name": values[3],
-            }
-            if len(values) > 4:
-                data["win-mounts"] = values[4][0]
-
-            devices.append(data)
-
-        return devices
-
+        # function deprecated use directly Diskpart
+        return Diskpart.list_device()
 
     def disk_info(self):
-        r = self.diskpart("list disk")
-        disks = self.process_disks_text(text=r)
-        return disks
+        # function deprecated use Diskpart directly
+        return Diskpart.list_disk()
 
-    def process_disks_text(self,text=None):
-        if text is None:
-            Console.error("No disks provided")
-            return None
-        else:
-            r = text.splitlines()
-            content = []
-            for line in r:
-                if "Disk " in line:
-                    content.append(line)
-            content = content[1:]
-
-            disks = []
-            for line in content:
-                data = {
-                    "disk": line[0:11].replace("Disk", "").replace("*","").strip(),
-                    "status": line[11:26].strip(),
-                    "size": line[26:35].strip(),
-                    "free": line[35:44].strip(),
-                    "dyn": line[44:49].strip(),
-                    "gpt": line[49:].strip()
-                }
-                disks.append(data)
-            return disks
-
-    def get_disk(self,volume=None,drive=None):
+    def get_disk(self, volume=None, drive=None):
         if volume is not None:
-            volume = self.filter_info(info=self.volume_info(),args={'volume': volume})
-            if(len(volume) == 0):
+            volume = self.filter_info(info=self.volume_info(), args={'volume': volume})
+            if (len(volume) == 0):
                 Console.error("Volume does not exist")
             else:
                 r = self.diskpart(f"select volume {volume}\ndetail volume")
@@ -513,8 +497,8 @@ class WindowsSDCard:
         content = self.volume_info()
 
         # all the fields we wish to display to the user about a device
-        empty_info = {"volume": None, "drive": None,"name": None, "fs": None, "label": None, "size": None,
-                      "#blocks":None, "major": None, "minor": None, "minor": None, "win-mounts": None}
+        empty_info = {"volume": None, "drive": None, "name": None, "fs": None, "label": None, "size": None,
+                      "#blocks": None, "major": None, "minor": None, "minor": None, "win-mounts": None}
 
         # add additional keys to the volume
         for volume in content:
@@ -546,9 +530,33 @@ class WindowsSDCard:
 
     def info_message(self):
         # collect info for all removable volumes
-        volumes = self.volume_info()
+        volumes = Diskpart.list_volume()
 
-        #if theres no removable volume, then we cannot proceed
+        empty = {
+            "major": "",
+            "minor": "",
+            "#blocks": "",
+            "name": "",
+            "win-mounts": ""
+        }
+        devices = Diskpart.list_device()
+        found = {}
+        for device in devices:
+            letter = device['win-mounts']
+            if letter != "":
+                device["name"] = device["name"][:3]
+                found[letter] = device
+        for volume in volumes:
+            volume.update(empty)
+            letter = volume['Ltr']
+            if letter != "":
+                try:
+                    values = found[letter]
+                    volume.update(values)
+                except:
+                    Console.error(f"Drive {letter} is not readable")
+
+        # if theres no removable volume, then we cannot proceed
         if len(volumes) == 0:
             Console.error("No removable volume detected!")
             injected = self.inject()
@@ -558,7 +566,14 @@ class WindowsSDCard:
 
         # if there is more than one removable device, ask the user to remove all but target before proceeding
         if len(volumes) > 1:
-            Console.error("Too many removable devices found. Please remove all except the one for the burn, and rerun")
+            Console.error("Too many removable devices found. "
+                          "Please remove all except the one for the burn, and rerun")
+
+            print(Printer.write(
+                volumes,
+                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info']
+            ))
+
             return volumes
 
         # make sure the removable volume is readable
@@ -567,7 +582,7 @@ class WindowsSDCard:
 
         # make sure the volume has a drive letter
         if volumes[0]["drive"] == "":
-            self.assign_drive(volume=volumes[0]["volume"],drive=self.guess_drive())
+            self.assign_drive(volume=volumes[0]["volume"], drive=self.guess_drive())
 
         if volumes[0]["status"] != "Healthy":
             print(volumes)
@@ -581,8 +596,6 @@ class WindowsSDCard:
 
         # Have ensured there is only one removable device, and is readable, has letter, is healthy, and is online
         return self.all_info()
-
-
 
     # def info_fancy(self):
     #     content = self.
@@ -610,8 +623,7 @@ class WindowsSDCard:
     #                         order=["volume", "drive", "fs", "label", "size", "#blocks", "major", "minor", "minor",
     #                                "name", "win-mounts"]))
 
-
-    def process_volumes_text(self,text=None):
+    def process_volumes_text(self, text=None):
         if text is None:
             Console.error("No volume info provided")
         else:
@@ -639,16 +651,15 @@ class WindowsSDCard:
 
             return content
 
-    def dd(self,image_path=None,device=None):
+    def dd(self, image_path=None, device=None):
         command = f"dd bs=4M if={image_path} oflag=direct of={device} conv=fdatasync iflag=fullblock status=progress"
         print(command)
         os.system(command)
 
-    def writefile(self,filename=None,content=None):
+    def writefile(self, filename=None, content=None):
         with open(filename, 'w') as outfile:
             outfile.write(content)
             outfile.truncate()
-
 
         # command = f"mountvol {self.drive} /L"
         # r = Shell.run(command)

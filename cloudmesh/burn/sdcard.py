@@ -947,7 +947,10 @@ class SDCard:
         elif os_is_windows():
             card = WindowsSDCard()
             content = card.info_message()
-            print(Printer.write(content, order=["volume", "drive", "fs", "label", "size","#blocks","major","minor","minor","name","win-mounts"]))
+            print(Printer.write(
+                content,
+                order = ['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', "name"]
+            ))
 
         details = USB.get_from_usb()
 
