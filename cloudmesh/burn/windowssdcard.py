@@ -72,7 +72,7 @@ class WindowsSDCard:
         print("entered")
         print(drive)
 
-        return self.filter_info(self.info(),args={"drive":drive})[0]["volume"]
+        return self.filter_info(self.volume_info(),args={"drive":drive})[0]["volume"]
 
     def diskmanager(self):
         os.system('diskmgmt.msc &')
@@ -100,7 +100,7 @@ class WindowsSDCard:
         """
 
         # which is correct
-        content = self.info()
+        content = self.volume_info()
         v = content[0]["volume"]
         d = content[0]["drive"]
         Console.info("Unmounting Card")
@@ -133,29 +133,34 @@ class WindowsSDCard:
 
     def online(self,volume=None):
         if volume is not None:
-            all_volumes = self.info()
+            all_volumes = self.volume_info()
             matching_volumes = self.filter_info(all_volumes, {"volume": volume,
                                                               "type": "Removable",
                                                               "status": "Healthy",
                                                               "info": "Offline"})
 
-            print(matching_volumes)
             if len(matching_volumes) != 0:
                 self.diskpart(command=f"select volume {volume}\nonline volume")
-                self.mount(label="UNTITLED")
-
                 Console.ok(f"Volume {volume} online")
             else:
                 Console.error(f"Volume {volume} cannot be brought online")
         else:
-            Console.error("Provide volume")
+            Console.error("Provide valid volume")
 
     def inject(self):
-        info = self.info()
-        if(info[0]["status"] == "No Media"):
-            Console.ok("Please plug out and in your card")
-            return yn_choice("Have you inserted the card?")
-        return True
+        Console.ok("Please plug out and in your card")
+        user_action = yn_choice("Have you inserted the card?")
+        if user_action:
+            info = self.volume_info()
+            injected = info[0]["status"] != "No Media"
+            if injected:
+                Console.ok("Success!")
+            else:
+                Console.error("Injection failed")
+            return injected
+        else:
+            Console.error("Please plug out and reinsert your card")
+            return user_action
 
 
     def assign_drive(self,volume=None,drive=None):
@@ -195,7 +200,7 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
-        content = self.info()
+        content = self.volume_info()
         found = False
 
         if drive is not None:
@@ -210,7 +215,7 @@ class WindowsSDCard:
             if found:
                 self.basic_mount(volume_number=v,drive=d)
             else:
-                print(self.info())
+                print(self.volume_info())
                 Console.error(f"Mount: Drive letters do not match, Found: {drive}, {d}")
         elif label is not None and drive is None:
             drive = self.guess_drive()
@@ -284,7 +289,7 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
-        content = self.info()
+        content = self.volume_info()
         print(content)
         # d = content[0]["drive"]
         # v = content[0]["volume"]
@@ -389,7 +394,7 @@ class WindowsSDCard:
 
     def get_disk(self,volume=None,drive=None):
         if volume is not None:
-            volume = self.filter_info(info=self.info(),args={'volume': volume})
+            volume = self.filter_info(info=self.volume_info(),args={'volume': volume})
             if(len(volume) == 0):
                 Console.error("Volume does not exist")
             else:
@@ -398,7 +403,7 @@ class WindowsSDCard:
                 return disks[0]["disk"]
 
         elif drive is not None:
-            volume = self.filter_info(info=self.info(), args={'drive': drive})
+            volume = self.filter_info(info=self.volume_info(), args={'drive': drive})
             print(volume)
             if (len(volume) == 0):
                 Console.error("Drive with given letter does not exist.")
@@ -410,52 +415,78 @@ class WindowsSDCard:
         else:
             Console.error("Provide volume or drive to get disk")
 
-    def info(self):
+    def all_info(self):
+        content = self.volume_info()
 
-        """
-        Prints information about the USB and sdcard if it is available
+        # all the fields we wish to display to the user about a device
+        empty_info = {"volume": None, "drive": None,"name": None, "fs": None, "label": None, "size": None,
+                      "#blocks":None, "major": None, "minor": None, "minor": None, "win-mounts": None}
 
-        :return:
-        :rtype:
-        """
-        empty = {"volume": None, "drive": None, "fs": None, "label": None, "size": None, "#blocks":None, "major": None,
-                 "minor": None, "minor": None, "name": None, "win-mounts": None}
-        b = self.diskpart("list volume")
-        volumes = self.process_volumes_text(text=b)
-        print("aaa",volumes)
-        if volumes[0]["drive"] == 0:
-            check = self.inject()
-            if not check:
-                return [empty]
-
-
-        for volume in volumes:
-            for key in empty:
+        # add additional keys to the volume
+        for volume in content:
+            for key in empty_info:
                 if key not in volume:
                     volume[key] = None
 
-        content = volumes
-        print("bbb",content)
+        # select info from the first removable volume
         d = content[0]["drive"]
         v = content[0]["volume"]
-        if d == "":
-            d = self.guess_drive()
-            self.assign_drive(volume=v, drive=d)
-        if len(content) > 1:
-            Console.error("Too many removable USB devices found")
-            return content
-        # TODO
+
         results = []
         proc_info = self.device_info()
         for entry in proc_info:
             if "win-mounts" in entry and entry["win-mounts"] == d:
                 results.append(entry)
+
+        # add the info from proc info to the content
         for attribute in ["#blocks", "major", "minor", "minor", "name", "name", "win-mounts"]:
             content[0][attribute] = results[0][attribute]
-        # content = card.diskinfo(number=)
-        # print(content)
 
+        # return the content to be printed
         return content
+
+    def volume_info(self):
+        system_message = self.diskpart("list volume")
+        volumes = self.process_volumes_text(text=system_message)
+        return volumes
+
+    def info_message(self):
+        # collect info for all removable volumes
+        volumes = self.volume_info()
+
+        #if theres no removable volume, then we cannot proceed
+        if len(volumes) == 0:
+            Console.error("No removable volume detected!")
+            injected = self.inject()
+            if not injected:
+                Console.error("try again")
+                return volumes
+
+        # if there is more than one removable device, ask the user to remove all but target before proceeding
+        if len(volumes) > 1:
+            Console.error("Too many removable devices found. Please remove all except the one for the burn, and rerun")
+            return volumes
+
+        # make sure the removable volume is readable
+        if volumes[0]["status"] == "No Media":
+            result = self.inject()
+
+        # make sure the volume has a drive letter
+        if volumes[0]["drive"] == "":
+            self.assign_drive(volume=volumes[0]["volume"],drive=self.guess_drive())
+
+        if volumes[0]["status"] != "Healthy":
+            print(volumes)
+            print(volumes[0]["status"])
+            Console.error("Removable device is not healthy")
+            return volumes
+
+        if volumes[0]["info"] != "Online":
+            Console.ok("Device not online. Attempting to online")
+            self.online(volume=volumes[0]["volume"])
+
+        # Have ensured there is only one removable device, and is readable, has letter, is healthy, and is online
+        return self.all_info()
 
 
 
@@ -493,7 +524,7 @@ class WindowsSDCard:
             lines = text.splitlines()
             result = []
             for line in lines:
-                if "Removable" in line and "Healthy" in line:
+                if "Removable" in line:
                     result.append(line)
 
             content = []
@@ -546,7 +577,7 @@ class WindowsSDCard:
         # os.system(f"diskpart /s {filename}")
 
     def ls(self):
-        content = self.info()
+        content = self.volume_info()
         return content
 
     @staticmethod
