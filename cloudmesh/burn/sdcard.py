@@ -27,6 +27,7 @@ from cloudmesh.common.util import yn_choice
 
 if os_is_windows():
     from cloudmesh.burn.windowssdcard import WindowsSDCard
+    from cloudmesh.burn.windowssdcard import Diskpart
 
 
 # noinspection PyBroadException
@@ -421,14 +422,29 @@ class SDCard:
                     return prepare_sdcard()
 
         if os_is_windows():
-            card = WindowsSDCard()
-            device = device.replace(":","")
-            check = card.format_drive(drive=device)
+            from cloudmesh.burn.windowssdcard import WindowsSDCard
+            from cloudmesh.burn.windowssdcard import Diskpart
 
-            if check:
-                Console.ok("Formatted SD Card")
+            card = WindowsSDCard()
+
+            volumes = Diskpart.list_volume()
+
+            print(Printer.write(
+                volumes,
+                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info']
+            ))
+
+            if yn_choice("Do you want to format USB card with drive letter {device}"):
+                device = device.replace(":", "")
+                check = card.format_drive(drive=device)
+
+                if check:
+                    Console.ok("Formatted SD Card")
+                else:
+                    Console.error("Failed to format card")
+
             else:
-                Console.error("Failed to format card")
+                Console.error("Format interrupted")
         else:
 
             Sudo.password()

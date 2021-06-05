@@ -434,14 +434,6 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
-        content = self.volume_info()
-        print(content)
-        # d = content[0]["drive"]
-        # v = content[0]["volume"]
-        # if d == "":
-        #     self.inject(volume=v)
-        # content = self.info()
-
         # see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/format
         command = f"C:\Windows\system32\\format.com {drive}: /FS:EXFAT /V:UNTITLED /Q"
         Console.info("Formatting Card with command: " + command)
