@@ -440,8 +440,8 @@ class SDCard:
 
             print(Printer.write(
                 volumes,
-                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type',
-                       'Size', 'Status', 'Info', "dev"]
+                # order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type',
+                #       'Size', 'Status', 'Info', "dev"]
             ))
 
             disks = Diskpart.list_disk()
@@ -899,8 +899,8 @@ class SDCard:
             details = USB.get_from_diskutil()
             USB.print_details(details)
 
-        if not (yes or yn_choice(f"\nDo you like to write {name} on {device}\n"
-                                 f"  with the image {image_path}")):
+        if not (yes or yn_choice(f"\nDo you like to write {name} on {device} with the image\n"
+                                 f" * {image_path}\n\nContinue")):
             return ""
 
         # TODO Gregor verify this is ok commenting out this line

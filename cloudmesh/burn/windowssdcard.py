@@ -124,31 +124,26 @@ class Diskpart:
         # print(Printer.write(removables))
         # print("===========")
 
-        devices = Diskpart.list_device()
-
-        # removable = []
-
         if len(removables) == 0:
-            print(Printer.write(removables))
-
-            print(Printer.write(volumes))
             Console.warning("No removable SD Card detected")
 
         elif len(removables) > 1:
-            print(Printer.write(removables))
-
             Console.warning("Too many removable devices found. "
                           "Please remove all except the one for the burn, and rerun")
 
         try:
-            removable = removables[0]
-            # make sure the removable volume is readable
-            if removable["Status"] != "Healthy":
-                Console.warning("The removable SDCard is not healthy")
+            healthy = []
+            for removable in removables:
+                if removable["Status"] != "Healthy":
+                    number = removable["###"]
+                    letter = removable["Ltr"]
+                    Console.warning(f"The removable with volume {number} and letter {letter} SDCard is not healthy")
+                else:
+                    healthy.append(removable)
+            removables = healthy
         except:
             pass
-
-        return [removable]
+        return removables
 
     @staticmethod
     def format_drive(disk=None):
@@ -549,6 +544,7 @@ class WindowsSDCard:
                   image_path=None,
                   blocksize=None,
                   size=None):
+        Diskpart.rescan()
         detail = Diskpart.detail(disk=disk)
         letter = detail["Ltr"]
         volume = detail["Volume"]
@@ -567,6 +563,7 @@ class WindowsSDCard:
             order=['Volume', '###', 'Ltr', 'Label', 'Fs',
                    'Type', 'Size', 'Status', 'Info', 'dev']
         ))
+
         entry = entry[0]
 
         dev = entry["dev"]
@@ -602,9 +599,6 @@ class WindowsSDCard:
 
         time.sleep(1.0)
         Diskpart.rescan()
-
-        while not yn_choice("Please remove and reinsert the card"):
-            pass
 
         Diskpart.assingn_drive(letter=letter, volume=volume)
 
