@@ -2,6 +2,7 @@ import os
 import string
 import subprocess
 import sys
+import time
 from pathlib import Path
 from pprint import pprint
 from pathlib import PurePosixPath
@@ -52,6 +53,24 @@ class Diskpart:
     tmp = "tmp.txt"
 
     @staticmethod
+    def guess_drive():
+        drives = set(string.ascii_uppercase[2:])
+        for d in win32api.GetLogicalDriveStrings().split(':\\\x00'):
+            drives.discard(d)
+        # Discard persistent network drives, even if not connected.
+        henum = win32wnet.WNetOpenEnum(win32netcon.RESOURCE_REMEMBERED,
+                                       win32netcon.RESOURCETYPE_DISK, 0, None)
+        while True:
+            result = win32wnet.WNetEnumResource(henum)
+            if not result:
+                break
+            for r in result:
+                if len(r.lpLocalName) == 2 and r.lpLocalName[1] == ':':
+                    drives.discard(r.lpLocalName[0])
+        if drives:
+            return sorted(drives)[0]
+
+    @staticmethod
     def detail(disk=None):
         detail = {}
         disk = str(disk)
@@ -81,24 +100,20 @@ class Diskpart:
     @staticmethod
     def remove_drive(letter=None):
         volumes = Diskpart.list_volume()
-        found = False
-        for volume in volumes:
-            if letter in volume["Ltr"]:
-                found = True
-                number = volume["###"]
-                break
-        if found:
-            result = Diskpart.run(f"select volume {number}\nremove letter={letter}")
-            print (result)
-        else:
+
+        try:
+            volume = find_entries(data=volumes, keys=["Ltr"], value=letter)[0]
+            volume =  volume["###"]
+            result = Diskpart.run(f"select volume {volume}\nremove letter={letter}")
+        except:
             Console.error(f"Could not remove drive {letter}")
 
     @staticmethod
     def assingn_drive(letter=None, volume=None):
+        if letter is None:
+            letter = Diskpart.guess_drive()
         result = Diskpart.run(f"select volume {volume}\nassign letter={letter}")
-        print (result)
-
-
+        return letter
 
     @staticmethod
     def get_removable_volumes():
@@ -323,25 +338,6 @@ class WindowsSDCard:
         Console.info("Unmounting Card")
         os.system(f"mountvol {drive}: /p")
 
-
-    @staticmethod
-    def guess_drive():
-        drives = set(string.ascii_uppercase[2:])
-        for d in win32api.GetLogicalDriveStrings().split(':\\\x00'):
-            drives.discard(d)
-        # Discard persistent network drives, even if not connected.
-        henum = win32wnet.WNetOpenEnum(win32netcon.RESOURCE_REMEMBERED,
-                                       win32netcon.RESOURCETYPE_DISK, 0, None)
-        while True:
-            result = win32wnet.WNetEnumResource(henum)
-            if not result:
-                break
-            for r in result:
-                if len(r.lpLocalName) == 2 and r.lpLocalName[1] == ':':
-                    drives.discard(r.lpLocalName[0])
-        if drives:
-            return sorted(drives)[0] + ':'
-
     def online(self, volume=None):
         if volume is not None:
             all_volumes = Diskpart.list_volume()
@@ -377,13 +373,7 @@ class WindowsSDCard:
         if drive is None:
             drive = self.guess_drive()
         result = self.diskpart(f"select volume {volume}\nassign letter={drive}")
-        return result
-
-    def remove_drive(self, volume=None, drive=None):
-        if drive is None:
-            drive = self.guess_drive()
-
-        result = self.diskpart(f"select volume {volume}\nremove letter={drive}")
+        return drive
 
     def basic_mount(self, volume_number=None, drive=None):
         """
@@ -427,7 +417,7 @@ class WindowsSDCard:
                 print(Diskpart.list_volume())
                 Console.error(f"Mount: Drive letters do not match, Found: {drive}, {d}")
         elif label is not None and drive is None:
-            drive = self.guess_drive()
+            drive = Diskpart.guess_drive()
             v = -1
             for _drive in content:
                 l = _drive["label"]
@@ -445,68 +435,74 @@ class WindowsSDCard:
             Console.error("Drive or label not specified")
             return None
 
-    def burn_disk(self, disk=None, image_path=None, blocksize=None, size=None):
+    def burn_disk(self,
+                  disk=None,
+                  image_path=None,
+                  blocksize=None,
+                  size=None):
         detail = Diskpart.detail(disk=disk)
-        drive = detail["Ltr"]
-        self.burn_drive(drive=drive, image_path=image_path, blocksize=blocksize, size=size)
+        letter = detail["Ltr"]
+        volume = detail["Volume"]
+        if letter == "":
+            letter = Diskpart.assingn_drive(volume=volume)
+            detail = Diskpart.detail(disk=disk)
 
-
-    def burn_drive(self, drive=None, image_path=None, blocksize=None, size=None):
-        #p = convert_path(image_path)
         p = image_path
-
         size = Shell.run('stat --print="%s" ' + image_path)
 
+
+
         volumes = self.info_message()
+        print("KKKKKKKKKKKKKKKKKKKKKKKKKK", volume)
+        pprint(volumes)
+        entry = find_entries(volumes, keys=["###"], value=volume)[0]
 
-        volume = Diskpart.get_volume(letter=drive, volumes=volumes)
+        print(Printer.write(
+            volume,
+            order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', 'name']
+            ))
 
+        print(entry)
 
-        if volume is None:
-            print(Printer.write(
-                volume,
-                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', 'name']
-                ))
+        dev = entry["name"]
+        dev = f"/dev/{dev}"
 
-            print()
-            Console.error(f"Can not find the drive {drive}")
-            print()
-
-        device = volume["name"]
-        if device == "":
-            Console.error("Drive has no device attached with it")
-            return ""
-
-        device = f"/dev/{device}"
-
-        volume = volume["###"]
+        volume = entry["###"]
 
         banner("Card Info")
-        print("Drive:", drive)
-        print("Image:", p)
-        print("Size: ", size, "Bytes")
+        print("Disk:  ", disk)
+        print("Drive: ", letter)
+        print("Image: ", p)
+        print("Size:  ", size, "Bytes")
         print("Volume:", volume)
-        print("Device:", device)
+        print("Device:", dev)
         print()
 
-        # Diskpart.remove_drive(letter=drive)
+        Diskpart.remove_drive(letter=letter)
+        detail = Diskpart.detail(disk=disk)
+        pprint(detail)
 
-        if not yn_choice("Is the data correct?"):
-            return ""
 
         command = f'dd bs=4M if="{p}" oflag=direct | ' + \
                   f'tqdm --desc="format" --bytes --total={size} --ncols=80 | ' + \
-                  f"dd bs=4M of={device} conv=fdatasync oflag=direct iflag=fullblock"
+                  f"dd bs=4M of={dev} conv=fdatasync oflag=direct iflag=fullblock"
         print(command)
+        time.sleep(1)
 
-        file = WindowsSDCard.tmp
+        if not yn_choice("Continue"):
+            return ""
+
+
+        file = Diskpart.tmp
         file = "bbb.sh"
         common_writefile(file, command)
         os.system(f"sh {file}")
         banner("assign drive")
-        print(drive, volume)
-        Diskpart.remove_drive(letter=drive)
-        Diskpart.assingn_drive(letter=drive, volume=volume)
+        #print(drive, volume)
+        #Diskpart.remove_drive(letter=drive)
+        while not yn_choice("Please plug out and in the card. Continue"):
+            pass
+        Diskpart.assingn_drive(letter=letter, volume=volume)
 
     def format_drive(self, disk=None):
         """
@@ -617,9 +613,9 @@ class WindowsSDCard:
         return content
 
     def info_message(self):
+        # volume must have letter
         # collect info for all removable volumes
         volumes = Diskpart.list_volume()
-
         empty = {
             "major": "",
             "minor": "",
@@ -670,7 +666,7 @@ class WindowsSDCard:
 
         # make sure the volume has a drive letter
         if volumes[0]["Ltr"] == "":
-            self.assign_drive(volume=volumes[0]["Volume"], drive=self.guess_drive())
+            self.assign_drive(volume=volumes[0]["Volume"], drive=Diskpart.guess_drive())
 
         if volumes[0]["status"] != "Healthy":
             print(volumes)
@@ -685,33 +681,6 @@ class WindowsSDCard:
         # Have ensured there is only one removable device, and is readable, has letter, is healthy, and is online
 
         return self.all_info()
-
-    # def info_fancy(self):
-    #     content = self.
-    #     d = content[0]["Ltr"]
-    #     v = content[0]["Volume"]
-    #     if d == "":
-    #         d = card.guess_drive()
-    #         card.assign_drive(volume=v, drive=d)
-    #     print(Printer.write(content, order=["Volume", "Ltr", "fs", "label", "size"]))
-    #     if len(content) > 1:
-    #         print(Printer.write(content, order=["Volume", "Ltr", "fs", "label", "size"]))
-    #         Console.error("Too many removable USB devices found")
-    #         return ""
-    #     # TODO
-    #     results = []
-    #     proc_info = card.device_info()
-    #     for entry in proc_info:
-    #         if "win-mounts" in entry and entry["win-mounts"] == d:
-    #             results.append(entry)
-    #     for attribute in ["#blocks", "major", "minor", "minor", "name", "win-mounts"]:
-    #         content[0][attribute] = results[0][attribute]
-    #     # content = card.diskinfo(number=)
-    #     # print(content)
-    #     print(Printer.write(content,
-    #                         order=["Volume", "Ltr", "fs", "label", "size", "#blocks", "major", "minor", "minor",
-    #                                "name", "win-mounts"]))
-
 
     def dd(self, image_path=None, device=None):
         command = f"dd bs=4M if={image_path} oflag=direct of={device} conv=fdatasync iflag=fullblock status=progress"

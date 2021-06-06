@@ -898,8 +898,8 @@ class SDCard:
             details = USB.get_from_diskutil()
             USB.print_details(details)
 
-        if not (yes or yn_choice(f"\nDo you like to write {name} on {device} "
-                                 f"with the image {image_path}")):
+        if not (yes or yn_choice(f"\nDo you like to write {name} on {device}\n"
+                                 f"  with the image {image_path}")):
             return ""
 
         # TODO Gregor verify this is ok commenting out this line
