@@ -33,6 +33,9 @@ from cloudmesh.common.Host import Host
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.Shell import Shell
 
+if os_is_windows():
+    from cloudmesh.burn.windowssdcard import Diskpart
+
 
 class BurnCommand(PluginCommand):
 
@@ -400,12 +403,10 @@ class BurnCommand(PluginCommand):
 
         if arguments.drive and arguments.rm:
 
-            from cloudmesh.burn.windowssdcard import Diskpart
             Diskpart.remove_drive(arguments["DRIVE"])
 
         if arguments.drive and arguments.assign:
 
-            from cloudmesh.burn.windowssdcard import Diskpart
             Diskpart.assingn_drive(volume=arguments["VOLUME"], letter=arguments["DRIVE"])
 
 

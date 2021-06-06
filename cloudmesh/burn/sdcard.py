@@ -990,7 +990,7 @@ class SDCard:
             content = Diskpart.list_removable()
             print(Printer.write(
                 content,
-                order = ['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', "name"]
+                order = ['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', "dev"]
             ))
 
         details = USB.get_from_usb()

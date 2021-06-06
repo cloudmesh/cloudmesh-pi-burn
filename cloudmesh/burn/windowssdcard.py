@@ -76,9 +76,11 @@ class Diskpart:
         # volume must have letter
         # collect info for all removable volumes
 
+        Diskpart.rescan()
         disks = Diskpart.list_disk()
         volumes = Diskpart.list_volume()
         removables = find_entries(volumes, keys=["Type"], value="Removable")
+        removables = find_entries(removables, keys=["Status"], value="Healthy")
 
         data = []
         for disk in disks:
@@ -97,14 +99,17 @@ class Diskpart:
         disks = Diskpart.list_disk()
         volumes = Diskpart.list_volume()
         devices = Diskpart.list_device()
-
         removables = find_entries(volumes, keys=["Type"], value="Removable")
+        removables = find_entries(removables, keys=["Status"], value="Healthy")
 
         for entry in removables:
-            letter = entry["Ltr"]
-            dev = find_entries(devices, keys=["win-mounts"], value=letter)[0]
-            dev = dev["name"][0:3]
-            entry["dev"] = f"/dev/{dev}"
+            try:
+                letter = entry["Ltr"]
+                dev = find_entries(devices, keys=["win-mounts"], value=letter)[0]
+                dev = dev["name"][0:3]
+                entry["dev"] = f"/dev/{dev}"
+            except:
+                entry["dev"] = ""
 
         # MERGE INFO
         # print ("=========== disks")
@@ -123,9 +128,13 @@ class Diskpart:
 
 
         if len(removables) == 0:
+            print(Printer.write(removables))
+
             Console.error("No removable SD Card detected")
             raise ValueError("no removables found")
         elif len(removables) > 1:
+            print(Printer.write(removables))
+
             Console.error("Too many removable devices found. "
                           "Please remove all except the one for the burn, and rerun")
             raise ValueError("Too many removables found")
@@ -367,6 +376,12 @@ class Diskpart:
             return None
 
     @staticmethod
+    def rescan():
+        result = Diskpart.run("rescan")
+        return result
+
+
+    @staticmethod
     def help(command=None):
         if command is None:
             command = ""
@@ -582,11 +597,14 @@ class WindowsSDCard:
         common_writefile(file, command)
         os.system(f"sh {file}")
 
+        time.sleep(1.0)
+        Diskpart.rescan()
+
         while not yn_choice("Please remove and reinsert the card"):
             pass
-        time.sleep(1.0)
 
         Diskpart.assingn_drive(letter=letter, volume=volume)
+
 
 
     @staticmethod
