@@ -436,11 +436,12 @@ class SDCard:
 
             card = WindowsSDCard()
 
-            volumes = card.info_message()
+            volumes = Diskpart.list_removable()
 
             print(Printer.write(
                 volumes,
-                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', "name"]
+                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type',
+                       'Size', 'Status', 'Info', "dev"]
             ))
 
             disks = Diskpart.list_disk()
@@ -452,7 +453,7 @@ class SDCard:
 
             if yn_choice(f"Do you want to format USB card with disk number {device}"):
                 device = device.replace(":", "")
-                check = card.format_drive(disk=device)
+                check = Diskpart.format_drive(disk=device)
 
                 if check:
                     Console.ok("Formatted SD Card")
@@ -986,8 +987,7 @@ class SDCard:
                                 order=['Disk', '###', 'Status', 'Size', 'Free', 'Dyn', 'Gpt']
                                 ))
 
-            card = WindowsSDCard()
-            content = card.info_message()
+            content = Diskpart.info_message()
             print(Printer.write(
                 content,
                 order = ['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', "name"]

@@ -37,11 +37,13 @@ def find_entries(data=None, keys=None, value=None):
                 results.append(entry)
     return results
 
+
 def convert_path(path):
     p = str(PurePosixPath(Path(path)))
     for letter in ["A", "B", "C", "D", "E"]:
         p = p.replace(f"{letter}:\\", "/c")
     return p
+
 
 class USB:
     @staticmethod
@@ -51,6 +53,103 @@ class USB:
 
 class Diskpart:
     tmp = "tmp.txt"
+
+    @staticmethod
+    def list_removable():
+        # volume must have letter
+        # collect info for all removable volumes
+
+        disks = Diskpart.list_disk()
+        volumes = Diskpart.list_volume()
+        removables = find_entries(volumes, keys=["Type"], value="Removable")
+
+        data = []
+        for disk in disks:
+            number = disk["###"]
+            try:
+                entry = Diskpart.detail(disk=number)
+                data.append(entry)
+            except:
+                pass
+        for removable in removables:
+            number = removable["###"]
+            if removable["Ltr"] == "":
+                letter = Diskpart.guess_drive()
+                Diskpart.assingn_drive(volume=number, letter=letter)
+
+        disks = Diskpart.list_disk()
+        volumes = Diskpart.list_volume()
+        devices = Diskpart.list_device()
+        removables = find_entries(volumes, keys=["Type"], value="Removable")
+
+        for entry in removables:
+            letter = entry["Ltr"]
+            dev = find_entries(devices, keys=["win-mounts"], value=letter)[0]
+            dev = dev["name"][0:3]
+            entry["dev"] = f"/dev/{dev}"
+
+        # MERGE INFO
+        # print ("=========== disks")
+        # print(Printer.write(disks))
+        # print ("=========== data")
+        # pprint(data)
+        # print ("=========== volumes")
+        # print(Printer.write(volumes))
+        # print ("=========== dev")
+        # print (Printer.write(dev))
+        # print("===========")
+        # print(Printer.write(removables))
+        # print("===========")
+
+        devices = Diskpart.list_device()
+
+
+        if len(removables) == 0:
+            Console.error("No removable SD Card detected")
+            raise ValueError("no removables found")
+        elif len(removables) > 1:
+            Console.error("Too many removable devices found. "
+                          "Please remove all except the one for the burn, and rerun")
+            raise ValueError("Too many removables found")
+
+        removable = removables[0]
+        # make sure the removable volume is readable
+        if removable["Status"] != "Healthy":
+            Console.error("The removable SDCard is not healthy")
+            raise ValueError("THe sdcard is not healthy")
+
+        return [removable]
+
+    @staticmethod
+    def format_drive(disk=None):
+        """
+        formats the disk with the given number
+        :param disk: the disk numner
+        :type drive: str
+        :return:
+        :rtype:
+        """
+
+        disks = Diskpart.list_disk()
+        entry = find_entries(disks, ["###"], 2)[0]
+        number = entry["###"]
+        size = entry["Size"]
+
+        details = Diskpart.detail(disk=number)
+        print(Printer.attribute(details))
+
+        if not yn_choice(f"Format disk {number} with {size}"):
+            return
+
+        command = f"select disk {disk}\n" + \
+                  "clean\n" + \
+                  "convert mbr\n" + \
+                  "create partition primary\n" + \
+                  "select partition 1\n" + \
+                  "format fs=exfat label=UNTITLED quick"
+
+        Diskpart.run(command)
+        return True
 
     @staticmethod
     def guess_drive():
@@ -75,7 +174,7 @@ class Diskpart:
         detail = {}
         disk = str(disk)
         result = Diskpart.run(f"select disk {disk}\n"
-                     "detail disk")
+                              "detail disk")
         result = "\n".join(result.strip().splitlines()[7:])
         detail = Diskpart.table_parser(result, kind="Volume")[0]
 
@@ -103,7 +202,7 @@ class Diskpart:
 
         try:
             volume = find_entries(data=volumes, keys=["Ltr"], value=letter)[0]
-            volume =  volume["###"]
+            volume = volume["###"]
             result = Diskpart.run(f"select volume {volume}\nremove letter={letter}")
         except:
             Console.error(f"Could not remove drive {letter}")
@@ -264,6 +363,7 @@ class Diskpart:
             if volume["Ltr"] == letter:
                 return volume
         return result
+
 
 class WindowsSDCard:
     tmp = "tmp.txt"
@@ -450,90 +550,52 @@ class WindowsSDCard:
         p = image_path
         size = Shell.run('stat --print="%s" ' + image_path)
 
-
-
-        volumes = self.info_message()
-        print("KKKKKKKKKKKKKKKKKKKKKKKKKK", volume)
-        pprint(volumes)
-        entry = find_entries(volumes, keys=["###"], value=volume)[0]
+        removables = Diskpart.list_removable()
+        entry = find_entries(removables, keys=["###"], value=volume)
 
         print(Printer.write(
-            volume,
-            order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', 'name']
-            ))
+            entry,
+            order=['Volume', '###', 'Ltr', 'Label', 'Fs',
+                   'Type', 'Size', 'Status', 'Info', 'dev']
+        ))
+        entry = entry[0]
 
-        print(entry)
-
-        dev = entry["name"]
-        dev = f"/dev/{dev}"
+        dev = entry["dev"]
 
         volume = entry["###"]
 
         banner("Card Info")
-        print("Disk:  ", disk)
-        print("Drive: ", letter)
-        print("Image: ", p)
-        print("Size:  ", size, "Bytes")
-        print("Volume:", volume)
-        print("Device:", dev)
+        print("Disk:      ", disk)
+        print("Disk Size: ", entry["Size"])
+        print("Drive:     ", letter)
+        print("Volume:    ", volume)
+        print("Device:    ", dev)
+        print("Image:     ", p)
+        print("Imaeg Size:", size, "Bytes")
         print()
 
         Diskpart.remove_drive(letter=letter)
         detail = Diskpart.detail(disk=disk)
-        pprint(detail)
-
+        # pprint(detail)
 
         command = f'dd bs=4M if="{p}" oflag=direct | ' + \
-                  f'tqdm --desc="format" --bytes --total={size} --ncols=80 | ' + \
+                  f'tqdm --desc="Write" --bytes --total={size} --ncols=80 | ' + \
                   f"dd bs=4M of={dev} conv=fdatasync oflag=direct iflag=fullblock"
-        print(command)
-        time.sleep(1)
+        # print(command)
+        time.sleep(1.0)
 
         if not yn_choice("Continue"):
             return ""
 
-
         file = Diskpart.tmp
-        file = "bbb.sh"
         common_writefile(file, command)
         os.system(f"sh {file}")
-        banner("assign drive")
-        #print(drive, volume)
-        #Diskpart.remove_drive(letter=drive)
-        while not yn_choice("Please plug out and in the card. Continue"):
+
+        while not yn_choice("Please remove and reinsert the card"):
             pass
+        time.sleep(1.0)
+
         Diskpart.assingn_drive(letter=letter, volume=volume)
-
-    def format_drive(self, disk=None):
-        """
-        formats the disk with the given number
-        :param disk: the disk numner
-        :type drive: str
-        :return:
-        :rtype:
-        """
-
-        disks = Diskpart.list_disk()
-        entry = find_entries(disks, ["###"], 2)[0]
-        number = entry["###"]
-        size = entry["Size"]
-
-        details = Diskpart.detail(disk=number)
-        print(Printer.attribute(details))
-
-        if not yn_choice(f"Format disk {number} with {size}"):
-            return
-
-        command = f"select disk {disk}\n" + \
-                     "clean\n" + \
-                     "convert mbr\n" + \
-                     "create partition primary\n" + \
-                     "select partition 1\n" + \
-                     "format fs=exfat label=UNTITLED quick"
-
-        Diskpart.run(command)
-        return True
-
 
     def diskpart(self, command):
         _diskpart = Path("C:/Windows/system32/diskpart.exe")
@@ -583,7 +645,7 @@ class WindowsSDCard:
         #
         # this may no longer be needed, also we use now the original artttributes from diskpart
         #
-        content = self.volume_info()
+        content = Diskpart.list_volume()
 
         # all the fields we wish to display to the user about a device
         empty_info = {"Volume": None, "Ltr": None, "name": None, "fs": None, "label": None, "size": None,
@@ -612,105 +674,11 @@ class WindowsSDCard:
         # return the content to be printed
         return content
 
-    def info_message(self):
-        # volume must have letter
-        # collect info for all removable volumes
-        volumes = Diskpart.list_volume()
-        empty = {
-            "major": "",
-            "minor": "",
-            "#blocks": "",
-            "name": "",
-            "win-mounts": ""
-        }
-        devices = Diskpart.list_device()
-        found = {}
-        for device in devices:
-            letter = device['win-mounts']
-            if letter != "":
-                device["name"] = device["name"][:3]
-                found[letter] = device
-        for volume in volumes:
-            volume.update(empty)
-            letter = volume['Ltr']
-            if letter != "":
-                try:
-                    values = found[letter]
-                    volume.update(values)
-                except:
-                    Console.error(f"Drive {letter} is not readable")
-
-        # if theres no removable volume, then we cannot proceed
-        if len(volumes) == 0:
-            Console.error("No removable volume detected!")
-            injected = self.inject()
-            if not injected:
-                Console.error("try again")
-                return volumes
-
-        # if there is more than one removable device, ask the user to remove all but target before proceeding
-        if len(volumes) > 1:
-            Console.error("Too many removable devices found. "
-                          "Please remove all except the one for the burn, and rerun")
-
-            #print(Printer.write(
-            #    volumes,
-            #    order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info']
-            #))
-
-            return volumes
-
-        # make sure the removable volume is readable
-        if volumes[0]["status"] == "No Media":
-            result = self.inject()
-
-        # make sure the volume has a drive letter
-        if volumes[0]["Ltr"] == "":
-            self.assign_drive(volume=volumes[0]["Volume"], drive=Diskpart.guess_drive())
-
-        if volumes[0]["status"] != "Healthy":
-            print(volumes)
-            print(volumes[0]["status"])
-            Console.error("Removable device is not healthy")
-            return volumes
-
-        if volumes[0]["info"] != "Online":
-            Console.ok("Device not online. Attempting to online")
-            self.online(volume=volumes[0]["Volume"])
-
-        # Have ensured there is only one removable device, and is readable, has letter, is healthy, and is online
-
-        return self.all_info()
-
-    def dd(self, image_path=None, device=None):
-        command = f"dd bs=4M if={image_path} oflag=direct of={device} conv=fdatasync iflag=fullblock status=progress"
-        print(command)
-        os.system(command)
 
     def writefile(self, filename=None, content=None):
         with open(filename, 'w') as outfile:
             outfile.write(content)
             outfile.truncate()
-
-        # command = f"mountvol {self.drive} /L"
-        # r = Shell.run(command)
-        # print (r)
-        # see also gregos implementation for mac, osx, and raspberry,
-        # that just may work
-
-        # diskpart list disk
-        # diskpart detail disk
-        # diskpart detail volume
-
-        # diskpart /s <script_file>
-
-        # os.system("diskpart list disk")
-
-        # Path pathlib
-        # filename = Path("/tmp/list-disk.txt")
-
-        # common_writefile(filename, "list disk\n\exit")
-        # os.system(f"diskpart /s {filename}")
 
     def ls(self):
         content = Diskpart.list_volume()
@@ -719,164 +687,3 @@ class WindowsSDCard:
     @staticmethod
     def clean():
         os.remove(WindowsSDCard.tmp)
-
-    # @staticmethod
-    # def list_file_systems():
-
-
-"""
-class WindowsSDCard:
-    
-    tmp = "tmp.txt"
-
-    @staticmethod
-    def clean():
-        raise NotImplementedError
-        # rm SDCard.tmp
-
-    # Take a look at Gregor's SDCard init method
-    @staticmethod
-    def format_card(volume_number, disk_number):
-
-        '''
-        # see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/format
-        if unmount:
-            set_unmount = "/x"
-        else:
-            set_unmount = ""
-        command = f"format {device} /fs:FAT32 /v:UNTITLED /q {set_unmount}".strip()
-        print(command)
-        '''
-
-        print(f"format :{volume_number}")
-
-        common_writefile(SdCard.tmp, f"select disk {disk_number} \n exit")
-        
-        a = Shell.run(f"diskpart /s {SdCard.tmp}")
-
-        print(a)
-
-        common_writefile(SdCard.tmp, f"select volume {volume_number}")
-        a = Shell.run(f"diskpart /s {SdCard.tmp}")
-        print(SdCard.tmp)
-        print(a)
-
-        common_writefile(SdCard.tmp, "format fs=fat32 quick")
-        print(SdCard.tmp)
-        a = Shell.run(f"diskpart /s {SdCard.tmp}")
-
-    @staticmethod
-    def mount(volume_number, volume_letter=None):
-        if volume_letter == None:
-            volume_letter = SdCard.get_free_drive()
-        common_writefile(SdCard.tmp, f"select volume {volume_number}")
-        a = Shell.run(f"diskpart /s {SdCard.tmp}")
-
-        common_writefile(SdCard.tmp, f"assign letter={volume_letter}")
-        a = Shell.run(f"diskpart /s {SdCard.tmp}")
-        return volume_letter
-
-    @staticmethod
-    def unmount(volume_letter):
-        common_writefile(SdCard.tmp, f"remove letter={volume_letter}")
-        b = Shell.run(f"diskpart /s {SdCard.tmp}").splitlines()[8:]
-
-        # os.system(f"mountvol {device} /p")
-
-        print(b)
-
-    @staticmethod
-    def write(volume_number, volume_letter):
-        pass
-
-    @staticmethod
-    def info():
-        print("Disk info")
-        common_writefile(SdCard.tmp, "list volume")
-        b = Shell.run(f"diskpart /s {SdCard.tmp}").splitlines()[8:]
-        return b
-
-    @staticmethod
-    def get_free_drive():
-        drives = set(string.ascii_uppercase[2:])
-        for d in win32api.GetLogicalDriveStrings().split(':\\\x00'):
-            drives.discard(d)
-        # Discard persistent network drives, even if not connected.
-        henum = win32wnet.WNetOpenEnum(win32netcon.RESOURCE_REMEMBERED,
-                                       win32netcon.RESOURCETYPE_DISK, 0, None)
-        while True:
-            result = win32wnet.WNetEnumResource(henum)
-            if not result:
-                break
-            for r in result:
-                if len(r.lpLocalName) == 2 and r.lpLocalName[1] == ':':
-                    drives.discard(r.lpLocalName[0])
-        if drives:
-            return sorted(drives)[-1] + ':'
-
-    @staticmethod
-    def guess_volume_number():
-        r = SdCard.info()
-        print(r)
-        for line in r:
-            line = line.strip()
-            if "*" not in line:
-                line = line.replace("No Media", "NoMedia")
-                line = line.replace("Disk ", "")
-                line = ' '.join(line.split())
-                num, kind, size, unit, unused1, unused2 = line.split(" ")
-                size = int(size)
-
-                if unit == "GB" and (size > 7 and size < 128):
-                    return num
-        raise ValueError("No SD card found")
-
-
-SdCard.format_card(5, 3)
-"""
-
-'''
-DO NOT DELETE THIS COMMENT - WORKING CODE HERE. 
-
-r = SdCard.info()
-print(r)
-volume_number = SdCard.guess_volume_number()
-
-if not yn_choice (f"Would you like to contine burning on disk {volume_number}"):
-    sys.exit(0)
-
-volume_letter = SdCard.mount(volume_number)
-
-from glob import glob
-
-files = glob(f"{volume_letter}:")
-
-print(files)
-
-SdCard.unmount(volume_letter)
-'''
-
-# TASK 1 explre sdcard that has raspberry os on it.
-'''
-1. plug in card with raspberry os burned on it
-2. see hw the card registers
-3. prg : cms burn info
-4. prg : w = Windows()
-         r = w.info()
-         print(r)
-5. find the drive letter
-6. prg: drive = device = "Z:"
-7: prg: ... mount the drive
-8: prg: look if you can find the boot partition on the drive
-10: prg: can you list and write things in the boot partition?
-11: prg: unmount the drive
-
-12: First task won
-
-TASK 2: do the same as task 1 but with ubuntu on it
-
-
-TASK 3: FORMAT SD CARD form commandline
-
-9: prg: format the sdcard
-'''
