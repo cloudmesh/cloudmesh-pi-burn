@@ -55,6 +55,10 @@ class Diskpart:
     tmp = "tmp.txt"
 
     @staticmethod
+    def manager():
+        os.system('diskmgmt.msc &')
+
+    @staticmethod
     def list_removable():
         # volume must have letter
         # collect info for all removable volumes
@@ -378,10 +382,6 @@ class WindowsSDCard:
         #     self.device = self.filter_info(info=self.device_info(), args={"win-mounts": self.drive})[0]
         #     self.device = "/dev/" + self.device["name"][0:3]
 
-    def fix_path(self, path=None):
-        path = path.replace(r"\\", "/")
-        return path
-
     def readfile(self, filename=None):
         content = common_readfile(filename, mode='rb')
         # this may need to be changed to just "r"
@@ -394,16 +394,22 @@ class WindowsSDCard:
             os.fsync(outfile)
 
     def get_drives(self):
+        """
+        TODO: WHAT IS THIS DOING
+        """
         drives = []
         bitmask = windll.kernel32.GetLogicalDrives()
         for letter in string.uppercase:
             if bitmask & 1:
                 drives.append(letter)
             bitmask >>= 1
-
         return drives
 
     def drive_to_volume(self, drive=None):
+        #
+        # DEPECATED
+        # WE HAVE A simpler IMPLEMENTATION OF THIS
+        # howevert the args as dict is nice
         print("entered")
         print(drive)
 
@@ -610,14 +616,6 @@ class WindowsSDCard:
             info = [device for device in info if key in device.keys() and device[key] == value]
         return info
 
-    def device_info(self):
-        # function deprecated use directly Diskpart
-        return Diskpart.list_device()
-
-    def disk_info(self):
-        # function deprecated use Diskpart directly
-        return Diskpart.list_disk()
-
     def get_disk(self, volume=None, drive=None):
         if volume is not None:
             volume = self.filter_info(info=Diskpart.list_volume(), args={'volume': volume})
@@ -662,7 +660,7 @@ class WindowsSDCard:
         v = content[0]["Volume"]
 
         results = []
-        proc_info = self.device_info()
+        proc_info = Diskpart.list_device()
         for entry in proc_info:
             if "win-mounts" in entry and entry["win-mounts"] == d:
                 results.append(entry)

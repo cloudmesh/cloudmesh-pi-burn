@@ -72,7 +72,7 @@ class BurnCommand(PluginCommand):
               burn unmount [--device=DEVICE] [--os=OS]
               burn network list [--ip=IP] [--used]
               burn network
-              burn info [--device=DEVICE]
+              burn info [--device=DEVICE] [--manager]
               burn image versions [--details] [--refresh] [--yaml]
               burn image ls
               burn image delete [--image=IMAGE]
@@ -713,7 +713,12 @@ class BurnCommand(PluginCommand):
                 print()
                 return ""
 
+            if os_is_windows() and arguments["--manager"]
+                Diskpart.manager()
+            else:
+                Console.error("--manager is only supported on windows")
             return ""
+
 
         elif arguments.install:
 
