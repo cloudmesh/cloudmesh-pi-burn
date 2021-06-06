@@ -103,7 +103,6 @@ class Diskpart:
         for entry in removables:
             letter = entry["Ltr"]
             dev = find_entries(devices, keys=["win-mounts"], value=letter)[0]
-            print ("ddd", dev)
             dev = dev["name"][0:3]
             entry["dev"] = f"/dev/{dev}"
 
@@ -402,16 +401,12 @@ class WindowsSDCard:
         # this may need to be changed to just "r"
         return content
 
-    def writefile(self, filename=None, content=None):
+    def writefile(self, filename=None, content=None, sync=True):
         with open(path_expand(filename), 'w') as outfile:
             outfile.write(content)
             outfile.truncate()  # may not be needed, but is better
-            os.fsync(outfile)
-
-    def writefile(self, filename=None, content=None):
-        with open(filename, 'w') as outfile:
-            outfile.write(content)
-            outfile.truncate()
+            if sync:
+                os.fsync(outfile)
 
     def get_drives(self):
         """
