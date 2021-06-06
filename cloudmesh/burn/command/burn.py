@@ -69,7 +69,7 @@ class BurnCommand(PluginCommand):
               burn firmware update
               burn install
               burn load --device=DEVICE
-              burn format [--device=DEVICE] [--drive=DRIVE]
+              burn format [--device=DEVICE] [--disk=DISK]
               burn imager [TAG...]
               burn mount [--device=DEVICE] [--os=OS]
               burn unmount [--device=DEVICE] [--os=OS]
@@ -108,7 +108,7 @@ class BurnCommand(PluginCommand):
                           [--inventory=INVENTORY]
                           [--name=NAME]
                           [-y]
-              burn sdcard [TAG...] [--device=DEVICE] [--drive=DRIVE] [-y]
+              burn sdcard [TAG...] [--device=DEVICE] [--disk=DISK] [-y]
               burn set [--hostname=HOSTNAME]
                        [--ip=IP]
                        [--key=KEY]
@@ -634,7 +634,7 @@ class BurnCommand(PluginCommand):
 
         elif arguments["format"]:  # as format is a python word, we need to use an index
 
-            arguments.device = arguments.device or arguments["--drive"]
+            arguments.device = arguments.device or arguments["--disk"]
 
             if arguments.drive is None:
                 Console.error("drive or device is not set")
@@ -763,7 +763,7 @@ class BurnCommand(PluginCommand):
 
         elif arguments.sdcard:
 
-            arguments.device = arguments.device or arguments["--drive"]
+            arguments.device = arguments.device or arguments["--disk"]
 
             try:
                 USB.check_for_readers()

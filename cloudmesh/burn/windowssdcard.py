@@ -100,7 +100,7 @@ class Diskpart:
         volumes = Diskpart.list_volume()
         devices = Diskpart.list_device()
         removables = find_entries(volumes, keys=["Type"], value="Removable")
-        removables = find_entries(removables, keys=["Status"], value="Healthy")
+        # removables = find_entries(removables, keys=["Status"], value="Healthy")
 
         for entry in removables:
             try:
@@ -126,24 +126,27 @@ class Diskpart:
 
         devices = Diskpart.list_device()
 
+        # removable = []
 
         if len(removables) == 0:
             print(Printer.write(removables))
 
+            print(Printer.write(volumes))
             Console.error("No removable SD Card detected")
-            raise ValueError("no removables found")
+
         elif len(removables) > 1:
             print(Printer.write(removables))
 
             Console.error("Too many removable devices found. "
                           "Please remove all except the one for the burn, and rerun")
-            raise ValueError("Too many removables found")
 
-        removable = removables[0]
-        # make sure the removable volume is readable
-        if removable["Status"] != "Healthy":
-            Console.error("The removable SDCard is not healthy")
-            raise ValueError("THe sdcard is not healthy")
+        try:
+            removable = removables[0]
+            # make sure the removable volume is readable
+            if removable["Status"] != "Healthy":
+                Console.error("The removable SDCard is not healthy")
+        except:
+            pass
 
         return [removable]
 
