@@ -14,6 +14,7 @@ from cloudmesh.burn.ubuntu.configure import Configure
 from cloudmesh.burn.util import os_is_linux
 from cloudmesh.burn.util import os_is_mac
 from cloudmesh.burn.util import os_is_pi
+from cloudmesh.burn.util import os_is_windows
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
@@ -762,7 +763,8 @@ class BurnCommand(PluginCommand):
                 sdcard = SDCard(card_os="ubuntu")
 
             execute("format", sdcard.format_device(device=arguments.device, unmount=True))
-            execute("unmount", sdcard.unmount(device=arguments.device))
+            if not os_is_windows():
+                execute("unmount", sdcard.unmount(device=arguments.device))
 
             execute("sdcard", sdcard.burn_sdcard(tag=arguments.TAG, device=arguments.device, yes=arguments.yes))
             return ""

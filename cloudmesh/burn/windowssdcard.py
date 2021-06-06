@@ -4,6 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 from pprint import pprint
+from pathlib import PurePosixPath
 
 from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
@@ -12,6 +13,7 @@ from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import writefile as common_writefile
 from cloudmesh.common.util import yn_choice
+from cloudmesh.common.util import banner
 
 from cloudmesh.burn.util import os_is_windows
 
@@ -191,6 +193,15 @@ class Diskpart:
             command = ""
         print(Diskpart.run(f"help {command}"))
 
+    @staticmethod
+    def get_volume(letter=None, volumes=None):
+        if volumes is None:
+            volumes = Diskpart.list_volume()
+        result = None
+        for volume in volumes:
+            if volume["Ltr"] == letter:
+                return volume
+        return result
 
 class WindowsSDCard:
     tmp = "tmp.txt"
@@ -259,18 +270,12 @@ class WindowsSDCard:
         :rtype:
         """
 
-        # which is correct
         content = Diskpart.list_volume()
         v = content[0]["Volume"]
         d = content[0]["Ltr"]
         Console.info("Unmounting Card")
         os.system(f"mountvol {drive}: /p")
 
-        # b = self.diskpart(f"remove letter={drive}")
-        # os.system(f"mountvol {device} /p")
-
-    # def eject(self,volume=None):
-    #     if volume is not None:
 
     @staticmethod
     def guess_drive():
@@ -394,25 +399,48 @@ class WindowsSDCard:
             return None
 
     def burn_drive(self, drive=None, image_path=None, blocksize=None, size=None):
-        print(drive)
-        self.volume = self.drive_to_volume(drive=drive)
+        p = str(PurePosixPath(Path(image_path)))
+        for letter in ["A","B", "C", "D", "E"]:
+            p = p.replace(f"{letter}:\\", "/c")
+        size = Shell.run('stat --print="%s" ' + image_path)
 
-        try:
-            self.devName = self.filter_info(self.device_info(), {"win-mounts": drive})[0]
-            self.devName = "/dev/" + self.devName["name"][0:3]
-        except IndexError as e:
-            Console.error("No device with that drive is mounted")
+        volumes = self.info_message()
 
-        self.remove_drive(volume=self.volume, drive=drive)
+        volume = Diskpart.get_volume(letter=drive, volumes=volumes)
 
 
-        FILE="/c/Users/blue/.cloudmesh/cmburn/images/2021-05-07-raspios-buster-armhf-lite.img"
-        SIZE=Shell.run('stat --print="%s" ' + FILE)
-        print (SIZE)
-        DEV="/dev/sdc"
-        command = f'dd bs=4M if={FILE} oflag=direct | ' + \
-                  'tqdm --desc="format" --bytes --total=$SIZE --ncols=80 | ' + \
-                  "dd bs=4M of={DEV} conv=fsync oflag=direct iflag=fullblock"
+        if volume is None:
+            print(Printer.write(
+                data,
+                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', 'name']
+                ))
+
+            print()
+            Console.error(f"Can not find the drive {drive}")
+            print()
+
+        device = volume["name"]
+        if device == "":
+            Console.error("Drive has no device attached with it")
+            return ""
+
+        device = f"/dev/{device}"
+
+        banner("Card Info")
+        print("Drive:", drive)
+        print("Image:", p)
+        print("Size: ", size, "Bytes")
+        print("Volume:", volume["###"])
+        print("Device:", device)
+        print()
+        self.remove_drive(volume=volume, drive=drive)
+
+        if not yn_choice("Is the data correct?"):
+            return ""
+
+        command = f'dd bs=4M if="{p}" oflag=direct | ' + \
+                  f'tqdm --desc="format" --bytes --total={size} --ncols=80 | ' + \
+                  f"dd bs=4M of={device} conv=fsync oflag=direct iflag=fullblock"
 
         # command = "DVC_IGNORE_ISATTY=true: "\
         #         "dd bs=4M if=/c/Users/venkata/.cloudmesh/cmburn/images/2021-03-04-raspios-buster-armhf-lite.img oflag=direct |"\
@@ -421,7 +449,7 @@ class WindowsSDCard:
 
         #command = "dd bs=4M if=/c/Users/venkata/.cloudmesh/cmburn/images/2021-03-04-raspios-buster-armhf-lite.img oflag=direct of=/dev/sdb conv=fdatasync iflag=fullblock status=progress"
         print(command)
-        #os.system(command)
+        os.system(command)
         # os.environ["DVC_IGNORE_ISATTY"] = "true"
         # image_path = (Path(image_path))
         #
