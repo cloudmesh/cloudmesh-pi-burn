@@ -434,7 +434,7 @@ class SDCard:
                 order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info']
             ))
 
-            if yn_choice("Do you want to format USB card with drive letter {device}"):
+            if yn_choice(f"Do you want to format USB card with drive letter {device}"):
                 device = device.replace(":", "")
                 check = card.format_drive(drive=device)
 
@@ -892,7 +892,7 @@ class SDCard:
 
             print(self.drive)
             card.burn_drive(drive=self.drive, image_path=image_path, blocksize=blocksize,size=size)
-
+            return ""
         else:
             if os_is_mac():
                 command = f"sudo dd if={image_path} bs={blocksize} |" \
