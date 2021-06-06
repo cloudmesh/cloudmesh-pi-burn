@@ -28,12 +28,19 @@ if os_is_windows():
 import re
 
 
+def find_entries(data=None, keys=None, value=None):
+    results = []
+    for entry in data:
+        for key in keys:
+            if entry[key] == str(value):
+                results.append(entry)
+    return results
+
 def convert_path(path):
     p = str(PurePosixPath(Path(path)))
     for letter in ["A", "B", "C", "D", "E"]:
         p = p.replace(f"{letter}:\\", "/c")
     return p
-
 
 class USB:
     @staticmethod
@@ -468,36 +475,31 @@ class WindowsSDCard:
         Diskpart.remove_drive(letter=drive)
         Diskpart.assingn_drive(letter=drive, volume=volume)
 
-    def format_drive(self, drive=None):
+    def format_drive(self, disk=None):
         """
-        formats the drive
-        :param drive: is a drive latte in Windows
+        formats the disk with the given number
+        :param disk: the disk numner
         :type drive: str
         :return:
         :rtype:
         """
-        # see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/format
-        command = f"C:\Windows\system32\\format.com {drive}: /FS:EXFAT /V:UNTITLED /Q"
-        Console.info("Formatting Card with command: " + command)
 
-        import ctypes
-        class disable_file_system_redirection:
-            _disable = ctypes.windll.kernel32.Wow64DisableWow64FsRedirection
-            _revert = ctypes.windll.kernel32.Wow64RevertWow64FsRedirection
+        disks = Diskpart.list_disk()
+        entry = find_entries(disks, ["###"], 2)[0]
+        number = entry["###"]
+        size = entry["Size"]
+        if not yn_choice(f"Format disk {number} with {size}"):
+            return
 
-            def __enter__(self):
-                self.old_value = ctypes.c_long()
-                self.success = self._disable(ctypes.byref(self.old_value))
+        command = f"select disk {disk}\n" + \
+                     "clean\n" + \
+                     "create partition primary\n" + \
+                     "select partition 1\n" + \
+                     "format fs=exfat label=UNTITLED quick"
+        print(command)
+        Diskpart.run(command)
+        return True
 
-            def __exit__(self, type, value, traceback):
-                if self.success:
-                    self._revert(self.old_value)
-
-        with disable_file_system_redirection():
-            command = command.split(" ")
-            r = subprocess.run(command)
-            print(r.__dict__["returncode"])
-            return r.__dict__["returncode"] == 0
 
     def diskpart(self, command):
         _diskpart = Path("C:/Windows/system32/diskpart.exe")
