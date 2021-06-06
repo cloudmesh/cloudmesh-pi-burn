@@ -59,6 +59,19 @@ class Diskpart:
         os.system('diskmgmt.msc &')
 
     @staticmethod
+    def mount(volume=None, drive=None):
+        """
+        mounts the drive
+
+        :param drive:
+        :type drive:
+        :return:
+        :rtype:
+        """
+        result = Diskpart.run(f"select volume {volume}\nassign letter={drive}")
+        return drive
+
+    @staticmethod
     def list_removable():
         # volume must have letter
         # collect info for all removable volumes
@@ -84,11 +97,13 @@ class Diskpart:
         disks = Diskpart.list_disk()
         volumes = Diskpart.list_volume()
         devices = Diskpart.list_device()
+
         removables = find_entries(volumes, keys=["Type"], value="Removable")
 
         for entry in removables:
             letter = entry["Ltr"]
             dev = find_entries(devices, keys=["win-mounts"], value=letter)[0]
+            print ("ddd", dev)
             dev = dev["name"][0:3]
             entry["dev"] = f"/dev/{dev}"
 
@@ -271,7 +286,7 @@ class Diskpart:
         _diskpart = Path("C:/Windows/system32/diskpart.exe")
         common_writefile(Diskpart.tmp, f"{command}\nexit")
         result = Shell.run(f"{_diskpart} /s {Diskpart.tmp}")
-        WindowsSDCard.clean()
+        Diskpart.clean()
         # print(result)
         return result
 
@@ -393,6 +408,11 @@ class WindowsSDCard:
             outfile.truncate()  # may not be needed, but is better
             os.fsync(outfile)
 
+    def writefile(self, filename=None, content=None):
+        with open(filename, 'w') as outfile:
+            outfile.write(content)
+            outfile.truncate()
+
     def get_drives(self):
         """
         TODO: WHAT IS THIS DOING
@@ -414,19 +434,6 @@ class WindowsSDCard:
         print(drive)
 
         return self.filter_info(Diskpart.list_volume(), args={"Ltr": drive})[0]["Volume"]
-
-    def diskmanager(self):
-        os.system('diskmgmt.msc &')
-        # DETACHED_PROCESS = 0x00000008
-        #
-        # pid = subprocess.Popen([sys.executable, "diskmgmt.msc"],
-        #                        creationflags=DETACHED_PROCESS).pid
-
-        # import os
-        # os.spawnl(os.P_NOWAIT, 'diskmgmt.msc')
-
-    def automount(self):
-        self.diskpart("automount")
 
     def unmount(self, drive=None):
         """
@@ -453,7 +460,7 @@ class WindowsSDCard:
                                                               "info": "Offline"})
 
             if len(matching_volumes) != 0:
-                self.diskpart(command=f"select volume {volume}\nonline volume")
+                Diskpart.run(command=f"select volume {volume}\nonline volume")
                 Console.ok(f"Volume {volume} online")
             else:
                 Console.error(f"Volume {volume} cannot be brought online")
@@ -475,26 +482,6 @@ class WindowsSDCard:
             Console.error("Please plug out and reinsert your card")
             return user_action
 
-    def assign_drive(self, volume=None, drive=None):
-        if drive is None:
-            drive = self.guess_drive()
-        result = self.diskpart(f"select volume {volume}\nassign letter={drive}")
-        return drive
-
-    def basic_mount(self, volume_number=None, drive=None):
-        """
-        mounts the drive
-
-        :param drive:
-        :type drive:
-        :return:
-        :rtype:
-        """
-        # Figure out drive letter
-        # if drive is not None:
-        #     volume_letter = self.get_free_drive()
-        a = self.diskpart(f"select volume {volume_number}\nassign letter={drive}")
-        return drive
 
     def mount(self, drive=None, label=None):
         """
@@ -505,6 +492,9 @@ class WindowsSDCard:
         :return:
         :rtype:
         """
+        #
+        # DEPRECATED, with DIskpart there is a much easier way to implement this
+        #
         content = Diskpart.list_volume()
         found = False
 
@@ -518,7 +508,7 @@ class WindowsSDCard:
                     found = True
 
             if found:
-                self.basic_mount(volume_number=v, drive=d)
+                Diskpart.mountmount(volume=v, drive=d)
             else:
                 print(Diskpart.list_volume())
                 Console.error(f"Mount: Drive letters do not match, Found: {drive}, {d}")
@@ -532,8 +522,8 @@ class WindowsSDCard:
                     found = True
 
             if found:
-                self.assign_drive(volume=v, drive=drive)
-                self.basic_mount(volume_number=v, drive=drive)
+                Diskpart.assingn_drive(letter=drive, volume=v)
+                Diskpart.mount(volume=v, drive=drive)
 
             else:
                 Console.error(f"Mount: Drive label not found")
@@ -603,12 +593,6 @@ class WindowsSDCard:
 
         Diskpart.assingn_drive(letter=letter, volume=volume)
 
-    def diskpart(self, command):
-        _diskpart = Path("C:/Windows/system32/diskpart.exe")
-        common_writefile(WindowsSDCard.tmp, f"{command}\nexit")
-        b = Shell.run(f"{_diskpart} /s {WindowsSDCard.tmp}")
-        WindowsSDCard.clean()
-        return b
 
     @staticmethod
     def filter_info(info=None, args=None):
@@ -617,12 +601,16 @@ class WindowsSDCard:
         return info
 
     def get_disk(self, volume=None, drive=None):
+        #
+        # THIS METHOD IS NOT LEVERAGING list details, see Diskpart
+        # WE ARE NOT SURE IF THIS IS NEEDED OR WHAT IT DOES NO DETAIL
+        #
         if volume is not None:
             volume = self.filter_info(info=Diskpart.list_volume(), args={'volume': volume})
             if (len(volume) == 0):
                 Console.error("Volume does not exist")
             else:
-                r = self.diskpart(f"select volume {volume}\ndetail volume")
+                r = Diskpart.run(f"select volume {volume}\ndetail volume")
                 disks = self.process_disks_text(text=r)
                 return disks[0]["disk"]
 
@@ -632,56 +620,12 @@ class WindowsSDCard:
             if (len(volume) == 0):
                 Console.error("Drive with given letter does not exist.")
             else:
-                r = self.diskpart(f"select volume {drive}\ndetail volume")
+                r = Diskpart.run(f"select volume {drive}\ndetail volume")
                 print(r)
                 disks = self.process_disks_text(text=r)
                 return disks[0]["disk"]
         else:
             Console.error("Provide volume or drive to get disk")
 
-    def all_info(self):
-        #
-        # this may no longer be needed, also we use now the original artttributes from diskpart
-        #
-        content = Diskpart.list_volume()
 
-        # all the fields we wish to display to the user about a device
-        empty_info = {"Volume": None, "Ltr": None, "name": None, "fs": None, "label": None, "size": None,
-                      "#blocks": None, "major": None, "minor": None, "minor": None, "win-mounts": None}
-
-        # add additional keys to the volume
-        for volume in content:
-            for key in empty_info:
-                if key not in volume:
-                    volume[key] = None
-
-        # select info from the first removable volume
-        d = content[0]["Ltr"]
-        v = content[0]["Volume"]
-
-        results = []
-        proc_info = Diskpart.list_device()
-        for entry in proc_info:
-            if "win-mounts" in entry and entry["win-mounts"] == d:
-                results.append(entry)
-
-        # add the info from proc info to the content
-        for attribute in ["#blocks", "major", "minor", "minor", "name", "name", "win-mounts"]:
-            content[0][attribute] = results[0][attribute]
-
-        # return the content to be printed
-        return content
-
-
-    def writefile(self, filename=None, content=None):
-        with open(filename, 'w') as outfile:
-            outfile.write(content)
-            outfile.truncate()
-
-    def ls(self):
-        content = Diskpart.list_volume()
-        return content
-
-    @staticmethod
-    def clean():
-        os.remove(WindowsSDCard.tmp)
+    # METHODS THAT NEED IMPROVEMENTS OR NEET DO BE DELETED

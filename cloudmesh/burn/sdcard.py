@@ -579,7 +579,7 @@ class SDCard:
             self.drive = device
             self.volume = card.drive_to_volume(drive=self.drive)
             if len(card.filter_info(card.info(),{"drive": "D"})) > 0:
-                card.assign_drive(volume=self.volume,drive=self.drive)
+                Diskpart.assingn_drive(letter=self.drive, volume=self.volume)
             card.mount(drive=self.drive)
 
         elif os_is_linux():
@@ -987,7 +987,7 @@ class SDCard:
                                 order=['Disk', '###', 'Status', 'Size', 'Free', 'Dyn', 'Gpt']
                                 ))
 
-            content = Diskpart.info_message()
+            content = Diskpart.list_removable()
             print(Printer.write(
                 content,
                 order = ['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', "name"]
