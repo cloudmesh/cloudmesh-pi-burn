@@ -116,6 +116,7 @@ class BurnCommand(PluginCommand):
               burn check [--device=DEVICE]
               burn mac --hostname=HOSTNAME
               burn drive rm DRIVE
+              burn drive assign VOLUME DRIVE
 
 
 
@@ -401,6 +402,12 @@ class BurnCommand(PluginCommand):
 
             from cloudmesh.burn.windowssdcard import Diskpart
             Diskpart.remove_drive(arguments["DRIVE"])
+
+        if arguments.drive and arguments.assign:
+
+            from cloudmesh.burn.windowssdcard import Diskpart
+            Diskpart.assingn_drive(volume=arguments["VOLUME"], letter=arguments["DRIVE"])
+
 
         elif arguments.imager:
 

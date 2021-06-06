@@ -28,6 +28,13 @@ if os_is_windows():
 import re
 
 
+def convert_path(path):
+    p = str(PurePosixPath(Path(path)))
+    for letter in ["A", "B", "C", "D", "E"]:
+        p = p.replace(f"{letter}:\\", "/c")
+    return p
+
+
 class USB:
     @staticmethod
     def info():
@@ -51,6 +58,12 @@ class Diskpart:
             print (result)
         else:
             Console.error(f"Could not remove drive {letter}")
+
+    @staticmethod
+    def assingn_drive(letter=None, volume=None):
+        result = Diskpart.run(f"select volume {volume}\nassign letter={letter}")
+        print (result)
+
 
 
     @staticmethod
@@ -399,9 +412,9 @@ class WindowsSDCard:
             return None
 
     def burn_drive(self, drive=None, image_path=None, blocksize=None, size=None):
-        p = str(PurePosixPath(Path(image_path)))
-        for letter in ["A","B", "C", "D", "E"]:
-            p = p.replace(f"{letter}:\\", "/c")
+        #p = convert_path(image_path)
+        p = image_path
+
         size = Shell.run('stat --print="%s" ' + image_path)
 
         volumes = self.info_message()
@@ -411,7 +424,7 @@ class WindowsSDCard:
 
         if volume is None:
             print(Printer.write(
-                data,
+                volume,
                 order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', 'name']
                 ))
 
@@ -426,53 +439,34 @@ class WindowsSDCard:
 
         device = f"/dev/{device}"
 
+        volume = volume["###"]
+
         banner("Card Info")
         print("Drive:", drive)
         print("Image:", p)
         print("Size: ", size, "Bytes")
-        print("Volume:", volume["###"])
+        print("Volume:", volume)
         print("Device:", device)
         print()
-        self.remove_drive(volume=volume, drive=drive)
+
+        # Diskpart.remove_drive(letter=drive)
 
         if not yn_choice("Is the data correct?"):
             return ""
 
         command = f'dd bs=4M if="{p}" oflag=direct | ' + \
                   f'tqdm --desc="format" --bytes --total={size} --ncols=80 | ' + \
-                  f"dd bs=4M of={device} conv=fsync oflag=direct iflag=fullblock"
-
-        # command = "DVC_IGNORE_ISATTY=true: "\
-        #         "dd bs=4M if=/c/Users/venkata/.cloudmesh/cmburn/images/2021-03-04-raspios-buster-armhf-lite.img oflag=direct |"\
-        #         " tqdm --bytes --total 68719441552 --ncols 80 |"\
-        #         " dd bs=4M of=/dev/sdb conv=fdatasync oflag=direct iflag=fullblock"
-
-        #command = "dd bs=4M if=/c/Users/venkata/.cloudmesh/cmburn/images/2021-03-04-raspios-buster-armhf-lite.img oflag=direct of=/dev/sdb conv=fdatasync iflag=fullblock status=progress"
+                  f"dd bs=4M of={device} conv=fdatasync oflag=direct iflag=fullblock"
         print(command)
-        os.system(command)
-        # os.environ["DVC_IGNORE_ISATTY"] = "true"
-        # image_path = (Path(image_path))
-        #
-        # #
-        # # command = f"dd bs={blocksize} if={image_path} oflag= direct |" \
-        # #           f" tqdm --bytes --total {size} --ncols 80 |" \
-        # #           f" dd bs={blocksize} of={self.devName} conv=fdatasync oflag=direct  iflag=fullblock"
-        #
-        # command = "dd"
-        # args = f"bs={blocksize} if={image_path}  of={self.devName} conv=fdatasync status=progress"
 
-        # try:
-        #     result = subprocess.check_output(
-        #     command,
-        #     # shell=True,
-        #     stderr=subprocess.STDOUT,
-        #     cwd=os.getcwd())
-        # except subprocess.CalledProcessError as e:
-        #     raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
-
-        # Shell.execute(cmd=command,arguments=args)
-        # self.assign_drive(volume=self.volume, drive=drive)
-        # sys.exit()
+        file = WindowsSDCard.tmp
+        file = "bbb.sh"
+        common_writefile(file, command)
+        os.system(f"sh {file}")
+        banner("assign drive")
+        print(drive, volume)
+        Diskpart.remove_drive(letter=drive)
+        Diskpart.assingn_drive(letter=drive, volume=volume)
 
     def format_drive(self, drive=None):
         """
@@ -623,10 +617,10 @@ class WindowsSDCard:
             Console.error("Too many removable devices found. "
                           "Please remove all except the one for the burn, and rerun")
 
-            print(Printer.write(
-                volumes,
-                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info']
-            ))
+            #print(Printer.write(
+            #    volumes,
+            #    order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info']
+            #))
 
             return volumes
 

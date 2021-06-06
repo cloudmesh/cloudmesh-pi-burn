@@ -28,6 +28,7 @@ from cloudmesh.common.util import yn_choice
 if os_is_windows():
     from cloudmesh.burn.windowssdcard import WindowsSDCard
     from cloudmesh.burn.windowssdcard import Diskpart
+    from cloudmesh.burn.windowssdcard import convert_path
 
 
 # noinspection PyBroadException
@@ -427,11 +428,11 @@ class SDCard:
 
             card = WindowsSDCard()
 
-            volumes = Diskpart.list_volume()
+            volumes = card.info_message()
 
             print(Printer.write(
                 volumes,
-                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info']
+                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', "name"]
             ))
 
             if yn_choice(f"Do you want to format USB card with drive letter {device}"):
@@ -846,6 +847,10 @@ class SDCard:
             n = n * 1000 ** 2
         size = int(n)
 
+        if os_is_windows():
+            from cloudmesh.burn.windowssdcard import Diskpart
+            image_path = convert_path(image_path)
+
         banner(f"Preparing the SDCard {name}")
         print(f"Name:       {name}")
         print(f"Image:      {image_path}")
@@ -855,7 +860,6 @@ class SDCard:
 
         if os_is_mac():
             blocksize = blocksize.lower()
-
 
         if not os_is_windows():
             Sudo.password()
@@ -889,8 +893,6 @@ class SDCard:
         if os_is_windows():
             self.drive=device
             card = WindowsSDCard()
-
-            print(self.drive)
             card.burn_drive(drive=self.drive, image_path=image_path, blocksize=blocksize,size=size)
             return ""
         else:
