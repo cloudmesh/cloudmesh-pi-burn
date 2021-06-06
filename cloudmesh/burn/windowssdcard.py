@@ -52,6 +52,33 @@ class Diskpart:
     tmp = "tmp.txt"
 
     @staticmethod
+    def detail(disk=None):
+        detail = {}
+        disk = str(disk)
+        result = Diskpart.run(f"select disk {disk}\n"
+                     "detail disk")
+        result = "\n".join(result.strip().splitlines()[7:])
+        detail = Diskpart.table_parser(result, kind="Volume")[0]
+
+        info = result.split("Volume ###")[0].strip().split("\n")
+
+        detail["Description"] = info[0]
+        for line in info[1:]:
+            if ":" in line:
+                attribute, value = line.split(":")
+                attribute = attribute.strip()
+                value = value.strip()
+                detail[attribute] = value
+        detail["Disk"] = disk
+        try:
+            detail["Volume"] = detail["###"]
+            del detail["###"]
+        except:
+            pass
+
+        return detail
+
+    @staticmethod
     def remove_drive(letter=None):
         volumes = Diskpart.list_volume()
         found = False
@@ -488,6 +515,10 @@ class WindowsSDCard:
         entry = find_entries(disks, ["###"], 2)[0]
         number = entry["###"]
         size = entry["Size"]
+
+        details = Diskpart.detail(disk=number)
+        print(Printer.attribute(details))
+
         if not yn_choice(f"Format disk {number} with {size}"):
             return
 
@@ -496,7 +527,7 @@ class WindowsSDCard:
                      "create partition primary\n" + \
                      "select partition 1\n" + \
                      "format fs=exfat label=UNTITLED quick"
-        print(command)
+
         Diskpart.run(command)
         return True
 
