@@ -773,7 +773,9 @@ class BurnCommand(PluginCommand):
             if not os_is_windows():
                 execute("unmount", sdcard.unmount(device=arguments.device))
 
-            execute("sdcard", sdcard.burn_sdcard(tag=arguments.TAG, device=arguments.device, yes=arguments.yes))
+            execute("sdcard", sdcard.burn_sdcard(tag=arguments.TAG,
+                                                 device=arguments.device,
+                                                 yes=arguments.yes))
             return ""
 
         elif arguments.mount:

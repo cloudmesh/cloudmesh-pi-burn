@@ -445,6 +445,12 @@ class WindowsSDCard:
             Console.error("Drive or label not specified")
             return None
 
+    def burn_disk(self, disk=None, image_path=None, blocksize=None, size=None):
+        detail = Diskpart.detail(disk=disk)
+        drive = detail["Ltr"]
+        self.burn_drive(drive=drive, image_path=image_path, blocksize=blocksize, size=size)
+
+
     def burn_drive(self, drive=None, image_path=None, blocksize=None, size=None):
         #p = convert_path(image_path)
         p = image_path
@@ -524,6 +530,7 @@ class WindowsSDCard:
 
         command = f"select disk {disk}\n" + \
                      "clean\n" + \
+                     "convert mbr\n" + \
                      "create partition primary\n" + \
                      "select partition 1\n" + \
                      "format fs=exfat label=UNTITLED quick"

@@ -423,6 +423,14 @@ class SDCard:
                     return prepare_sdcard()
 
         if os_is_windows():
+
+            if not device.isdigit():
+                Console.error("The disk must be a number, see the disk table\n\n"
+                              "Use the command\n\n"
+                              "cms burn info\n")
+                sys.exit()
+                return ""
+
             from cloudmesh.burn.windowssdcard import WindowsSDCard
             from cloudmesh.burn.windowssdcard import Diskpart
 
@@ -439,6 +447,8 @@ class SDCard:
             print(Printer.write(disks,
                                 order=['Disk', '###', 'Status', 'Size', 'Free', 'Dyn', 'Gpt']
                                 ))
+
+
 
             if yn_choice(f"Do you want to format USB card with disk number {device}"):
                 device = device.replace(":", "")
@@ -896,9 +906,11 @@ class SDCard:
         # self.mount(device=device)
 
         if os_is_windows():
-            self.drive=device
             card = WindowsSDCard()
-            card.burn_drive(drive=self.drive, image_path=image_path, blocksize=blocksize,size=size)
+            card.burn_disk(disk=device,
+                            image_path=image_path,
+                            blocksize=blocksize,
+                            size=size)
             return ""
         else:
             if os_is_mac():
