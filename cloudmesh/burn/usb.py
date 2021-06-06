@@ -175,7 +175,7 @@ class USB(object):
 
         lsusb = USB.get_from_lsusb()
         if len(lsusb) == 0:
-            Console.error("We could not find your USB reader in the list of known readers")
+            Console.warning("We could not find your USB reader in the list of known readers")
             return None
         busses = usb_device.busses()
 

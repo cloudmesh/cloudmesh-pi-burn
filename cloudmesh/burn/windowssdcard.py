@@ -132,19 +132,19 @@ class Diskpart:
             print(Printer.write(removables))
 
             print(Printer.write(volumes))
-            Console.error("No removable SD Card detected")
+            Console.warning("No removable SD Card detected")
 
         elif len(removables) > 1:
             print(Printer.write(removables))
 
-            Console.error("Too many removable devices found. "
+            Console.warning("Too many removable devices found. "
                           "Please remove all except the one for the burn, and rerun")
 
         try:
             removable = removables[0]
             # make sure the removable volume is readable
             if removable["Status"] != "Healthy":
-                Console.error("The removable SDCard is not healthy")
+                Console.warning("The removable SDCard is not healthy")
         except:
             pass
 
