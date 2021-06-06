@@ -156,7 +156,7 @@ class Diskpart:
         """
 
         disks = Diskpart.list_disk()
-        entry = find_entries(disks, ["###"], 2)[0]
+        entry = find_entries(disks, ["###"], disk)[0]
         number = entry["###"]
         size = entry["Size"]
 
