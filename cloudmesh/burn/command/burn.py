@@ -713,7 +713,7 @@ class BurnCommand(PluginCommand):
                 print()
                 return ""
 
-            if os_is_windows() and arguments["--manager"]
+            if os_is_windows() and arguments["--manager"]:
                 Diskpart.manager()
             else:
                 Console.error("--manager is only supported on windows")
