@@ -1007,16 +1007,16 @@ class SDCard:
                                     "Size",
                                     "Status",
                                 ], header=[
-                    "Disk",
-                    "InterfaceType",
-                    "MediaType",
-                    "Model",
-                    "Partitions",
-                    "Size",
-                    "Status",
-                ]
+                                    "Disk",
+                                    "InterfaceType",
+                                    "MediaType",
+                                    "Model",
+                                    "Partitions",
+                                    "Size",
+                                    "Status",
+                                ]
 
-                                ))
+        ))
 
         details = USB.get_from_usb()
 
