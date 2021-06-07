@@ -984,16 +984,39 @@ class SDCard:
 
         elif os_is_windows():
 
-            data = Diskpart.list_disk()
-            print(Printer.write(data,
-                                order=['Disk', '###', 'Status', 'Size', 'Free', 'Dyn', 'Gpt']
-                                ))
+
+            #data = Diskpart.list_disk()
+
+            #print(Printer.write(data,
+            #                    order=['Disk', '###', 'Status', 'Size', 'Free', 'Dyn', 'Gpt']
+            #                    ))
 
             content = Diskpart.list_removable()
             print(Printer.write(
                 content,
                 order = ['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', "dev"]
             ))
+            result = Diskpart.removable_diskinfo()
+            print(Printer.write(result,
+                                order=[
+                                    "Index",
+                                    "InterfaceType",
+                                    "MediaType",
+                                    "Model",
+                                    "Partitions",
+                                    "Size",
+                                    "Status",
+                                ], header=[
+                    "Disk",
+                    "InterfaceType",
+                    "MediaType",
+                    "Model",
+                    "Partitions",
+                    "Size",
+                    "Status",
+                ]
+
+                                ))
 
         details = USB.get_from_usb()
 
@@ -1037,7 +1060,7 @@ class SDCard:
         else:
             details = USB.get_from_dmesg()
 
-        if print_stdout:
+        if print_stdout and not os_is_windows():
             banner("SD Cards Found")
 
             if os_is_mac():

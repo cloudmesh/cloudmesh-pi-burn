@@ -28,6 +28,7 @@ if os_is_windows():
 
 import re
 
+
 # liked filter_info, but needs better documentation
 def find_entries(data=None, keys=None, value=None):
     results = []
@@ -36,6 +37,7 @@ def find_entries(data=None, keys=None, value=None):
             if entry[key] == str(value):
                 results.append(entry)
     return results
+
 
 # add until letter Z
 def convert_path(path):
@@ -50,11 +52,89 @@ class USB:
     def info():
         print("Prints the table of information about devices on the  usb info")
 
-class WMIC:
+
+class Wmic:
+    attributes = [
+        "Availability",
+        "BytesPerSector",
+        "Capabilities",
+        "CapabilityDescriptions",
+        "Caption",
+        "CompressionMethod",
+        "ConfigManagerErrorCode",
+        "ConfigManagerUserConfig",
+        "CreationClassName",
+        "DefaultBlockSize",
+        "Description",
+        "DeviceID",
+        "ErrorCleared",
+        "ErrorDescription",
+        "ErrorMethodology",
+        "FirmwareRevision",
+        "Index",
+        "InstallDate",
+        "InterfaceType",
+        "LastErrorCode",
+        "Manufacturer",
+        "MaxBlockSize",
+        "MaxMediaSize",
+        "MediaLoaded",
+        "MediaType",
+        "MinBlockSize",
+        "Model",
+        "Name",
+        "NeedsCleaning",
+        "NumberOfMediaSupported",
+        "Partitions",
+        "PNPDeviceID",
+        "PowerManagementCapabilities",
+        "PowerManagementSupported",
+        "SCSIBus",
+        "SCSILogicalUnit",
+        "SCSIPort",
+        "SCSITargetId",
+        "SectorsPerTrack",
+        "SerialNumber",
+        "Signature",
+        "Size",
+        "Status",
+        "StatusInfo",
+        "SystemCreationClassName",
+        "SystemName",
+        "TotalCylinders",
+        "TotalHeads",
+        "TotalSectors",
+        "TotalTracks",
+        "TracksPerCylinder"
+    ]
+
+    header = [
+        "Index",
+        "InterfaceType",
+        "MediaType",
+        "Model",
+        "Partitions",
+        # "SerialNumber",
+        "Size",
+        "Status",
+    ]
 
     @staticmethod
     def diskdrive():
-        output = os.popen("wmic diskdrive")
+        query = ",".join(Wmic.header)
+        lines = Shell.run(f'wmic diskdrive get {query}')
+        result = lines.split("\r\r\n")
+        detail = Diskpart.table_parser(lines, kind="Index")
+        result = []
+        for entry in detail:
+            if entry["Index"] != "":
+                result.append(entry)
+        return (result)
+
+    @staticmethod
+    def Print(data):
+        print(Printer.write(data, order=Wmic.header))
+
 
 class Diskpart:
     tmp = "tmp.txt"
@@ -75,6 +155,22 @@ class Diskpart:
         """
         result = Diskpart.run(f"select volume {volume}\nassign letter={drive}")
         return drive
+
+    @staticmethod
+    def removable_diskinfo():
+
+        diskpart = {}
+        for entry in Diskpart.list_disk():
+            diskpart[entry["###"]] = entry
+
+        result = {}
+        for entry in Wmic.diskdrive():
+            number = entry["Index"]
+            d = diskpart[number]
+            entry.update(d)
+            if "Removable" in entry["MediaType"]:
+                result[number] = entry
+        return result
 
     @staticmethod
     def list_removable():
@@ -134,7 +230,7 @@ class Diskpart:
 
         elif len(removables) > 1:
             Console.warning("Too many removable devices found. "
-                          "Please remove all except the one for the burn, and rerun")
+                            "Please remove all except the one for the burn, and rerun")
 
         try:
             healthy = []
@@ -385,7 +481,6 @@ class Diskpart:
         result = Diskpart.run("rescan")
         return result
 
-
     @staticmethod
     def help(command=None):
         if command is None:
@@ -614,8 +709,6 @@ class WindowsSDCard:
 
         Diskpart.assingn_drive(letter=letter, volume=volume)
 
-
-
     @staticmethod
     def filter_info(info=None, args=None):
         for key, value in args.items():
@@ -649,6 +742,5 @@ class WindowsSDCard:
                 return disks[0]["disk"]
         else:
             Console.error("Provide volume or drive to get disk")
-
 
     # METHODS THAT NEED IMPROVEMENTS OR NEET DO BE DELETED

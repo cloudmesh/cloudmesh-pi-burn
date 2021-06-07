@@ -35,6 +35,7 @@ from cloudmesh.common.Shell import Shell
 
 if os_is_windows():
     from cloudmesh.burn.windowssdcard import Diskpart
+    from cloudmesh.burn.windowssdcard import Wmic
 
 
 class BurnCommand(PluginCommand):
@@ -712,6 +713,7 @@ class BurnCommand(PluginCommand):
             output = arguments.output or "table"
             card = SDCard()
             execute("info", card.info(output=output))
+
             try:
                 USB.check_for_readers()
             except Exception as e:
@@ -722,7 +724,7 @@ class BurnCommand(PluginCommand):
 
             if os_is_windows() and arguments["--manager"]:
                 Diskpart.manager()
-            else:
+            elif not os_is_windows() and arguments["--manager"]:
                 Console.error("--manager is only supported on windows")
             return ""
 
