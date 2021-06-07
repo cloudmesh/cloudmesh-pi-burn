@@ -29,6 +29,7 @@ if os_is_windows():
     from cloudmesh.burn.windowssdcard import WindowsSDCard
     from cloudmesh.burn.windowssdcard import Diskpart
     from cloudmesh.burn.windowssdcard import convert_path
+    from cloudmesh.burn.windowssdcard import Wmic
 
 
 # noinspection PyBroadException
@@ -446,11 +447,8 @@ class SDCard:
                 #       'Size', 'Status', 'Info', "dev"]
             ))
 
-            disks = Diskpart.list_disk()
-            print(Printer.write(disks,
-                                order=['Disk', '###', 'Status', 'Size', 'Free', 'Dyn', 'Gpt']
-                                ))
-
+            disks = Diskpart.removable_diskinfo()
+            Wmic.Print(disks)
 
 
             if yn_choice(f"Do you want to format USB card with disk number {device}"):

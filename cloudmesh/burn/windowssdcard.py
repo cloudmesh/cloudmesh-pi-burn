@@ -108,20 +108,29 @@ class Wmic:
         "TracksPerCylinder"
     ]
 
-    header = [
+    order = [
         "Index",
         "InterfaceType",
         "MediaType",
         "Model",
         "Partitions",
-        # "SerialNumber",
+        "Size",
+        "Status",
+    ]
+
+    header = [
+        "Disk",
+        "InterfaceType",
+        "MediaType",
+        "Model",
+        "Partitions",
         "Size",
         "Status",
     ]
 
     @staticmethod
     def diskdrive():
-        query = ",".join(Wmic.header)
+        query = ",".join(Wmic.order)
         lines = Shell.run(f'wmic diskdrive get {query}')
         result = lines.split("\r\r\n")
         detail = Diskpart.table_parser(lines, kind="Index")
@@ -133,7 +142,7 @@ class Wmic:
 
     @staticmethod
     def Print(data):
-        print(Printer.write(data, order=Wmic.header))
+        print(Printer.write(data, order=Wmic.order, header=Wmic.header))
 
 
 class Diskpart:
@@ -247,7 +256,7 @@ class Diskpart:
         return removables
 
     @staticmethod
-    def format_drive(disk=None):
+    def format_drive(disk=None, interactive=False):
         """
         formats the disk with the given number
         :param disk: the disk numner
@@ -262,10 +271,11 @@ class Diskpart:
         size = entry["Size"]
 
         details = Diskpart.detail(disk=number)
-        print(Printer.attribute(details))
+        #print(Printer.attribute(details))
 
-        if not yn_choice(f"Format disk {number} with {size}"):
-            return
+        if interactive:
+            if not yn_choice(f"Format disk {number} with {size}"):
+                return
 
         command = f"select disk {disk}\n" + \
                   "clean\n" + \
@@ -650,7 +660,8 @@ class WindowsSDCard:
                   disk=None,
                   image_path=None,
                   blocksize=None,
-                  size=None):
+                  size=None,
+                  interactive=False):
         Diskpart.rescan()
         detail = Diskpart.detail(disk=disk)
         letter = detail["Ltr"]
@@ -665,12 +676,14 @@ class WindowsSDCard:
         removables = Diskpart.list_removable()
         entry = find_entries(removables, keys=["###"], value=volume)
 
-        print(Printer.write(
-            entry,
-            order=['Volume', '###', 'Ltr', 'Label', 'Fs',
-                   'Type', 'Size', 'Status', 'Info', 'dev']
-        ))
-
+        info = Diskpart.removable_diskinfo()
+        #print(Printer.write(
+        #    entry,
+        #    order=['Volume', '###', 'Ltr', 'Label', 'Fs',
+        #           'Type', 'Size', 'Status', 'Info', 'dev']
+        #))
+        info = Diskpart.removable_diskinfo()
+        Wmic.Print(info)
         entry = entry[0]
 
         dev = entry["dev"]
@@ -697,8 +710,9 @@ class WindowsSDCard:
         # print(command)
         time.sleep(1.0)
 
-        if not yn_choice("Continue"):
-            return ""
+        if interactive:
+            if not yn_choice("Continue"):
+                return ""
 
         file = Diskpart.tmp
         common_writefile(file, command)
