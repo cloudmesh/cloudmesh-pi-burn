@@ -50,6 +50,11 @@ class USB:
     def info():
         print("Prints the table of information about devices on the  usb info")
 
+class WMIC:
+
+    @staticmethod
+    def diskdrive():
+        output = os.popen("wmic diskdrive")
 
 class Diskpart:
     tmp = "tmp.txt"
