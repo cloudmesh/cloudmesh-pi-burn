@@ -28,7 +28,7 @@ if os_is_windows():
 
 import re
 
-
+# liked filter_info, but needs better documentation
 def find_entries(data=None, keys=None, value=None):
     results = []
     for entry in data:
@@ -37,7 +37,7 @@ def find_entries(data=None, keys=None, value=None):
                 results.append(entry)
     return results
 
-
+# add until letter Z
 def convert_path(path):
     p = str(PurePosixPath(Path(path)))
     for letter in ["A", "B", "C", "D", "E"]:
@@ -161,7 +161,7 @@ class Diskpart:
         """
 
         disks = Diskpart.list_disk()
-        entry = find_entries(disks, ["###"], 2)[0]
+        entry = find_entries(disks, ["###"], disk)[0]
         number = entry["###"]
         size = entry["Size"]
 
@@ -181,6 +181,7 @@ class Diskpart:
         Diskpart.run(command)
         return True
 
+    # document
     @staticmethod
     def guess_drive():
         drives = set(string.ascii_uppercase[2:])
@@ -244,6 +245,7 @@ class Diskpart:
         result = Diskpart.run(f"select volume {volume}\nassign letter={letter}")
         return letter
 
+    # check if necessary
     @staticmethod
     def get_removable_volumes():
         volumes = Diskpart.list_volume()
@@ -426,6 +428,7 @@ class WindowsSDCard:
             if sync:
                 os.fsync(outfile)
 
+    # duplicate functionality?
     def get_drives(self):
         """
         TODO: WHAT IS THIS DOING
@@ -438,6 +441,7 @@ class WindowsSDCard:
             bitmask >>= 1
         return drives
 
+    # make sure it is not being used
     def drive_to_volume(self, drive=None):
         #
         # DEPECATED
@@ -448,6 +452,7 @@ class WindowsSDCard:
 
         return self.filter_info(Diskpart.list_volume(), args={"Ltr": drive})[0]["Volume"]
 
+    # documentation missing
     def unmount(self, drive=None):
         """
         unmounts the drive
@@ -464,6 +469,7 @@ class WindowsSDCard:
         Console.info("Unmounting Card")
         os.system(f"mountvol {drive}: /p")
 
+    # move to diskpart, what does online mean?
     def online(self, volume=None):
         if volume is not None:
             all_volumes = Diskpart.list_volume()
@@ -480,6 +486,7 @@ class WindowsSDCard:
         else:
             Console.error("Provide valid volume")
 
+    # See burn_disk for correct implementation, after dd command
     def inject(self):
         Console.ok("Please plug out and in your card")
         user_action = yn_choice("Have you inserted the card?")
@@ -495,7 +502,7 @@ class WindowsSDCard:
             Console.error("Please plug out and reinsert your card")
             return user_action
 
-
+    # documentation missing, may not be correct
     def mount(self, drive=None, label=None):
         """
         mounts the drive
@@ -615,6 +622,7 @@ class WindowsSDCard:
             info = [device for device in info if key in device.keys() and device[key] == value]
         return info
 
+    # check if this is duplicated, does not take advantage of Diskpart, remove if not necessary
     def get_disk(self, volume=None, drive=None):
         #
         # THIS METHOD IS NOT LEVERAGING list details, see Diskpart

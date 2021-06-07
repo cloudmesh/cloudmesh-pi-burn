@@ -85,11 +85,16 @@ class Burner(AbstractBurner):
             # sdcard.unmount(device=device)
             # card.assign_drive(volume=volume)
             sdcard.burn_sdcard (tag=config['tag'], device=device, yes=True)
+
+            #DO NOT EXECUTE
             card.assign_drive(volume="5", drive=device)
+            # Does this need to be done differently
+            # Mount is available under <Letter>:
+            sdcard.mount(device=device, card_os="raspberry")
         else:
             sdcard.unmount(device=device)
             sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
-        sdcard.mount(device=device, card_os="raspberry")
+            sdcard.mount(device=device, card_os="raspberry")
 
         # Read and write cmdline.txt
         cmdline = Cmdline()

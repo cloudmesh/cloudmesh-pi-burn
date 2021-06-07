@@ -65,6 +65,8 @@ def location(host_os=None, card_os="raspberry", volume="boot", drive=None):
     user = os.environ.get('USER')
 
     # where [host_os][burn_os][volume]
+    # windows root filesystem requires a second drive letter. NOT IMPLEMENTED, ROOTFS IS NOT ACCESSIBLE
+    # for windows we do not know how this looks on ubuntu. VERIFY
     where = yaml.safe_load(textwrap.dedent(f"""
             raspberry:
               raspberry:
@@ -96,8 +98,8 @@ def location(host_os=None, card_os="raspberry", volume="boot", drive=None):
                 boot: /media/{user}/system-boot
             windows:
               raspberry:
-                root: /{drive}/rootfs
-                boot: /{drive}/boot
+                root: /{drive} 
+                boot: /{drive}
               ubuntu:
                 root: /{drive}/writable
                 boot: /{drive}/system-boot
