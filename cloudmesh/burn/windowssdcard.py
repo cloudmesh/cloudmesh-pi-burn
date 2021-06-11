@@ -204,13 +204,13 @@ class Diskpart:
             number = removable["###"]
             if removable["Ltr"] == "":
                 letter = Diskpart.guess_drive()
-                Diskpart.assingn_drive(volume=number, letter=letter)
+                Diskpart.assign_drive(volume=number, letter=letter)
 
         disks = Diskpart.list_disk()
         volumes = Diskpart.list_volume()
         devices = Diskpart.list_device()
         removables = find_entries(volumes, keys=["Type"], value="Removable")
-        # removables = find_entries(removables, keys=["Status"], value="Healthy")
+        removables = find_entries(removables, keys=["Status"], value="Healthy")
 
         for entry in removables:
             try:
@@ -235,24 +235,12 @@ class Diskpart:
         # print("===========")
 
         if len(removables) == 0:
-            Console.warning("No removable SD Card detected")
+            Console.warning("No healthy removable SD Card detected. Try diskpart list volume")
 
         elif len(removables) > 1:
             Console.warning("Too many removable devices found. "
                             "Please remove all except the one for the burn, and rerun")
 
-        try:
-            healthy = []
-            for removable in removables:
-                if removable["Status"] != "Healthy":
-                    number = removable["###"]
-                    letter = removable["Ltr"]
-                    Console.warning(f"The removable with volume {number} and letter {letter} SDCard is not healthy")
-                else:
-                    healthy.append(removable)
-            removables = healthy
-        except:
-            pass
         return removables
 
     @staticmethod
@@ -277,8 +265,15 @@ class Diskpart:
             if not yn_choice(f"Format disk {number} with {size}"):
                 return
 
+        # sometimes called process errors will occur after clean is executed in diskpart
+        try:
+            command = f"select disk {disk}\n" + \
+                    "clean\n"
+            Diskpart.run(command)
+        except subprocess.CalledProcessError:
+            pass
+
         command = f"select disk {disk}\n" + \
-                  "clean\n" + \
                   "convert mbr\n" + \
                   "create partition primary\n" + \
                   "select partition 1\n" + \
@@ -345,7 +340,7 @@ class Diskpart:
             Console.error(f"Could not remove drive {letter}")
 
     @staticmethod
-    def assingn_drive(letter=None, volume=None):
+    def assign_drive(letter=None, volume=None):
         if letter is None:
             letter = Diskpart.guess_drive()
         result = Diskpart.run(f"select volume {volume}\nassign letter={letter}")
@@ -516,11 +511,6 @@ class WindowsSDCard:
     def __init__(self, drive=None):
         self.drive = drive
 
-        # if drive is not None:
-        #     self.volume = self.drive_to_volume(drive=self.drive)
-        #     self.device = self.filter_info(info=self.device_info(), args={"win-mounts": self.drive})[0]
-        #     self.device = "/dev/" + self.device["name"][0:3]
-
     def readfile(self, filename=None):
         content = common_readfile(filename, mode='rb')
         # this may need to be changed to just "r"
@@ -545,17 +535,6 @@ class WindowsSDCard:
                 drives.append(letter)
             bitmask >>= 1
         return drives
-
-    # make sure it is not being used
-    def drive_to_volume(self, drive=None):
-        #
-        # DEPECATED
-        # WE HAVE A simpler IMPLEMENTATION OF THIS
-        # howevert the args as dict is nice
-        print("entered")
-        print(drive)
-
-        return self.filter_info(Diskpart.list_volume(), args={"Ltr": drive})[0]["Volume"]
 
     # documentation missing
     def unmount(self, drive=None):
@@ -623,6 +602,7 @@ class WindowsSDCard:
         content = Diskpart.list_volume()
         found = False
 
+        #if the user gives us a drive letter, see if there is a volume which has the same letter
         if drive is not None:
             d = drive
             v = -1
@@ -632,11 +612,16 @@ class WindowsSDCard:
                 if d == drive:
                     found = True
 
+            # if found, mount. otherwise, say that the letter we found (assumes there is only one removable drive)
+            # does not match the one they give.
             if found:
-                Diskpart.mountmount(volume=v, drive=d)
+                Diskpart.mount(volume=v, drive=d)
             else:
                 print(Diskpart.list_volume())
                 Console.error(f"Mount: Drive letters do not match, Found: {drive}, {d}")
+
+        # otherwise if they give a label and no drive letter, get an open drive letter, see if we find a volume with
+        # the given label, then assign the letter and mount that labeled volume
         elif label is not None and drive is None:
             drive = Diskpart.guess_drive()
             v = -1
@@ -647,7 +632,7 @@ class WindowsSDCard:
                     found = True
 
             if found:
-                Diskpart.assingn_drive(letter=drive, volume=v)
+                Diskpart.assign_drive(letter=drive, volume=v)
                 Diskpart.mount(volume=v, drive=drive)
 
             else:
@@ -663,11 +648,12 @@ class WindowsSDCard:
                   size=None,
                   interactive=False):
         Diskpart.rescan()
+        Diskpart.automount()
         detail = Diskpart.detail(disk=disk)
         letter = detail["Ltr"]
         volume = detail["Volume"]
         if letter == "":
-            letter = Diskpart.assingn_drive(volume=volume)
+            letter = Diskpart.assign_drive(volume=volume)
             detail = Diskpart.detail(disk=disk)
 
         p = image_path
@@ -721,7 +707,7 @@ class WindowsSDCard:
         time.sleep(1.0)
         Diskpart.rescan()
 
-        Diskpart.assingn_drive(letter=letter, volume=volume)
+        Diskpart.assign_drive(letter=letter, volume=volume)
 
     @staticmethod
     def filter_info(info=None, args=None):

@@ -453,6 +453,7 @@ class SDCard:
 
             if yn_choice(f"Do you want to format USB card with disk number {device}"):
                 device = device.replace(":", "")
+                os.system("cat /c/Users/venkata/tmp.txt")
                 check = Diskpart.format_drive(disk=device)
 
                 if check:
@@ -561,7 +562,7 @@ class SDCard:
             return "unkown"
 
     # TODO Gregor verify the default arg for card_os is ok
-    def mount(self, device=None, card_os="raspberry"):
+    def mount(self, volume = None, device=None, card_os="raspberry"):
         """
         Mounts the current SD card
 
@@ -574,13 +575,16 @@ class SDCard:
         """
 
         if os_is_windows():
-            # if on windows the devise is the drive letter
-            card = WindowsSDCard()
-            self.drive = device
-            self.volume = card.drive_to_volume(drive=self.drive)
-            if len(card.filter_info(card.info(),{"drive": "D"})) > 0:
-                Diskpart.assingn_drive(letter=self.drive, volume=self.volume)
-            card.mount(drive=self.drive)
+            try:
+                Diskpart.mount(volume=volume,device=device)
+            except:
+                Console.error(f"could not mount volume {volume} with letter {device}. Please check information on existing devices:")
+                volumes = Diskpart.list_removable()
+                print(Printer.write(
+                    volumes,
+                    # order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type',
+                    #       'Size', 'Status', 'Info', "dev"]
+                ))
 
         elif os_is_linux():
             Sudo.password()
@@ -691,10 +695,8 @@ class SDCard:
         # self.card_os = card_os
 
         if os_is_windows():
-            self.drive = device
             card = WindowsSDCard()
-
-            card.unmount(drive=self.drive)
+            card.unmount(drive=device)
 
         else:
 

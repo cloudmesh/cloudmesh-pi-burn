@@ -80,17 +80,7 @@ class Burner(AbstractBurner):
 
         sdcard.format_device(device=device, yes=True)
         if os_is_windows():
-            card = WindowsSDCard()
-            # volume = card.drive_to_volume(drive=device)
-            # sdcard.unmount(device=device)
-            # card.assign_drive(volume=volume)
             sdcard.burn_sdcard (tag=config['tag'], device=device, yes=True)
-
-            #DO NOT EXECUTE
-            card.assign_drive(volume="5", drive=device)
-            # Does this need to be done differently
-            # Mount is available under <Letter>:
-            sdcard.mount(device=device, card_os="raspberry")
         else:
             sdcard.unmount(device=device)
             sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)

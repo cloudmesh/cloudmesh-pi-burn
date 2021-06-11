@@ -72,7 +72,7 @@ class BurnCommand(PluginCommand):
               burn load --device=DEVICE
               burn format [--device=DEVICE] [--disk=DISK]
               burn imager [TAG...]
-              burn mount [--device=DEVICE] [--os=OS]
+              burn mount [--volume=VOLUME] [--device=DEVICE] [--os=OS]
               burn unmount [--device=DEVICE] [--os=OS]
               burn network list [--ip=IP] [--used]
               burn network
@@ -408,7 +408,7 @@ class BurnCommand(PluginCommand):
 
         if arguments.drive and arguments.assign:
 
-            Diskpart.assingn_drive(volume=arguments["VOLUME"], letter=arguments["DRIVE"])
+            Diskpart.assign_drive(volume=arguments["VOLUME"], letter=arguments["DRIVE"])
 
 
         elif arguments.imager:
@@ -563,9 +563,12 @@ class BurnCommand(PluginCommand):
 
                 Console.info(f'Burning {name}')
                 sdcard.format_device(device=arguments.device, yes=True)
-                sdcard.unmount(device=arguments.device)
-                sdcard.burn_sdcard(tag=tag, device=arguments.device, yes=True)
-                sdcard.mount(device=arguments.device, card_os="ubuntu")
+                if os_is_windows:
+                    sdcard.burn_sdcard(tag=tag, device=arguments.device,yes=True)
+                else:
+                    sdcard.unmount(device=arguments.device)
+                    sdcard.burn_sdcard(tag=tag, device=arguments.device, yes=True)
+                    sdcard.mount(device=arguments.device, card_os="ubuntu")
                 if service == 'manager':
                     # Generate a private public key pair for the manager that will be persistently used
                     priv_key, pub_key = c.generate_ssh_key(name)
@@ -800,6 +803,10 @@ class BurnCommand(PluginCommand):
                 card = SDCard
                 card.info()
                 Console.error("Please specify a device")
+                return ""
+
+            if arguments.volume is not None:
+                execute("mount",sdcard.mount(device=arguments.device,volume=arguments.volume, card_os = arguments.os))
                 return ""
 
             execute("mount", sdcard.mount(device=arguments.device, card_os=arguments.os))
