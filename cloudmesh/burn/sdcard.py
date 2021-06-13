@@ -566,8 +566,10 @@ class SDCard:
         """
         Mounts the current SD card
 
-        :param device:
-        :type device:
+        :param volume: volume number of card
+        :type volume: str
+        :param device: drive letter
+        :type device: str
         :param card_os:
         :type card_os:
         :return:

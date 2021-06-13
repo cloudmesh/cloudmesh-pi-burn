@@ -18,7 +18,7 @@ from cloudmesh.common.util import banner
 
 from cloudmesh.burn.util import os_is_windows
 
-# we need to deal with that imports of windos libraries are conditional
+# we need to deal with that imports of windows libraries are conditional
 
 if os_is_windows():
     from ctypes import windll
@@ -29,8 +29,20 @@ if os_is_windows():
 import re
 
 
-# liked filter_info, but needs better documentation
 def find_entries(data=None, keys=None, value=None):
+    """
+    Filters a list of dictionaries such that keys in the dictionary match a given value
+
+    :param data: list of dictionaries to check
+    :type data: list(dict)
+    :param keys: list keys to check
+    :type keys: list
+    :param value: values which keys must match
+    :type value:
+    :return:
+    :rtype:
+    """
+
     results = []
     for entry in data:
         for key in keys:
@@ -39,10 +51,10 @@ def find_entries(data=None, keys=None, value=None):
     return results
 
 
-# add until letter Z
+
 def convert_path(path):
     p = str(PurePosixPath(Path(path)))
-    for letter in ["A", "B", "C", "D", "E"]:
+    for letter in string.ascii_uppercase:
         p = p.replace(f"{letter}:\\", "/c")
     return p
 
@@ -157,16 +169,22 @@ class Diskpart:
         """
         mounts the drive
 
-        :param drive:
-        :type drive:
-        :return:
-        :rtype:
+        :param drive: drive letter
+        :type drive: str
+        :return: drive letter
+        :rtype: str
         """
         result = Diskpart.run(f"select volume {volume}\nassign letter={drive}")
         return drive
 
     @staticmethod
     def removable_diskinfo():
+        """
+
+
+        :return:
+        :rtype: dictionary
+        """
 
         diskpart = {}
         for entry in Diskpart.list_disk():
@@ -183,8 +201,12 @@ class Diskpart:
 
     @staticmethod
     def list_removable():
-        # volume must have letter
-        # collect info for all removable volumes
+        """
+        Collect info for all removable volumes
+
+        :return:
+        :rtype: list(dict)
+        """
 
         Diskpart.rescan()
         disks = Diskpart.list_disk()
@@ -246,11 +268,14 @@ class Diskpart:
     @staticmethod
     def format_drive(disk=None, interactive=False):
         """
-        formats the disk with the given number
-        :param disk: the disk numner
-        :type drive: str
-        :return:
-        :rtype:
+        Formats the disk with the given number
+
+        :param disk: the disk number
+        :type disk: str
+        :param interactive: the disk number
+        :type interactive: str
+        :return: whether format operation succeeded
+        :rtype: Boolean
         """
 
         disks = Diskpart.list_disk()
@@ -282,10 +307,19 @@ class Diskpart:
         Diskpart.run(command)
         return True
 
-    # document
+    # returns the first open drive letter
     @staticmethod
     def guess_drive():
+        """
+        Gives an available drive letter to be used for mounting
+
+        :return: valid drive letter or None
+        :rtype: str or None
+        """
+
+        # windows traditionally does not use letters A,B. C is reserved for drive with windows' original installation
         drives = set(string.ascii_uppercase[2:])
+        # remove letters currently in use
         for d in win32api.GetLogicalDriveStrings().split(':\\\x00'):
             drives.discard(d)
         # Discard persistent network drives, even if not connected.
@@ -299,10 +333,20 @@ class Diskpart:
                 if len(r.lpLocalName) == 2 and r.lpLocalName[1] == ':':
                     drives.discard(r.lpLocalName[0])
         if drives:
+            # list of available drive letters sorted alphabetically, take first entry
             return sorted(drives)[0]
 
     @staticmethod
     def detail(disk=None):
+        """
+
+
+        :param disk: Disk number
+        :type disk: int
+        :return: dictionary of disk details
+        :rtype: dict
+        """
+
         detail = {}
         disk = str(disk)
         result = Diskpart.run(f"select disk {disk}\n"
@@ -330,6 +374,15 @@ class Diskpart:
 
     @staticmethod
     def remove_drive(letter=None):
+        """
+        Removes the mount point (drive letter), thus making the file system of a volume inaccessible
+
+        :param letter: letter of volume to unmount
+        :type letter: str
+        :return: None
+        :rtype: None
+        """
+
         volumes = Diskpart.list_volume()
 
         try:
@@ -341,14 +394,30 @@ class Diskpart:
 
     @staticmethod
     def assign_drive(letter=None, volume=None):
+        """
+        Mounts a volume by giving it a mount point (letter) from which filesystem can be accessed
+
+        :param letter: letter to mount volume at
+        :type letter: str
+        :param volume: volume to mount
+        :type: str
+        :return: letter
+        :rtype: str
+        """
+
         if letter is None:
             letter = Diskpart.guess_drive()
         result = Diskpart.run(f"select volume {volume}\nassign letter={letter}")
         return letter
 
-    # check if necessary
+
     @staticmethod
     def get_removable_volumes():
+        """
+        Gets information about removable volumes without doing additional checks, error messaging, or filtering
+
+        """
+
         volumes = Diskpart.list_volume()
         result = []
         for volume in volumes:
@@ -475,6 +544,14 @@ class Diskpart:
 
     @staticmethod
     def list_partition(disk=""):
+        """
+
+
+        :param command: command to get help with
+        :type command: str
+        :return: None
+        :rtype: None
+        """
         try:
             result = Diskpart.run(f"select disk {disk}\nlist partition")
             return Diskpart.table_parser(content=result, kind="Partition")
@@ -483,17 +560,42 @@ class Diskpart:
 
     @staticmethod
     def rescan():
+        """
+        Scan for newly added disks
+
+        :return:
+        :rtype:
+        """
         result = Diskpart.run("rescan")
         return result
 
     @staticmethod
     def help(command=None):
+        """
+        Gives diskpart program's help information on a command, or on all available commands
+
+        :param command: command to get help with
+        :type command: str
+        :return: None
+        :rtype: None
+        """
+
         if command is None:
             command = ""
         print(Diskpart.run(f"help {command}"))
 
     @staticmethod
     def get_volume(letter=None, volumes=None):
+        """
+        Retrieves information about a specified volume
+
+        :param letter: drive letter of volume
+        :type letter: str
+        :param volumes: list of volumes' information dictionaries to search for volume in
+        :type volumes: list(dict)
+        :return: information of the matching volume
+        :rtype: dict
+        """
         if volumes is None:
             volumes = Diskpart.list_volume()
         result = None
@@ -523,14 +625,14 @@ class WindowsSDCard:
             if sync:
                 os.fsync(outfile)
 
-    # duplicate functionality?
+
     def get_drives(self):
         """
-        TODO: WHAT IS THIS DOING
+        Finds drive letters currently mounted on the system
         """
         drives = []
         bitmask = windll.kernel32.GetLogicalDrives()
-        for letter in string.uppercase:
+        for letter in string.ascii_uppercase:
             if bitmask & 1:
                 drives.append(letter)
             bitmask >>= 1
@@ -586,60 +688,6 @@ class WindowsSDCard:
             Console.error("Please plug out and reinsert your card")
             return user_action
 
-    # documentation missing, may not be correct
-    def mount(self, drive=None, label=None):
-        """
-        mounts the drive
-
-        :param drive:
-        :type drive:
-        :return:
-        :rtype:
-        """
-        #
-        # DEPRECATED, with DIskpart there is a much easier way to implement this
-        #
-        content = Diskpart.list_volume()
-        found = False
-
-        #if the user gives us a drive letter, see if there is a volume which has the same letter
-        if drive is not None:
-            d = drive
-            v = -1
-            for _drive in content:
-                d = _drive["Ltr"]
-                v = _drive["Volume"]
-                if d == drive:
-                    found = True
-
-            # if found, mount. otherwise, say that the letter we found (assumes there is only one removable drive)
-            # does not match the one they give.
-            if found:
-                Diskpart.mount(volume=v, drive=d)
-            else:
-                print(Diskpart.list_volume())
-                Console.error(f"Mount: Drive letters do not match, Found: {drive}, {d}")
-
-        # otherwise if they give a label and no drive letter, get an open drive letter, see if we find a volume with
-        # the given label, then assign the letter and mount that labeled volume
-        elif label is not None and drive is None:
-            drive = Diskpart.guess_drive()
-            v = -1
-            for _drive in content:
-                l = _drive["label"]
-                v = _drive["Volume"]
-                if l == label:
-                    found = True
-
-            if found:
-                Diskpart.assign_drive(letter=drive, volume=v)
-                Diskpart.mount(volume=v, drive=drive)
-
-            else:
-                Console.error(f"Mount: Drive label not found")
-        else:
-            Console.error("Drive or label not specified")
-            return None
 
     def burn_disk(self,
                   disk=None,
@@ -709,10 +757,21 @@ class WindowsSDCard:
 
         Diskpart.assign_drive(letter=letter, volume=volume)
 
+    # takes a list of dictionaries. Iterate through dictionaries, and remove dicts for which keys to do not match values
+    # specified in args. Iterate once more, and remove dicts for which keys do match values specified in nargs ("keep
+    # anything but those with this value")
+
     @staticmethod
-    def filter_info(info=None, args=None):
-        for key, value in args.items():
-            info = [device for device in info if key in device.keys() and device[key] == value]
+    def filter_info(info=None, args=None, nargs=None):
+        info = info
+        if args is not None:
+            for key, value in args.items():
+                info = [device for device in info if key in device.keys() and device[key] == value]
+
+        if nargs is not None:
+            for key, value in nargs.items():
+                info = [device for device in info if key in device.keys() and device[key] != value]
+
         return info
 
     # check if this is duplicated, does not take advantage of Diskpart, remove if not necessary
