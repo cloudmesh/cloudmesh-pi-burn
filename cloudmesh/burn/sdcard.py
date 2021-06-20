@@ -443,8 +443,8 @@ class SDCard:
 
             print(Printer.write(
                 volumes,
-                # order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type',
-                #       'Size', 'Status', 'Info', "dev"]
+                order=['###','dev','Disk', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info'],
+                header = ["Volume","Dev", " On Disk", "Ltr", "Label", "Fs","Type", "Size","Status","Info"]
             ))
 
             disks = Diskpart.removable_diskinfo()

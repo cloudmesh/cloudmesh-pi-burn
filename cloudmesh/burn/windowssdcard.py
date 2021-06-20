@@ -35,12 +35,12 @@ def find_entries(data=None, keys=None, value=None):
 
     :param data: list of dictionaries to check
     :type data: list(dict)
-    :param keys: list keys to check
+    :param keys: list of keys to check
     :type keys: list
     :param value: values which keys must match
     :type value:
-    :return:
-    :rtype:
+    :return: dicts whose keys match value
+    :rtype: list(dict)
     """
 
     results = []
@@ -53,6 +53,14 @@ def find_entries(data=None, keys=None, value=None):
 
 
 def convert_path(path):
+    """
+    takes path strings and converts them to match git bash path styles
+
+    :param path: path
+    :type path: str
+    :return: path formatted for git bash
+    :rtype: str
+    """
     p = str(PurePosixPath(Path(path)))
     for letter in string.ascii_uppercase:
         p = p.replace(f"{letter}:\\", "/c")
@@ -167,7 +175,7 @@ class Diskpart:
     @staticmethod
     def mount(volume=None, drive=None):
         """
-        mounts the drive
+        mounts the drive (in windows, this is giving the drive a letter where its filesystem can be accessed)
 
         :param drive: drive letter
         :type drive: str
@@ -180,9 +188,9 @@ class Diskpart:
     @staticmethod
     def removable_diskinfo():
         """
+        Gets information about all removable disks
 
-
-        :return:
+        :return: dictionaries of info on each disks
         :rtype: dictionary
         """
 
@@ -222,6 +230,8 @@ class Diskpart:
                 data.append(entry)
             except:
                 pass
+
+        # give removable drives without letters a letter
         for removable in removables:
             number = removable["###"]
             if removable["Ltr"] == "":
@@ -243,18 +253,13 @@ class Diskpart:
             except:
                 entry["dev"] = ""
 
-        # MERGE INFO
-        # print ("=========== disks")
-        # print(Printer.write(disks))
-        # print ("=========== data")
-        # pprint(data)
-        # print ("=========== volumes")
-        # print(Printer.write(volumes))
-        # print ("=========== dev")
-        # print (Printer.write(dev))
-        # print("===========")
-        # print(Printer.write(removables))
-        # print("===========")
+        for entry in removables:
+            try:
+                volume = entry["###"]
+                disk = find_entries(data,keys=["Volume"],value=volume)[0]["Disk"]
+                entry["Disk"] = disk
+            except:
+                Console.error(f"Could not associate removable volume {volume} with a disk")
 
         if len(removables) == 0:
             Console.warning("No healthy removable SD Card detected. Try diskpart list volume")
@@ -307,7 +312,6 @@ class Diskpart:
         Diskpart.run(command)
         return True
 
-    # returns the first open drive letter
     @staticmethod
     def guess_drive():
         """
@@ -339,7 +343,7 @@ class Diskpart:
     @staticmethod
     def detail(disk=None):
         """
-
+        Gives details on a specified disk
 
         :param disk: Disk number
         :type disk: int
@@ -481,27 +485,39 @@ class Diskpart:
     def table_parser(content=None, kind=None, truncate=2):
         lines = content.splitlines()
 
+        # record where first mention of kind occurs
         i = 0
         for line in lines:
             if line.strip().startswith(kind):
                 break
             i = i + 1
+        # get rid of last lines at end of content
         if truncate > 0:
             lines = lines[i:-truncate]
 
+        # find title row of diskpart table
         headline = lines[0].strip()
         words = re.sub('\\s+', ' ', headline.strip()).split(" ")
         start = []
         end = []
+
+        # get index of where each field starts in headline
+        # can go into table rows and find content at same spots
         for word in words:
             start.append(headline.index(word))
+
+        # the end index for a field is one before the start index for the next field
         for i in range(0, len(words)):
             try:
                 end.append(start[i + 1] - 1)
             except:
                 end.append(len(headline))
+
         data = []
+        # skip the headline and the dashes line in diskpart output
         lines = lines[2:]
+
+        # load each table record into data as a dictionary
         for line in lines:
             line = line.strip()
             entry = {}
