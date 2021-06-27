@@ -170,6 +170,12 @@ class Diskpart:
 
     @staticmethod
     def manager():
+        """
+        Opens Disk Manager program window
+
+        :return: None
+        :rtype: None
+        """
         os.system('diskmgmt.msc &')
 
     @staticmethod
@@ -210,9 +216,9 @@ class Diskpart:
     @staticmethod
     def list_removable():
         """
-        Collect info for all removable volumes
+        Get info for all removable volumes. Includes data verification and user messaging
 
-        :return:
+        :return: info on removable volumes
         :rtype: list(dict)
         """
 
@@ -379,9 +385,9 @@ class Diskpart:
     @staticmethod
     def remove_drive(letter=None):
         """
-        Removes the mount point (drive letter), thus making the file system of a volume inaccessible
+        Removes the mount point (drive letter), thus making the file system of a volume inaccessible at that point
 
-        :param letter: letter of volume to unmount
+        :param letter: letter of mount point to remove
         :type letter: str
         :return: None
         :rtype: None
@@ -414,12 +420,32 @@ class Diskpart:
         result = Diskpart.run(f"select volume {volume}\nassign letter={letter}")
         return letter
 
+    @staticmethod
+    def online(volume=None):
+        """
+        Make a volume mountable and make requests to the volume honorable
+
+        :param letter: letter to mount volume at
+        :type letter: str
+        :param volume: volume to mount
+        :type: str
+        :return: letter
+        :rtype: str
+        """
+
+        if volume is None:
+            Console.error("Please specify volume to online")
+        else:
+            result = Diskpart.run(f"select volume {volume}\nonline volume")
+            return result
 
     @staticmethod
     def get_removable_volumes():
         """
-        Gets information about removable volumes without doing additional checks, error messaging, or filtering
+        gets information about removable volumes without processing or user messaging
 
+        :return: information about removable volumes
+        :rtype: list(dict)
         """
 
         volumes = Diskpart.list_volume()
@@ -432,6 +458,12 @@ class Diskpart:
 
     @staticmethod
     def automount(enable=True):
+        """
+        Enables automatically mounting new volumes added to the system
+
+        :return: whether enable is on
+        :rtype: Boolean
+        """
         if enable:
             result = Diskpart.run(f"automount enable")
         else:
@@ -441,6 +473,12 @@ class Diskpart:
 
     @staticmethod
     def list_device():
+        """
+        Gives linux-like device info for the system
+
+        :return: Info on each device
+        :rtype: list(dict)
+        """
         lines = Shell.execute("cat", arguments="/proc/partitions").splitlines()
         headline = lines[0].strip()
         words = re.sub('\s+', ' ', headline.strip()).split(" ")
@@ -470,6 +508,14 @@ class Diskpart:
 
     @staticmethod
     def run(command):
+        """
+        Runs a diskpart command and returns stdout
+
+        :param command: command you wish to run on diskpart
+        :type command: str
+        :return: output
+        :rtype: str
+        """
         _diskpart = Path("C:/Windows/system32/diskpart.exe")
         common_writefile(Diskpart.tmp, f"{command}\nexit")
         result = Shell.run(f"{_diskpart} /s {Diskpart.tmp}")
@@ -479,10 +525,28 @@ class Diskpart:
 
     @staticmethod
     def clean():
+        """
+        Clear diskpart commands file
+
+        :return: None
+        :rtype: None
+        """
         os.remove(Diskpart.tmp)
 
     @staticmethod
     def table_parser(content=None, kind=None, truncate=2):
+        """
+        Parses diskpart command outputs and returns usable data
+
+        :param content: content to parse
+        :type content: str
+        :param kind: what the content is about (Ex. "volume","disk","partition",etc.)
+        :type kind: str
+        :param truncate: how many lines at the end of content to ignore
+        :type truncate: int
+        :return: usable data from the content
+        :rtype: list(dict)
+        """
         lines = content.splitlines()
 
         # record where first mention of kind occurs
@@ -532,6 +596,18 @@ class Diskpart:
 
     @staticmethod
     def select(disk=None, partition=None, volume=None):
+        """
+        Select an entity in diskpart
+
+        :param disk: disk to select
+        :type letter: str
+        :param partition: partition to select
+        :type partition: str
+        :param volume: volume to select
+        :type volume: str
+        :return: output of diskpart command
+        :rtype: str
+        """
         result = None
         if disk is not None and partition is None and volume is None:
             result = Diskpart.run(f"select disk {disk}")
@@ -543,6 +619,12 @@ class Diskpart:
 
     @staticmethod
     def list_disk():
+        """
+        Get info on disks
+
+        :return: info on disks
+        :rtype: list(dict)
+        """
         result = Diskpart.run("list disk")
         """
           Disk ###  Status         Size     Free     Dyn  Gpt
@@ -555,18 +637,22 @@ class Diskpart:
 
     @staticmethod
     def list_volume():
+        """
+        Get info on volumes
+
+        :return: info on volumes
+        :rtype: list(dict)
+        """
         result = Diskpart.run("list volume")
         return Diskpart.table_parser(content=result, kind="Volume")
 
     @staticmethod
     def list_partition(disk=""):
         """
+        Get info on partitions
 
-
-        :param command: command to get help with
-        :type command: str
-        :return: None
-        :rtype: None
+        :return: info on partitions
+        :rtype: list(dict)
         """
         try:
             result = Diskpart.run(f"select disk {disk}\nlist partition")
@@ -579,8 +665,8 @@ class Diskpart:
         """
         Scan for newly added disks
 
-        :return:
-        :rtype:
+        :return: output of diskpart rescan command
+        :rtype: str
         """
         result = Diskpart.run("rescan")
         return result
@@ -641,7 +727,6 @@ class WindowsSDCard:
             if sync:
                 os.fsync(outfile)
 
-
     def get_drives(self):
         """
         Finds drive letters currently mounted on the system
@@ -654,15 +739,15 @@ class WindowsSDCard:
             bitmask >>= 1
         return drives
 
-    # documentation missing
+
     def unmount(self, drive=None):
         """
-        unmounts the drive
+        dismounts and offlines a volume
 
-        :param drive:
-        :type drive:
-        :return:
-        :rtype:
+        :param drive: drive letter of volume to unmount
+        :type drive: str
+        :return: None
+        :rtype: None
         """
 
         content = Diskpart.list_volume()
@@ -671,25 +756,16 @@ class WindowsSDCard:
         Console.info("Unmounting Card")
         os.system(f"mountvol {drive}: /p")
 
-    # move to diskpart, what does online mean?
-    def online(self, volume=None):
-        if volume is not None:
-            all_volumes = Diskpart.list_volume()
-            matching_volumes = self.filter_info(all_volumes, {"Volume": volume,
-                                                              "type": "Removable",
-                                                              "status": "Healthy",
-                                                              "info": "Offline"})
-
-            if len(matching_volumes) != 0:
-                Diskpart.run(command=f"select volume {volume}\nonline volume")
-                Console.ok(f"Volume {volume} online")
-            else:
-                Console.error(f"Volume {volume} cannot be brought online")
-        else:
-            Console.error("Provide valid volume")
-
     # See burn_disk for correct implementation, after dd command
     def inject(self):
+        """
+        Asks user to manually remove and reinsert device
+
+        :return: whether user reinserted the card, and if so whether the reinsertion changed status of device from
+        no media to an accessible status
+        :rtype: Bool or str
+        """
+
         Console.ok("Please plug out and in your card")
         user_action = yn_choice("Have you inserted the card?")
         if user_action:
@@ -711,6 +787,21 @@ class WindowsSDCard:
                   blocksize=None,
                   size=None,
                   interactive=False):
+        """
+        burns an image onto a disk on Windows
+
+        :param disk: disk to burn to
+        :type disk: int
+        :param image_path: path to image to burn to disk
+        :type disk: str
+        :param blocksize:
+        :type blocksize:
+        :param size:
+        :type size:
+        :return: None
+        :rtype: None
+        """
+
         Diskpart.rescan()
         Diskpart.automount()
         detail = Diskpart.detail(disk=disk)
@@ -773,12 +864,22 @@ class WindowsSDCard:
 
         Diskpart.assign_drive(letter=letter, volume=volume)
 
-    # takes a list of dictionaries. Iterate through dictionaries, and remove dicts for which keys to do not match values
-    # specified in args. Iterate once more, and remove dicts for which keys do match values specified in nargs ("keep
-    # anything but those with this value")
-
     @staticmethod
     def filter_info(info=None, args=None, nargs=None):
+        """
+        Iterates through dictionaries and removes dicts for which keys to do not match values specified in args,
+        and or for which keys do match values specified in nargs
+
+        :param info: list of dicts to filter
+        :type info: list(dict)
+        :param args: dict of key-values that must be contained by dicts in info
+        :type args: dict
+        :param nargs: dict of key-values which dicts in info must not contain
+        :type nargs: dict
+        :return: list of dict which have been filtered for args and nargs
+        :rtype: list(dict)
+        """
+
         info = info
         if args is not None:
             for key, value in args.items():
@@ -790,32 +891,4 @@ class WindowsSDCard:
 
         return info
 
-    # check if this is duplicated, does not take advantage of Diskpart, remove if not necessary
-    def get_disk(self, volume=None, drive=None):
-        #
-        # THIS METHOD IS NOT LEVERAGING list details, see Diskpart
-        # WE ARE NOT SURE IF THIS IS NEEDED OR WHAT IT DOES NO DETAIL
-        #
-        if volume is not None:
-            volume = self.filter_info(info=Diskpart.list_volume(), args={'volume': volume})
-            if (len(volume) == 0):
-                Console.error("Volume does not exist")
-            else:
-                r = Diskpart.run(f"select volume {volume}\ndetail volume")
-                disks = self.process_disks_text(text=r)
-                return disks[0]["disk"]
-
-        elif drive is not None:
-            volume = self.filter_info(info=Diskpart.list_volume(), args={'drive': drive})
-            print(volume)
-            if (len(volume) == 0):
-                Console.error("Drive with given letter does not exist.")
-            else:
-                r = Diskpart.run(f"select volume {drive}\ndetail volume")
-                print(r)
-                disks = self.process_disks_text(text=r)
-                return disks[0]["disk"]
-        else:
-            Console.error("Provide volume or drive to get disk")
-
-    # METHODS THAT NEED IMPROVEMENTS OR NEET DO BE DELETED
+    # METHODS THAT NEED IMPROVEMENTS OR NEED DO BE DELETED
