@@ -67,7 +67,7 @@ def location(host_os=None, card_os="raspberry", volume="boot", drive=None):
 
     # where [host_os][burn_os][volume]
     # windows root filesystem requires a second drive letter. NOT IMPLEMENTED, ROOTFS IS NOT ACCESSIBLE
-    # for windows we do not know how this looks on ubuntu. VERIFY
+    # for windows we do not know how this looks on ubuntu. VERIFYpi
     where = yaml.safe_load(textwrap.dedent(f"""
             raspberry:
               raspberry:
@@ -99,8 +99,8 @@ def location(host_os=None, card_os="raspberry", volume="boot", drive=None):
                 boot: /media/{user}/system-boot
             windows:
               raspberry:
-                root: /{drive} 
-                boot: /{drive}
+                root: "/{drive}:"
+                boot: "{drive}:"
               ubuntu:
                 root: /{drive}/writable
                 boot: /{drive}/system-boot
@@ -453,7 +453,7 @@ class SDCard:
 
             if yn_choice(f"Do you want to format USB card with disk number {device}"):
                 device = device.replace(":", "")
-                os.system("cat /c/Users/venkata/tmp.txt")
+
                 check = Diskpart.format_drive(disk=device)
 
                 if check:
@@ -698,7 +698,7 @@ class SDCard:
 
         if os_is_windows():
             card = WindowsSDCard()
-            card.unmount(drive=device)
+            card.unmount(drive=self.drive)
 
         else:
 
@@ -911,6 +911,7 @@ class SDCard:
         # self.mount(device=device)
 
         if os_is_windows():
+            print(image_path)
             card = WindowsSDCard()
             card.burn_disk(disk=device,
                             image_path=image_path,

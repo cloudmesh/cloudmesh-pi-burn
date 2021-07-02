@@ -57,15 +57,16 @@ class BurnCommand(PluginCommand):
               burn ubuntu NAMES [--inventory=INVENTORY] [--ssid=SSID]
                                 [--wifipassword=PSK] [-v] --device=DEVICE [--country=COUNTRY]
                                 [--upgrade]
-              burn raspberry NAMES --device=DEVICE
-                                  [--inventory=INVENTORY]
-                                  [--ssid=SSID]
-                                  [--wifipassword=PSK]
-                                  [--country=COUNTRY]
-                                  [--password=PASSWORD]
-                                  [-v]
-                                  [-f]
-                                  [--timezone=TIMEZONE]
+              burn raspberry NAMES [--device=DEVICE]
+                                   [--disk=DISK]
+                                   [--inventory=INVENTORY]
+                                   [--ssid=SSID]
+                                   [--wifipassword=PSK]
+                                   [--country=COUNTRY]
+                                   [--password=PASSWORD]
+                                   [-v]
+                                   [-f]
+                                   [--timezone=TIMEZONE]
               burn firmware check
               burn firmware update
               burn install
@@ -444,6 +445,7 @@ class BurnCommand(PluginCommand):
         elif arguments.raspberry:
             banner(txt="RaspberryOS Burn", figlet=True)
 
+            arguments.device = arguments["--device"] or arguments["--disk"]
             names = Parameter.expand(arguments.NAMES)
             manager, workers = Host.get_hostnames(names)
             ssid = arguments['--ssid']

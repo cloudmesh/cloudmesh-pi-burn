@@ -2,7 +2,7 @@ import textwrap
 
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import readfile
-
+from cloudmesh.burn.util import os_is_windows
 
 class Cmdline:
 
@@ -43,8 +43,10 @@ class Cmdline:
         """
         Read a pre-existing cmdline.txt and store it
         """
+
         if filename is None:
             raise Exception("read called with no filename")
+
         self.cmdline = readfile(filename).strip()
 
     def write(self, filename=None):
@@ -56,7 +58,10 @@ class Cmdline:
             raise Exception("Please read a pre-existing cmdline.txt first")
         if filename is None:
             raise Exception("write called with no filename")
-        Shell.run(f'echo "{self.cmdline} {self.script}" | sudo tee {filename}')
+        if os_is_windows():
+            Shell.run(f'echo "{self.cmdline} {self.script}" | tee {filename}')
+        else:
+            Shell.run(f'echo "{self.cmdline} {self.script}" | sudo tee {filename}')
 
     def get(self):
         """

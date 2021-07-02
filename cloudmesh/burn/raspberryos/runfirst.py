@@ -3,6 +3,7 @@ from cloudmesh.common.util import path_expand, readfile, writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.Shell import Shell
 from passlib.hash import sha256_crypt
+from cloudmesh.burn.util import os_is_windows
 
 
 def dedent(content):
@@ -227,7 +228,10 @@ class Runfirst:
 
         tmp_location = path_expand('~/.cloudmesh/cmburn/firstrun.sh.tmp')
         writefile(tmp_location, self.script)
-        Shell.run(f'cat {tmp_location} | sudo tee {filename}')
+        if os_is_windows():
+            Shell.run(f'cat {tmp_location} | tee {filename}')
+        else:
+            Shell.run(f'cat {tmp_location} | sudo tee {filename}')
         Shell.execute('rm', arguments=[tmp_location])
 
     def get(self, verbose=False):

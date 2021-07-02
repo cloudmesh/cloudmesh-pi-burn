@@ -63,7 +63,7 @@ def convert_path(path):
     """
     p = str(PurePosixPath(Path(path)))
     for letter in string.ascii_uppercase:
-        p = p.replace(f"{letter}:\\", "/c")
+        p = p.replace(f"{letter}:\\", f"/{letter}")
     return p
 
 
@@ -190,6 +190,24 @@ class Diskpart:
         """
         result = Diskpart.run(f"select volume {volume}\nassign letter={drive}")
         return drive
+
+    @staticmethod
+    def dismount(volume=None,drive=None):
+        """
+        Removes all mount points from the volume
+
+        :param volume: volume to dismount
+        :type volume: str
+        :param drive: drive to dismount
+        :type drive: str
+        :return:
+        :rtype: None
+        """
+
+        if volume is not None:
+            result = Diskpart.run(f"select volume {volume}\nremove all")
+        elif drive is not None:
+            result = Diskpart.run(f"select volume {drive}\nremove all")
 
     @staticmethod
     def removable_diskinfo():
@@ -520,7 +538,6 @@ class Diskpart:
         common_writefile(Diskpart.tmp, f"{command}\nexit")
         result = Shell.run(f"{_diskpart} /s {Diskpart.tmp}")
         Diskpart.clean()
-        # print(result)
         return result
 
     @staticmethod
@@ -841,7 +858,7 @@ class WindowsSDCard:
         print("Imaeg Size:", size, "Bytes")
         print()
 
-        Diskpart.remove_drive(letter=letter)
+        Diskpart.dismount(drive=letter)
         detail = Diskpart.detail(disk=disk)
         # pprint(detail)
 
@@ -867,8 +884,8 @@ class WindowsSDCard:
     @staticmethod
     def filter_info(info=None, args=None, nargs=None):
         """
-        Iterates through dictionaries and removes dicts for which keys to do not match values specified in args,
-        and or for which keys do match values specified in nargs
+        From a list of dicts, keeps dicts who have key-values in args and
+        removes dicts who have key-values in nargs"
 
         :param info: list of dicts to filter
         :type info: list(dict)
