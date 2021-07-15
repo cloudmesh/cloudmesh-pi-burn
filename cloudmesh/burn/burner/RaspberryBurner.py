@@ -59,22 +59,17 @@ class Burner(AbstractBurner):
             return
 
         config = self.configs[name]
-        print('got here')
         sdcard = SDCard(card_os="raspberry")
-        if os_is_windows:
-            print('also got here')
-            detail = Diskpart.detail(disk=device)
-            letter = detail["Ltr"]
-            sdcard.set_drive(drive=letter)
 
+        # This block only works for Macs
         try:
-            USB.check_for_readers()
+            r = USB.check_for_readers()
         except Exception as e:
             print()
             Console.error(e)
             print()
             return ""
-        print('even got here')
+
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
             if not yn_choice(f"Please insert the card to be burned for {name}. "
@@ -83,21 +78,23 @@ class Burner(AbstractBurner):
                 return ""
 
         Console.info(f'Burning {name}')
-        print('all the way over here')
         sdcard.format_device(device=device, yes=True)
         if os_is_windows():
             sdcard.burn_sdcard (tag=config['tag'], device=device, yes=True)
+
+            # sdcard instance needs the drive letter in order to use sdcard.boot_volume later (windows)
+            detail = Diskpart.detail(disk=device)
+            letter = detail["Ltr"]
+            sdcard.set_drive(drive=letter)
         else:
             sdcard.unmount(device=device)
             sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
             sdcard.mount(device=device, card_os="raspberry")
 
-        print(letter)
         # Read and write cmdline.txt
         cmdline = Cmdline()
         # Reading will create the proper script in the cmdline instance
         # No extra work needed
-
         # This gets rid of whitespace in cmdline.txt file?
         cmdline.read(filename=f'{sdcard.boot_volume}/cmdline.txt')
         cmdline.write(filename=f'{sdcard.boot_volume}/cmdline.txt')

@@ -451,6 +451,7 @@ class BurnCommand(PluginCommand):
             ssid = arguments['--ssid']
             wifipasswd = arguments['--wifipassword']
 
+
             if arguments.inventory:
                 burner = RaspberryBurner(inventory=arguments.inventory)
             else:

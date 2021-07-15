@@ -819,6 +819,7 @@ class WindowsSDCard:
         :rtype: None
         """
 
+
         Diskpart.rescan()
         Diskpart.automount()
         detail = Diskpart.detail(disk=disk)

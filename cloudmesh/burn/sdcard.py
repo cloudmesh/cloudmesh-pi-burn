@@ -137,6 +137,10 @@ class SDCard:
     def set_drive(self, drive):
         self.drive = drive
 
+    def get_drive(self):
+        if self.drive is not None:
+            return self.drive
+
     # Seems to be working, had trouble escaping quotes however
     @staticmethod
     def execute(command=None, decode="True", debug=False):
@@ -826,7 +830,7 @@ class SDCard:
                 Console.error("No matching image found.")
                 return ""
             elif len(image) > 1:
-                Console.error("Too many images found")
+                Console.error("Too many images found. You may have forgotten to specify a tag in your command.")
                 print(Printer.write(image,
                                     order=["tag", "version"],
                                     header=["Tag", "Version"]))
@@ -918,6 +922,7 @@ class SDCard:
                             blocksize=blocksize,
                             size=size)
             return ""
+
         else:
             if os_is_mac():
                 command = f"sudo dd if={image_path} bs={blocksize} |" \
