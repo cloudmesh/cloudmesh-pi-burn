@@ -1057,7 +1057,11 @@ class BurnCommand(PluginCommand):
         return ""
 
 
-def _build_default_inventory(filename, manager, workers, ips=None, images=None):
+def _build_default_inventory(filename, manager, workers, ips=None,
+                             images=None,
+                             locale=None,
+                             timezone=None,
+                             ):
     # cms inventory add red --service=manager --ip=10.1.1.1 --tag=latest-lite
     # --timezone="America/Indiana/Indianapolis" --locale="us"
     # cms inventory set red services to "bridge" --listvalue
@@ -1070,8 +1074,10 @@ def _build_default_inventory(filename, manager, workers, ips=None, images=None):
     Shell.execute("rm", arguments=[
                   '-f', filename])
     i = Inventory(filename=filename)
-    timezone = Shell.timezone()
-    locale = Shell.locale()
+    if timezone is None:
+        timezone = Shell.timezone()
+    if locale is None:
+        locale = Shell.locale()
     manager_ip = ips[0] if ips else '10.1.1.1'
     image = images[0] if images else 'latest-lite'
     element = {}
