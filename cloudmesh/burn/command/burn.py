@@ -64,9 +64,10 @@ class BurnCommand(PluginCommand):
                                    [--wifipassword=PSK]
                                    [--country=COUNTRY]
                                    [--password=PASSWORD]
+                                   [--locale=LOCALE]
+                                   [--timezone=TIMEZONE]
                                    [-v]
                                    [-f]
-                                   [--timezone=TIMEZONE]
               burn firmware check
               burn firmware update
               burn install
@@ -470,7 +471,8 @@ class BurnCommand(PluginCommand):
                         return ""
 
                     _build_default_inventory(filename=inventory,
-                                             manager=manager, workers=workers)
+                                             manager=manager,
+                                             workers=workers)
 
                 burner = RaspberryBurner(inventory=inventory)
 
