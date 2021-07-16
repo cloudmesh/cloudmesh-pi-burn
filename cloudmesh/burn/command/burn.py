@@ -470,9 +470,18 @@ class BurnCommand(PluginCommand):
                                       "manager.")
                         return ""
 
-                    _build_default_inventory(filename=inventory,
-                                             manager=manager,
-                                             workers=workers)
+                    if arguments.timezone is None and arguments.locale is None:
+
+                        _build_default_inventory(filename=inventory,
+                                                 manager=manager,
+                                                 workers=workers)
+                    else:
+                        _build_default_inventory(filename=inventory,
+                                                 manager=manager,
+                                                 workers=workers,
+                                                 locale=arguments.locale,
+                                                 timezone=arguments.timezone)
+
 
                 burner = RaspberryBurner(inventory=inventory)
 
