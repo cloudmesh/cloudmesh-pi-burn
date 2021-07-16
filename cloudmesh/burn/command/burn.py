@@ -1057,11 +1057,13 @@ class BurnCommand(PluginCommand):
         return ""
 
 
-def _build_default_inventory(filename, manager, workers, ips=None,
+def _build_default_inventory(filename,
+                             manager,
+                             workers,
+                             ips=None,
                              images=None,
                              locale=None,
-                             timezone=None,
-                             ):
+                             timezone=None):
     # cms inventory add red --service=manager --ip=10.1.1.1 --tag=latest-lite
     # --timezone="America/Indiana/Indianapolis" --locale="us"
     # cms inventory set red services to "bridge" --listvalue
