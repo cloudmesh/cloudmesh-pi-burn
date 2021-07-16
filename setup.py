@@ -48,6 +48,10 @@ tqdm
 PySimpleGUI
 passlib
 """.split("\n")
+requires = requiers + [
+    "bcrypt;platform_system=='Windows'",
+    "pywin32;platform_system=='Windows'"
+]
 
 # dependency_links = ['http://github.com/nicolaiarocci/eve.git@develop']
 
