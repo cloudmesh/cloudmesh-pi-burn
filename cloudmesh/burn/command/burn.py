@@ -467,7 +467,7 @@ class BurnCommand(PluginCommand):
                 cluster_name = manager or worker_base_name
                 inventory = path_expand(f'~/.cloudmesh/inventory-{cluster_name}.yml')
 
-                if arguments.new:
+                if arguments.new and os.path.exists(inventory):
                     os.remove(inventory)
 
                 if not os.path.exists(inventory) or arguments['-f']:
@@ -477,10 +477,14 @@ class BurnCommand(PluginCommand):
                         return ""
 
 
-                    timezone = arguments.timezone.strip().replace("-", "/") \
-                               or "America/Indiana/Indianapolis"
+                    timezone = arguments.timezone or "America/Indiana/Indianapolis"
+                    if "-" in timezone:
+                        timezone = timezone.replace("-", "/")
+                    timezone = timezone.strip()
 
-                    locale = arguments.locale.strip() or "en_US.UTF-8"
+                    locale = arguments.locale or "en_US.UTF-8"
+                    locale = locale.strip()
+                    
                     _build_default_inventory(filename=inventory,
                                              manager=manager,
                                              workers=workers,
@@ -498,8 +502,6 @@ class BurnCommand(PluginCommand):
                     if not wifipasswd and not ssid == "":
                         wifipasswd = getpass(f"Using --SSID={ssid}, please "
                                              f"enter wifi password:")
-
-            return
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
@@ -566,7 +568,7 @@ class BurnCommand(PluginCommand):
             for name in names:
                 if not yn_choice(f'Is the card to be burned for {name} inserted?'):
                     if not yn_choice(f"Please insert the card to be burned for {name}. "
-                                     "Type 'y' when done or 'n' to terminante"):
+                                     "Type 'y' when done or 'n' to terminante. Continue"):
                         Console.error("Terminating: User Break")
                         return ""
 

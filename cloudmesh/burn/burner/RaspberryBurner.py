@@ -73,7 +73,7 @@ class Burner(AbstractBurner):
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
             if not yn_choice(f"Please insert the card to be burned for {name}. "
-                             "Type 'y' when done or 'n' to terminante"):
+                             "Type 'y' when done or 'n' to terminante. Continue"):
                 Console.error("Terminating: User Break")
                 return ""
 
