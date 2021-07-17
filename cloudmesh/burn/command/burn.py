@@ -484,7 +484,7 @@ class BurnCommand(PluginCommand):
 
                     locale = arguments.locale or "en_US.UTF-8"
                     locale = locale.strip()
-                    
+
                     _build_default_inventory(filename=inventory,
                                              manager=manager,
                                              workers=workers,
@@ -499,6 +499,8 @@ class BurnCommand(PluginCommand):
                         if ssid == "":
                             Console.info('Could not determine SSID, skipping wifi '
                                          'config')
+                        else:
+                            Console.ok(f"Using SSID: {ssid}")
                     if not wifipasswd and not ssid == "":
                         wifipasswd = getpass(f"Using --SSID={ssid}, please "
                                              f"enter wifi password:")

@@ -19,9 +19,20 @@ def get_ssid():
             command = "iwgetid -r"
             ssid = Shell.run(command).strip()
         elif os_is_windows():
-            command = "netsh wlan show interfaces"
-            r = Shell.run(command).replace("\t", "").splitlines()
-            ssid = Shell.cm_grep(r, " SSID ")[0].split(":")[1].strip()
+            try:
+                command = " Netsh wlan show profiles | fgrep Profile"
+                r = Shell.run(command).replace("\t", "").splitlines()
+                ssid = Shell.cm_grep(r, " SSID ")[0].split(":")[1].strip()
+            except:
+                ssid = None
+            if ssid is None:
+                try:
+                    command = " netsh wlan show profiles"
+                    r = Shell.run(command).splitlines()
+                    ssid = Shell.cm_grep(r, "User Profile")[0].split(":")[1].strip()
+
+                except:
+                    pass
     except:  # noqa
         pass
 
