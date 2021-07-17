@@ -87,11 +87,14 @@ class Burner(AbstractBurner):
             # sdcard.boot_volume later (windows)
             detail = Diskpart.detail(disk=device)
             letter = detail["Ltr"]
-            sdcard.set_drive(drive=letter)
+            print (f"Letter {letter}")
 
+            sdcard.set_drive(drive=letter)
             sdcard.mount(device=device, card_os="raspberry")
+
+            print (f"Letter {letter}")
             yn_choice("Burn completed. Continue")
-            
+
         else:
             sdcard.format_device(device=device, yes=True)
             sdcard.unmount(device=device)
@@ -127,6 +130,11 @@ class Burner(AbstractBurner):
         runfirst.set_key(key=readfile(config['keyfile']).strip())
         if 'bridge' in config['services']:
             runfirst.enable_bridge()
+
+        if os_is_windows():
+            runfirst.info()
+            print(f"runscript: {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
+            runfirst.write(filename=f'tmp-{Runfirst.SCRIPT_NAME}')
 
         runfirst.get(verbose=verbose)
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
