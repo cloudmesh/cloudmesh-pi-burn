@@ -373,6 +373,8 @@ class BurnCommand(PluginCommand):
                        "version",
                        "to",
                        "os",
+                       "timezone",
+                       "locale",
                        "country",
                        "inventory",
                        "name",
@@ -476,12 +478,14 @@ class BurnCommand(PluginCommand):
                                                  manager=manager,
                                                  workers=workers)
                     else:
+                        arguments.timezone = arguments.timezone.split("-")
+                        arguments.timezone = "/".join(arguments.timezone)
+
                         _build_default_inventory(filename=inventory,
                                                  manager=manager,
                                                  workers=workers,
                                                  locale=arguments.locale,
                                                  timezone=arguments.timezone)
-
 
                 burner = RaspberryBurner(inventory=inventory)
 
