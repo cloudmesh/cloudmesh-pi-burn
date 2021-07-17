@@ -478,6 +478,8 @@ class BurnCommand(PluginCommand):
 
                     timezone = arguments.timezone.strip() or "America/Indiana/Indianapolis"
                     locale = arguments.locale.strip() or "en_US.UTF-8"
+                    timezone = timezone.split("-")
+                    timezone = "/".join(timezone)
                     _build_default_inventory(filename=inventory,
                                              manager=manager,
                                              workers=workers,
