@@ -1,4 +1,6 @@
 import textwrap
+import os
+
 from cloudmesh.common.util import path_expand, readfile, writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.Shell import Shell
@@ -229,16 +231,20 @@ class Runfirst:
         tmp_location = path_expand('~/.cloudmesh/cmburn/firstrun.sh.tmp')
         writefile(tmp_location, self.script)
         if os_is_windows():
-            Shell.run(f'cat {tmp_location} | tee {filename}')
+            filename = path_expand(filename)
+            # Shell.run(f'cat {tmp_location} | tee {filename}')
+            os.system(f'cp {tmp_location} {filename}')
         else:
             Shell.run(f'cat {tmp_location} | sudo tee {filename}')
-        Shell.execute('rm', arguments=[tmp_location])
+
+        os.system("rm -f {tmp_location}")
+        os.system(f"chmod a+x {filename}")
 
     def get(self, verbose=False):
         # NEEDS TO BE INDENTED THIS WAY
         # OR ELSE WRITTEN SCRIPT WILL NOT WORK
-        self.script = dedent(f'''
-#!/bin/bash
+        self.script = dedent(
+f'''#!/bin/bash
 set +e
 CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
 echo {self.hostname} >/etc/hostname
@@ -269,7 +275,7 @@ dpkg-reconfigure -f noninteractive keyboard-configuration
 rm -f /boot/{Runfirst.SCRIPT_NAME}
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt
 exit 0
-        ''')
+''')
 
         if verbose:
             Console.info(f'{Runfirst.SCRIPT_NAME}.sh for {self.hostname}')

@@ -1,4 +1,5 @@
 import time
+import os
 
 from cloudmesh.burn.burner.BurnerABC import AbstractBurner
 from cloudmesh.burn.raspberryos.cmdline import Cmdline
@@ -7,7 +8,9 @@ from cloudmesh.burn.sdcard import SDCard
 from cloudmesh.burn.usb import USB
 from cloudmesh.common.console import Console
 from cloudmesh.common.parameter import Parameter
-from cloudmesh.common.util import yn_choice, readfile
+from cloudmesh.common.util import yn_choice
+from cloudmesh.common.util import readfile
+from cloudmesh.common.util import path_expand
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.burn.util import os_is_windows
 from cloudmesh.burn.windowssdcard import Diskpart
@@ -136,13 +139,20 @@ class Burner(AbstractBurner):
         if os_is_windows():
             runfirst.info()
             print(f"runscript: {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
-            runfirst.write(filename=f'~/.cloudmesh/cmburn/{Runfirst.SCRIPT_NAME}')
+            filename = path_expand(f'~/.cloudmesh/cmburn/{Runfirst.SCRIPT_NAME}')
+            runfirst.write(filename=filename)
+            os.system(f"chmod a+x {filename}")
 
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
+        os.system(f"chmod a+x {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
 
 
-        time.sleep(1)  # Sleep for 1 seconds to give ample time for writing to finish
-        sdcard.unmount(device=device, card_os="raspberry")
+        if not os_is_windows():
+            time.sleep(1)  # Sleep for 1 seconds to give ample time for writing to finish
+            sdcard.unmount(device=device, card_os="raspberry")
+        else:
+            time.sleep(2)  # Sleep for 1 seconds to give ample time for writing to finish
+            os.system(f"cat {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
         Console.ok(f'Burned {name}')
 
         return
