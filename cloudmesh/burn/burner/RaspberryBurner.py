@@ -78,15 +78,22 @@ class Burner(AbstractBurner):
                 return ""
 
         Console.info(f'Burning {name}')
-        sdcard.format_device(device=device, yes=True)
         if os_is_windows():
+
+            sdcard.format_device(device=device, unmount=True)
             sdcard.burn_sdcard (tag=config['tag'], device=device, yes=True)
 
-            # sdcard instance needs the drive letter in order to use sdcard.boot_volume later (windows)
+            # sdcard instance needs the drive letter in order to use
+            # sdcard.boot_volume later (windows)
             detail = Diskpart.detail(disk=device)
             letter = detail["Ltr"]
             sdcard.set_drive(drive=letter)
+
+            sdcard.mount(device=device, card_os="raspberry")
+            yn_choice("Burn completed. Continue")
+            
         else:
+            sdcard.format_device(device=device, yes=True)
             sdcard.unmount(device=device)
             sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
             sdcard.mount(device=device, card_os="raspberry")

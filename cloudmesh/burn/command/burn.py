@@ -446,6 +446,36 @@ class BurnCommand(PluginCommand):
             g.run()
 
             return ""
+        elif arguments.sdcard:
+
+            arguments.device = arguments.device or arguments["--disk"]
+
+            try:
+                USB.check_for_readers()
+            except Exception as e:
+                print()
+                Console.error(e)
+                print()
+                return ""
+
+            if arguments.device is None:
+                card = SDCard()
+                card.info()
+                Console.error("Please specify a device")
+                return ""
+
+            arguments.TAG = arguments.TAG or ["latest-lite"]
+            if any("ubuntu" in tag for tag in arguments.TAG):
+                sdcard = SDCard(card_os="ubuntu")
+
+            execute("format", sdcard.format_device(device=arguments.device, unmount=True))
+            if not os_is_windows():
+                execute("unmount", sdcard.unmount(device=arguments.device))
+
+            execute("sdcard", sdcard.burn_sdcard(tag=arguments.TAG,
+                                                 device=arguments.device,
+                                                 yes=arguments.yes))
+            return ""
 
         elif arguments.raspberry:
             banner(txt="RaspberryOS Burn", figlet=True)
@@ -788,37 +818,6 @@ class BurnCommand(PluginCommand):
         elif arguments["copy"]:  # as copy is a reserved word we need to use the index
             USB.check_for_readers()
             execute("copy", sdcard.copy(device=arguments.device, from_file=arguments.FROM))
-            return ""
-
-        elif arguments.sdcard:
-
-            arguments.device = arguments.device or arguments["--disk"]
-
-            try:
-                USB.check_for_readers()
-            except Exception as e:
-                print()
-                Console.error(e)
-                print()
-                return ""
-
-            if arguments.device is None:
-                card = SDCard()
-                card.info()
-                Console.error("Please specify a device")
-                return ""
-
-            arguments.TAG = arguments.TAG or ["latest-lite"]
-            if any("ubuntu" in tag for tag in arguments.TAG):
-                sdcard = SDCard(card_os="ubuntu")
-
-            execute("format", sdcard.format_device(device=arguments.device, unmount=True))
-            if not os_is_windows():
-                execute("unmount", sdcard.unmount(device=arguments.device))
-
-            execute("sdcard", sdcard.burn_sdcard(tag=arguments.TAG,
-                                                 device=arguments.device,
-                                                 yes=arguments.yes))
             return ""
 
         elif arguments.mount:

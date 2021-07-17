@@ -67,7 +67,8 @@ def location(host_os=None, card_os="raspberry", volume="boot", drive=None):
 
     # where [host_os][burn_os][volume]
     # windows root filesystem requires a second drive letter. NOT IMPLEMENTED, ROOTFS IS NOT ACCESSIBLE
-    # for windows we do not know how this looks on ubuntu. VERIFYpi
+    # for windows we do not know how this looks on ubuntu. VERIFY
+    # pi
     where = yaml.safe_load(textwrap.dedent(f"""
             raspberry:
               raspberry:
@@ -991,8 +992,6 @@ class SDCard:
                 print(result)
 
         elif os_is_windows():
-
-
             #data = Diskpart.list_disk()
 
             #print(Printer.write(data,
