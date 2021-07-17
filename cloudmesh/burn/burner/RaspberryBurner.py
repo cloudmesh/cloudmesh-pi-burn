@@ -131,12 +131,13 @@ class Burner(AbstractBurner):
         if 'bridge' in config['services']:
             runfirst.enable_bridge()
 
+        runfirst.get(verbose=verbose)
+
         if os_is_windows():
             runfirst.info()
             print(f"runscript: {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
             runfirst.write(filename=f'tmp-{Runfirst.SCRIPT_NAME}')
 
-        runfirst.get(verbose=verbose)
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
 
         time.sleep(1)  # Sleep for 1 seconds to give ample time for writing to finish
