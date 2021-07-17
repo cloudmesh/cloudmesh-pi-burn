@@ -68,6 +68,7 @@ class BurnCommand(PluginCommand):
                                    [--timezone=TIMEZONE]
                                    [-v]
                                    [-f]
+                                   [--new]
               burn firmware check
               burn firmware update
               burn install
@@ -354,6 +355,8 @@ class BurnCommand(PluginCommand):
 
         """
         map_parameters(arguments,
+                       "locale",
+                       "timezone",
                        "details",
                        "refresh",
                        "device",
@@ -380,7 +383,8 @@ class BurnCommand(PluginCommand):
                        "set_passwd",
                        "cmdline",
                        "upgrade",
-                       "no_diagram")
+                       "no_diagram",
+                       "new")
 
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
@@ -463,25 +467,22 @@ class BurnCommand(PluginCommand):
                 cluster_name = manager or worker_base_name
                 inventory = path_expand(f'~/.cloudmesh/inventory-{cluster_name}.yml')
 
+                if arguments.new:
+                    os.remove(inventory)
+
                 if not os.path.exists(inventory) or arguments['-f']:
                     if not manager:
                         Console.error("No inventory found. Can not create an "
-                                      "inventory without a "
-                                      "manager.")
+                                      "inventory without a manager.")
                         return ""
 
-                    if arguments.timezone is None and arguments.locale is None:
-
-                        _build_default_inventory(filename=inventory,
-                                                 manager=manager,
-                                                 workers=workers)
-                    else:
-                        _build_default_inventory(filename=inventory,
-                                                 manager=manager,
-                                                 workers=workers,
-                                                 locale=arguments.locale,
-                                                 timezone=arguments.timezone)
-
+                    timezone = arguments.timezone.strip() or "America/Indiana/Indianapolis"
+                    locale = arguments.locale.strip() or "en_US.UTF-8"
+                    _build_default_inventory(filename=inventory,
+                                             manager=manager,
+                                             workers=workers,
+                                             locale=locale,
+                                             timezone=timezone)
 
                 burner = RaspberryBurner(inventory=inventory)
 
@@ -494,6 +495,8 @@ class BurnCommand(PluginCommand):
                     if not wifipasswd and not ssid == "":
                         wifipasswd = getpass(f"Using --SSID={ssid}, please "
                                              f"enter wifi password:")
+
+            return
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
