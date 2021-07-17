@@ -136,9 +136,10 @@ class Burner(AbstractBurner):
         if os_is_windows():
             runfirst.info()
             print(f"runscript: {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
-            runfirst.write(filename=f'tmp-{Runfirst.SCRIPT_NAME}')
+            runfirst.write(filename=f'~/.cloudmesh/cmburn/{Runfirst.SCRIPT_NAME}')
 
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
+
 
         time.sleep(1)  # Sleep for 1 seconds to give ample time for writing to finish
         sdcard.unmount(device=device, card_os="raspberry")
