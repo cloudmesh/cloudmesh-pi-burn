@@ -376,8 +376,6 @@ class BurnCommand(PluginCommand):
                        "version",
                        "to",
                        "os",
-                       "timezone",
-                       "locale",
                        "country",
                        "inventory",
                        "name",
