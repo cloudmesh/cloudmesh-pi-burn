@@ -481,7 +481,6 @@ class BurnCommand(PluginCommand):
                                or "America/Indiana/Indianapolis"
 
                     locale = arguments.locale.strip() or "en_US.UTF-8"
-
                     _build_default_inventory(filename=inventory,
                                              manager=manager,
                                              workers=workers,
