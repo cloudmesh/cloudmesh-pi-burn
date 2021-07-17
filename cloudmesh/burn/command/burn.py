@@ -476,8 +476,12 @@ class BurnCommand(PluginCommand):
                                       "inventory without a manager.")
                         return ""
 
-                    timezone = arguments.timezone.strip() or "America/Indiana/Indianapolis"
+
+                    timezone = arguments.timezone.strip().replace("-", "/") \
+                               or "America/Indiana/Indianapolis"
+
                     locale = arguments.locale.strip() or "en_US.UTF-8"
+
                     _build_default_inventory(filename=inventory,
                                              manager=manager,
                                              workers=workers,
