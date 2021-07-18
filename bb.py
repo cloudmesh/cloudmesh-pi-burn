@@ -2,14 +2,15 @@ import os
 from cloudmesh.common.util import path_expand
 import sys
 
-ssid = sys.argv[0]
-password = sys.argv[1]
+host = sys.argv[1]
+ssid = sys.argv[2]
+wifi_password = sys.argv[3]
 
 cmdline = \
     {
         "sdcard": "console=serial0,115200 console=tty1 root=PARTUUID=9730496b-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh",
-        "lite": "console=serial0,115200 console=tty1 root=PARTUUID=9730496b-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target",
-        "full": "console=serial0,115200 console=tty1 root=PARTUUID=f4481065-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh splash plymouth.ignore-serial-consoles systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target"
+        "lite":   "console=serial0,115200 console=tty1 root=PARTUUID=9730496b-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target",
+        "full":   "console=serial0,115200 console=tty1 root=PARTUUID=f4481065-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh splash plymouth.ignore-serial-consoles systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target"
      }
 
 TBD_SSID="dont know yet"
@@ -20,14 +21,14 @@ TBD_ENCRYPTED_PASSWD_USER="dont know yet"
 
 # fstring needs to be done carefully ....as there s { in it needs to be masked
 firstrun = \
-'''
+f'''
 #!/bin/bash
 
 set +e
 
 CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \t\n\r"`
 echo red >/etc/hostname
-sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\tred/g" /etc/hosts
+sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\t{host}/g" /etc/hosts
 FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
 FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
 echo "$FIRSTUSER:"'TBD_ENCRYPTED_PASSWD_USER' | chpasswd -e
@@ -38,10 +39,10 @@ ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 ap_scan=1
 
 update_config=1
-network={
-	ssid="TBD_SSID"
-	psk=TBD_PASSWD
-}
+network={{
+	ssid={ssid}
+	psk={wifi_password}
+}}
 
 WPAEOF
 chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
@@ -68,7 +69,11 @@ def writefile(filename, content):
 
 
 os.system("cms burn sdcard latest-lite --disk=4")
-os.system(f"cp firstrun.sh /f/")
+cmdline_file = "f:/firstrun.sh"
+writefile(cmdline_file, firstrun.replace('\r\n','\n'))
+
+#os.system(f"cp firstrun.sh /f/")
 
 cmdline_file = "f:/cmdline.txt"
-writefile(cmdline_file, cmdline["lite"])
+writefile(cmdline_file, cmdline["lite"].replace('\r\n','\n'))
+
