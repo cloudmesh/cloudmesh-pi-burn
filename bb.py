@@ -67,6 +67,9 @@ def writefile(filename, content):
     outfile.flush()
     os.fsync(outfile)
 
+print (firstrun)
+
+sys.exit()
 
 os.system("cms burn sdcard latest-lite --disk=4")
 cmdline_file = "f:/firstrun.sh"
