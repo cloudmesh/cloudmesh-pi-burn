@@ -80,7 +80,7 @@ class Cmdline:
         return " ".join(textwrap.dedent("""
         console=serial0,115200
         console=tty1
-        root=PARTUUID=904a3764-02
+        root=PARTUUID=9730496b-02
         rootfstype=ext4
         elevator=deadline
         fsck.repair=yes
@@ -88,3 +88,6 @@ class Cmdline:
         quiet
         init=/usr/lib/raspi-config/init_resize.sh
         """).splitlines()).strip()
+
+        # root=PARTUUID=904a3764-02
+

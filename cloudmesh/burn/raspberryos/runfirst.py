@@ -243,12 +243,13 @@ class Runfirst:
     def get(self, verbose=False):
         # NEEDS TO BE INDENTED THIS WAY
         # OR ELSE WRITTEN SCRIPT WILL NOT WORK
+        # sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
         self.script = dedent(
 f'''#!/bin/bash
 set +e
 CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
 echo {self.hostname} >/etc/hostname
-sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
+sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
 {self._get_etc_hosts_script()}
 {self._get_static_ip_script()}
 FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
@@ -275,6 +276,7 @@ dpkg-reconfigure -f noninteractive keyboard-configuration
 rm -f /boot/{Runfirst.SCRIPT_NAME}
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt
 exit 0
+#
 ''')
 
         if verbose:
