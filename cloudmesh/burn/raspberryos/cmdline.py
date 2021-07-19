@@ -1,12 +1,45 @@
 import textwrap
+import io
+import os
 
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import readfile
 from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.util import path_expand
 
 class Cmdline:
 
     def __init__(self):
+
+        self.template = \
+            {
+                "lite": "console=serial0,115200 " + \
+                        "console=tty1 " + \
+                        "root=PARTUUID={partuuid} " + \
+                        "rootfstype=ext4 " + \
+                        "elevator=deadline " + \
+                        "fsck.repair=yes " + \
+                        "rootwait " + \
+                        "quiet " + \
+                        "init=/usr/lib/raspi-config/init_resize.sh " + \
+                        "systemd.run=/boot/firstrun.sh " + \
+                        "systemd.run_success_action=reboot " + \
+                        "systemd.unit=kernel-command-line.target",
+                "full": "console=serial0,115200 " + \
+                        "console=tty1 " + \
+                        "root=PARTUUID={partuuid} " + \
+                        "rootfstype=ext4 " + \
+                        "elevator=deadline " + \
+                        "fsck.repair=yes " + \
+                        "rootwait " + \
+                        "quiet " + \
+                        "init=/usr/lib/raspi-config/init_resize.sh splash " + \
+                        "plymouth.ignore-serial-consoles " + \
+                        "systemd.run=/boot/firstrun.sh " + \
+                        "systemd.run_success_action=reboot " + \
+                        "systemd.unit=kernel-command-line.target"
+            }
+
         # self.script = " ".join(textwrap.dedent("""
         # console=serial0,115200
         # console=tty1
@@ -39,11 +72,45 @@ class Cmdline:
         systemd.unit=kernel-command-line.target
         """).splitlines()).strip()
 
+    def update(self, filename, version="lite"):
+        """
+        NEW:
+        * [ ] TODO: test on windows
+        * [ ] TODO: test on Linux
+        * [ ] TODO: test on macOS
+
+        filename: the filename to be changed on the sdkard reade.
+            On windows you need the driveletter + "cmdline.txt"
+        """
+        data = readfile(filename).split(" ")
+        for partuuid in data:
+            if partuuid.startswith("root=PARTUUID="):
+                partuuid = partuuid.split("root=PARTUUID=")[1].strip()
+                break
+        partuuid = self.writefile(filename, self.template[version].format(partuuid=partuuid))
+
+    def writefile(self, filename, content):
+        """
+        NEW:
+        * [ ] TODO: test on windows
+        * [ ] TODO: test on Linux
+        * [ ] TODO: test on macOS
+
+        writes the content into the file
+        :param filename: the filename to be changed on the sdcard cmdline.txt.
+                         On Windows it must start with the drive letter such as "f:/"
+        :param content: the content
+        :return:
+        """
+        outfile = io.open(path_expand(filename), 'w', newline='\n')
+        outfile.write(content)
+        outfile.flush()
+        os.fsync(outfile)
+
     def read(self, filename=None):
         """
         Read a pre-existing cmdline.txt and store it
         """
-
         if filename is None:
             raise Exception("read called with no filename")
 
