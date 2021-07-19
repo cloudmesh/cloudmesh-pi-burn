@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 from pprint import pprint
 from pathlib import PurePosixPath
+import io
 
 from cloudmesh.common.Printer import Printer
 from cloudmesh.common.Shell import Shell
@@ -727,22 +728,63 @@ class Diskpart:
 class WindowsSDCard:
     tmp = "tmp.txt"
 
+
     # device will be likely of form Z:/path we need to use Path from new python 3
 
     def __init__(self, drive=None):
         self.drive = drive
+        self.cmdline = \
+            {
+                "lite": "console=serial0,115200 console=tty1 root=PARTUUID={partuuid} " + \
+                        "rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet " + \
+                        "init=/usr/lib/raspi-config/init_resize.sh systemd.run=/boot/firstrun.sh " + \
+                        "systemd.run_success_action=reboot systemd.unit=kernel-command-line.target",
+                "full": "console=serial0,115200 console=tty1 root=PARTUUID={partuuid} " + \
+                        "rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet " + \
+                        "init=/usr/lib/raspi-config/init_resize.sh splash plymouth.ignore-serial-consoles " + \
+                        "systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot " + \
+                        "systemd.unit=kernel-command-line.target"
+            }
 
     def readfile(self, filename=None):
         content = common_readfile(filename, mode='rb')
         # this may need to be changed to just "r"
         return content
 
-    def writefile(self, filename=None, content=None, sync=True):
-        with open(path_expand(filename), 'w') as outfile:
-            outfile.write(content)
-            outfile.truncate()  # may not be needed, but is better
-            if sync:
-                os.fsync(outfile)
+    @staticmethod
+    def writefile(filename=None, content=None, sync=True):
+        """
+        writes the content into the file
+        :param filename: the filename
+        :param content: teh content
+        :return:
+        """
+        outfile = io.open(path_expand(filename), 'w', newline='\n')
+        outfile.write(content)
+        # outfile.truncate()  # may not be needed
+        outfile.flush()
+        if sync:
+            os.fsync(outfile)
+
+    #def writefile(self, filename=None, content=None, sync=True):
+    #    with open(path_expand(filename), 'w') as outfile:
+    #        outfile.write(content)
+    #        outfile.truncate()  # may not be needed, but is better
+    #        if sync:
+    #            os.fsync(outfile)
+
+    def update_cmdline(self, letter):
+        cmdline_file = letter + ":\\cmdline.txt"
+        data = common_readfile(cmdline_file).split(" ")
+        for partuuid in data:
+            if partuuid.startswith("root=PARTUUID="):
+                partuuid = partuuid.split("root=PARTUUID=")[1].strip()
+                break
+        partuuid = WindowsSDCard.writefile(cmdline_file, self.cmdline["lite"].format(partuuid=partuuid))
+
+        cmdline_file = letter + ":\\cmdline.txt"
+        partuuid = common_readfile(cmdline_file)
+        print(partuuid)
 
     def get_drives(self):
         """

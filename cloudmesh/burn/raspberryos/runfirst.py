@@ -7,6 +7,8 @@ from cloudmesh.common.Shell import Shell
 from passlib.hash import sha256_crypt
 from cloudmesh.burn.util import os_is_windows
 
+if os_is_windows():
+    from cloudmesh.burn.windowssdcard import WindowsSDCard
 
 def dedent(content):
     return textwrap.dedent(content).strip()
@@ -229,15 +231,16 @@ class Runfirst:
             raise Exception("no script found. Did you run .get() first?")
 
         tmp_location = path_expand('~/.cloudmesh/cmburn/firstrun.sh.tmp')
-        writefile(tmp_location, self.script)
         if os_is_windows():
             filename = path_expand(filename)
+            # WindowsSDCard.writefile(tmp_location, self.script, sync=True)
             # Shell.run(f'cat {tmp_location} | tee {filename}')
-            os.system(f'cp {tmp_location} {filename}')
+            # os.system(f'cp {tmp_location} {filename}')
+            WindowsSDCard.writefile(filename, self.script, sync=True)
         else:
+            writefile(tmp_location, self.script)
             Shell.run(f'cat {tmp_location} | sudo tee {filename}')
-
-        os.system("rm -f {tmp_location}")
+            os.system("rm -f {tmp_location}")
         os.system(f"chmod a+x {filename}")
 
     def get(self, verbose=False):
@@ -278,6 +281,8 @@ sed -i 's| systemd.run.*||g' /boot/cmdline.txt
 exit 0
 #
 ''')
+        self.script = self.script.strip().splitlines()
+        self.script = "\n".join(self.script) + "\n"
 
         if verbose:
             Console.info(f'{Runfirst.SCRIPT_NAME}.sh for {self.hostname}')
