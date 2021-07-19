@@ -59,7 +59,7 @@ echo red >/etc/hostname
 sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{host}/g" /etc/hosts
 FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
 FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
-# echo "$FIRSTUSER:"'{hash}' | chpasswd -e
+echo "$FIRSTUSER:"'{hash}' | chpasswd -e
 systemctl enable ssh
 cat >/etc/wpa_supplicant/wpa_supplicant.conf <<'WPAEOF'
 country=US
