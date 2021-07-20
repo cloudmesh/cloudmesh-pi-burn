@@ -41,14 +41,43 @@ except:
     with_format = False
 
 encrypted_wifi_password = psk_encrypt(ssid, wifi_password)
+#encrypted_wifi_password = wifi_password
+print(encrypted_wifi_password)
 
 hash = encrypt_user_passwd(user_password)
 print(hash)
 
+
 # echo "$FIRSTUSER:"'{hash}' | chpasswd -e
 # fstring needs to be done carefully ....as there s { in it needs to be masked
 
-firstrun = \
+
+firstrun_anthony = \
+f'''
+sudo sed -i 's/#net\.ipv4\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+sudo iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT
+sudo iptables -A FORWARD -i wlan0 -o eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
+sh -c "iptables-save > /etc/iptables.ipv4.nat"
+sudo sed -i '$i iptables-restore < /etc/iptables.ipv4.nat' /etc/rc.local
+cat >/etc/wpa_supplicant/wpa_supplicant.conf <<WPAEOF
+country=US
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+ap_scan=1
+update_config=1
+network={{
+	ssid="{ssid}"
+	psk="{encrypted_wifi_password}"
+}}
+WPAEOF
+chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
+rfkill unblock wifi
+for filename in /var/lib/systemd/rfkill/*:wlan ; do
+    echo 0 > $filename
+done
+'''
+
+firstrun_simple = \
 f'''
 #!/bin/bash
 
@@ -69,7 +98,7 @@ ap_scan=1
 update_config=1
 network={{
 	ssid="{ssid}"
-	psk="{encrypted_wifi_password}"
+	psk={encrypted_wifi_password}
 }}
 
 WPAEOF
@@ -96,7 +125,7 @@ sshkey = readfile(path_expand("~/.ssh/id_rsa.pub"))
 #echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
 
 
-firtsrun = '''
+firstrun_cluster = f'''
 #!/bin/bash
 set +e
 CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
@@ -123,7 +152,7 @@ ap_scan=1
 update_config=1
 network={{
 	ssid="{ssid}"
-	psk="{encrypted_wifi_password}"
+	psk={encrypted_wifi_password}
 }}
 WPAEOF
 chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
@@ -135,12 +164,16 @@ rm -f /etc/xdg/autostart/piwiz.desktop
 rm -f /etc/localtime
 echo "America/Indiana/Indianapolis" >/etc/timezone
 dpkg-reconfigure -f noninteractive tzdata
+
+# XKBLAYOUT="en_US.UTF-8"
+
 cat >/etc/default/keyboard <<KBEOF
 XKBMODEL="pc105"
-XKBLAYOUT="en_US.UTF-8"
+XKBLAYOUT="us"
 XKBVARIANT=""
 XKBOPTIONS=""
 KBEOF
+
 dpkg-reconfigure -f noninteractive keyboard-configuration
 rm -f /boot/firstrun.sh
 sed -i 's| systemd.run.*||g' /boot/cmdline.txt
@@ -148,8 +181,16 @@ exit 0
 #
 '''
 
+#firstrun=firstrun_anthony
+#firstrun=firstrun_simple
+firstrun=firstrun_cluster
+
 firstrun = firstrun.strip().splitlines()
 firstrun = "\n".join(firstrun) + "\n"
+
+
+
+
 
 def writefile(filename, content):
     """
