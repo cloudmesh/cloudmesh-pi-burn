@@ -67,7 +67,7 @@ ap_scan=1
 update_config=1
 network={{
 	ssid="{ssid}"
-	psk="{encrypted_wifi_password}"
+	psk={encrypted_wifi_password}
 }}
 WPAEOF
 chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
