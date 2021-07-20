@@ -8,7 +8,7 @@ import sys
 import io
 from passlib.utils import pbkdf2
 import binascii, sys
-
+   
 # USE
 #  python ccc.py red SSID WIFIPASSWD PASSWD format
 #
