@@ -111,6 +111,9 @@ class Burner(AbstractBurner):
         # This gets rid of whitespace in cmdline.txt file?
         cmdline.read(filename=f'{sdcard.boot_volume}/cmdline.txt')
         cmdline.write(filename=f'{sdcard.boot_volume}/cmdline.txt')
+        # for debugging
+        cmdline.write(filename='tmp-cmdline.txt')
+
         # print(cmdline.get())
 
         # Build the proper runfrist.sh
@@ -142,6 +145,7 @@ class Burner(AbstractBurner):
             filename = path_expand(f'~/.cloudmesh/cmburn/{Runfirst.SCRIPT_NAME}')
             runfirst.write(filename=filename)
             os.system(f"chmod a+x {filename}")
+            filename = path_expand(f'{Runfirst.SCRIPT_NAME}')
 
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
         os.system(f"chmod a+x {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")

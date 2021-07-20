@@ -6,6 +6,9 @@ from cloudmesh.common.console import Console
 from cloudmesh.common.Shell import Shell
 from passlib.hash import sha256_crypt
 from cloudmesh.burn.util import os_is_windows
+from passlib.hash import sha256_crypt
+from passlib.utils import pbkdf2
+import binascii
 
 if os_is_windows():
     from cloudmesh.burn.windowssdcard import WindowsSDCard
@@ -74,7 +77,11 @@ class Runfirst:
         """
         self.etc_hosts = dict(zip(names, ips))
 
-    def set_wifi(self, ssid, passwd, country="US"):
+    def psk_encrypt(self, ssid, password):
+        value = pbkdf2.pbkdf2(str.encode(password), str.encode(ssid), 4096, 32)
+        return binascii.hexlify(value).decode("utf-8")
+
+    def set_wifi(self, ssid, passwd, country="US", encrypt=True):
         """
         sets the wifi password
 
@@ -88,7 +95,11 @@ class Runfirst:
         # Same as ubuntu/ previous raspberry, write to boot partition and then
         # just add to first run to place it in place
         self.ssid = ssid
-        self.wifipasswd = passwd
+        if encrypt:
+            self.wifipasswd = self.psk_encrypt(ssid, passwd)
+        else:
+            self.wifipasswd = passwd
+
         self.country = country
 
     def set_locale(self, timezone=None, locale=None):
