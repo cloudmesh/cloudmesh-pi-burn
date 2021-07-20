@@ -105,54 +105,49 @@ sed -i "s/127.0.1.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{host}/g" /etc/hosts
 echo 10.1.1.2   red01 >> /etc/hosts
 echo "interface eth0" >> /etc/dhcpcd.conf
 echo "static ip_address=10.1.1.1/24" >> /etc/dhcpcd.conf
-FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
-FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
-echo "$FIRSTUSER:"'{hash}' | chpasswd -e
-systemctl enable ssh
-sudo sed -i 's/#net\.ipv4\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
-sudo iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT
-sudo iptables -A FORWARD -i wlan0 -o eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
-sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
-sh -c "iptables-save > /etc/iptables.ipv4.nat"
-sudo sed -i '$i iptables-restore < /etc/iptables.ipv4.nat' /etc/rc.local
+=======
 
-cat >/etc/wpa_supplicant/wpa_supplicant.conf <<WPAEOF
-country=US
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-ap_scan=1
-update_config=1
-network={{
-	ssid="{ssid}"
-	psk="{encrypted_wifi_password}"
-}}
-WPAEOF
-chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
-rfkill unblock wifi
-for filename in /var/lib/systemd/rfkill/*:wlan ; do
-    echo 0 > $filename
-done
-rm -f /etc/xdg/autostart/piwiz.desktop
-rm -f /etc/localtime
-echo "America/Indiana/Indianapolis" >/etc/timezone
-dpkg-reconfigure -f noninteractive tzdata
-cat >/etc/default/keyboard <<KBEOF
-XKBMODEL="pc105"
-XKBLAYOUT="en_US.UTF-8"
-XKBVARIANT=""
-XKBOPTIONS=""
-KBEOF
-dpkg-reconfigure -f noninteractive keyboard-configuration
-rm -f /boot/firstrun.sh
-sed -i 's| systemd.run.*||g' /boot/cmdline.txt
-exit 0
-#
+################CHANGES FOR DDD BEGIN#########################################
+
+
+country = "IN"
+locale = "en_US.UTF-8"
+timezone = "Asia/Kolkata"
+
+from cloudmesh.burn.raspberryos.runfirst import Runfirst
+from cloudmesh.burn.util import os_is_windows
+
+runfirst = Runfirst()
+
+runfirst.set_hostname(host)
+
+if user_password:
+    runfirst.set_password(password=user_password)
+
+runfirst.set_locale(timezone=timezone, locale=locale)
+
+if ssid:
+    runfirst.set_wifi(ssid, wifi_password, country=country)
+
+runfirst.get(verbose=False)
+
+if os_is_windows():
+    runfirst.info()
+    print(f"runscript: {letter}:/{Runfirst.SCRIPT_NAME}")
+    filename = path_expand(f'~/.cloudmesh/cmburn/{Runfirst.SCRIPT_NAME}')
+    runfirst.write(filename=filename)
+    os.system(f"chmod a+x {filename}")
+
+writefile(filename=f'{letter}:/{Runfirst.SCRIPT_NAME}')
+os.system(f"chmod a+x {letter}:/{Runfirst.SCRIPT_NAME}")
+
+
+firstrun = \
+f'''
 '''
 
 firstrun = firstrun.strip().splitlines()
 firstrun = "\n".join(firstrun) + "\n"
-
-
-
 
 
 def writefile(filename, content):
