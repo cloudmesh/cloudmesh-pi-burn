@@ -11,6 +11,7 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import path_expand
+from cloudmesh.common.util import banner
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.burn.util import os_is_windows
 from cloudmesh.burn.windowssdcard import Diskpart
@@ -32,7 +33,7 @@ class Burner(AbstractBurner):
         managers = inv.find(service='manager')
         workers = inv.find(service='worker')
 
-        # No inherenet need to distinguish the configs by service
+        # No inherent need to distinguish the configs by service
         configs = managers + workers
         # Create dict for them for easy lookup
         self.configs = dict((config['host'], config) for config in configs)
@@ -76,6 +77,7 @@ class Burner(AbstractBurner):
             print()
             return ""
 
+        banner(txt=f"Burn {name}", figlet=True)
         print ("LLLL", withimage, device)
 
         # Confirm card is inserted into device path
