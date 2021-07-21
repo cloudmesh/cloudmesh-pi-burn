@@ -80,7 +80,7 @@ class Burner(AbstractBurner):
             return ""
 
         banner(txt=f"Burn {name}", figlet=True)
-        
+
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
             if not yn_choice(f"Please insert the card to be burned for {name}. "
@@ -92,6 +92,7 @@ class Burner(AbstractBurner):
         if os_is_windows():
             if withimage:
                 sdcard.format_device(device=device, unmount=True)
+                banner("Burn image", color="GREEN")
                 sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
 
             # sdcard instance needs the drive letter in order to use
@@ -103,14 +104,15 @@ class Burner(AbstractBurner):
             sdcard.set_drive(drive=letter)
             sdcard.mount(device=device, card_os="raspberry")
 
-            print(f"Letter {letter}")
+            # print(f"Letter {letter}")
             # yn_choice("Burn completed. Continue")
 
         else:
             if withimage:
                 sdcard.format_device(device=device, yes=True)
-            sdcard.unmount(device=device)
-            sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
+                sdcard.unmount(device=device)
+                banner("Burn image", color="GREEN")
+                sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
             sdcard.mount(device=device, card_os="raspberry")
 
         # Read and write cmdline.txt
@@ -147,17 +149,7 @@ class Burner(AbstractBurner):
 
         runfirst.get(verbose=verbose)
 
-        # print("--- firstrun.sh ---")
-        # print(runfirst.script)
-        # print("---")
-
-        if os_is_windows():
-            runfirst.info()
-            print(f"runscript: {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
-            filename = path_expand(f'~/.cloudmesh/cmburn/{Runfirst.SCRIPT_NAME}')
-            runfirst.write(filename=filename)
-            os.system(f"chmod a+x {filename}")
-            filename = path_expand(f'{Runfirst.SCRIPT_NAME}')
+        runfirst.info()
 
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
         os.system(f"chmod a+x {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
