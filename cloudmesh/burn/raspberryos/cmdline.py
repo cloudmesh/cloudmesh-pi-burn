@@ -7,37 +7,38 @@ from cloudmesh.common.util import readfile
 from cloudmesh.burn.util import os_is_windows
 from cloudmesh.common.util import path_expand
 
+
 class Cmdline:
 
     def __init__(self):
 
         self.template = \
             {
-                "lite": "console=serial0,115200 " + \
-                        "console=tty1 " + \
-                        "root=PARTUUID={partuuid} " + \
-                        "rootfstype=ext4 " + \
-                        "elevator=deadline " + \
-                        "fsck.repair=yes " + \
-                        "rootwait " + \
-                        "quiet " + \
-                        "init=/usr/lib/raspi-config/init_resize.sh " + \
-                        "systemd.run=/boot/firstrun.sh " + \
-                        "systemd.run_success_action=reboot " + \
-                        "systemd.unit=kernel-command-line.target",
-                "full": "console=serial0,115200 " + \
-                        "console=tty1 " + \
-                        "root=PARTUUID={partuuid} " + \
-                        "rootfstype=ext4 " + \
-                        "elevator=deadline " + \
-                        "fsck.repair=yes " + \
-                        "rootwait " + \
-                        "quiet " + \
+                "lite": "console=serial0,115200 " +
+                        "console=tty1 " +
+                        "root=PARTUUID={partuuid} " +
+                        "rootfstype=ext4 " +
+                        "elevator=deadline " +
+                        "fsck.repair=yes " +
+                        "rootwait " +
+                        "quiet " +
                         "init=/usr/lib/raspi-config/init_resize.sh " +
-                        "splash " + \
-                        "plymouth.ignore-serial-consoles " + \
-                        "systemd.run=/boot/firstrun.sh " + \
-                        "systemd.run_success_action=reboot " + \
+                        "systemd.run=/boot/firstrun.sh " +
+                        "systemd.run_success_action=reboot " +
+                        "systemd.unit=kernel-command-line.target",
+                "full": "console=serial0,115200 " +
+                        "console=tty1 " +
+                        "root=PARTUUID={partuuid} " +
+                        "rootfstype=ext4 " +
+                        "elevator=deadline " +
+                        "fsck.repair=yes " +
+                        "rootwait " +
+                        "quiet " +
+                        "init=/usr/lib/raspi-config/init_resize.sh " +
+                        "splash " +
+                        "plymouth.ignore-serial-consoles " +
+                        "systemd.run=/boot/firstrun.sh " +
+                        "systemd.run_success_action=reboot " +
                         "systemd.unit=kernel-command-line.target"
             }
 
@@ -48,13 +49,13 @@ class Cmdline:
         # self.cmdline will be populated when .read() is called
         self.cmdline = None
         # the space-separated values to add to the end of cmdline
-        #self.script = " ".join(textwrap.dedent("""
-        #splash
-        #plymouth.ignore-serial-consoles
-        #systemd.run=/boot/firstrun.sh
-        #systemd.run_success_action=reboot
-        #systemd.unit=kernel-command-line.target
-        #""").splitlines()).strip()
+        # self.script = " ".join(textwrap.dedent("""
+        # splash
+        # plymouth.ignore-serial-consoles
+        # systemd.run=/boot/firstrun.sh
+        # systemd.run_success_action=reboot
+        # systemd.unit=kernel-command-line.target
+        # """).splitlines()).strip()
         self.script = None
 
     def update(self, filename, version="lite"):
@@ -144,4 +145,3 @@ class Cmdline:
         """).splitlines()).strip()
 
         # root=PARTUUID=904a3764-02
-

@@ -16,12 +16,14 @@ from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.burn.util import os_is_windows
 from cloudmesh.burn.windowssdcard import Diskpart
 
+
 class Burner(AbstractBurner):
     """
     Burner uses a cloudmesh inventory to create a RaspberryOS cluster
 
     Inventory should contain information on manager and workers
     """
+
     def __init__(self, inventory=None):
         # Get inventory
         if inventory is None:
@@ -78,7 +80,7 @@ class Burner(AbstractBurner):
             return ""
 
         banner(txt=f"Burn {name}", figlet=True)
-        print ("LLLL", withimage, device)
+        print("LLLL", withimage, device)
 
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
@@ -90,20 +92,19 @@ class Burner(AbstractBurner):
         Console.info(f'Burning {name}')
         if os_is_windows():
             if withimage:
-
                 sdcard.format_device(device=device, unmount=True)
-                sdcard.burn_sdcard (tag=config['tag'], device=device, yes=True)
+                sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
 
             # sdcard instance needs the drive letter in order to use
             # sdcard.boot_volume later (windows)
             detail = Diskpart.detail(disk=device)
             letter = detail["Ltr"]
-            print (f"Letter {letter}")
+            print(f"Letter {letter}")
 
             sdcard.set_drive(drive=letter)
             sdcard.mount(device=device, card_os="raspberry")
 
-            print (f"Letter {letter}")
+            print(f"Letter {letter}")
             yn_choice("Burn completed. Continue")
 
         else:
@@ -147,9 +148,9 @@ class Burner(AbstractBurner):
 
         runfirst.get(verbose=verbose)
 
-        print ("--- firstrun.sh ---")
-        print (runfirst.script)
-        print ("---")
+        print("--- firstrun.sh ---")
+        print(runfirst.script)
+        print("---")
 
         if os_is_windows():
             runfirst.info()
@@ -161,8 +162,6 @@ class Burner(AbstractBurner):
 
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
         os.system(f"chmod a+x {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
-
-
 
         if not os_is_windows():
             time.sleep(1)  # Sleep for 1 seconds to give ample time for writing to finish

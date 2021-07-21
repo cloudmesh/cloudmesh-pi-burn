@@ -48,6 +48,7 @@ class Burner(object):
         """
         self.hostname = None
         self.keypath = None
+        self.hostnames = None
 
     # noinspection PyBroadException
     @windows_not_supported
@@ -985,7 +986,8 @@ class MultiBurner(object):
                  yes=False):
         """
         TODO: provide documentation
-
+        :param burning:
+        :type burning:
         :param image:
         :type image:
         :param device:
@@ -1012,6 +1014,8 @@ class MultiBurner(object):
         :type locale:
         :param formatting:
         :type formatting:
+        :param imaging:
+        :type imaging:
         :param yes:
         :type yes:
         :return:
@@ -1183,6 +1187,8 @@ class MultiBurner(object):
         :type formatting:
         :param yes:
         :type yes:
+        :param imaging:
+        :type imaging:
         :param tag:
         :type tag:
         :param locale:

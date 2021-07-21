@@ -13,6 +13,7 @@ import binascii
 if os_is_windows():
     from cloudmesh.burn.windowssdcard import WindowsSDCard
 
+
 def dedent(content):
     return textwrap.dedent(content).strip()
 
@@ -39,7 +40,6 @@ class Runfirst:
         self.password = None
         self.bridge = None
         self.country = "US"
-
 
     def info(self):
         print("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
@@ -94,6 +94,11 @@ class Runfirst:
         :type ssid:
         :param passwd:
         :type passwd:
+        :param country:
+        :type country:
+        :param encrypt:
+        :type encrypt:
+
         :return:
         :rtype:
         """
@@ -168,8 +173,8 @@ class Runfirst:
         # repeatable salt if needed for testing
         # hash = sha256_crypt.using(salt='qY2oeR.YpL', rounds=5000).hash(
         # self.password)
-        hash = sha256_crypt.using(rounds=5000).hash(self.password)
-        script.append(f'echo "$FIRSTUSER:"\'{hash}\' | chpasswd -e')
+        hash_value = sha256_crypt.using(rounds=5000).hash(self.password)
+        script.append(f'echo "$FIRSTUSER:"\'{hash_value}\' | chpasswd -e')
         return '\n'.join(script)
 
     def _get_static_ip_script(self):
@@ -270,8 +275,7 @@ class Runfirst:
         # NEEDS TO BE INDENTED THIS WAY
         # OR ELSE WRITTEN SCRIPT WILL NOT WORK
         # sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
-        self.script = dedent(
-f'''#!/bin/bash
+        self.script = dedent(f'''#!/bin/bash
 set +e
 CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
 echo {self.hostname} >/etc/hostname

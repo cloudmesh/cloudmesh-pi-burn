@@ -153,12 +153,19 @@ class Configure:
 
         ip:hostname
 
-        for all hosts with ips in the inventory. Also includes mapping for own hostname in the form of 127.0.0.1:{name}
+        for all hosts with ips in the inventory. Also includes mapping for own hostname in
+        the form of 127.0.0.1:{name}
 
-        For example, if inventory has worker001 with ip 10.1.1.1, worker002 with ip 10.1.1.2, worker003 with ip 10.1.1.3,
+        For example, if inventory has
+        worker001 with ip 10.1.1.1,
+        worker002 with ip 10.1.1.2,
+        worker003 with ip 10.1.1.3,
         then:
 
-        self.get_hosts_for(name='worker001') returns ['127.0.0.1:worker001', '10.1.1.2:worker002', '10.1.1.3:worker003']
+        self.get_hosts_for(name='worker001') returns
+        ['127.0.0.1:worker001',
+         '10.1.1.2:worker002',
+         '10.1.1.3:worker003']
 
         Do not rely on the order of the result here
         """
