@@ -80,8 +80,7 @@ class Burner(AbstractBurner):
             return ""
 
         banner(txt=f"Burn {name}", figlet=True)
-        print("LLLL", withimage, device)
-
+        
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
             if not yn_choice(f"Please insert the card to be burned for {name}. "
@@ -105,7 +104,7 @@ class Burner(AbstractBurner):
             sdcard.mount(device=device, card_os="raspberry")
 
             print(f"Letter {letter}")
-            yn_choice("Burn completed. Continue")
+            # yn_choice("Burn completed. Continue")
 
         else:
             if withimage:
@@ -121,9 +120,9 @@ class Burner(AbstractBurner):
         # This gets rid of whitespace in cmdline.txt file?
         cmdline.update(filename=f'{sdcard.boot_volume}/cmdline.txt')
         cmdline.write(filename='tmp-cmdline.txt')
-        print("--- cmdline.txt ---")
-        print(cmdline.script)
-        print("---")
+        # print("--- cmdline.txt ---")
+        # print(cmdline.script)
+        # print("---")
 
         # Build the proper runfrist.sh
         runfirst = Runfirst()
@@ -148,9 +147,9 @@ class Burner(AbstractBurner):
 
         runfirst.get(verbose=verbose)
 
-        print("--- firstrun.sh ---")
-        print(runfirst.script)
-        print("---")
+        # print("--- firstrun.sh ---")
+        # print(runfirst.script)
+        # print("---")
 
         if os_is_windows():
             runfirst.info()
