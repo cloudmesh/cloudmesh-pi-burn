@@ -38,6 +38,8 @@ class Runfirst:
         self.static_ip_info = None
         self.password = None
         self.bridge = None
+        self.country = "US"
+
 
     def info(self):
         print("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
@@ -47,6 +49,9 @@ class Runfirst:
         print("Locale:  ", self.locale)
         print("Country: ", self.country)
         print()
+
+    def set_country(self, country="US"):
+        self.country = country
 
     def set_key(self, key=None):
         if key is None:
@@ -289,7 +294,7 @@ echo "{self.timezone}" >/etc/timezone
 dpkg-reconfigure -f noninteractive tzdata
 cat >/etc/default/keyboard <<KBEOF
 XKBMODEL="pc105"
-XKBLAYOUT="{self.locale}"
+XKBLAYOUT="{self.country}"
 XKBVARIANT=""
 XKBOPTIONS=""
 KBEOF

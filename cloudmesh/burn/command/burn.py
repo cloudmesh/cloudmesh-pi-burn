@@ -69,6 +69,7 @@ class BurnCommand(PluginCommand):
                                    [-v]
                                    [-f]
                                    [--new]
+                                   [--no_image]
               burn firmware check
               burn firmware update
               burn install
@@ -384,6 +385,7 @@ class BurnCommand(PluginCommand):
                        "cmdline",
                        "upgrade",
                        "no_diagram",
+                       "no_image",
                        "new")
 
         # arguments.MOUNTPOINT = arguments["--mount"]
@@ -542,7 +544,8 @@ class BurnCommand(PluginCommand):
                 password=arguments['--password'],
                 ssid=ssid,
                 wifipasswd=wifipasswd,
-                country=arguments['--country']
+                country=arguments['--country'],
+                withimage=not arguments.no_image
             ))
             return ""
 

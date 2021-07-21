@@ -47,7 +47,8 @@ class Burner(AbstractBurner):
              password=None,
              ssid=None,
              wifipasswd=None,
-             country=None):
+             country=None,
+             withimage=True):
         """
         Given the name of a config, burn device with RaspberryOS and configure properly
         """
@@ -60,6 +61,8 @@ class Burner(AbstractBurner):
         if name not in self.configs:
             Console.error(f'Could not find {name} in Inventory. Is the service column marked as "manager" or "worker"?')
             return
+        if country is None:
+            country = "US"
 
         config = self.configs[name]
         sdcard = SDCard(card_os="raspberry")
@@ -73,6 +76,8 @@ class Burner(AbstractBurner):
             print()
             return ""
 
+        print ("LLLL", withimage, device)
+
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
             if not yn_choice(f"Please insert the card to be burned for {name}. "
@@ -82,9 +87,10 @@ class Burner(AbstractBurner):
 
         Console.info(f'Burning {name}')
         if os_is_windows():
+            if withimage:
 
-            sdcard.format_device(device=device, unmount=True)
-            sdcard.burn_sdcard (tag=config['tag'], device=device, yes=True)
+                sdcard.format_device(device=device, unmount=True)
+                sdcard.burn_sdcard (tag=config['tag'], device=device, yes=True)
 
             # sdcard instance needs the drive letter in order to use
             # sdcard.boot_volume later (windows)
@@ -99,7 +105,8 @@ class Burner(AbstractBurner):
             yn_choice("Burn completed. Continue")
 
         else:
-            sdcard.format_device(device=device, yes=True)
+            if withimage:
+                sdcard.format_device(device=device, yes=True)
             sdcard.unmount(device=device)
             sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
             sdcard.mount(device=device, card_os="raspberry")
@@ -175,7 +182,9 @@ class Burner(AbstractBurner):
                    password=None,
                    ssid=None,
                    wifipasswd=None,
-                   country=None):
+                   country=None,
+                   withimage=True
+                   ):
         """
         Given multiple names, burn them
         """
@@ -201,7 +210,8 @@ class Burner(AbstractBurner):
                 password=password,
                 ssid=ssid,
                 wifipasswd=wifipasswd,
-                country=None
+                country=None,
+                withimage=withimage
             )
         Console.ok('Finished burning all cards')
 

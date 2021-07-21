@@ -48,13 +48,14 @@ class Cmdline:
         # self.cmdline will be populated when .read() is called
         self.cmdline = None
         # the space-separated values to add to the end of cmdline
-        self.script = " ".join(textwrap.dedent("""
-        splash
-        plymouth.ignore-serial-consoles
-        systemd.run=/boot/firstrun.sh
-        systemd.run_success_action=reboot
-        systemd.unit=kernel-command-line.target
-        """).splitlines()).strip()
+        #self.script = " ".join(textwrap.dedent("""
+        #splash
+        #plymouth.ignore-serial-consoles
+        #systemd.run=/boot/firstrun.sh
+        #systemd.run_success_action=reboot
+        #systemd.unit=kernel-command-line.target
+        #""").splitlines()).strip()
+        self.script = None
 
     def update(self, filename, version="lite"):
         """
@@ -66,12 +67,14 @@ class Cmdline:
         filename: the filename to be changed on the sdkard reade.
             On windows you need the driveletter + "cmdline.txt"
         """
-        data = readfile(filename).split(" ")
-        for partuuid in data:
+        self.cmdline = readfile(filename).split(" ")
+
+        for partuuid in self.cmdline:
             if partuuid.startswith("root=PARTUUID="):
                 partuuid = partuuid.split("root=PARTUUID=")[1].strip()
                 break
         self.script = self.template[version].format(partuuid=partuuid)
+
         self.writefile(filename, self.script)
 
     def writefile(self, filename, content):
