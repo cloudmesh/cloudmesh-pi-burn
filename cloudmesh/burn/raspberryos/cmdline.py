@@ -33,29 +33,13 @@ class Cmdline:
                         "fsck.repair=yes " + \
                         "rootwait " + \
                         "quiet " + \
-                        "init=/usr/lib/raspi-config/init_resize.sh splash " + \
+                        "init=/usr/lib/raspi-config/init_resize.sh " +
+                        "splash " + \
                         "plymouth.ignore-serial-consoles " + \
                         "systemd.run=/boot/firstrun.sh " + \
                         "systemd.run_success_action=reboot " + \
                         "systemd.unit=kernel-command-line.target"
             }
-
-        # self.script = " ".join(textwrap.dedent("""
-        # console=serial0,115200
-        # console=tty1
-        # root=PARTUUID=904a3764-02
-        # rootfstype=ext4
-        # elevator=deadline
-        # fsck.repair=yes
-        # rootwait
-        # quiet
-        # init=/usr/lib/raspi-config/init_resize.sh
-        # splash
-        # plymouth.ignore-serial-consoles
-        # systemd.run=/boot/firstrun.sh
-        # systemd.run_success_action=reboot
-        # systemd.unit=kernel-command-line.target
-        # """).splitlines()).strip()
 
         # Commented out above since we should just append
         # the lines below to the existing cmdline.txt since
@@ -87,7 +71,8 @@ class Cmdline:
             if partuuid.startswith("root=PARTUUID="):
                 partuuid = partuuid.split("root=PARTUUID=")[1].strip()
                 break
-        partuuid = self.writefile(filename, self.template[version].format(partuuid=partuuid))
+        self.script = self.template[version].format(partuuid=partuuid)
+        self.writefile(filename, self.script)
 
     def writefile(self, filename, content):
         """
@@ -113,7 +98,6 @@ class Cmdline:
         """
         if filename is None:
             raise Exception("read called with no filename")
-
         self.cmdline = readfile(filename).strip()
 
     def write(self, filename=None):

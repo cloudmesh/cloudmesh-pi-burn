@@ -196,7 +196,12 @@ class Runfirst:
                 script.append(f"echo {ip}\t{hostname} >> /etc/hosts")
         return '\n'.join(script)
 
-    def _get_wifi_config(self):
+    def _get_wifi_config(self, encrypted=True):
+        # we assume the password is encrypted so the password has no " "
+        # if encrypted is set to false the password will be e,bedded in " "
+        # in our burner we assume tyically it is encrypted
+        if not encrypted:
+            password = f'"{self.wifipasswd}"'
         if self.ssid:
             script = f"""
                 cat >/etc/wpa_supplicant/wpa_supplicant.conf <<WPAEOF
@@ -206,7 +211,7 @@ class Runfirst:
                 update_config=1
                 network={{
                     ssid="{self.ssid}"
-                    psk="{self.wifipasswd}"
+                    psk={self.wifipasswd}
                 }}
                 WPAEOF
                 chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
@@ -214,7 +219,9 @@ class Runfirst:
                 for filename in /var/lib/systemd/rfkill/*:wlan ; do
                     echo 0 > $filename
                 done"""
-            return dedent(script)
+            script = dedent(script).splitlines()
+            script = '\n'.join(script)
+            return script
         else:
             return ""
 

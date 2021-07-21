@@ -109,12 +109,11 @@ class Burner(AbstractBurner):
         # Reading will create the proper script in the cmdline instance
         # No extra work needed
         # This gets rid of whitespace in cmdline.txt file?
-        cmdline.read(filename=f'{sdcard.boot_volume}/cmdline.txt')
-        cmdline.write(filename=f'{sdcard.boot_volume}/cmdline.txt')
-        # for debugging
+        cmdline.update(filename=f'{sdcard.boot_volume}/cmdline.txt')
         cmdline.write(filename='tmp-cmdline.txt')
-
-        # print(cmdline.get())
+        print("--- cmdline.txt ---")
+        print(cmdline.script)
+        print("---")
 
         # Build the proper runfrist.sh
         runfirst = Runfirst()
@@ -139,6 +138,10 @@ class Burner(AbstractBurner):
 
         runfirst.get(verbose=verbose)
 
+        print ("--- firstrun.sh ---")
+        print (runfirst.script)
+        print ("---")
+
         if os_is_windows():
             runfirst.info()
             print(f"runscript: {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
@@ -149,6 +152,7 @@ class Burner(AbstractBurner):
 
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
         os.system(f"chmod a+x {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
+
 
 
         if not os_is_windows():
