@@ -24,7 +24,6 @@ from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile as common_readfile
 from cloudmesh.common.util import yn_choice
 
-
 if os_is_windows():
     from cloudmesh.burn.windowssdcard import WindowsSDCard
     from cloudmesh.burn.windowssdcard import Diskpart
@@ -40,6 +39,7 @@ def _execute(msg, command):
     except:  # noqa: E722
         Console.error("{command} failed")
         # but ignore error
+
 
 def location(host_os=None, card_os="raspberry", volume="boot", drive=None):
     """
@@ -437,7 +437,7 @@ class SDCard:
                               "Use the command\n\n"
                               "cms burn info\n")
                 sys.exit()
-                return ""
+                # return ""
 
             from cloudmesh.burn.windowssdcard import WindowsSDCard
             from cloudmesh.burn.windowssdcard import Diskpart
@@ -448,13 +448,12 @@ class SDCard:
 
             print(Printer.write(
                 volumes,
-                order=['###','dev','Disk', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info'],
-                header = ["Volume","Dev", " On Disk", "Ltr", "Label", "Fs","Type", "Size","Status","Info"]
+                order=['###', 'dev', 'Disk', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info'],
+                header=["Volume", "Dev", " On Disk", "Ltr", "Label", "Fs", "Type", "Size", "Status", "Info"]
             ))
 
             disks = Diskpart.removable_diskinfo()
             Wmic.Print(disks)
-
 
             if yn_choice(f"Do you want to format USB card with disk number {device}"):
                 device = device.replace(":", "")
@@ -567,7 +566,7 @@ class SDCard:
             return "unkown"
 
     # TODO Gregor verify the default arg for card_os is ok
-    def mount(self, volume = None, device=None, card_os="raspberry"):
+    def mount(self, volume=None, device=None, card_os="raspberry"):
         """
         Mounts the current SD card
 
@@ -583,9 +582,11 @@ class SDCard:
 
         if os_is_windows():
             try:
-                Diskpart.mount(volume=volume,device=device)
+                Diskpart.mount(volume=volume, device=device)
             except:
-                Console.error(f"could not mount volume {volume} with letter {device}. Please check information on existing devices:")
+                Console.error(
+                    f"could not mount volume {volume} with letter {device}. "
+                    "Please check information on existing devices:")
                 volumes = Diskpart.list_removable()
                 print(Printer.write(
                     volumes,
@@ -919,9 +920,9 @@ class SDCard:
             print(image_path)
             card = WindowsSDCard()
             card.burn_disk(disk=device,
-                            image_path=image_path,
-                            blocksize=blocksize,
-                            size=size)
+                           image_path=image_path,
+                           blocksize=blocksize,
+                           size=size)
             return ""
 
         else:
@@ -992,16 +993,16 @@ class SDCard:
                 print(result)
 
         elif os_is_windows():
-            #data = Diskpart.list_disk()
+            # data = Diskpart.list_disk()
 
-            #print(Printer.write(data,
+            # print(Printer.write(data,
             #                    order=['Disk', '###', 'Status', 'Size', 'Free', 'Dyn', 'Gpt']
             #                    ))
 
             content = Diskpart.list_removable()
             print(Printer.write(
                 content,
-                order = ['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', "dev"]
+                order=['Volume', '###', 'Ltr', 'Label', 'Fs', 'Type', 'Size', 'Status', 'Info', "dev"]
             ))
             result = Diskpart.removable_diskinfo()
             print(Printer.write(result,
@@ -1021,9 +1022,8 @@ class SDCard:
                                     "Partitions",
                                     "Size",
                                     "Status",
-                                ]
-
-        ))
+                                ])
+                  )
 
         details = USB.get_from_usb()
 

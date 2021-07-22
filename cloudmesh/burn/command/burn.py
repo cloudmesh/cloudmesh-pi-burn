@@ -69,6 +69,7 @@ class BurnCommand(PluginCommand):
                                    [-v]
                                    [-f]
                                    [--new]
+                                   [--no_image]
               burn firmware check
               burn firmware update
               burn install
@@ -384,6 +385,7 @@ class BurnCommand(PluginCommand):
                        "cmdline",
                        "upgrade",
                        "no_diagram",
+                       "no_image",
                        "new")
 
         # arguments.MOUNTPOINT = arguments["--mount"]
@@ -409,13 +411,11 @@ class BurnCommand(PluginCommand):
         sdcard = SDCard()
 
         if arguments.drive and arguments.rm:
-
             Diskpart.remove_drive(arguments["DRIVE"])
 
         if arguments.drive and arguments.assign:
 
             Diskpart.assign_drive(volume=arguments["VOLUME"], letter=arguments["DRIVE"])
-
 
         elif arguments.imager:
 
@@ -486,7 +486,6 @@ class BurnCommand(PluginCommand):
             ssid = arguments['--ssid']
             wifipasswd = arguments['--wifipassword']
 
-
             if arguments.inventory:
                 burner = RaspberryBurner(inventory=arguments.inventory)
             else:
@@ -505,7 +504,6 @@ class BurnCommand(PluginCommand):
                         Console.error("No inventory found. Can not create an "
                                       "inventory without a manager.")
                         return ""
-
 
                     timezone = arguments.timezone or "America/Indiana/Indianapolis"
                     if "-" in timezone:
@@ -542,7 +540,8 @@ class BurnCommand(PluginCommand):
                 password=arguments['--password'],
                 ssid=ssid,
                 wifipasswd=wifipasswd,
-                country=arguments['--country']
+                country=arguments['--country'],
+                withimage=not arguments.no_image
             ))
             return ""
 
@@ -618,7 +617,7 @@ class BurnCommand(PluginCommand):
                 Console.info(f'Burning {name}')
                 sdcard.format_device(device=arguments.device, yes=True)
                 if os_is_windows:
-                    sdcard.burn_sdcard(tag=tag, device=arguments.device,yes=True)
+                    sdcard.burn_sdcard(tag=tag, device=arguments.device, yes=True)
                 else:
                     sdcard.unmount(device=arguments.device)
                     sdcard.burn_sdcard(tag=tag, device=arguments.device, yes=True)
@@ -634,7 +633,7 @@ class BurnCommand(PluginCommand):
                                       upgrade=arguments.upgrade,
                                       with_bridge=enable_bridge).write(
                         filename=sdcard.boot_volume + '/user-data')
-                    c.build_network_data(name=name, ssid=arguments.ssid, password=arguments.wifipassword)\
+                    c.build_network_data(name=name, ssid=arguments.ssid, password=arguments.wifipassword) \
                         .write(filename=sdcard.boot_volume + '/network-config')
                 else:
                     c.build_user_data(name=name, add_manager_key=manager,
@@ -785,7 +784,6 @@ class BurnCommand(PluginCommand):
                 Console.error("--manager is only supported on windows")
             return ""
 
-
         elif arguments.install:
 
             if os_is_mac():
@@ -829,7 +827,7 @@ class BurnCommand(PluginCommand):
                 return ""
 
             if arguments.volume is not None:
-                execute("mount",sdcard.mount(device=arguments.device,volume=arguments.volume, card_os = arguments.os))
+                execute("mount", sdcard.mount(device=arguments.device, volume=arguments.volume, card_os=arguments.os))
                 return ""
 
             execute("mount", sdcard.mount(device=arguments.device, card_os=arguments.os))
@@ -1083,7 +1081,7 @@ def _build_default_inventory(filename,
     Console.info("No inventory found or forced rebuild. Buidling inventory "
                  "with defaults.")
     Shell.execute("rm", arguments=[
-                  '-f', filename])
+        '-f', filename])
     i = Inventory(filename=filename)
     if timezone is None:
         timezone = Shell.timezone()
@@ -1091,16 +1089,17 @@ def _build_default_inventory(filename,
         locale = Shell.locale()
     manager_ip = ips[0] if ips else '10.1.1.1'
     image = images[0] if images else 'latest-lite'
-    element = {}
-    element['host'] = manager
-    element['status'] = 'inactive'
-    element['service'] = 'manager'
-    element['ip'] = manager_ip
-    element['tag'] = image
-    element['timezone'] = timezone
-    element['locale'] = locale
-    element['services'] = ['bridge', 'wifi']
-    element['keyfile'] = '~/.ssh/id_rsa.pub'
+    element = {
+        'host': manager,
+        'status': 'inactive',
+        'service': 'manager',
+        'ip': manager_ip,
+        'tag': image,
+        'timezone': timezone,
+        'locale': locale,
+        'services': ['bridge', 'wifi'],
+        'keyfile': '~/.ssh/id_rsa.pub'
+    }
     i.add(**element)
     i.save()
 
@@ -1110,17 +1109,18 @@ def _build_default_inventory(filename,
         for worker in workers:
             ip = ips[index] if ips else f'10.1.1.{last_octet}'
             image = images[index] if images else 'latest-lite'
-            element = {}
-            element['host'] = worker
-            element['status'] = 'inactive'
-            element['service'] = 'worker'
-            element['ip'] = ip
-            element['tag'] = image
-            element['timezone'] = timezone
-            element['locale'] = locale
-            element['router'] = manager_ip
-            element['dns'] = ['8.8.8.8', '8.8.4.4']
-            element['keyfile'] = '~/.ssh/id_rsa.pub'
+            element = {
+                'host': worker,
+                'status': 'inactive',
+                'service': 'worker',
+                'ip': ip,
+                'tag': image,
+                'timezone': timezone,
+                'locale': locale,
+                'router': manager_ip,
+                'dns': ['8.8.8.8', '8.8.4.4'],
+                'keyfile': '~/.ssh/id_rsa.pub'
+            }
             i.add(**element)
             i.save()
             last_octet += 1

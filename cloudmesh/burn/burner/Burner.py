@@ -14,7 +14,6 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 
 
-
 # class Burner(AbstractBurner):
 class Burner:
 
@@ -40,7 +39,7 @@ class Burner:
 
     def shrink(self, image=None):
         if os_is_windows():
-            ## we do not support for now shrink on windows
+            # we do not support for now shrink on windows
             Console.error("detect: Windws is not yet supported")
             sys.exit()
         if image is None:
@@ -120,6 +119,5 @@ class Burner:
 
     def cluster(self, arguments=None):
         self.burner.cluster(arguments=arguments)
-
 
 # multi_self.burner.burn_inventory

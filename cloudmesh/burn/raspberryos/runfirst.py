@@ -13,6 +13,7 @@ import binascii
 if os_is_windows():
     from cloudmesh.burn.windowssdcard import WindowsSDCard
 
+
 def dedent(content):
     return textwrap.dedent(content).strip()
 
@@ -38,6 +39,7 @@ class Runfirst:
         self.static_ip_info = None
         self.password = None
         self.bridge = None
+        self.country = "US"
 
     def info(self):
         print("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
@@ -47,6 +49,9 @@ class Runfirst:
         print("Locale:  ", self.locale)
         print("Country: ", self.country)
         print()
+
+    def set_country(self, country="US"):
+        self.country = country
 
     def set_key(self, key=None):
         if key is None:
@@ -89,6 +94,11 @@ class Runfirst:
         :type ssid:
         :param passwd:
         :type passwd:
+        :param country:
+        :type country:
+        :param encrypt:
+        :type encrypt:
+
         :return:
         :rtype:
         """
@@ -163,8 +173,8 @@ class Runfirst:
         # repeatable salt if needed for testing
         # hash = sha256_crypt.using(salt='qY2oeR.YpL', rounds=5000).hash(
         # self.password)
-        hash = sha256_crypt.using(rounds=5000).hash(self.password)
-        script.append(f'echo "$FIRSTUSER:"\'{hash}\' | chpasswd -e')
+        hash_value = sha256_crypt.using(rounds=5000).hash(self.password)
+        script.append(f'echo "$FIRSTUSER:"\'{hash_value}\' | chpasswd -e')
         return '\n'.join(script)
 
     def _get_static_ip_script(self):
@@ -196,7 +206,12 @@ class Runfirst:
                 script.append(f"echo {ip}\t{hostname} >> /etc/hosts")
         return '\n'.join(script)
 
-    def _get_wifi_config(self):
+    def _get_wifi_config(self, encrypted=True):
+        # we assume the password is encrypted so the password has no " "
+        # if encrypted is set to false the password will be e,bedded in " "
+        # in our burner we assume tyically it is encrypted
+        if not encrypted:
+            password = f'"{self.wifipasswd}"'
         if self.ssid:
             script = f"""
                 cat >/etc/wpa_supplicant/wpa_supplicant.conf <<WPAEOF
@@ -206,7 +221,7 @@ class Runfirst:
                 update_config=1
                 network={{
                     ssid="{self.ssid}"
-                    psk="{self.wifipasswd}"
+                    psk={self.wifipasswd}
                 }}
                 WPAEOF
                 chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
@@ -214,7 +229,9 @@ class Runfirst:
                 for filename in /var/lib/systemd/rfkill/*:wlan ; do
                     echo 0 > $filename
                 done"""
-            return dedent(script)
+            script = dedent(script).splitlines()
+            script = '\n'.join(script)
+            return script
         else:
             return ""
 
@@ -258,8 +275,7 @@ class Runfirst:
         # NEEDS TO BE INDENTED THIS WAY
         # OR ELSE WRITTEN SCRIPT WILL NOT WORK
         # sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
-        self.script = dedent(
-f'''#!/bin/bash
+        self.script = dedent(f'''#!/bin/bash
 set +e
 CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
 echo {self.hostname} >/etc/hostname
@@ -282,7 +298,7 @@ echo "{self.timezone}" >/etc/timezone
 dpkg-reconfigure -f noninteractive tzdata
 cat >/etc/default/keyboard <<KBEOF
 XKBMODEL="pc105"
-XKBLAYOUT="{self.locale}"
+XKBLAYOUT="{self.country}"
 XKBVARIANT=""
 XKBOPTIONS=""
 KBEOF

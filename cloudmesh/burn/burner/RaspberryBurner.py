@@ -11,9 +11,11 @@ from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import path_expand
+from cloudmesh.common.util import banner
 from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.burn.util import os_is_windows
 from cloudmesh.burn.windowssdcard import Diskpart
+
 
 class Burner(AbstractBurner):
     """
@@ -21,6 +23,7 @@ class Burner(AbstractBurner):
 
     Inventory should contain information on manager and workers
     """
+
     def __init__(self, inventory=None):
         # Get inventory
         if inventory is None:
@@ -32,7 +35,7 @@ class Burner(AbstractBurner):
         managers = inv.find(service='manager')
         workers = inv.find(service='worker')
 
-        # No inherenet need to distinguish the configs by service
+        # No inherent need to distinguish the configs by service
         configs = managers + workers
         # Create dict for them for easy lookup
         self.configs = dict((config['host'], config) for config in configs)
@@ -47,7 +50,8 @@ class Burner(AbstractBurner):
              password=None,
              ssid=None,
              wifipasswd=None,
-             country=None):
+             country=None,
+             withimage=True):
         """
         Given the name of a config, burn device with RaspberryOS and configure properly
         """
@@ -60,6 +64,8 @@ class Burner(AbstractBurner):
         if name not in self.configs:
             Console.error(f'Could not find {name} in Inventory. Is the service column marked as "manager" or "worker"?')
             return
+        if country is None:
+            country = "US"
 
         config = self.configs[name]
         sdcard = SDCard(card_os="raspberry")
@@ -73,6 +79,8 @@ class Burner(AbstractBurner):
             print()
             return ""
 
+        banner(txt=f"Burn {name}", figlet=True)
+
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
             if not yn_choice(f"Please insert the card to be burned for {name}. "
@@ -82,26 +90,29 @@ class Burner(AbstractBurner):
 
         Console.info(f'Burning {name}')
         if os_is_windows():
-
-            sdcard.format_device(device=device, unmount=True)
-            sdcard.burn_sdcard (tag=config['tag'], device=device, yes=True)
+            if withimage:
+                sdcard.format_device(device=device, unmount=True)
+                banner("Burn image", color="GREEN")
+                sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
 
             # sdcard instance needs the drive letter in order to use
             # sdcard.boot_volume later (windows)
             detail = Diskpart.detail(disk=device)
             letter = detail["Ltr"]
-            print (f"Letter {letter}")
+            print(f"Letter {letter}")
 
             sdcard.set_drive(drive=letter)
             sdcard.mount(device=device, card_os="raspberry")
 
-            print (f"Letter {letter}")
-            yn_choice("Burn completed. Continue")
+            # print(f"Letter {letter}")
+            # yn_choice("Burn completed. Continue")
 
         else:
-            sdcard.format_device(device=device, yes=True)
-            sdcard.unmount(device=device)
-            sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
+            if withimage:
+                sdcard.format_device(device=device, yes=True)
+                sdcard.unmount(device=device)
+                banner("Burn image", color="GREEN")
+                sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
             sdcard.mount(device=device, card_os="raspberry")
 
         # Read and write cmdline.txt
@@ -109,12 +120,11 @@ class Burner(AbstractBurner):
         # Reading will create the proper script in the cmdline instance
         # No extra work needed
         # This gets rid of whitespace in cmdline.txt file?
-        cmdline.read(filename=f'{sdcard.boot_volume}/cmdline.txt')
-        cmdline.write(filename=f'{sdcard.boot_volume}/cmdline.txt')
-        # for debugging
+        cmdline.update(filename=f'{sdcard.boot_volume}/cmdline.txt')
         cmdline.write(filename='tmp-cmdline.txt')
-
-        # print(cmdline.get())
+        # print("--- cmdline.txt ---")
+        # print(cmdline.script)
+        # print("---")
 
         # Build the proper runfrist.sh
         runfirst = Runfirst()
@@ -139,17 +149,10 @@ class Burner(AbstractBurner):
 
         runfirst.get(verbose=verbose)
 
-        if os_is_windows():
-            runfirst.info()
-            print(f"runscript: {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
-            filename = path_expand(f'~/.cloudmesh/cmburn/{Runfirst.SCRIPT_NAME}')
-            runfirst.write(filename=filename)
-            os.system(f"chmod a+x {filename}")
-            filename = path_expand(f'{Runfirst.SCRIPT_NAME}')
+        runfirst.info()
 
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
         os.system(f"chmod a+x {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
-
 
         if not os_is_windows():
             time.sleep(1)  # Sleep for 1 seconds to give ample time for writing to finish
@@ -171,7 +174,9 @@ class Burner(AbstractBurner):
                    password=None,
                    ssid=None,
                    wifipasswd=None,
-                   country=None):
+                   country=None,
+                   withimage=True
+                   ):
         """
         Given multiple names, burn them
         """
@@ -197,7 +202,8 @@ class Burner(AbstractBurner):
                 password=password,
                 ssid=ssid,
                 wifipasswd=wifipasswd,
-                country=None
+                country=None,
+                withimage=withimage
             )
         Console.ok('Finished burning all cards')
 

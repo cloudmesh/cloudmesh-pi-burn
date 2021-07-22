@@ -99,6 +99,8 @@ class Gui:
         self.workers = workers
         self.ips = ips
 
+        self.background = '#64778d'
+
         self.load_data()
 
         if not self.no_diagram:

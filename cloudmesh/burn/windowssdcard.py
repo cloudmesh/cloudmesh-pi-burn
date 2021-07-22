@@ -52,7 +52,6 @@ def find_entries(data=None, keys=None, value=None):
     return results
 
 
-
 def convert_path(path):
     """
     takes path strings and converts them to match git bash path styles
@@ -159,7 +158,7 @@ class Wmic:
         for entry in detail:
             if entry["Index"] != "":
                 result.append(entry)
-        return (result)
+        return result
 
     @staticmethod
     def Print(data):
@@ -184,6 +183,8 @@ class Diskpart:
         """
         mounts the drive (in windows, this is giving the drive a letter where its filesystem can be accessed)
 
+        :param volume: the volume name
+        :type volume: str
         :param drive: drive letter
         :type drive: str
         :return: drive letter
@@ -193,7 +194,7 @@ class Diskpart:
         return drive
 
     @staticmethod
-    def dismount(volume=None,drive=None):
+    def dismount(volume=None, drive=None):
         """
         Removes all mount points from the volume
 
@@ -281,7 +282,7 @@ class Diskpart:
         for entry in removables:
             try:
                 volume = entry["###"]
-                disk = find_entries(data,keys=["Volume"],value=volume)[0]["Disk"]
+                disk = find_entries(data, keys=["Volume"], value=volume)[0]["Disk"]
                 entry["Disk"] = disk
             except:
                 Console.error(f"Could not associate removable volume {volume} with a disk")
@@ -314,7 +315,7 @@ class Diskpart:
         size = entry["Size"]
 
         details = Diskpart.detail(disk=number)
-        #print(Printer.attribute(details))
+        # print(Printer.attribute(details))
 
         if interactive:
             if not yn_choice(f"Format disk {number} with {size}"):
@@ -323,7 +324,7 @@ class Diskpart:
         # sometimes called process errors will occur after clean is executed in diskpart
         try:
             command = f"select disk {disk}\n" + \
-                    "clean\n"
+                      "clean\n"
             Diskpart.run(command)
         except subprocess.CalledProcessError:
             pass
@@ -444,10 +445,8 @@ class Diskpart:
         """
         Make a volume mountable and make requests to the volume honorable
 
-        :param letter: letter to mount volume at
-        :type letter: str
         :param volume: volume to mount
-        :type: str
+        :type volume: str
         :return: letter
         :rtype: str
         """
@@ -618,7 +617,7 @@ class Diskpart:
         Select an entity in diskpart
 
         :param disk: disk to select
-        :type letter: str
+        :type disk: str
         :param partition: partition to select
         :type partition: str
         :param volume: volume to select
@@ -728,21 +727,20 @@ class Diskpart:
 class WindowsSDCard:
     tmp = "tmp.txt"
 
-
     # device will be likely of form Z:/path we need to use Path from new python 3
 
     def __init__(self, drive=None):
         self.drive = drive
         self.cmdline = \
             {
-                "lite": "console=serial0,115200 console=tty1 root=PARTUUID={partuuid} " + \
-                        "rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet " + \
-                        "init=/usr/lib/raspi-config/init_resize.sh systemd.run=/boot/firstrun.sh " + \
+                "lite": "console=serial0,115200 console=tty1 root=PARTUUID={partuuid} " +
+                        "rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet " +
+                        "init=/usr/lib/raspi-config/init_resize.sh systemd.run=/boot/firstrun.sh " +
                         "systemd.run_success_action=reboot systemd.unit=kernel-command-line.target",
-                "full": "console=serial0,115200 console=tty1 root=PARTUUID={partuuid} " + \
-                        "rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet " + \
-                        "init=/usr/lib/raspi-config/init_resize.sh splash plymouth.ignore-serial-consoles " + \
-                        "systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot " + \
+                "full": "console=serial0,115200 console=tty1 root=PARTUUID={partuuid} " +
+                        "rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet " +
+                        "init=/usr/lib/raspi-config/init_resize.sh splash plymouth.ignore-serial-consoles " +
+                        "systemd.run=/boot/firstrun.sh systemd.run_success_action=reboot " +
                         "systemd.unit=kernel-command-line.target"
             }
 
@@ -756,7 +754,8 @@ class WindowsSDCard:
         """
         writes the content into the file
         :param filename: the filename
-        :param content: teh content
+        :param content: the content
+        :param sync: should file sync be called. If in doubt set to True (default)
         :return:
         """
         outfile = io.open(path_expand(filename), 'w', newline='\n')
@@ -766,7 +765,7 @@ class WindowsSDCard:
         if sync:
             os.fsync(outfile)
 
-    #def writefile(self, filename=None, content=None, sync=True):
+    # def writefile(self, filename=None, content=None, sync=True):
     #    with open(path_expand(filename), 'w') as outfile:
     #        outfile.write(content)
     #        outfile.truncate()  # may not be needed, but is better
@@ -780,7 +779,7 @@ class WindowsSDCard:
             if partuuid.startswith("root=PARTUUID="):
                 partuuid = partuuid.split("root=PARTUUID=")[1].strip()
                 break
-        partuuid = WindowsSDCard.writefile(cmdline_file, self.cmdline["lite"].format(partuuid=partuuid))
+        WindowsSDCard.writefile(cmdline_file, self.cmdline["lite"].format(partuuid=partuuid))
 
         cmdline_file = letter + ":\\cmdline.txt"
         partuuid = common_readfile(cmdline_file)
@@ -797,7 +796,6 @@ class WindowsSDCard:
                 drives.append(letter)
             bitmask >>= 1
         return drives
-
 
     def unmount(self, drive=None):
         """
@@ -839,7 +837,6 @@ class WindowsSDCard:
             Console.error("Please plug out and reinsert your card")
             return user_action
 
-
     def burn_disk(self,
                   disk=None,
                   image_path=None,
@@ -857,10 +854,11 @@ class WindowsSDCard:
         :type blocksize:
         :param size:
         :type size:
+        :param interactive:
+        :type interactive: bool
         :return: None
         :rtype: None
         """
-
 
         Diskpart.rescan()
         Diskpart.automount()
@@ -878,11 +876,11 @@ class WindowsSDCard:
         entry = find_entries(removables, keys=["###"], value=volume)
 
         info = Diskpart.removable_diskinfo()
-        #print(Printer.write(
+        # print(Printer.write(
         #    entry,
         #    order=['Volume', '###', 'Ltr', 'Label', 'Fs',
         #           'Type', 'Size', 'Status', 'Info', 'dev']
-        #))
+        # ))
         info = Diskpart.removable_diskinfo()
         Wmic.Print(info)
         entry = entry[0]

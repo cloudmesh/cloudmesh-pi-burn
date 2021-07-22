@@ -261,12 +261,11 @@ class Image(object):
     def get_name(url):
         return os.path.basename(url).replace('.zip', '')
 
-    def download_file(self,url=None,filename=None):
+    def download_file(self, url=None, filename=None):
         if os_is_windows:
             os.system(f"curl -o {filename} {url}")
         else:
             os.system(f'wget -O {filename} {url}')
-
 
     # noinspection PyBroadException
     def fetch(self, url=None, tag=None, verify=True):
@@ -322,7 +321,7 @@ class Image(object):
                                 f"    {img_file}\n")
                 return img_file
 
-            self.download_file(url=image["url"],filename=xz_filename)
+            self.download_file(url=image["url"], filename=xz_filename)
 
             print(f"Extracting {img_filename}")
             self.unzip_image(xz_filename)
