@@ -175,6 +175,6 @@ cmdline.update(cmdline_file, version="lite")
 firstrun_file = letter + ":/firstrun.sh"
 writefile(firstrun_file, firstrun)
 
-#os.system(f"cp firstrun.sh /{letter}/")
+#os.system(f"cp firstrun.sh /{letter}/")'''
 
 

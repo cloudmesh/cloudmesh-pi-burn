@@ -95,14 +95,15 @@ class Burner(AbstractBurner):
                 banner("Burn image", color="GREEN")
                 sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
 
-            # sdcard instance needs the drive letter in order to use
-            # sdcard.boot_volume later (windows)
             detail = Diskpart.detail(disk=device)
             letter = detail["Ltr"]
             print(f"Letter {letter}")
 
+            # sdcard instance needs the drive letter in order to use
+            # sdcard.boot_volume later (windows)
             sdcard.set_drive(drive=letter)
-            sdcard.mount(device=device, card_os="raspberry")
+            print("This is the mount")
+            print("device",device)
 
             # print(f"Letter {letter}")
             # yn_choice("Burn completed. Continue")
