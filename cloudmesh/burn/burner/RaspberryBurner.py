@@ -93,17 +93,14 @@ class Burner(AbstractBurner):
             if withimage:
                 sdcard.format_device(device=device, unmount=True)
                 banner("Burn image", color="GREEN")
-                sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
+                sdcard.burn_sdcard(name=name, tag=config['tag'], device=device, yes=True)
 
             detail = Diskpart.detail(disk=device)
             letter = detail["Ltr"]
-            print(f"Letter {letter}")
 
             # sdcard instance needs the drive letter in order to use
             # sdcard.boot_volume later (windows)
             sdcard.set_drive(drive=letter)
-            print("This is the mount")
-            print("device",device)
 
             # print(f"Letter {letter}")
             # yn_choice("Burn completed. Continue")
@@ -113,7 +110,7 @@ class Burner(AbstractBurner):
                 sdcard.format_device(device=device, yes=True)
                 sdcard.unmount(device=device)
                 banner("Burn image", color="GREEN")
-                sdcard.burn_sdcard(tag=config['tag'], device=device, yes=True)
+                sdcard.burn_sdcard(name=name, tag=config['tag'], device=device, yes=True)
             sdcard.mount(device=device, card_os="raspberry")
 
         # Read and write cmdline.txt
@@ -203,7 +200,7 @@ class Burner(AbstractBurner):
                 password=password,
                 ssid=ssid,
                 wifipasswd=wifipasswd,
-                country=None,
+                country=country,
                 withimage=withimage
             )
         Console.ok('Finished burning all cards')

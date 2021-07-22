@@ -42,6 +42,7 @@ class Runfirst:
         self.country = "US"
 
     def info(self):
+        print()
         print("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
         print("Hostname:", self.hostname)
         print("Timezone:", self.timezone)
