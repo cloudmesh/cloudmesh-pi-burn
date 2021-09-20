@@ -1,5 +1,6 @@
 import os
 import socket
+import platform
 
 
 class Hardware(object):
@@ -12,7 +13,8 @@ class Hardware(object):
         :return: returns true if this is called on a Pi
         :rtype: bool
         """
-        return os.uname()[4][:3] == 'arm' and 'Raspberry' in Hardware.model()
+        # return os.uname()[4][:3] == 'arm' and 'Raspberry' in Hardware.model()
+        return platform.uname()[4][:3] == 'arm' and 'Raspberry' in Hardware.model()
 
     @staticmethod
     def get_mac(interface='eth0'):
