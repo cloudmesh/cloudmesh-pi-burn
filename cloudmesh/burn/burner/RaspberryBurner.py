@@ -51,27 +51,25 @@ class Burner(AbstractBurner):
                 Inventory.build_default_inventory(filename=inventory,
                                                   manager=manager,
                                                   workers=workers)
-            if manager:
-                if not self.ssid:
-                    self.ssid = get_ssid()
-                    if self.ssid == "":
-                        Console.info('Could not determine SSID, skipping wifi '
-                                     'config')
-                        self.ssid = None
-                if not self.wifipasswd and self.ssid:
-                    self.wifipasswd = getpass(f"Using --SSID={self.ssid}, please "
-                                              f"enter wifi password:")
-
             inv = Inventory(filename=inventory)
 
         else:
             inv = Inventory(filename=inventory)
+        self.inventory = inv
 
         # Find managers and workers
         managers = inv.find(service='manager')
+        if len(managers) > 0:
+            if not self.ssid:
+                self.ssid = get_ssid()
+                if self.ssid == "":
+                    Console.info('Could not determine SSID, skipping wifi '
+                                 'config')
+                    self.ssid = None
+            if not self.wifipasswd and self.ssid:
+                self.wifipasswd = getpass(f"Using --SSID={self.ssid}, please "
+                                          f"enter wifi password:")
         workers = inv.find(service='worker')
-        self.inventory = inv
-
         # No inherenet need to distinguish the configs by service
         configs = managers + workers
         # Create dict for them for easy lookup

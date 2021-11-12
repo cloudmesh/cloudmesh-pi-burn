@@ -479,7 +479,7 @@ class SDCard:
                     device_basename = os.path.basename(device)
                     part1 = False
                     part2 = False
-                    for i in range(10):
+                    for i in range(20):
                         result = Shell.run('lsblk')
                         if device_basename in result.split():
                             for line in result.splitlines():

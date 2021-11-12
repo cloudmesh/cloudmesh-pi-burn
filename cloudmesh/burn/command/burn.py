@@ -429,7 +429,7 @@ class BurnCommand(PluginCommand):
             banner(txt="RaspberryOS Burn", figlet=True)
 
             if arguments.inventory:
-                inv_path = path_expand(f'~/.cloudmesh/{arguments.inventory}.yaml')
+                inv_path = path_expand(f'~/.cloudmesh/{arguments.inventory}')
                 try:
                     burner = RaspberryBurner(inventory=inv_path,
                                              ssid=arguments['--ssid'],

@@ -114,7 +114,9 @@ class Image(object):
 
         self.raspberry_images = {
             "lite": "https://downloads.raspberrypi.org/raspios_lite_armhf/images",
-            "full": "https://downloads.raspberrypi.org/raspios_full_armhf/images"
+            "full": "https://downloads.raspberrypi.org/raspios_full_armhf/images",
+            "lite-64": "https://downloads.raspberrypi.org/raspios_lite_arm64/images/",
+            "full-64": "https://downloads.raspberrypi.org/raspios_arm64/images/"
         }
         # if name == 'latest':
         #    self.fullpath = self.directory + '/' + self.latest_version() + '.img'
@@ -142,12 +144,14 @@ class Image(object):
         :rtype: dict
         """
         tag = tag or ['latest-lite']
+        if not isinstance(tag,list):
+            tag = [tag]
         found = []
         data = Image.create_version_cache(refresh=False)
         for entry in data:
             match = True
             for t in tag:
-                match = match and t in entry["tag"]
+                match = match and t == entry["tag"]
             if match:
                 found.append(entry)
         if len(found) == 0:
@@ -168,7 +172,9 @@ class Image(object):
 
         data = {
             "lite": [],
-            "full": []
+            "full": [],
+            "lite-64": [],
+            "full-64": []
         }
         cache = Path(os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
 
@@ -203,12 +209,14 @@ class Image(object):
             os.system("mkdir -p ~/.cloudmesh/cmburn")
             fetch_kind(kind="lite")
             fetch_kind(kind="full")
+            fetch_kind(kind="lite-64")
+            fetch_kind(kind="full-64")
             writefile(cache, yaml.dump(data))
 
         data = readfile(cache)
         data = yaml.safe_load(readfile(cache))
         # convert to array
-        result = data["lite"] + data["full"] + Ubuntu.distribution
+        result = data["lite"] + data["full"] + data["lite-64"] + data["full-64"] + Ubuntu.distribution
 
         return result
 
