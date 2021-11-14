@@ -472,6 +472,7 @@ class SDCard:
                 try:
                     Console.ok(f"mounting {device}")
                     os.system('sudo sync')  # flush any pending/in-process writes
+                    os.system(f"sudo eject {device}")
                     os.system(f"sudo eject -t {device}")
                     os.system('sudo sync')  # flush any pending/in-process writes
 

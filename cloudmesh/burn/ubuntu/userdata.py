@@ -190,6 +190,36 @@ class Userdata:
 
         return self
 
+    def with_access_point_bridge_nftables(self, priv_interface='eth0', ext_interface='wlan0'):
+        """
+        Updated version of the previous function that uses nftables instead of iptables.
+
+        Uses iptables to configure an access point bridge where devices on priv_interface
+        can route internet traffice through the priv_interface of the device towards ext_interface
+
+        Often, this is practical for providing an entire cluster internet through a centralized point (the manager)
+        """
+        self.with_packages(packages=["nftables"])
+        self.with_runcmd(cmd="sudo sysctl -w net.ipv4.ip_forward=1")\
+            .with_runcmd(cmd="sudo sed -i 's/#net\\.ipv4\\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf")\
+            .with_runcmd(cmd='sudo nft add table ip filter')\
+            .with_runcmd(cmd='sudo nft add chain ip filter INPUT "{ type filter hook input priority 0; policy accept; }"')\
+            .with_runcmd(cmd='sudo nft add chain ip filter FORWARD "{ type filter hook forward priority 0; policy accept; }"')\
+            .with_runcmd(cmd='sudo nft add chain ip filter OUTPUT "{ type filter hook output priority 0; policy accept; }"')\
+            .with_runcmd(cmd='sudo nft add rule ip filter FORWARD iifname "eth0" oifname "wlan0" counter accept') \
+            .with_runcmd(cmd='sudo nft add rule ip filter FORWARD iifname "wlan0" oifname "eth0" ct state related,established  counter accept') \
+            .with_runcmd(cmd='sudo nft add table ip nat') \
+            .with_runcmd(cmd='sudo nft add chain ip nat PREROUTING "{ type nat hook prerouting priority -100; policy accept; }"') \
+            .with_runcmd(cmd='sudo nft add chain ip nat INPUT "{ type nat hook input priority 100; policy accept; }"') \
+            .with_runcmd(cmd='sudo nft add chain ip nat OUTPUT "{ type nat hook output priority -100; policy accept; }"') \
+            .with_runcmd(cmd='sudo nft add chain ip nat POSTROUTING "{ type nat hook postrouting priority 100; policy accept; }"') \
+            .with_runcmd(cmd='sudo nft add rule ip nat POSTROUTING oifname "wlan0" counter masquerade') \
+            .with_runcmd(cmd='sudo nft list ruleset | sudo tee -a /etc/nftables.conf') \
+            .with_runcmd(cmd='sudo systemctl stop nftables') \
+            .with_runcmd(cmd='sudo systemctl enable nftables') \
+            .with_runcmd(cmd='sudo systemctl start nftables')
+        return self
+
     def with_write_files(self,
                          encoding=None,
                          content=None,
