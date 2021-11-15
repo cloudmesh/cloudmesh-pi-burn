@@ -494,7 +494,7 @@ class BurnCommand(PluginCommand):
                         [i for i in workers[0] if not i.isdigit()])
 
                 cluster_name = manager or worker_base_name
-                inventory = path_expand(f'~/.cloudmesh/inventory-{cluster_name}.yml')
+                inventory = path_expand(f'~/.cloudmesh/inventory-{cluster_name}.yaml')
 
                 if arguments.new and os.path.exists(inventory):
                     os.remove(inventory)

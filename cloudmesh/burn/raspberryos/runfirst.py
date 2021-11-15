@@ -150,6 +150,7 @@ class Runfirst:
 
     def _get_bridge_script(self):
         """
+        iptables has been replaced, use _get_bridge_script_nftables
         If self.bridge is True, then enable a bridge from eth0 to wlan0
         """
         if self.bridge:
@@ -160,6 +161,35 @@ class Runfirst:
             script += ["sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE"]
             script += ['sh -c "iptables-save > /etc/iptables.ipv4.nat"']
             script += ["sudo sed -i '$i iptables-restore < /etc/iptables.ipv4.nat' /etc/rc.local"]
+            return '\n'.join(script)
+        else:
+            return ""
+
+    def _get_bridge_script_nftables(self):
+        """
+        If self.bridge is True, then enable a bridge from eth0 to wlan0
+        """
+        if self.bridge:
+            script = []
+            script += ["sudo sed -i 's/#net\\.ipv4\\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf"]
+            script += ['sudo nft add table ip filter']
+            script += ['sudo nft add chain ip filter INPUT "{ type filter hook input priority 0; policy accept; }"']
+            script += ['sudo nft add chain ip filter FORWARD "{ type filter hook forward priority 0; policy accept; }"']
+            script += ['sudo nft add chain ip filter OUTPUT "{ type filter hook output priority 0; policy accept; }"']
+            script += ['sudo nft add rule ip filter FORWARD iifname "eth0" oifname "wlan0" counter accept']
+            script += ['sudo nft add rule ip filter FORWARD iifname "wlan0" oifname "eth0" ct state related,established  counter accept']
+            script += ['sudo nft add table ip nat']
+            script += ['sudo nft add chain ip nat PREROUTING "{ type nat hook prerouting priority -100; policy accept; }"']
+            script += ['sudo nft add chain ip nat INPUT "{ type nat hook input priority 100; policy accept; }"']
+            script += ['sudo nft add chain ip nat OUTPUT "{ type nat hook output priority -100; policy accept; }"']
+            script += ['sudo nft add chain ip nat POSTROUTING "{ type nat hook postrouting priority 100; policy accept; }"']
+            script += ['sudo nft add rule ip nat POSTROUTING oifname "wlan0" counter masquerade']
+            script += ['']
+            # sudo nft list ruleset
+            script += ['sudo nft list ruleset | sudo tee -a /etc/nftables.conf']
+            script += ['sudo systemctl stop nftables']
+            script += ['sudo systemctl enable nftables']
+            script += ['sudo systemctl start nftables']
             return '\n'.join(script)
         else:
             return ""
@@ -290,9 +320,9 @@ install -o "$FIRSTUSER" -m 600 <(echo "{self.key}") "$FIRSTUSERHOME/.ssh/authori
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
 echo 'PasswordAuthentication no' >>/etc/ssh/sshd_config
 systemctl enable ssh
-{self._get_bridge_script()}
 {self._get_password_script()}
 {self._get_wifi_config()}
+{self._get_bridge_script_nftables()}
 rm -f /etc/xdg/autostart/piwiz.desktop
 rm -f /etc/localtime
 echo "{self.timezone}" >/etc/timezone

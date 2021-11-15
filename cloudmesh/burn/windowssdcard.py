@@ -535,6 +535,8 @@ class Diskpart:
         :rtype: str
         """
         _diskpart = Path("C:/Windows/system32/diskpart.exe")
+        #TODO IS THIS BUGFIX CORRECT?
+        _diskpart = path_expand("C:/Windows/system32/diskpart.exe")
         common_writefile(Diskpart.tmp, f"{command}\nexit")
         result = Shell.run(f"{_diskpart} /s {Diskpart.tmp}")
         Diskpart.clean()
