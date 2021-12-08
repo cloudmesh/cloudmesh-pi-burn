@@ -1,15 +1,4 @@
-## Recommendations:
-
-       
-NOTE: This tutorial has been superseded by new updates. Please see our updated tutorials at:
-
-- https://cloudmesh.github.io/pi/tutorial/raspberry-burn/ (burn a raspberry cluster from linux or mac)
-
-- https://cloudmesh.github.io/pi/tutorial/ubuntu-burn/ (burn an ubuntu cluster from linux or mac)
-    
-- https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (burn a raspberry cluster from windows)
-
-       
+      
 ## Working Pi Burning Tutorials:
 
 Burning a set of pre-configured Raspberry OS cards for Raspberry Pis with Wifi Access
