@@ -35,7 +35,7 @@ Burning a set of pre-configured SD cards with a GUI for Raspberry Pis with Wifi 
 - https://cloudmesh.github.io/pi/tutorial/gui-burn/
 - NOTE: Based only on code inspection I expect this to still work, or be easiyly fixed.
 
-## Not Working Pi Burning Tutorials:
+## FIX Prepared Burning Tutorials:
 
 ### Opensource.com
 
@@ -47,12 +47,6 @@ Rapidly configure SD cards for your Raspberry Pi cluster
 
 ### Hackaday.io
 
-Preconfigured SDCards for Raspberry Pi Clusters
-- https://hackaday.io/project/177874-preconfigured-sdcards-for-raspberry-pi-clusters
-- STATUS: DEFUNCT
-- Expected BURNER OS: Linux and Mac, also provides manager pi imaging instructions to burn from Pi
-- REASON: uses `cms burn create..` which is out of date
-
 Easy Raspberry PI Cluster Setup with Cloudmesh from MacOS
 - https://hackaday.io/project/177904-headless-rasbery-pi-cluster-from-macs/details
 - STATUS: DEFUNCT
@@ -60,12 +54,6 @@ Easy Raspberry PI Cluster Setup with Cloudmesh from MacOS
 - REASON: uses `cms burn cluster...` command which is out of date
 
 ### Medium.com
-
-Easy Raspberry PI Cluster Setup with Cloudmesh SDCard Burner
-- https://laszewski.medium.com/easy-raspberry-pi-cluster-setup-with-cloudmesh-sdcard-burner-a2035dfea22
-- STATUS: DEFUNCT
-- Expected BURNER OS: Linux and Mac, also provides manager pi imaging instructions to burn from Pi
-- REASON: uses `cms burn create..` which is out of date
 
 Easy Raspberry PI Cluster Setup with Cloudmesh from MacOS
 - https://laszewski.medium.com/easy-raspberry-pi-cluster-setup-with-cloudmesh-from-macos-e160ac848bf
@@ -86,6 +74,25 @@ All of these tutorials are mostly out of date because of the older burn command 
      https://cloudmesh.github.io/pi/tutorial/raspberry-burn/ (linux,mac)
      https://cloudmesh.github.io/pi/tutorial/ubuntu-burn/ (linux, max)
      https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (windows)
+     
+
+## NO FIX Prepared Burning Tutorials:
+
+### Hackaday.io
+
+Preconfigured SDCards for Raspberry Pi Clusters
+- https://hackaday.io/project/177874-preconfigured-sdcards-for-raspberry-pi-clusters
+- STATUS: DEFUNCT
+- Expected BURNER OS: Linux and Mac, also provides manager pi imaging instructions to burn from Pi
+- REASON: uses `cms burn create..` which is out of date
+
+### Medium.com
+
+Easy Raspberry PI Cluster Setup with Cloudmesh SDCard Burner
+- https://laszewski.medium.com/easy-raspberry-pi-cluster-setup-with-cloudmesh-sdcard-burner-a2035dfea22
+- STATUS: DEFUNCT
+- Expected BURNER OS: Linux and Mac, also provides manager pi imaging instructions to burn from Pi
+- REASON: uses `cms burn create..` which is out of date
 
 ## Removed Pi Burning Tutorials:
 
