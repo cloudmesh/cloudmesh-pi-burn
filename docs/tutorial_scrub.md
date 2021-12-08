@@ -1,9 +1,5 @@
 ## Recommendations:
 
-3. Old hackaday,opensource, and medium tutorials can be deleted or modified with a note at the top pointing them to the three up-to-date pi-planet tutorials:
-       https://cloudmesh.github.io/pi/tutorial/raspberry-burn/ (linux,mac)
-       https://cloudmesh.github.io/pi/tutorial/ubuntu-burn/ (linux, max)
-       https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (windows)
        
 NOTE: This tutorial has been superseded by new updates. Please see our updated tutorials at:
 
@@ -14,8 +10,6 @@ NOTE: This tutorial has been superseded by new updates. Please see our updated t
 - https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (burn a raspberry cluster from windows)
 
        
-4. Replace most of the out-of-date pi-burn Github README with links to the up-to-date pi-planet tutorials. https://github.com/cloudmesh/cloudmesh-pi-burn/blob/main/README.md 
-
 ## Working Pi Burning Tutorials:
 
 Burning a set of pre-configured Raspberry OS cards for Raspberry Pis with Wifi Access
