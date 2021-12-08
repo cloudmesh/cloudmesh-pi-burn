@@ -5,6 +5,15 @@
        https://cloudmesh.github.io/pi/tutorial/ubuntu-burn/ (linux, max)
        https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (windows)
        
+NOTE: This tutorial has been superseded by new updates. Please see our updated tutorials at:
+
+- https://cloudmesh.github.io/pi/tutorial/raspberry-burn/ (burn a raspberry cluster from linux or mac)
+
+- https://cloudmesh.github.io/pi/tutorial/ubuntu-burn/ (burn an ubuntu cluster from linux or mac)
+    
+- https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (burn a raspberry cluster from windows)
+
+       
 4. Replace most of the out-of-date pi-burn Github README with links to the up-to-date pi-planet tutorials. https://github.com/cloudmesh/cloudmesh-pi-burn/blob/main/README.md 
 
 ## Working Pi Burning Tutorials:
