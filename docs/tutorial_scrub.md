@@ -81,6 +81,14 @@ README.md
 - Expected BURNER OS: Raspberry Pi
 - REASON: uses `cms burn cluster...` command which is out of date. Also has out of date instructions for Mac OS and Linux in the FAQ.
 
+
+All of these tutorials are mostly out of date because of the older burn command insturctions used. They have the same correction, they needs to use `cms burn raspberry` or `cms burn ubuntu` as described in our up-to-date pi-planet tuts:
+     https://cloudmesh.github.io/pi/tutorial/raspberry-burn/ (linux,mac)
+     https://cloudmesh.github.io/pi/tutorial/ubuntu-burn/ (linux, max)
+     https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (windows)
+
+## Removed Pi Burning Tutorials:
+
 ### Pi-planet.org
 
 Easy Raspberry PI Cluster Setup with Cloudmesh from MacOS
@@ -94,9 +102,3 @@ Easy Raspberry PI Cluster Setup with Cloudmesh SDCard Burner
 - STATUS: DEFUNCT
 - Expected BURNER OS: Linux and Mac, also provides manager pi imaging instructions to burn from Pi
 - REASON: uses `cms burn create..` which is out of date
-
-All of these tutorials are mostly out of date because of the older burn command insturctions used. They have the same correction, they needs to use `cms burn raspberry` or `cms burn ubuntu` as described in our up-to-date pi-planet tuts:
-     https://cloudmesh.github.io/pi/tutorial/raspberry-burn/ (linux,mac)
-     https://cloudmesh.github.io/pi/tutorial/ubuntu-burn/ (linux, max)
-     https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (windows)
-
