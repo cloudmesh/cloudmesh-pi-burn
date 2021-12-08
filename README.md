@@ -1,9 +1,5 @@
 # Cloudmesh Pi Burner for SD Cards
 
-**WARNING:** *This program is designed for a **Raspberry Pi**. Instructions 
-to use **Linux** and macOS are included in the FAQ. If you want to help us port 
-to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
-
 [![image](https://travis-ci.com/cloudmesh/cloudmesh-pi-burn.svg?branch=main)](https://travis-ci.com/github/cloudmesh/cloudmesh-pi-burn)
 [![image](https://img.shields.io/pypi/pyversions/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn)
 [![image](https://img.shields.io/pypi/v/cloudmesh-pi-burn.svg)](https://pypi.org/project/cloudmesh-pi-burn/)
@@ -13,496 +9,49 @@ to any other OSes, such as Windows 10, please contact laszewski@gmail.com*
 <!--TOC-->
 
 - [Cloudmesh Pi Burner for SD Cards](#cloudmesh-pi-burner-for-sd-cards)
-  - [1. Introduction](#1-introduction)
-  - [2. Nomenclature](#2-nomenclature)
-  - [3. Quickstarts](#3-quickstarts)
-  - [4. Setup for Bridged WiFi](#4-setup-for-bridged-wifi)
-    - [4.1 Requirements](#41-requirements)
-    - [4.2 Manager Pi](#42-manager-pi)
-    - [4.3 Burning Multiple SD Cards with a Single Burner](#43-burning-multiple-sd-cards-with-a-single-burner)
-    - [4.4 Connecting Pis to the Internet via Bridge](#44-connecting-pis-to-the-internet-via-bridge)
-  - [5. Set up of the SSH keys and SSH tunnel](#5-set-up-of-the-ssh-keys-and-ssh-tunnel)
-  - [6. Manual Pages](#6-manual-pages)
+  - [1. Burning Tutorials](#1-introduction)
+  - [2. Manual Pages](#6-manual-pages)
     - [6.1 Manual Page for the `burn` command](#61-manual-page-for-the-burn-command)
     - [6.2 Manual Page for the `bridge` command](#62-manual-page-for-the-bridge-command)
     - [6.3 Manual Page for the `host` command](#63-manual-page-for-the-host-command)
     - [6.4 Manual Page for the `pi` command](#64-manual-page-for-the-pi-command)
     - [6.4 Manual Page for the `ssh` command](#64-manual-page-for-the-ssh-command)
-  - [7. FAQ and Hints](#7-faq-and-hints)
-    - [7.1 Quickstart for a Setup of a cluster from macOS or Linux with no burning on a PI.](#71-quickstart-for-a-setup-of-a-cluster-from-macos-or-linux-with-no-burning-on-a-pi)
-    - [7.2 Quickstart for Using a Pi to Burn a Cluster Using Inventory](#72-quickstart-for-using-a-pi-to-burn-a-cluster-using-inventory)
-    - [7.3 Can I use the LEDs on the PI Motherboard?](#73-can-i-use-the-leds-on-the-pi-motherboard)
-    - [7.4 How can I use pycharm, to edit files or access files in general from my Laptop on the PI?](#74-how-can-i-use-pycharm-to-edit-files-or-access-files-in-general-from-my-laptop-on-the-pi)
-    - [7.5 How can I enhance the `get` script?](#75-how-can-i-enhance-the-get-script)
-    - [7.6 Can I use a Mesh Network for the setup?](#76-can-i-use-a-mesh-network-for-the-setup)
-    - [7.7 Can I use cms burn on Linux?](#77-can-i-use-cms-burn-on-linux)
-    - [7.8 What packages do I need to run the info command on macOS](#78-what-packages-do-i-need-to-run-the-info-command-on-macos)
-    - [7.9 Are there any unit tests?](#79-are-there-any-unit-tests)
-    - [7.10 Using Pi Imager to setup a Manager Pi with headless access](#710-using-pi-imager-to-setup-a-manager-pi-with-headless-access)
-    - [7.11 Single Card Burning](#711-single-card-burning)
-    - [7.12 How to update firmware?](#712-how-to-update-firmware)
-    - [7.13 Alternatives](#713-alternatives)
-    - [7.14 How do I scann for WIFI networks?](#714-how-do-i-scann-for-wifi-networks)
-    - [7.15 What is the status of the implementation?](#715-what-is-the-status-of-the-implementation)
-    - [7.16 I run into a Kernal Panic on my burned Pi. What do I do?](#716-i-run-into-a-kernal-panic-on-my-burned-pi-what-do-i-do)
-    - [7.17 How do I enable password login?](#717-how-do-i-enable-password-login)
-    - [7.18 How do I use SDCard externers with different voltage?](#718-how-do-i-use-sdcard-externers-with-different-voltage)
-    - [7.19 How do I get the latest image if a new image was released?](#719-how-do-i-get-the-latest-image-if-a-new-image-was-released)
-  - [8. How can I contribute Contributing](#8-how-can-i-contribute-contributing)
+  - [3. FAQ and Hints](#7-faq-and-hints)
+    - [3.1 Quickstart for a Setup of a cluster from macOS or Linux with no burning on a PI.](#71-quickstart-for-a-setup-of-a-cluster-from-macos-or-linux-with-no-burning-on-a-pi)
+    - [3.2 Quickstart for Using a Pi to Burn a Cluster Using Inventory](#72-quickstart-for-using-a-pi-to-burn-a-cluster-using-inventory)
+    - [3.3 Can I use the LEDs on the PI Motherboard?](#73-can-i-use-the-leds-on-the-pi-motherboard)
+    - [3.4 How can I use pycharm, to edit files or access files in general from my Laptop on the PI?](#74-how-can-i-use-pycharm-to-edit-files-or-access-files-in-general-from-my-laptop-on-the-pi)
+    - [3.5 How can I enhance the `get` script?](#75-how-can-i-enhance-the-get-script)
+    - [3.6 Can I use a Mesh Network for the setup?](#76-can-i-use-a-mesh-network-for-the-setup)
+    - [3.7 Can I use cms burn on Linux?](#77-can-i-use-cms-burn-on-linux)
+    - [3.8 What packages do I need to run the info command on macOS](#78-what-packages-do-i-need-to-run-the-info-command-on-macos)
+    - [3.9 Are there any unit tests?](#79-are-there-any-unit-tests)
+    - [3.10 Using Pi Imager to setup a Manager Pi with headless access](#710-using-pi-imager-to-setup-a-manager-pi-with-headless-access)
+    - [3.11 Single Card Burning](#711-single-card-burning)
+    - [3.12 How to update firmware?](#712-how-to-update-firmware)
+    - [3.13 Alternatives](#713-alternatives)
+    - [3.14 How do I scann for WIFI networks?](#714-how-do-i-scann-for-wifi-networks)
+    - [3.15 What is the status of the implementation?](#715-what-is-the-status-of-the-implementation)
+    - [3.16 I run into a Kernal Panic on my burned Pi. What do I do?](#716-i-run-into-a-kernal-panic-on-my-burned-pi-what-do-i-do)
+    - [3.17 How do I enable password login?](#717-how-do-i-enable-password-login)
+    - [3.18 How do I use SDCard externers with different voltage?](#718-how-do-i-use-sdcard-externers-with-different-voltage)
+    - [3.19 How do I get the latest image if a new image was released?](#719-how-do-i-get-the-latest-image-if-a-new-image-was-released)
+  - [4. How can I contribute Contributing](#8-how-can-i-contribute-contributing)
 
 <!--TOC-->
 
-## 1. Introduction
+## 1. Burning Tutorials
 
-`cms burn` is a program to burn many SD cards for the preparation of
-building clusters with Raspberry Pi's. It allows users to create
-readily bootable SD cards that have the network configured and contain a
-public ssh key from your machine that you then use to login into the
-PIs after boot. Thus, little setup is needed for a cluster after boot. Another
-unique feature is that you can burn multiple cards in a row, each with
-their individual setup such as hostnames and ipadresses.
+The latest and most up-to-date burning tutorials are hosted on piplanet.org.
 
+Please see: 
+- https://cloudmesh.github.io/pi/tutorial/raspberry-burn/ (burn a raspberry cluster from linux or mac)
+- https://cloudmesh.github.io/pi/tutorial/ubuntu-burn/ (burn an ubuntu cluster from linux or mac)
+- https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (burn a raspberry cluster from windows)
 
-## 2. Nomenclature
+## 2. Manual Pages
 
-* Commands proceeded with `pi@managerpi:$` are to be executed on the
-  Raspberry Pi with the name `managerpi`.
-
-* Commands with `(ENV3) pi@managerpi:$` are to be executed in a virtual ENV
-  using Python 3 on the Raspberry Pi with the name managerpi
-  
-## 3. Quickstarts
-
-We provide the following quickstarts:
-
-1. [Quickstart to burn worker SD Cards on a PI via an inventory](#72-quickstart-for-using-a-pi-to-burn-a-cluster-using-inventory)
-2. [Quickstart to burn all cards on  macOS or Linux vi the cluster command](#71-quickstart-for-a-setup-of-a-cluster-from-macos-or-linux-with-no-burning-on-a-pi)
-   
-   On macOS this requires you have write access for ext4 which requires the
-   purchase of additional software. If you do not lke to do this see the
-   solution discussed in 1.
-  
-However before you do the Quickstarts we encourage you to look at other 
-features we provide.   
-
-## 4. Setup for Bridged WiFi
-
-To provide you with a glimpse of what you can do with cms burn, we
-have provided this quickstart guide that will create one manager PI and
-several workers.
-
-This setup is intended for those who have restricted access to their
-network (ie. cannot access router controls).  For example, those
-on campus WiFis or regulated apartment WiFis.
-
-Figure 1 describes our network configuration. We have 5
-Raspberry Pi 4s: 1 manager and 4 workers. We have WiFi access, but we
-do not necessarily have wired access or access to the router's controls.
-
-We also have a network switch, where the manager and workers can
-communicate locally, but we will configure the manager to provide
-internet access to devices on the network switch via a "network
-bridge".
-
-![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-bridge.png)
-
-Figure 1: Pi Cluster setup with bridge network
-
-### 4.1 Requirements
-
-For the quickstart we have the following hardware requirements:
-
-* SD Cards and Raspberry Pis
-
-* You will need an SD card reader/writer (USB-A) to burn new cards. We
-  recommend that you buy a USB 3.0 SDCard reader/writer as they are
-  significantly faster and you can reuse them on PI'4s. Make sure to
-  get an adapter if your normal computer only supports USB-C
-  
-* You will need a Raspberry Pi cluster. Detailed information about
-  parts are provided at our
-  [Web page](https://cloudmesh.github.io/pi/docs/hardware/parts/).
-
-### 4.2 Manager Pi
-
-First we need to configure the Manager Pi
-
-**Step 0.** Burn Manager Pi SD Card
-
-Using [Raspberry Pi imager](https://www.raspberrypi.org/software/),
-  burn an SD card with *Raspberry Pi OS (32-bit) with desktop and
-  recommended applications*. You may use your normal system to burn
-  such a card including Windows, macOS, or Linux.
-
-You will then want a method of accessing this manager Pi. You may
-either use SSH (recommended) from the command line or a monitor to use the desktop environment (easiest)
-to access it. We highly recommend
-[changing the password](https://www.raspberrypi.org/documentation/linux/usage/users.md)
-on the Pi as soon as you have access. This is because the pi is
-initialized with default user `pi` and default password
-`raspberry`. This is critical if you are on a shared network where
-anyone can attempt to access your pi.
-
-> Monitor Desktop Environment: You will need a monitor, keyboard, and
-> mouse. This is the easiest approach as Raspberry Pi OS provides a
-> very nice user interface with an easy-to-follow setup process for
-> connecting to WiFi and other such tasks.
-
-> SSH Environment: You may consider enabling SSH access to your Pi so
-> that you may access the file system from your preferred machine.
-
-> Headless Configuration: See section 3 of
-> [enabling ssh](https://www.raspberrypi.org/documentation/remote-access/ssh/)
-> for instructions on how to enable SSH headlessly. Similarly,
-> [how to enable WiFi headlessly](https://raspberrypi.stackexchange.com/questions/10251/prepare-sd-card-for-wifi-on-headless-pi).
-> Additionally you can check out the FAQ for step-by-step
-> instructions.
-> [Using Pi Imager to setup a Manager Pi with headless access](#using-pi-imager-to-setup-a-manager-pi-with-headless-access).
-
-> Update the firmware: See the FAQ [How to update firmware?](#712-how-to-update-firmware)
-
-**Step 1.** Installing Cloudmesh on the Manager Pi
-
-Open a new terminal screen on the Manager Pi. Here we assume the
-hostname is `managerpi`. However, this is of no importance in relation
-to the topics of this guide.
-
-Update pip. The simple curl command below will generate an ssh-key,
-update your system, and install cloudmesh.
-
-```
-pi@managerpi:~ $ pip install pip -U
-pi@managerpi:~ $ curl -Ls http://cloudmesh.github.io/get/pi | sh -                
-```
-
-This will take a moment...
-
-**Step 2.** Reboot
-
-The installation script updates your system. Reboot for effect.
-
-```
-pi@managerpi:~ $ sudo reboot
-```
-
-**Step 3.** Download the latest Raspberry Pi Lite OS
-
-The following command will download the latest images for Raspberry
-Lite OS.
-
-```
-(ENV3) pi@managerpi:~ $ cms burn image get latest-lite
-```
-
-We can verify our image's downloaded with the following.
-
-```
-(ENV3) pi@managerpi:~ $ cms burn image ls
-```
-
-> **Note.** For our cluster we use light, but if you like 
-> to use other versions please see this note.
-> We can use the following command to list the current
-> Raspberry Pi OS versions (full and lite)
->
-> ```
-> (ENV3) pi@managerpi:~ $ cms burn image versions --refresh
-> ```
->
-> This will list the Tags and Types of each available OS. We can then
-> modify the `image get` command for versions we are interested in. For
-> example,
->
-> ```
-> (ENV3) pi@managerpi:~ $ cms burn image get full-2020-05-28
-> ```
-
-
-**Step 4**. Setup SD Card Writer
-
-Plug your SD Card Writer into the Pi. Ensure you have an SD Card
-inserted into your writer. Run the following command to find the path
-to your SD Card.
-
-```
-(ENV3) pi@managerpi:~ $ cms burn info
-...
-# ----------------------------------------------------------------------
-# SD Cards Found
-# ----------------------------------------------------------------------
-
-+----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
-| Path     | Info                 | Readable | Formatted | Empty | Size             | Aaccess | Removable | Writeable |
-+----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
-| /dev/sda | Generic Mass-Storage | True     | True      | False | 64.1 GB/59.7 GiB | True    | True      |           |
-+----------+----------------------+----------+-----------+-------+------------------+---------+-----------+-----------+
-```
-
-> `cms burn info` has other useful information, but for the purposes
-> of this guide we omit it.
-
-We can see from the information displayed that our SD card's path is
-`/dev/sda`. Of course, this may vary. 
-
-### 4.3 Burning Multiple SD Cards with a Single Burner
-
-**Step 0.** Ensure the first SD card is inserted into the burner.
-
-We can run `cms burn info` again as we did above to verify our SD 
-Card is connected.
-
-**Step 1.** Burning the Cards
-
-`cms burn` supports parameterized hostnames that allow automatic incrementation
-of numbers.
-
-For example, `red00[1-2]` is interpreted by cms burn as `[red001, red002]`.
-Similarly, `red[a-c]` is interpreted by cms burn as `[reda, redb, redc]`.
-
-We can burn 2 SD cards as follows:
-
-**!! WARNING VERIFY THE DEVICE IS CORRECT. REFER TO CMS BURN !!**
-
-```
-(ENV3) pi@managerpi:~ $ cms burn create --hostname=red00[1-4] --ip=10.1.1.[2-5] --device=/dev/sda --tag=latest-lite
-```
-
-The user will be prompted to swap the SD cards after each card burn if 
-there are still remaining cards to burn.
-
-**Step 2.** Boot the cluster
-
-After all cards are burned. Turn off the cluster, insert the cards, and turn 
-the cluster back on.
-
-We can now proceed to the next section where we configure our bridge.
-
-### 4.4 Connecting Pis to the Internet via Bridge
-
-Figure 1 depicts how the network is set up with the help of the bridge
-command.
-
-![](https://github.com/cloudmesh/cloudmesh-pi-burn/raw/main/images/network-bridge.png)
-
-Figure 1: Networking Bridge
-
-**Step 0.** Review and Setup
-
-At this point, we assume that you have used `cms burn` to create all SD
-cards for the Pi's with static IP addresses in the subnet range
-`10.1.1.0/24` (excluding `10.1.1.1`. See step 1 for details)
-
-We are also continuing to use `managerpi` (which is where we burn the
-worker SD cards).
-
-We will now use `cms bridge` to connect the worker Pis to the
-internet. Let us again reference the diagram of our network setup. You
-should now begin connecting your Pis via the network switch
-(unmanaged or managed) if you have not done so already. Ensure that
-`managerpi` is also connected to the network switch.
-
-We assign the eth0 interface of the `managerpi` to be 10.1.1.1, and it 
-acts as the default gateway for the workers. The workers' IPs were set 
-during the create command.
-
-**Step 1.** Configuring our Bridge
-
-We can easily create our bridge as follows. 
-
-```
-(ENV3) pi@managerpi:~ $ cms bridge create --interface='wlan0'
-```
-
-We should now reboot.
-
-```
-(ENV3) pi@managerpi:~ $ sudo reboot
-```
-
-> Note the `--interface` option indicates the interface used by the
-> manager pi to access the internet.  In this case, since we are using
-> WiFi, it is likely `wlan0`. Other options such as `eth0` and `eth1`
-> exist for ethernet connections.
-
-**Step 2.** Verifying internet connection 
-
-We should now be able to see our workers. 
-
-```
-arp -a
-```
-
-Note it may take a few minutes for them to populate in the neighbor table. If 
-you want to speed this up try to ping them individually.
-
-```
-ping red002
-```
-
-At this point, our workers should have internet access. Let us SSH
-into one and ping google.com to verify. Ensure you have booted your
-workers and connected them to the same network switch as the manager.
-
-```
-(ENV3) pi@managerpi:~ $ ssh red002
-
-pi@red002:~ $ ping google.com
-PING google.com (142.250.64.238) 56(84) bytes of data.
-64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=1 ttl=106 time=48.2 ms
-64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=2 ttl=106 time=48.3 ms
-64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=3 ttl=106 time=47.9 ms
-64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=4 ttl=106 time=47.10 ms
-64 bytes from mia07s57-in-f14.1e100.net (142.250.64.238): icmp_seq=5 ttl=106 time=48.5 ms
-^C
---- google.com `ping statistics ---
-5 packets transmitted, 5 received, 0% packet loss, time 9ms
-rtt min/avg/max/mdev = 47.924/48.169/48.511/0.291 ms
-```
-
-Note how we are able to omit the pi user and .local extension. We have
-successfully configured our bridge. Our pis are now ready to cluster.
-
-## 5. Set up of the SSH keys and SSH tunnel
-
-One important aspect of a cluster is to setup authentication via ssh
-in a convenient way, so we can easily login from the laptop to each of
-the PI workers and the PI manager. Furthermore, we like to be able to
-login from the PI manager to each of the workers. In addition, we like
-to be able to login between the workers.
-
-We have chosen a very simple setup while relying on ssh tunnel.
-
-To simplify the setup of this we have developed a command `cms host`
-that gathers and scatters keys onto all machines, as well as sets up
-the tunnels.
-
-It is essential that the key on the laptop must not be password
-less. This is also valid for any machine that is directly added to the
-network such as in the mesh network.
-
-To avoid password less keys we recommend you to use `ssh-add` 
-or `ssh-keychain` which will ask you for one.
-
-The manual page for `cms host` is provided in the Manual Pages
-section.
-
-**Step 1.** On the manager create ssh keys for each of the workers.
-
-```
-(ENV3) pi@managerpi:~ $ cms host key create red00[1-3]
-```
-
-**Step 2.** On the manager gather the worker, manager, and your laptop
-public ssh keys into a file.
-
-```
-(ENV3) pi@managerpi:~ $ cms host key gather red00[1-3],you@yourlaptop.local ~/.ssh/authorized_keys
-```
-
-**Step 3.** On the manager scatter the public keys to all the workers
-and manager ~/.ssh/authorized_hosts file
-
-```
-(ENV3) pi@managerpi:~ $ cms host key scatter red00[1-3],localhost ~/.ssh/authorized_keys
-```
-
-**Step 4.** Remove undeeded keys.txt file
-
-```
-(ENV3) pi@managerpi:~ $ rm keys.txt
-```
-
-**Step 5.** Verify SSH reachability from worker to manager and worker to worker.
-
-```
-(ENV3) pi@managerpi:~ $ ssh red001
-pi@red001:~ $ ssh managerpi.local
-```
-
-TODO: BUG: The workers still currently still need to use .local after names. This 
-will be resolved by the inventory create update.
-
-```
-(ENV3) pi@managerpi:~ $ exit
-pi@red001:~ $ ssh red002.local
-pi@red002:~ $ exit
-pi@red001:~ $ exit
-```
-
-**Step 6.** (For Bridge setup) Create SSH tunnels on the manager 
-to enable ssh access from your laptop to the workers
-
-For now, we manually install autossh, to test the new cms host tunnel
-program. Later we add it to the main manager setup script.
-
-```
-(ENV3) pi@managerpi:~ $ yes y | sudo apt install autossh
-(ENV3) pi@managerpi:~ $ cms host tunnel create red00[1-3]
-```
-
-**Step 7.** (For Bridge setup) Copy the specified command output to 
-your `~/.ssh/config` file on your laptop
-
-```
-host tunnel create red00[1-3]
-
-Using wlan0 IP = 192.168.1.17
-Using cluster hostname = managerpi
-
-Tunnels created.
-
-Please place the following in your remote machine's (i.e. laptop)
-`~/.ssh/config` file to alias simple ssh access (i.e. `ssh red001`).
-
-# ----------------------------------------------------------------------
-# copy to ~/.ssh/config on remote host (i.e laptop)
-# ----------------------------------------------------------------------
-
-Host red001
-     HostName managerpi.local
-     User pi
-     Port 8001
-
-Host red002
-     HostName managerpi.local
-     User pi
-     Port 8002
-
-Host red003
-     HostName managerpi.local
-     User pi
-     Port 8003
-```
-
-> Note: We will in the future provide an addition to the command so you 
-> can remove and add
-> them directly from the command line
-> 
-> ```
-> cms host tunnel config create red00[1-3]
-> cms host tunnel config delete red00[1-3]
-> ```
-
-**Step 8.** (For Bridge setup) Verify SSH reachability from the laptop
-  to workers
-
-```
-you@yourlaptop:~ $ ssh red001
-```
-
-**Step 9.** Shutdown or reboot your entire cluster using the commands below.
-
-```
-you@yourlaptop:~ $ cms host shutdown red,red00[1-3]
-```
-
-```
-you@yourlaptop:~ $ cms host reboot red,red00[1-3]
-```
-
-## 6. Manual Pages
-
-### 6.1 Manual Page for the `burn` command
+### 2.1 Manual Page for the `burn` command
 
 Note to execute the command on the command line you have to type in
 `cms burn` and not just `burn`.
@@ -826,7 +375,7 @@ Examples: ( \ is not shown)
 
 
 
-### 6.2 Manual Page for the `bridge` command
+### 2.2 Manual Page for the `bridge` command
 
 Note to execute the command on the commandline you have to type in
 `cms bridge` and not just `bridge`.
@@ -863,7 +412,7 @@ Description:
 
 
 
-### 6.3 Manual Page for the `host` command
+### 2.3 Manual Page for the `host` command
 
 Note to execute the command on the commandline you have to type in
 `cms host` and not jsut `host`.
@@ -1074,7 +623,7 @@ Description:
 
 
 
-### 6.4 Manual Page for the `pi` command
+### 2.4 Manual Page for the `pi` command
 
 Note to execute the command on the command line you have to type in
 `cms pi` and not just `pi`.
@@ -1190,7 +739,7 @@ Description:
 
 
 
-### 6.4 Manual Page for the `ssh` command
+### 2.5 Manual Page for the `ssh` command
 
 Note to execute the command on the command line you have to type in
 `cms ssh` and not just `ssh`.
@@ -1255,17 +804,19 @@ Examples:
 
 
 
-## 7. FAQ and Hints
+## 3. FAQ and Hints
 
 Here, we provide some useful FAQs and hints.
 
-### 7.1 Quickstart for a Setup of a cluster from macOS or Linux with no burning on a PI.
+> Note: many of these are out of date or no longer required, but are kept for posterity.
+
+### 3.1 Quickstart for a Setup of a cluster from macOS or Linux with no burning on a PI.
 
 This will setup the same cluster seen in [Quickstart for Bridged WiFi](#quickstart-for-bridged-wifi). Pi imager and a manual manager pi setup 
 is not required using this method. It will use the latest Pi OS 
 images, full for master, and lite for workers.
 
-#### 7.1.1 Prerequisites
+#### 3.1.1 Prerequisites
 
 * We recommend Python 3.8.2 Python or newer.
 * We recommend pip version 21.0.0 or newer
@@ -1273,7 +824,7 @@ images, full for master, and lite for workers.
   ssh/id_rsa.pub
 * macOS dependencies [What packages do I need to run the info command on macOS](#what-packages-do-i-need-to-run-the-info-command-on-macos)  
 
-#### 7.1.2 Install Cloudmesh
+#### 3.1.2 Install Cloudmesh
 
 Create a Python virtual environment `ENV3` in which to install cloudmesh. 
 This will keep cloudmesh and its dependencies separate from your default 
@@ -1290,7 +841,7 @@ you@laptop:~ $ source ~/ENV3/bin/activate
 (ENV3) you@laptop:~/cm $ cloudmesh-installer get pi 
 ```
 
-#### 7.1.3 Create a Cluster
+#### 3.1.3 Create a Cluster
 
 Here, we demonstarte how to burn 1 manager and 2 worker SD Cards. The 
 manager is called red, the workers are red001 and red002.
@@ -1389,7 +940,7 @@ pi temp red,red00[1-2]
 
 <a name="clustermac"></a>
 
-### 7.2 Quickstart for Using a Pi to Burn a Cluster Using Inventory
+### 3.2 Quickstart for Using a Pi to Burn a Cluster Using Inventory
 
 In this guide, we will show how you can configure a Cloudmesh Inventory to
 easily burn a cluster of SD cards as well as configure the current Pi as the
@@ -1400,7 +951,7 @@ previous section (see Figure 1).
 
 The requirements for this guide are the same as the [Quickstart for Bridged WiFi](#quickstart-for-bridged-wifi).
 
-#### 7.2.1 Initial Manager Setup
+#### 3.2.1 Initial Manager Setup
 
 Ensure you have burned an SD card from your laptop using [Raspberry Pi
 Imager](#https://www.raspberrypi.org/software/). Ensure you burn the card with
@@ -1431,7 +982,7 @@ Reboot after this script
 pi@managerpi:~ $ sudo reboot
 ```
 
-#### 7.2.2 Creating our inventory
+#### 3.2.2 Creating our inventory
 
 For this guide, we will create two workers for `managerpi`. We can do this as
 follows:
@@ -1454,7 +1005,7 @@ inventory list --inventory=cluster.yaml
 +-----------+-----------+------+-------------+---------+-------+---------+----------+----------+-----+---------+--------+---------+-------------+-------------------+----------+
 ```
 
-#### 7.2.3 Burning SD Cards using Inventory
+#### 3.2.3 Burning SD Cards using Inventory
 
 First, verify that you have plugged in your SD card writer with an SD card into
 the `managerpi`. For this guide, we will simply use one SD card burner to burn
@@ -1516,7 +1067,7 @@ We must now reboot the manager.
 (ENV3) pi@managerpi:~ $ sudo reboot
 ```
 
-#### 7.2.4 Booting Up Workers and Verifying Connection
+#### 3.2.4 Booting Up Workers and Verifying Connection
 
 Insert the burned worker cards into the worker Pis and boot.
 
@@ -1532,7 +1083,7 @@ pi temp red002
 +--------+--------+-------+----------------------------+
 ```
 
-### 7.3 Can I use the LEDs on the PI Motherboard?
+### 3.3 Can I use the LEDs on the PI Motherboard?
 
 Typically this LED is used to communicate some system-related
 information. However `cms pi` can control it to switch status on
@@ -1548,7 +1099,7 @@ installed you switch the red LED off. For more options see the
 manual page
 
 
-### 7.4 How can I use pycharm, to edit files or access files in general from my Laptop on the PI?
+### 3.4 How can I use pycharm, to edit files or access files in general from my Laptop on the PI?
 
 This is easily possible with the help of SSHFS. To install it we
 refer you to See also: <https://github.com/libfuse/sshfs> SSHFS: add
@@ -1587,7 +1138,7 @@ umount redcm
 
 If you need other directories, pleas apply  our strategy accordingly
 
-### 7.5 How can I enhance the `get` script?
+### 3.5 How can I enhance the `get` script?
 
 Instead of using the link
 
@@ -1604,7 +1155,7 @@ You can create a pull request at
 
 * <https://github.com/cloudmesh/get/blob/main/pi/index.html>
 
-### 7.6 Can I use a Mesh Network for the setup?
+### 3.6 Can I use a Mesh Network for the setup?
 
 This section is still under development.
 
@@ -1620,7 +1171,7 @@ Figure 2: Networking with Mesh network
 
 You will not need the bridge command to setup the network.
 
-### 7.7 Can I use cms burn on Linux?
+### 3.7 Can I use cms burn on Linux?
 
 Not everything is supported.
 
@@ -1658,7 +1209,7 @@ For the full features, please use `cms burn create` instead of
 `cms burn sdcard`
 
 
-### 7.8 What packages do I need to run the info command on macOS
+### 3.8 What packages do I need to run the info command on macOS
 
 ```
 brew install libusb
@@ -1674,7 +1225,7 @@ which does cost $40 for a license.
 For this reason, we recommend that you first set up the manager PI and
 do all burning on the manager PI.
 
-### 7.9 Are there any unit tests?
+### 3.9 Are there any unit tests?
 
 As `cms burn` may delete and format files and disks/SD Cards during unit
 testing users are supposed to first review the tests before running
@@ -1690,7 +1241,7 @@ We have the following tests:
 
 * TODO: add the other tests
 
-### 7.10 Using Pi Imager to setup a Manager Pi with headless access
+### 3.10 Using Pi Imager to setup a Manager Pi with headless access
 
 This FAQ will provide step-by-step instructions for burning and accessing a 
 headless manager pi. We include instructions for either wifi access to 
@@ -1846,7 +1397,7 @@ cms burn automates this process for you.
 pi@managerpi:~ $ 
 ```
 
-### 7.11 Single Card Burning
+### 3.11 Single Card Burning
 
 Step 0. Ensure the SD card is inserted.
 
@@ -1876,7 +1427,7 @@ to remove the SD card.
 
 We can now proceed to [the bridge setup](#connecting-pis-to-the-internet-via-bridge )
 
-### 7.12 How to update firmware?
+### 3.12 How to update firmware?
 
 To update the firmware reference the [raspi documentation](#https://www.raspberrypi.org/documentation/hardware/raspberrypi/booteeprom.md) 
 
@@ -1890,7 +1441,7 @@ pi@managerpi:~ $ sudo rpi-eeprom-update -a
 pi@managerpi:~ $ sudo reboot
 ```
 
-### 7.13 Alternatives
+### 3.13 Alternatives
 
 There are several alternatives to make the setup easier:
 
@@ -1905,7 +1456,7 @@ There are several alternatives to make the setup easier:
   clusters this requires multiple Servers so that the network is not overwhelmed. 
   Starting the cluster takes much longer.
 
-### 7.14 How do I scann for WIFI networks?
+### 3.14 How do I scann for WIFI networks?
 
 ```
 sudo iwlist wlan0 scan
@@ -1950,7 +1501,7 @@ sudo iwlist wlan0 scan
 
 * TODO1 = todo for boot fs, rootfs not supported
 
-### 7.16 I run into a Kernal Panic on my burned Pi. What do I do?
+### 3.16 I run into a Kernal Panic on my burned Pi. What do I do?
 
 Occassionally, one may run into an error similar to the following:
 
@@ -1963,7 +1514,7 @@ See [here](https://raspberrypi.stackexchange.com/questions/40854/kernel-panic-no
 This error has been reported in the past. A simple reburn using `cms burn`
 tends to resolve the issue.
 
-### 7.17 How do I enable password login?
+### 3.17 How do I enable password login?
 
 The option `--set_passwd` in `cms burn cluster` enables you to securely enter a
 password to prevent the password disable.
@@ -1972,7 +1523,7 @@ The option `[--passwd=PASSWD]` is used with `cms burn create` todo the same
 thing. Note entering the passwd in the command is optional.If empty you will be
 prompted.
 
-### 7.18 How do I use SDCard externers with different voltage?
+### 3.18 How do I use SDCard externers with different voltage?
 
 
 Becauase I am using and sd card extender, I need to set a cmdline argument to
@@ -1990,7 +1541,7 @@ To force 3.3V operation to enable the use of an SD card extender use
 cms burn set--cmdline=sdhci.quirks2=4
 ```
 
-### 7.19 How do I get the latest image if a new image was released?
+### 3.19 How do I get the latest image if a new image was released?
 
 From time to time raspberry.org releases new operating systems. To assure you
 get the latest version, you can do the following to download the latest lite
@@ -2017,7 +1568,7 @@ $ rm  ~/.cloudmesh/cmburn/images/2021-01-11-raspio*
 
 If you see any images with the date 2021-01-11 and so on.
 
-## 8. How can I contribute Contributing
+## 4. How can I contribute Contributing
 
 The code uses a variety of cloudmesh components. This mainly includes
 
