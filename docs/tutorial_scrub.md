@@ -36,6 +36,20 @@ Burning a set of pre-configured SD cards with a GUI for Raspberry Pis with Wifi 
 - https://cloudmesh.github.io/pi/tutorial/gui-burn/
 - NOTE: Based only on code inspection I expect this to still work, or be easiyly fixed.
 
+
+### Hackaday.io
+
+Easy Raspberry PI Cluster Setup with Cloudmesh from MacOS
+- https://hackaday.io/project/177904-headless-rasbery-pi-cluster-from-macs/details
+
+### Github.com
+
+README.md
+- https://github.com/cloudmesh/cloudmesh-pi-burn
+- STATUS: DEFUNCT
+- Expected BURNER OS: Raspberry Pi
+- REASON: uses `cms burn cluster...` command which is out of date. Also has out of date instructions for Mac OS and Linux in the FAQ.   
+
 ## FIX Prepared Burning Tutorials:
 
 ### Opensource.com
@@ -46,14 +60,6 @@ Rapidly configure SD cards for your Raspberry Pi cluster
 - Expected BURNER OS: Linux and Mac
 - REASON: uses `cms burn cluster...` command which is out of date 
 
-### Hackaday.io
-
-Easy Raspberry PI Cluster Setup with Cloudmesh from MacOS
-- https://hackaday.io/project/177904-headless-rasbery-pi-cluster-from-macs/details
-- STATUS: DEFUNCT
-- Expected BURNER OS: Mac
-- REASON: uses `cms burn cluster...` command which is out of date
-
 ### Medium.com
 
 Easy Raspberry PI Cluster Setup with Cloudmesh from MacOS
@@ -62,22 +68,7 @@ Easy Raspberry PI Cluster Setup with Cloudmesh from MacOS
 - Expected BURNER OS: Mac
 - REASON: uses `cms burn cluster...` command which is out of date
 
-### Github.com
-
-README.md
-- https://github.com/cloudmesh/cloudmesh-pi-burn
-- STATUS: DEFUNCT
-- Expected BURNER OS: Raspberry Pi
-- REASON: uses `cms burn cluster...` command which is out of date. Also has out of date instructions for Mac OS and Linux in the FAQ.
-
-
-All of these tutorials are mostly out of date because of the older burn command insturctions used. They have the same correction, they needs to use `cms burn raspberry` or `cms burn ubuntu` as described in our up-to-date pi-planet tuts:
-     https://cloudmesh.github.io/pi/tutorial/raspberry-burn/ (linux,mac)
-     https://cloudmesh.github.io/pi/tutorial/ubuntu-burn/ (linux, max)
-     https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (windows)
-     
-
-## NO FIX Prepared Burning Tutorials:
+## DEFUNCT Burning Tutorials Point to New Tutorials:
 
 ### Hackaday.io
 
