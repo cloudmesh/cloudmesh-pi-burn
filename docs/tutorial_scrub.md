@@ -1,9 +1,6 @@
 ## Recommendations:
 
-1. Unpublish the two DEFUNCT pi-planet tutorials:
-   https://cloudmesh.github.io/pi/tutorial/sdcard-burn-pi-headless/ and 
-   https://cloudmesh.github.io/pi/tutorial/sdcard-burn-pi-as-burner/
-   
+  
 2. Publish on hackaday, medium, and opensource a new tutorial based on https://cloudmesh.github.io/pi/tutorial/raspberry-burn/ (raspi OS cluster from linux ormac). In this we will reference them to pi-planet if they want to burn an ubuntu cluster (https://cloudmesh.github.io/pi/tutorial/ubuntu-burn/ (ubuntu cluster from linux or max) or burn from a windows machine (https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/) (raspi os cluster from windows). Also include a disucssion of 32 v 64 bit raspi os.
 
 3. Old hackaday,opensource, and medium tutorials can be deleted or modified with a note at the top pointing them to the three up-to-date pi-planet tutorials:
@@ -12,8 +9,6 @@
        https://cloudmesh.github.io/pi/tutorial/raspberry-burn-windows/ (windows)
        
 4. Replace most of the out-of-date pi-burn Github README with links to the up-to-date pi-planet tutorials. https://github.com/cloudmesh/cloudmesh-pi-burn/blob/main/README.md 
-
-5. We can keep https://cloudmesh.github.io/pi/tutorial/sdcard-burn-pi-as-burner/#4-steps, Section 4 step 1,2,3 as a standalone tutorial on using pi-imager to setup a standalone Pi with install cloudmesh.
 
 ## Working Pi Burning Tutorials:
 
