@@ -46,9 +46,7 @@ Easy Raspberry PI Cluster Setup with Cloudmesh from MacOS
 
 README.md
 - https://github.com/cloudmesh/cloudmesh-pi-burn
-- STATUS: DEFUNCT
-- Expected BURNER OS: Raspberry Pi
-- REASON: uses `cms burn cluster...` command which is out of date. Also has out of date instructions for Mac OS and Linux in the FAQ.   
+
 
 ## FIX Prepared Burning Tutorials:
 
@@ -68,7 +66,7 @@ Easy Raspberry PI Cluster Setup with Cloudmesh from MacOS
 - Expected BURNER OS: Mac
 - REASON: uses `cms burn cluster...` command which is out of date
 
-## DEFUNCT Burning Tutorials Point to New Tutorials:
+## DEFUNCT tutorials. Need to point to new tutorials:
 
 ### Hackaday.io
 
