@@ -121,7 +121,9 @@ class Image(object):
             "lite": "https://downloads.raspberrypi.org/raspios_lite_armhf/images",
             "full": "https://downloads.raspberrypi.org/raspios_full_armhf/images",
             "lite-64": "https://downloads.raspberrypi.org/raspios_lite_arm64/images/",
-            "full-64": "https://downloads.raspberrypi.org/raspios_arm64/images/"
+            "full-64": "https://downloads.raspberrypi.org/raspios_arm64/images/",
+            "lite-legacy": "https://downloads.raspberrypi.org/raspios_oldstable_lite_armhf/images",
+            "full-legacy": "https://downloads.raspberrypi.org/raspios_oldstable_armhf/images/"
         }
         # if name == 'latest':
         #    self.fullpath = self.directory + '/' + self.latest_version() + '.img'
@@ -179,7 +181,9 @@ class Image(object):
             "lite": [],
             "full": [],
             "lite-64": [],
-            "full-64": []
+            "full-64": [],
+            "lite-legacy": [],
+            "full-legacy": []
         }
         cache = Path(os.path.expanduser("~/.cloudmesh/cmburn/distributions.yaml"))
 
@@ -216,12 +220,15 @@ class Image(object):
             fetch_kind(kind="full")
             fetch_kind(kind="lite-64")
             fetch_kind(kind="full-64")
+            fetch_kind(kind="lite-legacy")
+            fetch_kind(kind="full-legacy")
             writefile(cache, yaml.dump(data))
 
         data = readfile(cache)
         data = yaml.safe_load(readfile(cache))
         # convert to array
-        result = data["lite"] + data["full"] + data["lite-64"] + data["full-64"] + Ubuntu.distribution
+        result = data["lite"] + data["full"] + data["lite-64"] + data["full-64"] \
+                 + data["lite-legacy"] + data["full-legacy"] + Ubuntu.distribution
 
         return result
 
