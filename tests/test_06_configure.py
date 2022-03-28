@@ -17,8 +17,8 @@ class Test_Configure:
 		HEADING()
 		inv_file = '~/.cloudmesh/config_test.yaml'
 		inv = Inventory(inv_file)
-		inv.add(host='test_host1', keyfile='~/.ssh/id_rsa.pub', service='manager')
-		inv.add(host='test_host2', service='worker')
+		inv.add_directory(host='test_host1', keyfile='~/.ssh/id_rsa.pub', service='manager')
+		inv.add_directory(host='test_host2', service='worker')
 		inv.save()
 
 		c = Configure(inventory=inv_file)
@@ -52,8 +52,8 @@ class Test_Configure:
 		HEADING()
 		inv_file = '~/.cloudmesh/config_test.yaml'
 		inv = Inventory(inv_file)
-		inv.add(host='test_host1', keyfile='~/.ssh/id_rsa.pub', service='manager', ip='10.1.1.11', router='10.1.1.1', dns=['8.8.8.8', '8.8.4.4'])
-		inv.add(host='test_host2', service='worker', ip='10.1.1.10', router='10.1.1.1', dns=['8.8.8.8', '8.8.4.4'])
+		inv.add_directory(host='test_host1', keyfile='~/.ssh/id_rsa.pub', service='manager', ip='10.1.1.11', router='10.1.1.1', dns=['8.8.8.8', '8.8.4.4'])
+		inv.add_directory(host='test_host2', service='worker', ip='10.1.1.10', router='10.1.1.1', dns=['8.8.8.8', '8.8.4.4'])
 		inv.save()
 
 		c = Configure(inventory=inv_file)
@@ -81,7 +81,7 @@ class Test_Configure:
 		HEADING()
 		inv_file = '~/.cloudmesh/config_test.yaml'
 		inv = Inventory(inv_file)
-		inv.add(host='test_host1', keyfile='~/.ssh/id_rsa.pub', service='manager')
+		inv.add_directory(host='test_host1', keyfile='~/.ssh/id_rsa.pub', service='manager')
 		inv.save()
 
 		c = Configure(inventory=inv_file)
