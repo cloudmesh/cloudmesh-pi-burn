@@ -215,10 +215,12 @@ class Image(object):
                 data[kind].append(latest)
 
         if refresh or not cache.exists():
+            print('Before mkdir')
             if os_is_windows():
                 Shell.mkdir(path_expand("/.cloudmesh/cmburn"))
             else:
                 os.system(f'mkdir -p {path_expand("/.cloudmesh/cmburn")}')
+            print('After mkdir')
             fetch_kind(kind="lite")
             fetch_kind(kind="full")
             fetch_kind(kind="lite-64")
