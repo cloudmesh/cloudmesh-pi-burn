@@ -120,6 +120,8 @@ class Image(object):
         self.raspberry_images = {
             "lite": "https://downloads.raspberrypi.org/raspios_lite_armhf/images",
             "full": "https://downloads.raspberrypi.org/raspios_full_armhf/images",
+            "lite-32": "https://downloads.raspberrypi.org/raspios_lite_armhf/images",
+            "full-32": "https://downloads.raspberrypi.org/raspios_full_armhf/images",
             "lite-64": "https://downloads.raspberrypi.org/raspios_lite_arm64/images/",
             "full-64": "https://downloads.raspberrypi.org/raspios_arm64/images/",
             "lite-legacy": "https://downloads.raspberrypi.org/raspios_oldstable_lite_armhf/images",
@@ -180,6 +182,8 @@ class Image(object):
         data = {
             "lite": [],
             "full": [],
+            "lite-32": [],
+            "full-32": [],
             "lite-64": [],
             "full-64": [],
             "lite-legacy": [],
@@ -217,12 +221,14 @@ class Image(object):
         if refresh or not cache.exists():
             print('Before mkdir')
             if os_is_windows():
-                Shell.mkdir(path_expand("/.cloudmesh/cmburn"))
+                Shell.mkdir(path_expand("~/.cloudmesh/cmburn"))
             else:
-                os.system(f'mkdir -p {path_expand("/.cloudmesh/cmburn")}')
+                os.system(f'mkdir -p {path_expand("~/.cloudmesh/cmburn")}')
             print('After mkdir')
             fetch_kind(kind="lite")
             fetch_kind(kind="full")
+            fetch_kind(kind="lite-32")
+            fetch_kind(kind="full-32")
             fetch_kind(kind="lite-64")
             fetch_kind(kind="full-64")
             fetch_kind(kind="lite-legacy")
@@ -232,8 +238,11 @@ class Image(object):
         data = readfile(cache)
         data = yaml.safe_load(readfile(cache))
         # convert to array
-        result = data["lite"] + data["full"] + data["lite-64"] + data["full-64"] \
-                 + data["lite-legacy"] + data["full-legacy"] + Ubuntu.distribution
+        result = data["lite"] + data["full"] + \
+                 data["lite-32"] + data["full-32"]  + \
+                 data["lite-64"] + data["full-64"] + \
+                 data["lite-legacy"] + data["full-legacy"] + \
+                 Ubuntu.distribution
 
         return result
 
