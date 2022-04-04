@@ -1070,12 +1070,17 @@ class SDCard:
         if print_stdout and not os_is_windows():
             banner("SD Cards Found")
 
+
             if os_is_mac():
                 print("We found the follwing cards:")
                 print("  - /dev/" + "\n  - /dev/".join(names))
                 print()
                 print("We found the follong file systems on these disks:")
                 print()
+
+            details = [d for d in details if d['info'] not in  ['ATA', 'ATA ']]
+
+            print(details)
 
             print(Printer.write(details,
                                 order=[
