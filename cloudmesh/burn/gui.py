@@ -517,8 +517,12 @@ class Gui:
 
                 manager, workers = Host.get_hostnames(hostnames)
                 filename = path_expand(f"~/.cloudmesh/inventory-{manager}.yml")
-                _build_default_inventory(filename=filename, manager=manager,
-                                         workers=workers, ips=ips, images=tags)
+
+                _build_default_inventory(filename=filename,
+                                         manager=manager,
+                                         workers=workers,
+                                         ips=ips,
+                                         images=tags)
                 if host == manager:
                     command = f"cms burn raspberry {host}" \
                               f" --device={device}" \

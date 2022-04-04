@@ -66,6 +66,7 @@ class BurnCommand(PluginCommand):
                                    [--password=PASSWORD]
                                    [--locale=LOCALE]
                                    [--timezone=TIMEZONE]
+                                   [--tag=TAG]
                                    [-v]
                                    [-f]
                                    [--new]
@@ -375,6 +376,7 @@ class BurnCommand(PluginCommand):
                        "passwd",
                        "wifipassword",
                        "version",
+                       "tag",
                        "to",
                        "os",
                        "country",
@@ -398,7 +400,8 @@ class BurnCommand(PluginCommand):
         if len(arguments.TAG) == 0:
             arguments.TAG = "latest"
 
-        # VERBOSE(arguments)
+
+        VERBOSE(arguments)
 
         def execute(label, function):
             StopWatch.start(label)
@@ -480,6 +483,8 @@ class BurnCommand(PluginCommand):
         elif arguments.raspberry:
             banner(txt="RaspberryOS Burn", figlet=True)
 
+            tag = arguments.tag or "latest-lite-64"
+
             arguments.device = arguments["--device"] or arguments["--disk"]
             names = Parameter.expand(arguments.NAMES)
             manager, workers = Host.get_hostnames(names)
@@ -513,11 +518,23 @@ class BurnCommand(PluginCommand):
                     locale = arguments.locale or "en_US.UTF-8"
                     locale = locale.strip()
 
+                    arguments.tag = Parameter.expand(arguments.tag)
+                    if len(arguments.tag) == 1:
+                        tag = arguments.tag[0]
+                        arguments.tag = [tag for i in range(1 + len(workers))]
+                    elif len(arguments.tag) == 2:
+                        worker_image = arguments.tag[1]
+                        manager_image = arguments.tag[0]
+                        arguments.tag = [manager_image] + [worker_image for i in range(len(workers))]
+
                     _build_default_inventory(filename=inventory,
                                              manager=manager,
                                              workers=workers,
                                              locale=locale,
+                                             images=arguments.tag,
                                              timezone=timezone)
+                    print ("OOO", inventory)
+
 
                 burner = RaspberryBurner(inventory=inventory)
 
@@ -1088,7 +1105,10 @@ def _build_default_inventory(filename,
     if locale is None:
         locale = Shell.locale()
     manager_ip = ips[0] if ips else '10.1.1.1'
+
+    # old
     image = images[0] if images else 'latest-lite'
+
     element = {
         'host': manager,
         'status': 'inactive',
