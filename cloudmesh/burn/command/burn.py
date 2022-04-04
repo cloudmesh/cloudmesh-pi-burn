@@ -401,7 +401,7 @@ class BurnCommand(PluginCommand):
             arguments.TAG = "latest"
 
 
-        VERBOSE(arguments)
+        # VERBOSE(arguments)
 
         def execute(label, function):
             StopWatch.start(label)
