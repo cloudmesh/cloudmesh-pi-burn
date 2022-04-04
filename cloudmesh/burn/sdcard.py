@@ -1019,6 +1019,7 @@ class SDCard:
                                     "InterfaceType",
                                     "MediaType",
                                     "Model",
+                                    "Model",
                                     "Partitions",
                                     "Size",
                                     "Status",
@@ -1079,8 +1080,6 @@ class SDCard:
                 print()
 
             details = [d for d in details if d['info'] not in  ['ATA', 'ATA ']]
-
-            print(details)
 
             print(Printer.write(details,
                                 order=[
