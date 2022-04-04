@@ -456,6 +456,7 @@ class Image(object):
                 Path(Path(self.directory) / Path(image + ending)).unlink()
             except Exception as e:  # noqa: F841
                 pass
+        return self.names()
 
     def ls(self):
         """
@@ -472,6 +473,7 @@ class Image(object):
 
         print(textwrap.indent('\n'.join(images), prefix="    * "))
         print()
+        return self.names()
 
     # noinspection PyBroadException
     def clear(self):
@@ -483,7 +485,7 @@ class Image(object):
         self.ls()
         images_dir = Path(self.directory)
 
-        for name in glob.glob(f"{images_dir}/*.img") + glob.glob(f"{images_dir}/*.zip"):
+        for name in self.names():
             try:
                 path = Path(Path(self.directory) / Path(name))
                 print (path)
@@ -492,4 +494,8 @@ class Image(object):
             except Exception as e:  # noqa: F841
                 pass
 
-        self.ls()
+        return self.names()
+
+    def names(self):
+        images_dir = Path(self.directory)
+        return glob.glob(f"{images_dir}/*.img") + glob.glob(f"{images_dir}/*.zip")
