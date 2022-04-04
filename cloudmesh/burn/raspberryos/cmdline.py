@@ -41,8 +41,12 @@ class Cmdline:
                         "systemd.run_success_action=reboot " +
                         "systemd.unit=kernel-command-line.target"
             }
+        self.template["lite-32"] = self.template["lite"]
+        self.template["full-32"] = self.template["full"]
+        self.template["lite-64"] = self.template["lite"]
+        self.template["full-64"] = self.template["full"]
 
-        # Commented out above since we should just append
+# Commented out above since we should just append
         # the lines below to the existing cmdline.txt since
         # root PARTUUID may vary
 
