@@ -1,3 +1,4 @@
+import glob
 import os
 import textwrap
 import zipfile
@@ -471,3 +472,24 @@ class Image(object):
 
         print(textwrap.indent('\n'.join(images), prefix="    * "))
         print()
+
+    # noinspection PyBroadException
+    def clear(self):
+        """
+        Delete all downloaded images
+
+        TODO: not tested
+        """
+        self.ls()
+        images_dir = Path(self.directory)
+
+        for name in glob.glob(f"{images_dir}/*.img") + glob.glob(f"{images_dir}/*.zip"):
+            try:
+                path = Path(Path(self.directory) / Path(name))
+                print (path)
+                path.unlink()
+
+            except Exception as e:  # noqa: F841
+                pass
+
+        self.ls()
