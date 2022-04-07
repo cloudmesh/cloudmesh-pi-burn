@@ -71,6 +71,7 @@ class BurnCommand(PluginCommand):
                                    [-f]
                                    [--new]
                                    [--no_image]
+                                   [--network=NETWORK]
               burn firmware check
               burn firmware update
               burn install
@@ -140,6 +141,7 @@ class BurnCommand(PluginCommand):
               --key=KEY              The name of the SSH key file
               --blocksize=BLOCKSIZE  The blocksise to burn [default: 4M]
               --burning=BURNING      The hosts to be burned
+              --network=NETWORK      Network is connected to a mesh network [default: internal]
 
             Arguments:
                TAG                   Keyword tags to identify an image
@@ -484,7 +486,7 @@ class BurnCommand(PluginCommand):
             banner(txt="RaspberryOS Burn", figlet=True)
 
             tag = arguments.tag or "latest-lite-64"
-
+            network = arguments["--network"]
             arguments.device = arguments["--device"] or arguments["--disk"]
             names = Parameter.expand(arguments.NAMES)
             manager, workers = Host.get_hostnames(names)
@@ -510,10 +512,14 @@ class BurnCommand(PluginCommand):
                                       "inventory without a manager.")
                         return ""
 
-                    timezone = arguments.timezone or "America/Indiana/Indianapolis"
+                    timezone = arguments.timezone or "America-Indiana-Indianapolis"
                     if "-" in timezone:
                         timezone = timezone.replace("-", "/")
+                        # MESH and NORMAL should that not be
+                        # timezone = timezone.replace("-", "//")
+
                     timezone = timezone.strip()
+                    print ("AAA timezone: ", timezone)
 
                     locale = arguments.locale or "en_US.UTF-8"
                     locale = locale.strip()
@@ -532,7 +538,8 @@ class BurnCommand(PluginCommand):
                                              workers=workers,
                                              locale=locale,
                                              images=arguments.tag,
-                                             timezone=timezone)
+                                             timezone=timezone,
+                                             network=network)
                     print ("OOO", inventory)
 
 
@@ -558,7 +565,8 @@ class BurnCommand(PluginCommand):
                 ssid=ssid,
                 wifipasswd=wifipasswd,
                 country=arguments['--country'],
-                withimage=not arguments.no_image
+                withimage=not arguments.no_image,
+                network=network
             ))
             return ""
 
@@ -1087,7 +1095,29 @@ def _build_default_inventory(filename,
                              ips=None,
                              images=None,
                              locale=None,
-                             timezone=None):
+                             timezone=None,
+                             network="internal"):
+    """
+
+    :param filename:
+    :type filename:
+    :param manager:
+    :type manager:
+    :param workers:
+    :type workers:
+    :param ips:
+    :type ips:
+    :param images:
+    :type images:
+    :param locale:
+    :type locale:
+    :param timezone:
+    :type timezone:
+    :param netwok:   specify the network type. Allowed bvalues internal, mesh. Internal is default
+    :type netwok:
+    :return:
+    :rtype:
+    """
     # cms inventory add red --service=manager --ip=10.1.1.1 --tag=latest-lite
     # --timezone="America/Indiana/Indianapolis" --locale="us"
     # cms inventory set red services to "bridge" --listvalue
@@ -1104,8 +1134,12 @@ def _build_default_inventory(filename,
         timezone = Shell.timezone()
     if locale is None:
         locale = Shell.locale()
-    manager_ip = ips[0] if ips else '10.1.1.1'
-
+    if network in ['internal']:
+        manager_ip = ips[0] if ips else '10.1.1.1'
+        dns = ['8.8.8.8', '8.8.4.4']
+    else:
+        manager_ip = None
+        dns = None
     # old
     image = images[0] if images else 'latest-lite'
 
@@ -1114,6 +1148,7 @@ def _build_default_inventory(filename,
         'status': 'inactive',
         'service': 'manager',
         'ip': manager_ip,
+        'netwwork': network,
         'tag': image,
         'timezone': timezone,
         'locale': locale,
@@ -1127,7 +1162,10 @@ def _build_default_inventory(filename,
     index = 1
     if workers is not None:
         for worker in workers:
-            ip = ips[index] if ips else f'10.1.1.{last_octet}'
+            if network in ['internal']:
+                ip = ips[index] if ips else f'10.1.1.{last_octet}'
+            else:
+                ip = None
             image = images[index] if images else 'latest-lite'
             element = {
                 'host': worker,
@@ -1138,7 +1176,7 @@ def _build_default_inventory(filename,
                 'timezone': timezone,
                 'locale': locale,
                 'router': manager_ip,
-                'dns': ['8.8.8.8', '8.8.4.4'],
+                'dns': dns,
                 'keyfile': '~/.ssh/id_rsa.pub'
             }
             i.add(**element)

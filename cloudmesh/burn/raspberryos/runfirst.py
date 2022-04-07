@@ -40,15 +40,17 @@ class Runfirst:
         self.password = None
         self.bridge = None
         self.country = "US"
+        self.network = "internal"
 
     def info(self):
         print()
-        print("Key:     ", self.key[0:20], "...", self.key[-20:].strip())
-        print("Hostname:", self.hostname)
-        print("Timezone:", self.timezone)
-        print("SSID:    ", self.ssid)
-        print("Locale:  ", self.locale)
-        print("Country: ", self.country)
+        print("Key:         ", self.key[0:20], "...", self.key[-20:].strip())
+        print("Hostname:    ", self.hostname)
+        print("SSID:        ", self.ssid)
+        print("Timezone:    ", self.timezone)
+        print("Locale:      ", self.locale)
+        print("Country:     ", self.country)
+        print("Wifi Bridge: ", self.bridge)
         print()
 
     def set_country(self, country="US"):
@@ -126,6 +128,9 @@ class Runfirst:
         #
         if not timezone:
             self.timezone = "America/Indiana/Indianapolis"
+            # AAA MESH and NORMAL SHould that be
+            # self.timezone = "America//Indiana//Indianapolis"
+            self.timezone = "America/Indiana/Indianapolis"
         else:
             self.timezone = timezone
         if not locale:
@@ -137,6 +142,7 @@ class Runfirst:
         """
         Sets a static IP on the specified interface
         """
+        # AAA MESH rturn if mesh network with None ?
         if ip is None:
             raise Exception("Missing ip arg. None supplied")
 
@@ -153,6 +159,7 @@ class Runfirst:
         iptables has been replaced, use _get_bridge_script_nftables
         If self.bridge is True, then enable a bridge from eth0 to wlan0
         """
+        # AAA MESH, I do nt think we need this for mesh network
         if self.bridge:
             script = []
             script += ["sudo sed -i 's/#net\\.ipv4\\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf"]
@@ -169,6 +176,7 @@ class Runfirst:
         """
         If self.bridge is True, then enable a bridge from eth0 to wlan0
         """
+        # AAA MESH I do not thingk we need that for mesh network
         if self.bridge:
             script = []
             script += ["sudo sed -i 's/#net\\.ipv4\\.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf"]
@@ -213,6 +221,7 @@ class Runfirst:
         If the self.interface_ip pair is not None, then return the script
         to configure it
         """
+        # AAA MESH I do not think we need that fr mesh network
         script = []
         if not self.static_ip_info:
             return ""
@@ -243,10 +252,11 @@ class Runfirst:
         # in our burner we assume tyically it is encrypted
         if not encrypted:
             password = f'"{self.wifipasswd}"'
+        country = self.country.upper()
         if self.ssid:
             script = f"""
                 cat >/etc/wpa_supplicant/wpa_supplicant.conf <<WPAEOF
-                country={self.country}
+                country={country}
                 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
                 ap_scan=1
                 update_config=1
@@ -278,6 +288,7 @@ class Runfirst:
         return self.get()
 
     def get_worker(self):
+        # AAA MESH NORMAL why doe sit return the same as manager
         return self.get()
 
     def write(self, filename=None):
@@ -325,7 +336,7 @@ systemctl enable ssh
 {self._get_bridge_script_nftables()}
 rm -f /etc/xdg/autostart/piwiz.desktop
 rm -f /etc/localtime
-echo "{self.timezone}" >/etc/timezone
+echo \\"{self.timezone}\\" >/etc/timezone
 dpkg-reconfigure -f noninteractive tzdata
 cat >/etc/default/keyboard <<KBEOF
 XKBMODEL="pc105"

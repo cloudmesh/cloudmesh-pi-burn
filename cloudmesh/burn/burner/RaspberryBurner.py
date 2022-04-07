@@ -51,7 +51,8 @@ class Burner(AbstractBurner):
              ssid=None,
              wifipasswd=None,
              country=None,
-             withimage=True):
+             withimage=True,
+             network="internal"):
         """
         Given the name of a config, burn device with RaspberryOS and configure properly
         """
@@ -78,6 +79,37 @@ class Burner(AbstractBurner):
             Console.error(e)
             print()
             return ""
+
+        banner(txt=f"Create RUNFIRST {name}", figlet=True)
+
+        # Build the proper runfrist.sh
+        runfirst = Runfirst()
+        runfirst.set_hostname(config['host'])
+        other_hosts, other_ips = self._get_hosts_for(name=config['host'])
+        if network in ['internal']:
+            runfirst.set_hosts(names=other_hosts, ips=other_ips)
+            if config['ip']:
+                # config['router'] and config['dns'] are allowed to be empty String or None to skip its config
+                # Default column in inventory is empty string
+                runfirst.set_static_ip(ip=config['ip'], router=config['router'], dns=config['dns'])
+
+        if password:
+            runfirst.set_password(password=password)
+
+        runfirst.set_locale(timezone=config['timezone'], locale=config['locale'])
+        if ssid:
+            runfirst.set_wifi(ssid, wifipasswd, country=country)
+
+        runfirst.set_key(key=readfile(config['keyfile']).strip())
+        if 'bridge' in config['services'] and network in ['internal']:
+            runfirst.enable_bridge()
+
+        runfirst.get(verbose=verbose)
+
+        runfirst.info()
+
+        print(runfirst.script)
+
 
         banner(txt=f"Burn {name}", figlet=True)
 
@@ -124,31 +156,9 @@ class Burner(AbstractBurner):
         # print(cmdline.script)
         # print("---")
 
-        # Build the proper runfrist.sh
-        runfirst = Runfirst()
-        runfirst.set_hostname(config['host'])
-        other_hosts, other_ips = self._get_hosts_for(name=config['host'])
-        runfirst.set_hosts(names=other_hosts, ips=other_ips)
-        if config['ip']:
-            # config['router'] and config['dns'] are allowed to be empty String or None to skip its config
-            # Default column in inventory is empty string
-            runfirst.set_static_ip(ip=config['ip'], router=config['router'], dns=config['dns'])
-
-        if password:
-            runfirst.set_password(password=password)
-
-        runfirst.set_locale(timezone=config['timezone'], locale=config['locale'])
-        if ssid:
-            runfirst.set_wifi(ssid, wifipasswd, country=country)
-
-        runfirst.set_key(key=readfile(config['keyfile']).strip())
-        if 'bridge' in config['services']:
-            runfirst.enable_bridge()
-
-        runfirst.get(verbose=verbose)
-
-        runfirst.info()
-
+        #
+        # write the run first
+        #
         runfirst.write(filename=f'{sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}')
         os.system(f"chmod a+x {sdcard.boot_volume}/{Runfirst.SCRIPT_NAME}")
 
@@ -173,7 +183,8 @@ class Burner(AbstractBurner):
                    ssid=None,
                    wifipasswd=None,
                    country=None,
-                   withimage=True
+                   withimage=True,
+                   network="internal"
                    ):
         """
         Given multiple names, burn them
@@ -201,7 +212,8 @@ class Burner(AbstractBurner):
                 ssid=ssid,
                 wifipasswd=wifipasswd,
                 country=country,
-                withimage=withimage
+                withimage=withimage,
+                network=network
             )
         Console.ok('Finished burning all cards')
 
