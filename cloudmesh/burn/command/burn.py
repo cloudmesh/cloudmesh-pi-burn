@@ -83,7 +83,7 @@ class BurnCommand(PluginCommand):
               burn network list [--ip=IP] [--used]
               burn network
               burn info [--device=DEVICE] [--manager]
-              burn image versions [--details] [--refresh] [--yaml]
+              burn image versions [--tag=TAG] [--details] [--refresh] [--yaml]
               burn image ls
               burn image delete [--image=IMAGE]
               burn image get [--url=URL] [TAG...]
@@ -703,6 +703,9 @@ class BurnCommand(PluginCommand):
             if arguments.details:
                 order = ["tag", 'date', "os", "type", 'version', "url"]
                 header = ["Tag", 'Date', "OS", "Type", 'Version', "Url"]
+
+            if arguments.tag:
+                result = [entry for entry in result if arguments.tag in entry['tag']]
 
             print(Printer.write(result, order=order, header=header, output=output))
 

@@ -113,6 +113,17 @@ class Burner(AbstractBurner):
 
         banner(txt=f"Burn {name}", figlet=True)
 
+        card = SDCard().info(print_os=False,print_stdout=False)
+        if device not in card:
+            label = "device"
+
+            if os_is_windows():
+                label = "disk"
+
+            Console.error(f"The {label} {device} could not be found in the list of possible SD Card readers")
+            return ""
+
+
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
             if not yn_choice(f"Please insert the card to be burned for {name}. "
@@ -121,6 +132,8 @@ class Burner(AbstractBurner):
                 return ""
 
         Console.info(f'Burning {name}')
+
+
         if os_is_windows():
             if withimage:
                 sdcard.format_device(device=device, unmount=True)

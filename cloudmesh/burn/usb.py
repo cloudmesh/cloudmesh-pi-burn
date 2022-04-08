@@ -46,7 +46,7 @@ class USB(object):
         :rtype: str
         """
         try:
-            return self.vendors[vendor][product]
+            return self.vendors[vendor][product].strip()
         except Exception as e:  # noqa: F841
             return "unkown"
 
@@ -89,10 +89,10 @@ class USB(object):
                 elif line.startswith("\t") and len(first_word) == 4:
                     product_id, product = line.strip().split(" ", 1)
                     data[vendor_id][product_id] = {
-                        'vendor_id': vendor_id,
-                        'product_id': product_id,
-                        'vendor': vendor,
-                        'product': product
+                        'vendor_id': vendor_id.strip(),
+                        'product_id': product_id.strip(),
+                        'vendor': vendor.strip(),
+                        'product': product.strip()
                     }
 
             except:  # noqa: E722
@@ -276,7 +276,7 @@ class USB(object):
                     details[key] = {}
                 details[key]["key"] = key
                 details[key]["direct-access"] = True
-                details[key]["info"] = what
+                details[key]["info"] = what.strip()
                 device, a, b, bus, rest = key.split(":")
                 details[key]["device"] = device
                 details[key]["bus"] = bus

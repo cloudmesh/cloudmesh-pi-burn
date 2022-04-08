@@ -1068,9 +1068,10 @@ class SDCard:
         else:
             details = USB.get_from_dmesg()
 
+        details = [d for d in details if d['info'] not in  ['ATA']]
+
         if print_stdout and not os_is_windows():
             banner("SD Cards Found")
-
 
             if os_is_mac():
                 print("We found the follwing cards:")
@@ -1078,8 +1079,6 @@ class SDCard:
                 print()
                 print("We found the follong file systems on these disks:")
                 print()
-
-            details = [d for d in details if d['info'] not in  ['ATA', 'ATA ']]
 
             print(Printer.write(details,
                                 order=[
