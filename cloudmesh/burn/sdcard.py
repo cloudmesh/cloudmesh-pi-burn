@@ -855,9 +855,9 @@ class SDCard:
                 print()
                 Console.error(f"Image with tag '{tag}' not found. To download use")
                 print()
-                Console.msg(f"cms burn image get {tag}")
+                Console.blue(f"    cms burn image get {tag}")
                 print()
-                return ""
+                raise ValueError("image not found")
 
         orig_size = size = humanize.naturalsize(os.path.getsize(image_path))
 

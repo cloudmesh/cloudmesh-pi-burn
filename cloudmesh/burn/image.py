@@ -468,15 +468,12 @@ class Image(object):
         List all downloaded images
         """
         images_dir = Path(self.directory)
-        images = [str(x).replace(self.directory + '/', '').replace('.img', '')
+        images = [str(x).replace(self.directory + '/', '') # .replace('.img', '')
                   for x in images_dir.glob('*.img')]
 
-        print('Available images in', self.directory)
-        # print(columns * '=')
+        banner(f'Available Images in {self.directory}')
 
-        banner('Available Images')
-
-        print(textwrap.indent('\n'.join(images), prefix="    * "))
+        print(textwrap.indent('.img\n'.join(images), prefix="    * "))
         print()
         return self.names()
 
