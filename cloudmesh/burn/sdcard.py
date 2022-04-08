@@ -851,12 +851,11 @@ class SDCard:
             print(image_path)
 
             if not os.path.isfile(image_path):
-                tags = ' '.join(tag)
 
                 print()
-                Console.error(f"Image with tags '{tags}' not found. To download use")
+                Console.error(f"Image with tag '{tag}' not found. To download use")
                 print()
-                Console.msg(f"cms burn image get {tags}")
+                Console.msg(f"cms burn image get {tag}")
                 print()
                 return ""
 
