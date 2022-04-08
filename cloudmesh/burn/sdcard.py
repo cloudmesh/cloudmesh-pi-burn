@@ -817,6 +817,7 @@ class SDCard:
         :type yes: str
 
         """
+        print ("OOOO", name, tag)
         if image and tag:
             Console.error("Implementation error, burn_sdcard can't have image "
                           "and tag.")
@@ -840,9 +841,12 @@ class SDCard:
 
             image = image[0]
 
+            url = os.path.basename(Image.get_name(image["url"]))
             if "ubuntu" in image["url"]:
-                _name = os.path.basename(Image.get_name(image["url"]))
+                _name = url
                 _name = _name.replace(".xz", "")
+            elif ".img" in url:
+                _name = url
             else:
                 _name = os.path.basename(Image.get_name(image["url"])) + ".img"
 
