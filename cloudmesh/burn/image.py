@@ -233,6 +233,7 @@ class Image(object):
         Fetch and list available image versions and their download URLs
         """
         result = requests.get(repo, verify=False)
+        print (result.text)
         lines = result.text.split(' ')
         d = []
         v = []
@@ -252,7 +253,7 @@ class Image(object):
         result = requests.get(url, verify=False)
         lines = result.text.split(' ')
         for line in lines:
-            if '.zip"' in line and "</td>" in line:
+            if ('.zip"' in line) or (".xz" in line) and "</td>" in line:
                 line = line.split('href="')[1]
                 line = line.split('"')[0]
                 link = f"{repo}/{version}/{line}"
@@ -269,7 +270,7 @@ class Image(object):
 
     @staticmethod
     def get_name(url):
-        return os.path.basename(url).replace('.zip', '')
+        return os.path.basename(url).replace('.zip', '').replace('.xz', '')
 
     # noinspection PyBroadException
     def fetch(self, url=None, tag=None, verify=True):
@@ -341,6 +342,8 @@ class Image(object):
             size = requests.get(image["url"], verify=False, stream=True).headers['Content-length']
             zip_filename = os.path.basename(source_url)
             img_filename = zip_filename.replace('.zip', '.img')
+            #NEW
+            img_filename = zip_filename.replace('.img.xz', '.img')
             sha1_filename = zip_filename + '.sha1'
             sha256_filename = zip_filename + '.sha256'
 
@@ -432,7 +435,7 @@ class Image(object):
         # if tag == "latest":
         #   tag = latest_version(kind="lite")
 
-        for ending in [".img", ".zip"]:
+        for ending in [".img", ".zip", ".xz"]:
             try:
                 Path(Path(self.directory) / Path(image + ending)).unlink()
             except Exception as e:  # noqa: F841
