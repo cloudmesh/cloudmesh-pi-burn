@@ -272,7 +272,7 @@ class Image(object):
         result = requests.get(url, verify=False)
         lines = result.text.split(' ')
         for line in lines:
-            if '.zip"' in line and "</td>" in line:
+            if ('.zip"' in line) or (".xz" in line) and "</td>" in line:
                 line = line.split('href="')[1]
                 line = line.split('"')[0]
                 link = f"{repo}/{version}/{line}"
@@ -289,7 +289,7 @@ class Image(object):
 
     @staticmethod
     def get_name(url):
-        return os.path.basename(url).replace('.zip', '')
+        return os.path.basename(url).replace('.zip', '').replace('.xz', '')
 
     def download_file(self, url=None, filename=None):
         if os_is_windows:
@@ -366,6 +366,7 @@ class Image(object):
             size = requests.get(image["url"], verify=False, stream=True).headers['Content-length']
             zip_filename = os.path.basename(source_url)
             img_filename = zip_filename.replace('.zip', '.img')
+            img_filename = zip_filename.replace('.img.xz', '.img')
             sha1_filename = zip_filename + '.sha1'
             sha256_filename = zip_filename + '.sha256'
 
@@ -373,6 +374,7 @@ class Image(object):
 
             img_file = Path(Path(self.directory) / Path(img_filename))
             zip_file = Path(Path(self.directory) / Path(zip_filename))
+
             # sha1_file = Path(Path(self.directory) / Path(sha1_filename))
             # sha256_file = Path(Path(self.directory) / Path(sha256_filename))
 
