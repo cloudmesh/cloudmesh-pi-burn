@@ -127,7 +127,7 @@ class BurnCommand(PluginCommand):
               burn mac --hostname=HOSTNAME
               burn drive rm DRIVE
               burn drive assign VOLUME DRIVE
-
+              burn branch BRANCH
 
 
             Options:
@@ -1086,6 +1086,20 @@ class BurnCommand(PluginCommand):
                 StopWatch.benchmark(sysinfo=False, csv=False)
             else:
                 Console.error("This command is only supported ona Pi and Linux")
+            return ""
+
+        elif arguments.branch:
+            Console.warning("This command only works if you installed the source version and are standing in the cm directory")
+            dirname = os.path.basename(os.getcwd())
+            if dirname != 'cm':
+                Console.error("you are not in cm")
+            else:
+                branch = arguments.BRANCH
+                for repo in ["cloudmesh-pi-burn", "cloudmesh-inventory"]:
+                    os.system(f"cd {repo}; git checkout {branch}; pip install -e .")
+                for repo in ["cloudmesh-pi-burn", "cloudmesh-inventory"]:
+                    b = Shell.run(f"cd {repo}; git rev-parse --symbolic-full-name --abbrev-ref HEAD").strip()
+                    Console.ok(f"{repo} is in branch {b}")
             return ""
 
         Console.error("see manual page: cms help burn")
