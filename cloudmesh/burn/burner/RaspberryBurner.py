@@ -119,19 +119,19 @@ class Burner(AbstractBurner):
 
             if os_is_windows():
                 label = "disk"
-            error = f"The {label} {device} could not be found in the list of possible SD Card readers"
-
 
             SDCard().info(print_stdout=True)
-            print()
+
+            error = f"The {label} {device} could not be found in the list of possible SD Card readers"
             Console.error(error)
-            print()
-            raise ValueError(error)
+
+            if not yn_choice("Would you like to continue?"):
+                raise ValueError(error)
 
         # Confirm card is inserted into device path
         if not yn_choice(f'Is the card to be burned for {name} inserted?'):
             if not yn_choice(f"Please insert the card to be burned for {name}. "
-                             "Type 'y' when done or 'n' to terminante. Continue"):
+                             "Type 'y' when done or 'n' to terminate. Continue"):
                 Console.error("Terminating: User Break")
                 return ""
 
