@@ -525,13 +525,16 @@ class BurnCommand(PluginCommand):
                     locale = locale.strip()
 
                     arguments.tag = Parameter.expand(arguments.tag)
-                    if len(arguments.tag) == 1:
-                        tag = arguments.tag[0]
-                        arguments.tag = [tag for i in range(1 + len(workers))]
-                    elif len(arguments.tag) == 2:
-                        worker_image = arguments.tag[1]
-                        manager_image = arguments.tag[0]
-                        arguments.tag = [manager_image] + [worker_image for i in range(len(workers))]
+                    if arguments.tag:
+                        if len(arguments.tag) == 1:
+                            tag = arguments.tag[0]
+                            arguments.tag = [tag for i in range(1 + len(workers))]
+                        elif len(arguments.tag) == 2:
+                            worker_image = arguments.tag[1]
+                            manager_image = arguments.tag[0]
+                            arguments.tag = [manager_image] + [worker_image for i in range(len(workers))]
+                    else:
+                        arguments.TAG = "latest"
 
                     _build_default_inventory(filename=inventory,
                                              manager=manager,
@@ -553,9 +556,17 @@ class BurnCommand(PluginCommand):
                                          'config')
                         else:
                             Console.ok(f"Using SSID: {ssid}")
-                    if not wifipasswd and not ssid == "":
-                        wifipasswd = getpass(f"Using --SSID={ssid}, please "
+                    print(wifipasswd)
+                    if not wifipasswd:
+                        if os_is_windows:
+                            os.system("stty -echo")
+                            wifipasswd = input(f"Using --SSID={ssid}, please "
                                              f"enter wifi password:")
+                            os.system("stty echo")
+                            print("")
+                        else:
+                            wifipasswd = getpass(f"Using --SSID={ssid}, please "
+                                                f"enter wifi password:")
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
