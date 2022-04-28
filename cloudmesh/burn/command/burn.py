@@ -557,7 +557,7 @@ class BurnCommand(PluginCommand):
                         else:
                             Console.ok(f"Using SSID: {ssid}")
                     if not wifipasswd and not ssid == "":
-                        if os_is_windows:
+                        if os_is_windows():
                             os.system("stty -echo")
                             wifipasswd = input(f"Using --SSID={ssid}, please "
                                              f"enter wifi password:")
