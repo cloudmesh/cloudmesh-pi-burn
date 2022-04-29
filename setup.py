@@ -47,8 +47,8 @@ pyusb
 tqdm
 PySimpleGUI
 passlib
-bcrypt;platform_system=='Windows'
-pywin32;platform_system=='Windows'
+bcrypt;platform_system=='win32'
+pywin32;platform_system=='win32'
 """.split("\n")
 
 # dependency_links = ['http://github.com/nicolaiarocci/eve.git@develop']
