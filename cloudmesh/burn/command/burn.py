@@ -3,18 +3,6 @@ import time
 from getpass import getpass
 
 # from cloudmesh.common.debug import VERBOSE
-from cloudmesh.burn.Imager import Imager
-from cloudmesh.burn.burner.Burner import Burner
-from cloudmesh.burn.burner.RaspberryBurner import Burner as RaspberryBurner
-from cloudmesh.burn.burner.raspberryos import MultiBurner
-from cloudmesh.burn.image import Image
-from cloudmesh.burn.network import Network
-from cloudmesh.burn.sdcard import SDCard
-from cloudmesh.burn.ubuntu.configure import Configure
-from cloudmesh.burn.util import os_is_linux
-from cloudmesh.burn.util import os_is_mac
-from cloudmesh.burn.util import os_is_pi
-from cloudmesh.burn.util import os_is_windows
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.parameter import Parameter
@@ -26,12 +14,11 @@ from cloudmesh.inventory.inventory import Inventory
 from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import map_parameters
-from cloudmesh.burn.usb import USB
 from cloudmesh.common.debug import VERBOSE
-from cloudmesh.burn.wifi.ssid import get_ssid
 from cloudmesh.common.Host import Host
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.Shell import Shell
+
 
 if os_is_windows():
     from cloudmesh.burn.windowssdcard import Diskpart
@@ -358,6 +345,25 @@ class BurnCommand(PluginCommand):
                > cms burn image delete 2019-09-26-raspbian-buster-lite
 
         """
+        # importing burn because it impacts other cms commands at a later stage
+        # instead of on top of the file
+        from cloudmesh.burn.Imager import Imager
+        from cloudmesh.burn.burner.Burner import Burner
+        from cloudmesh.burn.burner.RaspberryBurner import Burner as RaspberryBurner
+        from cloudmesh.burn.burner.raspberryos import MultiBurner
+        from cloudmesh.burn.image import Image
+        from cloudmesh.burn.network import Network
+        from cloudmesh.burn.sdcard import SDCard
+        from cloudmesh.burn.ubuntu.configure import Configure
+        from cloudmesh.burn.usb import USB
+        from cloudmesh.burn.util import os_is_linux
+        from cloudmesh.burn.util import os_is_mac
+        from cloudmesh.burn.util import os_is_pi
+        from cloudmesh.burn.util import os_is_windows
+        from cloudmesh.burn.wifi.ssid import get_ssid
+
+        # end of imports
+
         map_parameters(arguments,
                        "locale",
                        "timezone",
@@ -391,6 +397,7 @@ class BurnCommand(PluginCommand):
                        "no_diagram",
                        "no_image",
                        "new")
+
 
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
