@@ -497,14 +497,14 @@ class Diskpart:
         """
         lines = Shell.execute("cat", arguments="/proc/partitions").splitlines()
         headline = lines[0].strip()
-        words = re.sub('\s+', ' ', headline.strip()).split(" ")
+        words = re.sub(r'\s+', ' ', headline.strip()).split(" ")
         lines = lines[1:]
         devices = []
         for line in lines:
             if "sd" not in line:
                 continue
             line = line.strip()
-            values = re.split("\s+", line)
+            values = re.split(r"\s+", line)
             values = [value.strip() for value in values]
 
             data = {
