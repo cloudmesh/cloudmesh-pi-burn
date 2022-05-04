@@ -12,7 +12,6 @@ cmsline = Cmdline()
 print(cmsline.get())
 print()
 
-
 names = Parameter.expand("red,red[0-1]")
 ips = Parameter.expand("10.0.0.[1-3]")
 

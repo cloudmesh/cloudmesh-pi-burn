@@ -154,7 +154,7 @@ class Image(object):
         :rtype: dict
         """
         tag = tag or ['latest-lite']
-        if not isinstance(tag,list):
+        if not isinstance(tag, list):
             tag = [tag]
         found = []
         data = Image.create_version_cache(refresh=False)
@@ -240,7 +240,7 @@ class Image(object):
         data = yaml.safe_load(readfile(cache))
         # convert to array
         result = data["lite"] + data["full"] + \
-                 data["lite-32"] + data["full-32"]  + \
+                 data["lite-32"] + data["full-32"] + \
                  data["lite-64"] + data["full-64"] + \
                  data["lite-legacy"] + data["full-legacy"] + \
                  Ubuntu.distribution
@@ -468,7 +468,7 @@ class Image(object):
         List all downloaded images
         """
         images_dir = Path(self.directory)
-        images = [str(x).replace(self.directory + '/', '') # .replace('.img', '')
+        images = [str(x).replace(self.directory + '/', '')  # .replace('.img', '')
                   for x in images_dir.glob('*.img')]
 
         banner(f'Available Images in {self.directory}')
@@ -490,7 +490,7 @@ class Image(object):
         for name in self.names():
             try:
                 path = Path(Path(self.directory) / Path(name))
-                print (path)
+                print(path)
                 path.unlink()
 
             except Exception as e:  # noqa: F841

@@ -396,7 +396,6 @@ class BurnCommand(PluginCommand):
                        "no_image",
                        "new")
 
-
         # arguments.MOUNTPOINT = arguments["--mount"]
         arguments.FORMAT = arguments["--format"]
         arguments.FROM = arguments["--from"]
@@ -406,7 +405,6 @@ class BurnCommand(PluginCommand):
         arguments.yes = arguments["-y"]
         if len(arguments.TAG) == 0:
             arguments.TAG = "latest"
-
 
         # VERBOSE(arguments)
 
@@ -524,7 +522,7 @@ class BurnCommand(PluginCommand):
                         # timezone = timezone.replace("-", "//")
 
                     timezone = timezone.strip()
-                    print ("AAA timezone: ", timezone)
+                    print("AAA timezone: ", timezone)
 
                     locale = arguments.locale or "en_US.UTF-8"
                     locale = locale.strip()
@@ -548,8 +546,7 @@ class BurnCommand(PluginCommand):
                                              images=arguments.tag,
                                              timezone=timezone,
                                              network=network)
-                    print ("OOO", inventory)
-
+                    print("OOO", inventory)
 
                 burner = RaspberryBurner(inventory=inventory)
 
@@ -565,12 +562,11 @@ class BurnCommand(PluginCommand):
                         if os_is_windows():
                             os.system("stty -echo")
                             wifipasswd = input(f"Using --SSID={ssid}, please "
-                                             f"enter wifi password:")
+                                               f"enter wifi password:")
                             os.system("stty echo")
                             print("")
                         else:
-                            wifipasswd = getpass(f"Using --SSID={ssid}, please "
-                                                f"enter wifi password:")
+                            wifipasswd = getpass(f"Using --SSID={ssid}, please enter wifi password:")
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,

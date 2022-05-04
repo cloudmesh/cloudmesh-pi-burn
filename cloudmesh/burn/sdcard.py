@@ -817,7 +817,7 @@ class SDCard:
         :type yes: str
 
         """
-        print ("OOOO", name, tag)
+        print("OOOO", name, tag)
         if image and tag:
             Console.error("Implementation error, burn_sdcard can't have image "
                           "and tag.")
@@ -855,7 +855,6 @@ class SDCard:
             print(image_path)
 
             if not os.path.isfile(image_path):
-
                 print()
                 Console.error(f"Image with tag '{tag}' not found. To download use")
                 print()
@@ -1018,15 +1017,15 @@ class SDCard:
                                     "Size",
                                     "Status",
                                 ], header=[
-                                    "Disk",
-                                    "InterfaceType",
-                                    "MediaType",
-                                    "Model",
-                                    "Model",
-                                    "Partitions",
-                                    "Size",
-                                    "Status",
-                                ])
+                    "Disk",
+                    "InterfaceType",
+                    "MediaType",
+                    "Model",
+                    "Model",
+                    "Partitions",
+                    "Size",
+                    "Status",
+                ])
                   )
 
         details = USB.get_from_usb()
@@ -1071,7 +1070,7 @@ class SDCard:
         else:
             details = USB.get_from_dmesg()
 
-        details = [d for d in details if d['info'] not in  ['ATA']]
+        details = [d for d in details if d['info'] not in ['ATA']]
         if print_stdout and not os_is_windows():
             banner("SD Cards Found")
 

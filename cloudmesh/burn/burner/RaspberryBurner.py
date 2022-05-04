@@ -110,10 +110,9 @@ class Burner(AbstractBurner):
 
         print(runfirst.script)
 
-
         banner(txt=f"Burn {name}", figlet=True)
 
-        card = SDCard().info(print_os=False,print_stdout=False)
+        card = SDCard().info(print_os=False, print_stdout=False)
         if device not in card:
             label = "device"
 
@@ -136,7 +135,6 @@ class Burner(AbstractBurner):
                 return ""
 
         Console.info(f'Burning {name}')
-
 
         if os_is_windows():
             if withimage:

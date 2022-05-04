@@ -185,7 +185,8 @@ class Runfirst:
             script += ['sudo nft add chain ip filter FORWARD "{ type filter hook forward priority 0; policy accept; }"']
             script += ['sudo nft add chain ip filter OUTPUT "{ type filter hook output priority 0; policy accept; }"']
             script += ['sudo nft add rule ip filter FORWARD iifname "eth0" oifname "wlan0" counter accept']
-            script += ['sudo nft add rule ip filter FORWARD iifname "wlan0" oifname "eth0" ct state related,established  counter accept']
+            script += [
+                'sudo nft add rule ip filter FORWARD iifname "wlan0" oifname "eth0" ct state related,established  counter accept']
             script += ['sudo nft add table ip nat']
             script += ['sudo nft add chain ip nat PREROUTING "{ type nat hook prerouting priority -100; policy accept; }"']
             script += ['sudo nft add chain ip nat INPUT "{ type nat hook input priority 100; policy accept; }"']

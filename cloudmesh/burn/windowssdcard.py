@@ -1,10 +1,8 @@
 import os
 import string
 import subprocess
-import sys
 import time
 from pathlib import Path
-from pprint import pprint
 from pathlib import PurePosixPath
 import io
 
@@ -535,7 +533,7 @@ class Diskpart:
         :rtype: str
         """
         _diskpart = Path("C:/Windows/system32/diskpart.exe")
-        #TODO IS THIS BUGFIX CORRECT?
+        # TODO IS THIS BUGFIX CORRECT?
         _diskpart = path_expand("C:/Windows/system32/diskpart.exe")
         common_writefile(Diskpart.tmp, f"{command}\nexit")
         result = Shell.run(f"{_diskpart} /s {Diskpart.tmp}")
