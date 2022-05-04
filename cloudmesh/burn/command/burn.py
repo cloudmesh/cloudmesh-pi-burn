@@ -17,6 +17,7 @@ from cloudmesh.shell.command import map_parameters
 from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.Host import Host
 from cloudmesh.common.util import path_expand
+from cloudmesh.common.util import is_gitbash
 from cloudmesh.common.Shell import Shell
 
 
@@ -559,14 +560,14 @@ class BurnCommand(PluginCommand):
                         else:
                             Console.ok(f"Using SSID: {ssid}")
                     if not wifipasswd and not ssid == "":
-                        if os_is_windows():
+                        if os_is_windows() and is_gitbash():
                             os.system("stty -echo")
                             wifipasswd = input(f"Using --SSID={ssid}, please "
                                                f"enter wifi password:")
                             os.system("stty echo")
                             print("")
                         else:
-                            wifipasswd = getpass(f"Using --SSID={ssid}, please enter wifi password:")
+                            wifipasswd = getpass(f"Using --SSID={ssid}, please enter wifi password: ")
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,

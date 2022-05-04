@@ -896,7 +896,7 @@ class WindowsSDCard:
         print("Volume:    ", volume)
         print("Device:    ", dev)
         print("Image:     ", p)
-        print("Imaeg Size:", size, "Bytes")
+        print("Image Size:", size, "Bytes")
         print()
 
         Diskpart.dismount(drive=letter)
