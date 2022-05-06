@@ -15,10 +15,10 @@ from cloudmesh.burn.raspberryos.Locale import Locale
 from cloudmesh.burn.raspberryos.cmdline import Cmdline
 from cloudmesh.burn.raspberryos.passwd import Passwd
 from cloudmesh.burn.sdcard import SDCard
-from cloudmesh.burn.util import os_is_linux
-from cloudmesh.burn.util import os_is_mac
-from cloudmesh.burn.util import os_is_pi
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_linux
+from cloudmesh.common.systeminfo import os_is_mac
+from cloudmesh.common.systeminfo import os_is_pi
+from cloudmesh.common.systeminfo import os_is_windows
 from cloudmesh.burn.wifi.provider import Wifi
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.Host import Host
