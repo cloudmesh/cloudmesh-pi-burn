@@ -6,7 +6,7 @@ import sys
 
 # from cloudmesh.burn.windowssdcard import WindowsSDCard
 import time
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_windows
 
 import string
 from cloudmesh.common.console import Console
