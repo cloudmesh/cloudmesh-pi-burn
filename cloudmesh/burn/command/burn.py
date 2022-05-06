@@ -17,7 +17,7 @@ from cloudmesh.shell.command import map_parameters
 from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.Host import Host
 from cloudmesh.common.util import path_expand
-from cloudmesh.common.util import is_gitbash
+from cloudmesh.common.systeminfo import is_gitbash
 from cloudmesh.common.Shell import Shell
 
 
@@ -352,10 +352,10 @@ class BurnCommand(PluginCommand):
         from cloudmesh.burn.ubuntu.configure import Configure
         from cloudmesh.burn.usb import USB
         # these oses need to be moved to common
-        from cloudmesh.burn.util import os_is_linux
-        from cloudmesh.burn.util import os_is_mac
-        from cloudmesh.burn.util import os_is_pi
-        from cloudmesh.burn.util import os_is_windows
+        from cloudmesh.common.systeminfo import os_is_linux
+        from cloudmesh.common.systeminfo import os_is_mac
+        from cloudmesh.common.systeminfo import os_is_pi
+        from cloudmesh.common.systeminfo import os_is_windows
         from cloudmesh.burn.wifi.ssid import get_ssid
 
         if os_is_windows():
