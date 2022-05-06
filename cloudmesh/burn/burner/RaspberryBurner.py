@@ -13,7 +13,7 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import banner
 from cloudmesh.inventory.inventory import Inventory
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_windows
 from cloudmesh.burn.windowssdcard import Diskpart
 
 
