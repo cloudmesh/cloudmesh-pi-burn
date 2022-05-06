@@ -17,7 +17,7 @@ from cloudmesh.shell.command import map_parameters
 from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.Host import Host
 from cloudmesh.common.util import path_expand
-from cloudmesh.common.systeminfo import is_gitbash
+from cloudmesh.common.util import is_gitbash
 from cloudmesh.common.Shell import Shell
 
 
