@@ -2,10 +2,10 @@ import os
 from cloudmesh.common.Shell import Shell
 
 from cloudmesh.burn.image import Image
-from cloudmesh.burn.util import os_is_linux
-from cloudmesh.burn.util import os_is_pi
-from cloudmesh.burn.util import os_is_mac
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_linux
+from cloudmesh.common.systeminfo import os_is_pi
+from cloudmesh.common.systeminfo import os_is_mac
+from cloudmesh.common.systeminfo import os_is_windows
 from cloudmesh.common.console import Console
 from cloudmesh.common.sudo import Sudo
 
