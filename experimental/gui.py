@@ -3,7 +3,7 @@ import PySimpleGUI as sg
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import banner
 from cloudmesh.common.Tabulate import Printer
-from cloudmesh.burn.util import os_is_mac
+from cloudmesh.common.systeminfo import os_is_mac
 from cloudmesh.burn.usb import USB
 import oyaml as yaml
 
