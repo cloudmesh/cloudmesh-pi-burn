@@ -5,8 +5,8 @@ import time
 import PySimpleGUI as sg  # noqa
 import oyaml as yaml
 from cloudmesh.burn.usb import USB
-from cloudmesh.burn.util import os_is_linux
-from cloudmesh.burn.util import os_is_mac
+from cloudmesh.common.systeminfo import os_is_linux
+from cloudmesh.common.systeminfo import os_is_mac
 from cloudmesh.common.Host import Host
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.Tabulate import Printer
