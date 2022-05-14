@@ -26,10 +26,13 @@ def get_ssid():
             try:
                 command = " netsh wlan show profiles"
                 r = Shell.run(command).splitlines()
-                r = Shell.cm_grep(r, "User Profile")
-                r = [line.split(":")[1].strip() for line in r]
-                print('Found ssids:',r)
-                ssid = input('Enter ssid from list:')
+                if "The Wireless AutoConfig Service (wlansvc) is not running." in r:
+                    return None
+                else:
+                    r = Shell.cm_grep(r, "User Profile")
+                    r = [line.split(":")[1].strip() for line in r]
+                    print('Found ssids:',r)
+                    ssid = input('Enter ssid from list:')
             except:
                 pass
     except:  # noqa
