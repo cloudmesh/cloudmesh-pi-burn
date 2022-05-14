@@ -567,7 +567,10 @@ class BurnCommand(PluginCommand):
                             os.system("stty echo")
                             print("")
                         else:
-                            wifipasswd = getpass(f"Using --SSID={ssid}, please enter wifi password: ")
+                            if ssid is None:
+                                print('Wireless connection not detected. Skipping SSID')
+                            else:
+                                wifipasswd = getpass(f"Using --SSID={ssid}, please enter wifi password: ")
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
