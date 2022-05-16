@@ -29,7 +29,7 @@ def get_ssid():
                 r = Shell.run(command)#.splitlines()
                 r = Shell.cm_grep(r, "User Profile")
                 r = [line.split(":")[1].strip() for line in r]
-                print('Found ssids:',r)
+                print(Printer.print_list(r))
                 ssid = input('Enter ssid from list:')
             except subprocess.CalledProcessError as e:
                 if "The Wireless AutoConfig Service (wlansvc) is not running" in str(e.output):
