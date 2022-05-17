@@ -341,7 +341,7 @@ echo \\"{self.timezone}\\" >/etc/timezone
 dpkg-reconfigure -f noninteractive tzdata
 cat >/etc/default/keyboard <<KBEOF
 XKBMODEL="pc105"
-XKBLAYOUT="{self.country}"
+XKBLAYOUT="{self.country.lower()}"
 XKBVARIANT=""
 XKBOPTIONS=""
 KBEOF
