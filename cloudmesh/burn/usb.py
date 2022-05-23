@@ -6,7 +6,7 @@ import humanize
 import requests
 
 import usb as usb_device
-from cloudmesh.burn.util import os_is_mac
+from cloudmesh.common.systeminfo import os_is_mac
 from cloudmesh.common.Tabulate import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.sudo import Sudo
@@ -15,8 +15,8 @@ from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 
 
-# from cloudmesh.burn.util import os_is_linux
-# from cloudmesh.burn.util import os_is_pi
+# from cloudmesh.common.systeminfo import os_is_linux
+# from cloudmesh.common.systeminfo import os_is_pi
 
 
 def _get_attribute(attribute, lines):
