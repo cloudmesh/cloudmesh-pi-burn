@@ -555,17 +555,13 @@ class BurnCommand(PluginCommand):
                 if manager:
                     if not ssid:
                         ssid = get_ssid()
-                        if ssid == "":
-                            Console.info('Could not determine SSID, skipping wifi '
-                                         'config')
+                        if ssid is None:
+                            Console.info('Wireless connection not detected. Skipping SSID')
                         else:
                             Console.ok(f"Using SSID: {ssid}")
-                    if not wifipasswd and not ssid == "":
+                    if not wifipasswd and ssid:
                         wifipasswd = get_password(f"Using --SSID={ssid}, please "
                                                   f"enter wifi password:\n")
-                    else:
-                        if ssid is None:
-                            print('Wireless connection not detected. Skipping SSID')
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
