@@ -15,7 +15,7 @@ from cloudmesh.common.util import writefile as common_writefile
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.util import banner
 
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_windows
 
 # we need to deal with that imports of windows libraries are conditional
 
@@ -497,14 +497,14 @@ class Diskpart:
         """
         lines = Shell.execute("cat", arguments="/proc/partitions").splitlines()
         headline = lines[0].strip()
-        words = re.sub('\s+', ' ', headline.strip()).split(" ")
+        words = re.sub(r'\s+', ' ', headline.strip()).split(" ")
         lines = lines[1:]
         devices = []
         for line in lines:
             if "sd" not in line:
                 continue
             line = line.strip()
-            values = re.split("\s+", line)
+            values = re.split(r"\s+", line)
             values = [value.strip() for value in values]
 
             data = {
