@@ -557,7 +557,7 @@ class BurnCommand(PluginCommand):
                 if manager:
                     if not ssid:
                         ssid = get_ssid()
-                        if ssid is None:
+                        if ssid == "" or ssid is None:
                             Console.info('Wireless connection not detected. The user can specify the SSID when running '
                                          'this command with --ssid=SSID. Skipping SSID')
                         else:
