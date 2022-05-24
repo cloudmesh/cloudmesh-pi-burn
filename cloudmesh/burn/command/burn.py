@@ -1,4 +1,5 @@
 import os
+import subprocess
 import time
 from getpass import getpass
 
@@ -18,7 +19,9 @@ from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.Host import Host
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import is_gitbash
+from cloudmesh.common.util import get_password
 from cloudmesh.common.Shell import Shell
+from cloudmesh.common.systeminfo import os_is_windows
 
 
 class BurnCommand(PluginCommand):
@@ -554,23 +557,18 @@ class BurnCommand(PluginCommand):
                 if manager:
                     if not ssid:
                         ssid = get_ssid()
-                        if ssid == "":
-                            Console.info('Could not determine SSID, skipping wifi '
-                                         'config')
+                        if ssid == "" or ssid is None:
+                            Console.info('Wireless connection not detected. The user can specify the SSID when running '
+                                         'this command with --ssid=SSID. Skipping SSID')
                         else:
                             Console.ok(f"Using SSID: {ssid}")
-                    if not wifipasswd and not ssid == "":
-                        if os_is_windows() and is_gitbash():
-                            os.system("stty -echo")
-                            wifipasswd = input(f"Using --SSID={ssid}, please "
-                                               f"enter wifi password:")
-                            os.system("stty echo")
-                            print("")
-                        else:
-                            if ssid is None:
-                                print('Wireless connection not detected. Skipping SSID')
-                            else:
-                                wifipasswd = getpass(f"Using --SSID={ssid}, please enter wifi password: ")
+                    if not wifipasswd and ssid:
+                        try:
+                            wifipasswd = get_password(f"Using --SSID={ssid}, please "
+                                                      f"enter wifi password:\n")
+                        except ValueError:
+                            Console.error("Ctrl + C or other keyboard interrupt detected. Quitting...")
+                            return ""
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
@@ -1142,11 +1140,13 @@ def _build_default_inventory(filename,
     # cms inventory add "red0[1-3]" --service=worker --ip="10.1.1.[2-4]"
     # --router=10.1.1.1 --tag=latest-lite  --timezone="America/Indiana/Indianapolis" --locale="us"
     # cms inventory set "red0[1-3]" dns to "8.8.8.8,8.8.4.4" --listvalue
-
-    Console.info("No inventory found or forced rebuild. Buidling inventory "
+    Console.info("No inventory found or forced rebuild. Building inventory "
                  "with defaults.")
-    Shell.execute("rm", arguments=[
-        '-f', filename])
+    try:
+        Shell.rm(filename)
+    except OSError as e:
+        if "The system cannot find the path specified" in str(e):
+            Console.info('Previous existing inventory not found. Creating new one.')
     i = Inventory(filename=filename)
     if timezone is None:
         timezone = Shell.timezone()
