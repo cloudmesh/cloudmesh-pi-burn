@@ -1,4 +1,5 @@
 import os
+import subprocess
 import time
 from getpass import getpass
 
@@ -20,6 +21,7 @@ from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import is_gitbash
 from cloudmesh.common.util import get_password
 from cloudmesh.common.Shell import Shell
+from cloudmesh.common.systeminfo import os_is_windows
 
 
 class BurnCommand(PluginCommand):
@@ -1134,11 +1136,13 @@ def _build_default_inventory(filename,
     # cms inventory add "red0[1-3]" --service=worker --ip="10.1.1.[2-4]"
     # --router=10.1.1.1 --tag=latest-lite  --timezone="America/Indiana/Indianapolis" --locale="us"
     # cms inventory set "red0[1-3]" dns to "8.8.8.8,8.8.4.4" --listvalue
-
-    Console.info("No inventory found or forced rebuild. Buidling inventory "
+    Console.info("No inventory found or forced rebuild. Building inventory "
                  "with defaults.")
-    Shell.execute("rm", arguments=[
-        '-f', filename])
+    try:
+        Shell.rm(filename)
+    except OSError as e:
+        if "The system cannot find the path specified" in str(e):
+            Console.info('Previous existing inventory not found. Creating new one.')
     i = Inventory(filename=filename)
     if timezone is None:
         timezone = Shell.timezone()
