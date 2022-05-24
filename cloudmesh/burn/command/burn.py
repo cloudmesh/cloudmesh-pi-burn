@@ -563,8 +563,12 @@ class BurnCommand(PluginCommand):
                         else:
                             Console.ok(f"Using SSID: {ssid}")
                     if not wifipasswd and ssid:
-                        wifipasswd = get_password(f"Using --SSID={ssid}, please "
-                                                  f"enter wifi password:\n")
+                        try:
+                            wifipasswd = get_password(f"Using --SSID={ssid}, please "
+                                                      f"enter wifi password:\n")
+                        except ValueError:
+                            Console.error("Ctrl + C or other keyboard interrupt detected. Quitting...")
+                            return ""
 
             execute("burn raspberry", burner.multi_burn(
                 names=arguments.NAMES,
