@@ -555,13 +555,13 @@ class BurnCommand(PluginCommand):
                 burner = RaspberryBurner(inventory=inventory)
 
                 if manager:
-                    if not ssid:
+                    if ssid in ['', 'None', 'find', 'Find', 'True', 'true', 'T', '1', 't', 'y', 'Y']:
                         ssid = get_ssid()
-                        if ssid == "" or ssid is None:
-                            Console.info('Wireless connection not detected. The user can specify the SSID when running '
-                                         'this command with --ssid=SSID. Skipping SSID')
-                        else:
-                            Console.ok(f"Using SSID: {ssid}")
+                        Console.ok(f"Using SSID: {ssid}")
+                    if not ssid:
+                        Console.info('Wireless connection not detected. We assume you are connected via ethernet.\n'
+                                     'The user can specify the SSID when running '
+                                     'burn command with --ssid=SSID. Skipping SSID')
                     if not wifipasswd and ssid:
                         try:
                             wifipasswd = get_password(f"Using --SSID={ssid}, please "
