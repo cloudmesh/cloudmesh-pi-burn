@@ -9,10 +9,10 @@ import oyaml as yaml
 
 from cloudmesh.burn.image import Image
 from cloudmesh.burn.usb import USB
-from cloudmesh.burn.util import os_is_linux
-from cloudmesh.burn.util import os_is_mac
-from cloudmesh.burn.util import os_is_pi
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_linux
+from cloudmesh.common.systeminfo import os_is_mac
+from cloudmesh.common.systeminfo import os_is_pi
+from cloudmesh.common.systeminfo import os_is_windows
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.Shell import windows_not_supported
 from cloudmesh.common.Tabulate import Printer

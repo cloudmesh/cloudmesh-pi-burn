@@ -4,7 +4,7 @@ import os
 
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import readfile
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_windows
 from cloudmesh.common.util import path_expand
 
 

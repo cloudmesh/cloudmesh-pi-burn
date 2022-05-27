@@ -5,7 +5,7 @@ from cloudmesh.common.util import path_expand, readfile, writefile
 from cloudmesh.common.console import Console
 from cloudmesh.common.Shell import Shell
 from passlib.hash import sha256_crypt
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_windows
 from passlib.hash import sha256_crypt
 from passlib.utils import pbkdf2
 import binascii
@@ -318,6 +318,7 @@ class Runfirst:
         # NEEDS TO BE INDENTED THIS WAY
         # OR ELSE WRITTEN SCRIPT WILL NOT WORK
         # sed -i "s/127\\.0\\.1\\.1.*$CURRENT_HOSTNAME/127.0.1.1\\t{self.hostname}/g" /etc/hosts
+        self.country_lower = self.country.lower()
         self.script = dedent(f'''#!/bin/bash
 set +e
 CURRENT_HOSTNAME=`cat /etc/hostname | tr -d " \\t\\n\\r"`
@@ -341,7 +342,7 @@ echo \\"{self.timezone}\\" >/etc/timezone
 dpkg-reconfigure -f noninteractive tzdata
 cat >/etc/default/keyboard <<KBEOF
 XKBMODEL="pc105"
-XKBLAYOUT="{self.country}"
+XKBLAYOUT="{self.country_lower}"
 XKBVARIANT=""
 XKBOPTIONS=""
 KBEOF

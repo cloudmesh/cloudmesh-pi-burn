@@ -15,7 +15,7 @@ from cloudmesh.common.util import banner
 from cloudmesh.common.util import path_expand
 from cloudmesh.common.util import readfile, writefile
 from cloudmesh.common.Shell import Shell
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_windows
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
