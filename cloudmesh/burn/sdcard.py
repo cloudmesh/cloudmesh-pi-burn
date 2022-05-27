@@ -1021,7 +1021,6 @@ class SDCard:
                     "InterfaceType",
                     "MediaType",
                     "Model",
-                    "Model",
                     "Partitions",
                     "Size",
                     "Status",
