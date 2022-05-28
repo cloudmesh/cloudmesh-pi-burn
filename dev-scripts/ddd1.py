@@ -70,7 +70,7 @@ locale = "en_US.UTF-8"
 timezone = "Asia/Kolkata"
 
 from cloudmesh.burn.raspberryos.runfirst import Runfirst
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_windows
 
 runfirst = Runfirst()
 
