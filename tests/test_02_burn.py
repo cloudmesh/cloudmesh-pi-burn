@@ -9,9 +9,9 @@ import sys
 
 import pytest
 from cloudmesh.burn.sdcard import SDCard
-from cloudmesh.burn.util import os_is_mac
-from cloudmesh.burn.util import os_is_linux
-from cloudmesh.burn.util import os_is_pi
+from cloudmesh.common.systeminfo import os_is_mac
+from cloudmesh.common.systeminfo import os_is_linux
+from cloudmesh.common.systeminfo import os_is_pi
 from cloudmesh.common.Benchmark import Benchmark
 from cloudmesh.common.Shell import Shell
 from cloudmesh.common.console import Console
