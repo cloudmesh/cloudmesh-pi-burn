@@ -59,8 +59,8 @@ with open('README.md') as f:
     long_description = f.read()
 
 NAME = "cloudmesh-pi-burn"
-DESCRIPTION = "A command `cms burn` to burn many Raspberry PI "\
-              "SD Cards for buildiing PI Clusters with sshkeys "\
+DESCRIPTION = "A command `cms burn` to burn many Raspberry Pi "\
+              "SD Cards for building PI Clusters with sshkeys "\
               "and networking" \
 
 AUTHOR = "Gregor von Laszewski"
