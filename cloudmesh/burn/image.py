@@ -293,7 +293,7 @@ class Image(object):
 
     def download_file(self, url=None, filename=None):
         if os_is_windows:
-            os.system(f"curl -o {filename} {url}")
+            os.system(f"curl -L -o {filename} {url}")
         else:
             os.system(f'wget -O {filename} {url}')
 
