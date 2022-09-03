@@ -1963,3 +1963,9 @@ Additional cloudmesh components are used. For example:
   * [GitHub cloudmesh-pi-common](https://github.com/cloudmesh/cloudmesh-common)
   * [GitHub cloudmesh-pi-cmd5](https://github.com/cloudmesh/cloudmesh-cmd5)
   * [GitHub cloudmesh-pi-inventory](https://github.com/cloudmesh/cloudmesh-inventory)
+
+## Acknowledgements
+
+Work conducted to publish this activity was funded by the NSF
+CyberTraining: CIC: CyberTraining for Students and Technologies
+from Generation Z with the awadrd numbers 1829704 and 2200409.
