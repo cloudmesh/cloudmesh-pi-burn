@@ -18,7 +18,16 @@ class Imager:
         return r is not None
 
     @staticmethod
+        @staticmethod
     def install(force=False):
+        if os_is_mac():
+            return
+        if not Imager.installed() or force:
+            if os_is_linux() or os_is_pi():
+                Sudo.password()
+                os.system("sudo apt uninstall -y rpi-imager")
+            else:
+                Console.warning("Installation is not supported")
         if os_is_mac():
             return
         if not Imager.installed() or force:
